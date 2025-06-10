@@ -1,9 +1,10 @@
-const User = require('../models/userModel');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
+import User from '../models/userModel.js';
+import bcrypt from 'bcryptjs';
+import jwt    from 'jsonwebtoken';
+import { config } from '../config.js';   
 
-//REGISTER 
-exports.registerUser = async (req, res) => {
+//REGISTER
+export const registerUser = async (req, res) => {
   try {
     const { name, email, password } = req.body;
 
@@ -19,7 +20,7 @@ exports.registerUser = async (req, res) => {
     }
 
     // 3. Encriptar contraseña
-    const salt = await bcrypt.genSalt(10);
+    const salt   = await bcrypt.genSalt(10);
     const hashed = await bcrypt.hash(password, salt);
 
     // 4. Crear usuario
@@ -27,20 +28,20 @@ exports.registerUser = async (req, res) => {
 
     // 5. Generar JWT
     const token = jwt.sign(
-      { id: user._id }, 
-      process.env.JWT_SECRET, 
-      { expiresIn: process.env.JWT_EXPIRE }
+      { id: user._id },
+      config.jwt.secret,
+      { expiresIn: config.jwt.expire }
     );
 
     // 6. Enviar cookie al cliente
     res.cookie('token', token, {
       httpOnly: true,
-      secure: false,    // en producción cambia a true
+      secure: false,    // en producción: true
       sameSite: 'lax',
-      maxAge: 24 * 60 * 60 * 1000 // 1 día
+      maxAge: 24 * 60 * 60 * 1000
     });
 
-    // 7. Responder con usuario (sin contraseña)
+    // 7. Responder con usuario (sin password)
     res.status(201).json({
       message: 'Usuario registrado',
       user: { id: user._id, name: user.name, email: user.email }
@@ -51,8 +52,8 @@ exports.registerUser = async (req, res) => {
   }
 };
 
-// LOGIN 
-exports.loginUser = async (req, res) => {
+//LOGIN
+export const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
 
@@ -76,8 +77,8 @@ exports.loginUser = async (req, res) => {
     // 4. Generar nuevo JWT
     const token = jwt.sign(
       { id: user._id },
-      process.env.JWT_SECRET,
-      { expiresIn: process.env.JWT_EXPIRE }
+      config.jwt.secret,
+      { expiresIn: config.jwt.expire }
     );
 
     // 5. Enviar cookie al cliente

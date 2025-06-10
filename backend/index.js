@@ -1,13 +1,13 @@
-// importo el archivo app.js
-import app from "./app.js";
-import "./database.js";
-import { config } from "./src/config.js";
+// index.js
+import app from './app.js';
+import { connectDB } from './database.js';
+import { config } from './src/config.js';
 
-// Creo una función
-// que se encarga de ejecutar el servidor
 async function main() {
-  app.listen(config.server.port);
-  console.log("Server on port " + config.server.port);
+  await connectDB();                             // primero conecta a la BD
+  app.listen(config.server.port, () => {
+    console.log(`Server corriendo en puerto ${config.server.port}`);
+  });
 }
-//Ejecutamos todo
+
 main();

@@ -1,5 +1,5 @@
 const customerController = {};
-import customerModel from "../models/Customer.js";
+import customerModel from "../models/Customers.js";
 
 // Obtener todos los customers
 customerController.getCustomers = async (req, res) => {

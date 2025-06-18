@@ -1,35 +1,38 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React from "react";
+import { BrowserRouter as Router, Routes, Route, } from "react-router-dom";
+import Nav from "./components/Navigation";
 
-function App() {
-  const [count, setCount] = useState(0)
+// Páginas
+import iniciarSesion from './pages/iniciarSesion';
+import registro from './pages/registro';
+import inicio from './pages/inicio';
+import perfil from './pages/perfil';
+import recuperarContrasena from './pages/recuperarContrasena';
+import recuperarContraseña2 from './pages/recuperarcontraseña2';
+import recuperarContraseña3 from './pages/recuperarcontraseña3';
+import contacto from './pages/contacto';
+import catologo from './pages/catologo';
+import encargoPersonalizado from './pages/encargoPersonalizado';
+import carritoDeCompras from './pages/carritoDeCompras';
+import metododePago from './pages/metodoDePago';
+
+
+function App() { 
 
   return (
     <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+      <Router>
+      <Routes>
+        <Route path="/" element={<inicio />} />
+        <Route path="/iniciarSesion" element={<iniciarSesion />} />
+        <Route path="/registro" element={<registro />} />
+        <Route path="/perfil" element={<perfil />} />
+        
+      </Routes>
+      </Router>
     </>
-  )
-}
+  );
+};
 
-export default App
+
+export default App;

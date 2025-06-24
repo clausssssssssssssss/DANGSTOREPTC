@@ -19,11 +19,8 @@
     "lucide-react": "^0.517.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
-<<<<<<< HEAD
-    "tailwindcss": "^4.1.10"
-=======
+    "tailwindcss": "^4.1.10",
     "react-router-dom": "^7.6.2"
->>>>>>> 9116ac627c39b110c673ef9f92b37ac0f797258e
   },
   "devDependencies": {
     "@eslint/js": "^9.25.0",

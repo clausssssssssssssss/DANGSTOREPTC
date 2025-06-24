@@ -1,4 +1,4 @@
-# 🛍️ DANGSTORE - Proyecto de Gestión y Ventas de figuras de pixel.
+# 🛍️ DANGSTORE - Proyecto de Gestión y Ventas en figuras Hama Beads.
 
 ## 🧠 Información del Equipo
 - **Nombre del equipo:** DANGSTORE 

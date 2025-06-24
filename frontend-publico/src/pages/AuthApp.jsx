@@ -17,6 +17,7 @@ const AuthApp = () => {
   const [registerData, setRegisterData] = useState({
     nombre: '',
     email: '',
+    telefono: '',
     password: ''
   });
   const [showRegisterPassword, setShowRegisterPassword] = useState(false);
@@ -54,7 +55,7 @@ const AuthApp = () => {
 
   // Funciones de manejo de Registro
   const handleRegister = () => {
-    if (registerData.nombre && registerData.email && registerData.password) {
+    if (registerData.nombre && registerData.email && registerData.telefono && registerData.password) {
       console.log('Registro:', registerData);
       alert('Registro exitoso!');
       handleNavigate('login');
@@ -149,6 +150,28 @@ const AuthApp = () => {
   // Validaciones para nueva contraseña
   const isPasswordValid = newPasswordData.password.length >= 6;
   const doPasswordsMatch = newPasswordData.password === newPasswordData.confirmPassword && newPasswordData.confirmPassword !== '';
+
+  // Función para formatear número de teléfono
+  const formatPhoneNumber = (value) => {
+    // Eliminar todos los caracteres que no sean dígitos
+    const phoneNumber = value.replace(/\D/g, '');
+    
+    // Limitar a 8 dígitos máximo
+    if (phoneNumber.length <= 8) {
+      // Formatear como XXXX-XXXX
+      if (phoneNumber.length > 4) {
+        return phoneNumber.slice(0, 4) + '-' + phoneNumber.slice(4);
+      }
+      return phoneNumber;
+    }
+    return phoneNumber.slice(0, 8);
+  };
+
+  // Función para manejar cambio en teléfono
+  const handlePhoneChange = (e) => {
+    const formattedPhone = formatPhoneNumber(e.target.value);
+    setRegisterData({...registerData, telefono: formattedPhone});
+  };
 
   // Componente de elementos decorativos
   const DecorativeElements = () => (
@@ -285,6 +308,18 @@ const AuthApp = () => {
                 onChange={(e) => setRegisterData({...registerData, email: e.target.value})}
                 className="auth-input"
                 placeholder="Ingresa tu correo"
+              />
+            </div>
+            
+            <div className="input-group">
+              <label className="input-label">Teléfono</label>
+              <input
+                type="tel"
+                value={registerData.telefono}
+                onChange={handlePhoneChange}
+                className="auth-input"
+                placeholder="XXXX-XXXX"
+                maxLength={9}
               />
             </div>
             

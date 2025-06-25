@@ -1,12 +1,16 @@
-import React, { Suspense } from 'react';
-import AuthApp from './pages/AuthApp'; 
-import './App.css';
+// src/App.jsx
+import React, { Suspense } from 'react'
+import { Routes, Route, Navigate } from 'react-router-dom'
+import NavBar from './components/navBar'
+import AuthApp from './pages/AuthApp'
+//import Encargo  from './pages/Encargo'
+//import Catalogo from './pages/Catalogo'
+//import Contacto from './pages/Contacto'
+//import Acerca   from './pages/Acerca'
+//import Perfil   from './pages/Perfil'//
+import './App.css'
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
-
-/**
- * Componente de carga mientras se renderiza la aplicación
- */
+// Spinner y ErrorBoundary (los mismos que ya tienes)
 const LoadingSpinner = () => (
   <div className="min-h-screen bg-gradient-to-br from-purple-400 via-purple-500 to-purple-600 flex items-center justify-center">
     <div className="text-center">
@@ -16,9 +20,6 @@ const LoadingSpinner = () => (
   </div>
 )
 
-/**
- * Componente de error para casos de fallo
- */
 const ErrorFallback = ({ error, resetError }) => (
   <div className="min-h-screen bg-gradient-to-br from-red-400 via-red-500 to-red-600 flex items-center justify-center p-4">
     <div className="bg-white rounded-3xl shadow-2xl p-8 w-full max-w-md text-center">
@@ -26,16 +27,10 @@ const ErrorFallback = ({ error, resetError }) => (
         <span className="text-red-600 text-2xl">⚠️</span>
       </div>
       <h1 className="text-2xl font-bold text-gray-800 mb-2">Error de Aplicación</h1>
-      <p className="text-gray-600 mb-4">
-        Algo salió mal. Por favor, intenta recargar la página.
-      </p>
+      <p className="text-gray-600 mb-4">Algo salió mal. Por favor, intenta recargar la página.</p>
       <details className="text-left mb-6">
-        <summary className="cursor-pointer text-sm text-gray-500 mb-2">
-          Detalles técnicos
-        </summary>
-        <pre className="text-xs bg-gray-100 p-2 rounded overflow-auto">
-          {error.message}
-        </pre>
+        <summary className="cursor-pointer text-sm text-gray-500 mb-2">Detalles técnicos</summary>
+        <pre className="text-xs bg-gray-100 p-2 rounded overflow-auto">{error.message}</pre>
       </details>
       <button
         onClick={resetError}
@@ -47,70 +42,68 @@ const ErrorFallback = ({ error, resetError }) => (
   </div>
 )
 
-/**
- * Boundary de error personalizado
- */
 class AppErrorBoundary extends React.Component {
   constructor(props) {
     super(props)
     this.state = { hasError: false, error: null }
   }
-
   static getDerivedStateFromError(error) {
     return { hasError: true, error }
   }
-
-  componentDidCatch(error, errorInfo) {
-    console.error('Error capturado por ErrorBoundary:', error, errorInfo)
+  componentDidCatch(error, info) {
+    console.error('ErrorBoundary caught:', error, info)
   }
-
-  resetError = () => {
-    this.setState({ hasError: false, error: null })
-  }
-
+  resetError = () => this.setState({ hasError: false, error: null })
   render() {
     if (this.state.hasError) {
-      return (
-        <ErrorFallback 
-          error={this.state.error} 
-          resetError={this.resetError}
-        />
-      )
+      return <ErrorFallback error={this.state.error} resetError={this.resetError} />
     }
-
     return this.props.children
   }
 }
 
-/**
- * Componente principal de la aplicación
- * Incluye manejo de errores, carga y estructura semántica
- */
 function App() {
+  const token = localStorage.getItem('token')
+
   return (
     <div className="App">
-      {/* Metadatos para accesibilidad */}
-      <div className="sr-only">
-        <h1></h1>
-        <p></p>
-      </div>
-
       <AppErrorBoundary>
         <Suspense fallback={<LoadingSpinner />}>
-          {/* Contenido principal de la aplicación */}
-          <main className="w-full min-h-screen" role="main">
-            <AuthApp />
-          </main>
+
+          <Routes>
+            {/* 1) / y /auth → flujo de login/registro/password */}
+            <Route path="/" element={<Navigate to="/auth" replace />} />
+            <Route path="/auth/*" element={<AuthApp />} />
+
+            {/* 2) Rutas protegidas → mostrar NavBar + página */}
+            {token ? (
+              <>
+                <Route
+                  path="/*"
+                  element={
+                    <>
+                      <NavBar />
+                      <Routes>
+                        {/*/<Route path="encargo" element={<Encargo />} />
+                        <Route path="catalogo" element={<Catalogo />} />
+                        <Route path="contacto" element={<Contacto />} />
+                        <Route path="acerca" element={<Acerca />} />
+                        <Route path="perfil" element={<Perfil />} />  */}
+                        {/* Cualquier otra ruta privada redirige a catálogo */}
+                        <Route path="*" element={<Navigate to="catalogo" replace />} />
+                      </Routes>
+                    </>
+                  }
+                />
+              </>
+            ) : (
+              // Si no hay token, cualquier ruta distinta de /auth va a /auth
+              <Route path="*" element={<Navigate to="/auth" replace />} />
+            )}
+          </Routes>
+
         </Suspense>
       </AppErrorBoundary>
-
-      {/* Información de desarrollo (solo visible en desarrollo) */}
-      {process.env.NODE_ENV === 'development' && (
-        <div className="fixed bottom-4 right-4 bg-black bg-opacity-50 text-white p-2 rounded text-xs">
-          <p></p>
-          <p>React {React.version}</p>
-        </div>
-      )}
     </div>
   )
 }

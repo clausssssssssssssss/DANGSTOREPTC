@@ -1,4 +1,8 @@
 /* Reset y estilos base mejorados */
+
+main {
+  padding-top: 4rem; /* altura de nav (h-16) + margen */
+}
 * {
   margin: 0;
   padding: 0;

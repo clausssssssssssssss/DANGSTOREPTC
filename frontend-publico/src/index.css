@@ -1,4 +1,8 @@
 /* Reset básico y configuración de Tailwind */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 * {
   margin: 0;
   padding: 0;

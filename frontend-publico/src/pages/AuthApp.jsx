@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react'; 
 import { Eye, EyeOff, ArrowLeft } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import './AuthApp.css';
 
-const API_URL = import.meta.env.VITE_API_URL || 
-'http://localhost:4000';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
+
 const AuthApp = () => {
+  const navigate = useNavigate();
   const [currentView, setCurrentView] = useState('login');
   
   // Estados para Login
@@ -29,8 +31,8 @@ const AuthApp = () => {
   const [isEmailSubmitted, setIsEmailSubmitted] = useState(false);
 
   // Estados para Código de Verificación
-  const [verificationCode, setVerificationCode] = useState(['', '', '', '']);
-  const [isResending, setIsResending] = useState(false);
+   const [verificationCode, setVerificationCode] = useState(['', '', '', '']);
+  const lastTriedCode = useRef(''); // ← guarda el último código verificado
 
   // Estados para Nueva Contraseña
   const [newPasswordData, setNewPasswordData] = useState({
@@ -63,15 +65,14 @@ const AuthApp = () => {
       alert(data.message || 'Error en el login');
     } else {
       // guardamos token y notificamos
-      localStorage.setItem('token', data.token);
-      alert('Inicio de sesión exitoso!');    
+    localStorage.setItem('token', data.token);
+    navigate('/catalogo', { replace: true });    
     }
   } catch (err) {
     console.error(err);
     alert('Error de conexión');
   }
 };
-
 
   // Funciones de manejo de Registro
 const handleRegister = async () => {
@@ -96,8 +97,8 @@ const handleRegister = async () => {
       alert(data.message || 'Error en el registro');
     } else {
       alert('Registro exitoso!');
-      // después de registrar, ir al login
-      handleNavigate('login');
+       // tras registrar por primera vez, vamos a “Acerca”
+      navigate('/acerca', { replace: true });
     }
   } catch (err) {
     console.error(err);
@@ -134,18 +135,17 @@ const handleForgotPassword = async () => {
 
 
   // Funciones de código de verificación
-  const handleCodeChange = (index, value) => {
-    if (value.length <= 1) {
-      const newCode = [...verificationCode];
-      newCode[index] = value;
-      setVerificationCode(newCode);
-      
-      if (value && index < 3) {
-        const nextInput = document.getElementById(`code-${index + 1}`);
-        if (nextInput) nextInput.focus();
-      }
+  const handleCodeChange = (idx, val) => {
+    if (val.length > 1) return;
+    const copy = [...verificationCode];
+    copy[idx] = val;
+    setVerificationCode(copy);
+    if (val && idx < 3) {
+      document.getElementById(`code-${idx+1}`)?.focus();
     }
   };
+
+  
 
   const handleKeyDown = (index, e) => {
     if (e.key === 'Backspace' && !verificationCode[index] && index > 0) {
@@ -154,14 +154,29 @@ const handleForgotPassword = async () => {
     }
   };
 
-const handleVerifyCode = () => {
-  const code = verificationCode.join("");
-  if (code.length === 4) {   // si generas 4 dígitos en el backend
-    setCurrentView("reset-password");
-  } else {
-    alert("Por favor ingresa el código completo");
-  }
-};
+const handleVerifyCode = async () => {
+    const code = verificationCode.join("");
+    if (code.length !== 4) {
+      alert("Por favor ingresa el código completo");
+      return;
+    }
+    try {
+      const res = await fetch(`${API_URL}/api/password-recovery/verify-code`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: forgotEmail, code })
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        alert(data.message || "Código inválido");
+      } else {
+        setCurrentView("reset-password");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Error de conexión");
+    }
+  };
 
 
   const handleResendCode = () => {
@@ -501,56 +516,27 @@ const handleVerifyCode = () => {
   }
 
   // Vista de Código de Verificación
-  if (currentView === 'verification') {
-    return (
+  if (currentView === 'verification' && (
       <div className="auth-container">
-        <DecorativeElements />
-        
+        {/* ... decoración y logo ... */}
         <div className="auth-card">
-          <Logo />
-          
-          <h1 className="auth-title">Código de verificación</h1>
-          <p className="auth-subtitle">Ingrese el código de verificación</p>
-          
-          <div className="auth-form">
-            <div className="verification-inputs">
-              {verificationCode.map((digit, index) => (
-                <input
-                  key={index}
-                  id={`code-${index}`}
-                  type="text"
-                  value={digit}
-                  onChange={(e) => handleCodeChange(index, e.target.value)}
-                  onKeyDown={(e) => handleKeyDown(index, e)}
-                  className="verification-input"
-                  maxLength={1}
-                />
-              ))}
-            </div>
-            
-            <button
-              onClick={handleVerifyCode}
-              disabled={verificationCode.join('').length !== 4}
-              className="auth-button"
-            >
-              Verificar código
-            </button>
-          </div>
-          
-          <div className="auth-link-section">
-            <button 
-              onClick={handleResendCode}
-              disabled={isResending}
-              className="auth-link"
-            >
-              {isResending ? 'Enviando...' : 'Reenviar código'}
-            </button>
+          <h1>Código de verificación</h1>
+          <div className="verification-inputs">
+            {verificationCode.map((d, i) => (
+              <input
+                key={i}
+                id={`code-${i}`}
+                type="text"
+                value={d}
+                maxLength={1}
+                onChange={(e) => handleCodeChange(i, e.target.value)}
+              />
+            ))}
           </div>
         </div>
       </div>
-    );
-  }
-
+    )
+  );
   // Vista de Nueva Contraseña
   if (currentView === 'reset-password') {
     return (

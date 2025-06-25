@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Eye, EyeOff, ArrowLeft } from 'lucide-react';
 import './AuthApp.css';
 
+const API_URL = import.meta.env.VITE_API_URL || 
+'http://localhost:4000';
 const AuthApp = () => {
   const [currentView, setCurrentView] = useState('login');
   
@@ -44,38 +46,92 @@ const AuthApp = () => {
   };
 
   // Funciones de manejo de Login
-  const handleLogin = () => {
-    if (loginData.email && loginData.password) {
-      console.log('Login:', loginData, 'Remember:', rememberMe);
-      alert('Inicio de sesión exitoso!');
+  const handleLogin = async () => {
+  const { email, password } = loginData;
+  if (!email || !password) {
+    alert('Por favor completa todos los campos');
+    return;
+  }
+  try {
+    const res = await fetch(`${API_URL}/api/customers/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      alert(data.message || 'Error en el login');
     } else {
-      alert('Por favor completa todos los campos');
+      // guardamos token y notificamos
+      localStorage.setItem('token', data.token);
+      alert('Inicio de sesión exitoso!');    
     }
-  };
+  } catch (err) {
+    console.error(err);
+    alert('Error de conexión');
+  }
+};
+
 
   // Funciones de manejo de Registro
-  const handleRegister = () => {
-    if (registerData.nombre && registerData.email && registerData.telefono && registerData.password) {
-      console.log('Registro:', registerData);
-      alert('Registro exitoso!');
-      handleNavigate('login');
+const handleRegister = async () => {
+  const { nombre, email, telefono, password } = registerData;
+  if (!nombre || !email || !telefono || !password) {
+    alert('Por favor completa todos los campos');
+    return;
+  }
+  try {
+    const res = await fetch(`${API_URL}/api/customers`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: nombre,
+        email,
+        telephone: telefono,
+        password
+      })
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      alert(data.message || 'Error en el registro');
     } else {
-      alert('Por favor completa todos los campos');
+      alert('Registro exitoso!');
+      // después de registrar, ir al login
+      handleNavigate('login');
     }
-  };
+  } catch (err) {
+    console.error(err);
+    alert('Error de conexión');
+  }
+};
 
   // Funciones de recuperación de contraseña
-  const handleForgotPassword = () => {
-    if (forgotEmail) {
-      console.log('Forgot password request for:', forgotEmail);
-      setIsEmailSubmitted(true);
-      setTimeout(() => {
-        handleNavigate('verification');
-      }, 2000);
-    } else {
-      alert('Por favor ingresa tu correo electrónico');
+  // paso 1: envío del código
+const handleForgotPassword = async () => {
+  if (!forgotEmail) {
+    alert("Por favor ingresa tu correo electrónico");
+    return;
+  }
+  try {
+    const res = await fetch(`${API_URL}/api/password-recovery/send-code`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: forgotEmail }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      alert(data.message || "Error enviando código");
+      return;
     }
-  };
+    // mostramos feedback y vamos a la vista de código
+    setIsEmailSubmitted(true);
+    setTimeout(() => setCurrentView("verification"), 1500);
+  } catch (err) {
+    console.error(err);
+    alert("Error de conexión");
+  }
+};
+
 
   // Funciones de código de verificación
   const handleCodeChange = (index, value) => {
@@ -98,15 +154,15 @@ const AuthApp = () => {
     }
   };
 
-  const handleVerifyCode = () => {
-    const code = verificationCode.join('');
-    if (code.length === 4) {
-      console.log('Verification code:', code);
-      handleNavigate('reset-password');
-    } else {
-      alert('Por favor ingresa el código completo');
-    }
-  };
+const handleVerifyCode = () => {
+  const code = verificationCode.join("");
+  if (code.length === 4) {   // si generas 4 dígitos en el backend
+    setCurrentView("reset-password");
+  } else {
+    alert("Por favor ingresa el código completo");
+  }
+};
+
 
   const handleResendCode = () => {
     setIsResending(true);
@@ -116,27 +172,45 @@ const AuthApp = () => {
     }, 2000);
   };
 
-  // Funciones de nueva contraseña
-  const handleResetPassword = () => {
-    if (!newPasswordData.password || !newPasswordData.confirmPassword) {
-      alert('Por favor completa todos los campos');
+  const handleResetPassword = async () => {
+  const code = verificationCode.join("");
+  const { password, confirmPassword } = newPasswordData;
+
+  if (!password || !confirmPassword) {
+    alert("Por favor completa todos los campos");
+    return;
+  }
+  if (password !== confirmPassword) {
+    alert("Las contraseñas no coinciden");
+    return;
+  }
+  if (password.length < 6) {
+    alert("La contraseña debe tener al menos 6 caracteres");
+    return;
+  }
+
+  try {
+    const res = await fetch(`${API_URL}/api/password-recovery/reset`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email: forgotEmail,       // email que guardaste en el paso 1
+        code,
+        newPassword: password,
+      }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      alert(data.message || "Error al cambiar contraseña");
       return;
     }
-    
-    if (newPasswordData.password !== newPasswordData.confirmPassword) {
-      alert('Las contraseñas no coinciden');
-      return;
-    }
-    
-    if (newPasswordData.password.length < 6) {
-      alert('La contraseña debe tener al menos 6 caracteres');
-      return;
-    }
-    
-    console.log('New password set successfully');
-    alert('Contraseña restablecida exitosamente');
-    handleNavigate('login');
-  };
+    alert("Contraseña restablecida exitosamente");
+    setCurrentView("login");
+  } catch (err) {
+    console.error(err);
+    alert("Error de conexión");
+  }
+};
 
   // Auto-submit código cuando esté completo
   useEffect(() => {

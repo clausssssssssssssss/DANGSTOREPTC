@@ -1,22 +1,22 @@
-// routes/customerRoutes.js
-import express from "express";
-import customerController from '../controllers/customerController.js';
+// backend/src/routes/customerRoutes.js
+import { Router } from "express";
+import {
+  registerCustomer,
+  getAllCustomers,
+  getCustomerById,
+  deleteCustomer
+} from "../controllers/customerController.js";
+import { loginClient } from "../controllers/loginController.js";
 
-//Router
-const router = express.Router();
+const router = Router();
 
-//Select - Insert
-router.route("/")
-    .get(customerController.getCustomers)
-    .post(customerController.insertCustomer);
+// Registro y login
+router.post("/", registerCustomer);
+router.post("/login", loginClient);
 
-//Delete - Update - Get by ID
-router.route("/:id")
-    .get(customerController.getCustomerById)
-    .put(customerController.updateCustomer)
-    .delete(customerController.deleteCustomer);
+// Operaciones CRUD
+router.get("/", getAllCustomers);
+router.get("/:id", getCustomerById);
+router.delete("/:id", deleteCustomer);
 
-
-
-//Export
 export default router;

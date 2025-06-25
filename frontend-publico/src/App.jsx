@@ -1,6 +1,8 @@
 import React, { Suspense } from 'react';
-import AuthApp from './pages/AuthApp';
+import AuthApp from './pages/AuthApp'; 
 import './App.css';
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
 
 /**
  * Componente de carga mientras se renderiza la aplicación

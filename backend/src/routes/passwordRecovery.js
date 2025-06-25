@@ -1,10 +1,10 @@
-import express from "express";
-import passwordRecoveryController from "../controllers/passwordRecoveryController.js";
+// src/routes/passwordRecovery.js
+import { Router } from "express";
+import { sendCode, resetPassword } from "../controllers/passwordRecoveryController.js";
 
-const router = express.Router();
+const router = Router();
 
-router.post("/requestCode", passwordRecoveryController.requestCode);
-router.post("/verifyCode",  passwordRecoveryController.verifyCode);
-router.post("/resetPassword", passwordRecoveryController.resetPassword);
+router.post("/send-code", sendCode);
+router.post("/reset",      resetPassword);
 
 export default router;

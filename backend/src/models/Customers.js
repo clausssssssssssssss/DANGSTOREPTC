@@ -25,7 +25,7 @@ const customerSchema = new Schema({
         minLength: 6
     },
     
-    dui: {
+    telephone: {
         type: String,
         required: true,
         unique: true,

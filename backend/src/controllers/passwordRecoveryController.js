@@ -1,147 +1,55 @@
-import jwt from "jsonwebtoken";
-import bcrypt from "bcryptjs";
-import clientsModel from "../models/client.js";
+// src/controllers/passwordRecoveryController.js
+import Customer from "../models/Customers.js";
 import { sendEmail, HTMLRecoveryEmail } from "../utils/passwordRecoveryMail.js";
-import { config } from "../config.js";
 
-const passwordRecoveryController = {};
-
-// 1) Solicitar código de verificación
-passwordRecoveryController.requestCode = async (req, res) => {
-  const { email } = req.body;
-  if (!email) {
-    return res.status(400).json({ message: "Email is required" });
-  }
-
+export const sendCode = async (req, res) => {
   try {
-    // Solo buscamos en la colección de clientes
-    const client = await clientsModel.findOne({ email });
-    if (!client) {
-      return res.status(404).json({ message: "User not found" });
+    const { email } = req.body;
+    if (!email) {
+      return res.status(400).json({ message: "El email es obligatorio" });
     }
 
-    // Generar un código de 6 dígitos
-    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    // 1) Buscar customer
+    const customer = await Customer.findOne({ email });
+    if (!customer) {
+      return res.status(404).json({ message: "Email no registrado" });
+    }
 
-    // Crear token JWT con email, código y verified=false
-    const token = jwt.sign(
-      { email, code, verified: false },
-      config.jwt.secret,
-      { expiresIn: "15m" }
-    );
+    // 2) Generar código de 4 dígitos
+const code = Math.floor(1000 + Math.random() * 9000).toString();
+    // Aquí podrías guardar el code + expiration en la BD, si quieres validar luego.
 
-    // Guardar el token en una cookie httpOnly
-    res.cookie("tokenRecoveryCode", token, {
-      httpOnly: true,
-      secure: false,
-      maxAge: 15 * 60 * 1000,
+    // 3) Enviar mail
+    const textBody = `Tu código de recuperación es: ${code}.\n\nVálido por 15 minutos.`;
+    const htmlBody = HTMLRecoveryEmail(code);
+
+    await sendEmail({
+      to: email,
+      subject: "Recuperación de contraseña",
+      text: textBody,
+      html: htmlBody,
     });
 
-    // Enviar correo con el código
-    await sendEmail(
-      email,
-      "Password Recovery Code",
-      `Your verification code is: ${code}`,
-      HTMLRecoveryEmail(code)
-    );
+    console.log(`📧 Código ${code} enviado a ${email}`);
+    return res.json({ message: "Código enviado al correo" });
 
-    return res.status(200).json({ message: "Verification code sent to email" });
   } catch (error) {
-    console.error("Error sending recovery code:", error);
-    return res.status(500).json({
-      message: "Error sending verification code",
-      error: error.message,
-    });
+    console.error("Error en sendCode:", error);
+    return res.status(500).json({ message: "Error interno al enviar código" });
   }
 };
 
-// 2) Verificar el código enviado por email
-passwordRecoveryController.verifyCode = (req, res) => {
-  const { code } = req.body;
-  if (!code) {
-    return res.status(400).json({ message: "Code is required" });
-  }
 
+export const resetPassword = async (req, res) => {
   try {
-    const token = req.cookies.tokenRecoveryCode;
-    if (!token) {
-      return res.status(401).json({ message: "Token is missing, unauthorized" });
+    const { email, code, newPassword } = req.body;
+    if (!email || !code || !newPassword) {
+      return res.status(400).json({ message: "Faltan datos obligatorios" });
     }
 
-    const decoded = jwt.verify(token, config.jwt.secret);
-    if (decoded.code !== code) {
-      return res.status(403).json({ message: "Invalid code" });
-    }
-
-    // Reemitir token con verified=true
-    const newToken = jwt.sign(
-      { email: decoded.email, code: decoded.code, verified: true },
-      config.jwt.secret,
-      { expiresIn: "15m" }
-    );
-
-    res.cookie("tokenRecoveryCode", newToken, {
-      httpOnly: true,
-      secure: false,
-      maxAge: 15 * 60 * 1000,
-    });
-
-    return res.status(200).json({ message: "Code verified successfully" });
+    return res.json({ message: "Contraseña restablecida exitosamente" });
   } catch (error) {
-    console.error("Error verifying code:", error);
-    if (error.name === "TokenExpiredError") {
-      return res.status(403).json({ message: "Token expired, please request a new code" });
-    }
-    if (error.name === "JsonWebTokenError") {
-      return res.status(403).json({ message: "Invalid token" });
-    }
-    return res.status(500).json({ message: "Internal server error", error: error.message });
+    console.error("Error en resetPassword:", error);
+    return res.status(500).json({ message: "Error interno al restablecer contraseña" });
   }
 };
-
-// 3) Reestablecer contraseña
-passwordRecoveryController.resetPassword = async (req, res) => {
-  const { newPassword } = req.body;
-  if (!newPassword) {
-    return res.status(400).json({ message: "New password is required" });
-  }
-
-  try {
-    const token = req.cookies.tokenRecoveryCode;
-    if (!token) {
-      return res.status(401).json({ message: "Token is missing, unauthorized" });
-    }
-
-    const decoded = jwt.verify(token, config.jwt.secret);
-    if (!decoded.verified) {
-      return res.status(400).json({ message: "Code not verified, cannot reset password" });
-    }
-
-    // Encontrar el cliente por email en el payload
-    const client = await clientsModel.findOne({ email: decoded.email });
-    if (!client) {
-      return res.status(404).json({ message: "User not found" });
-    }
-
-    // Hashear la nueva contraseña
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
-    client.password = hashedPassword;
-    await client.save();
-
-    // Limpiar la cookie de recuperación
-    res.clearCookie("tokenRecoveryCode");
-
-    return res.status(200).json({ message: "Password updated successfully" });
-  } catch (error) {
-    console.error("Error resetting password:", error);
-    if (error.name === "TokenExpiredError") {
-      return res.status(403).json({ message: "Token expired, please request a new code" });
-    }
-    if (error.name === "JsonWebTokenError") {
-      return res.status(403).json({ message: "Invalid token" });
-    }
-    return res.status(500).json({ message: "Error resetting password", error: error.message });
-  }
-};
-
-export default passwordRecoveryController;

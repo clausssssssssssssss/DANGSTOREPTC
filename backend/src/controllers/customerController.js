@@ -1,98 +1,97 @@
-const customerController = {};
-import customerModel from "../models/Customers.js";
+// backend/src/controllers/customerController.js
+import bcrypt from "bcryptjs";
+import jwt    from "jsonwebtoken";
+import Customer from "../models/Customers.js";
+import { config } from "../config.js";
+import { sendEmail } from "../utils/passwordRecoveryMail.js";
+
+// Registro de customer
+export const registerCustomer = async (req, res) => {
+  try {
+    const { name, email, password, telephone } = req.body;
+    if (!name || !email || !password || !telephone) {
+      return res.status(400).json({ message: "Faltan datos obligatorios" });
+    }
+
+    if (await Customer.findOne({ email })) {
+      return res.status(409).json({ message: "Email ya registrado" });
+    }
+
+    const hashed = await bcrypt.hash(password, 10);
+    const newCustomer = await Customer.create({
+      name, email, password: hashed, telephone
+    });
+
+    const payload = { userId: newCustomer._id, userType: "customer" };
+    const token = jwt.sign(payload, config.jwt.secret, {
+      expiresIn: config.jwt.expiresIn,
+    });
+
+    await sendEmail({
+      to: newCustomer.email,
+      subject: "¡Bienvenido a DANGSTORE!",
+      html: `
+        <h1>Hola ${newCustomer.name} 👋</h1>
+        <p>Gracias por registrarte en DANGSTORE. Ya puedes disfrutar de nuestros productos.</p>
+      `,
+    });
+
+    res.status(201).json({
+      message: "Customer registrado correctamente",
+      token,
+      user: {
+        id:        newCustomer._id,
+        name:      newCustomer.name,
+        email:     newCustomer.email,
+        telephone: newCustomer.telephone,
+      },
+    });
+  } catch (error) {
+    if (error.code === 11000) {
+      return res.status(409).json({ message: "Email ya registrado" });
+    }
+    console.error("Error en registerCustomer:", error);
+    res.status(500).json({ message: "Error interno del servidor" });
+  }
+};
 
 // Obtener todos los customers
-customerController.getCustomers = async (req, res) => {
-    try {
-        const customers = await customerModel.find();
-        res.json(customers);
-    } catch (error) {
-        res.status(500).json({ message: "Error fetching customers", error });
-    }
+export const getAllCustomers = async (req, res) => {
+  try {
+    const customers = await Customer.find().select("-password -__v");
+    res.json(customers);
+  } catch (error) {
+    console.error("Error fetching customers:", error);
+    res.status(500).json({ message: "Error fetching customers" });
+  }
 };
 
 // Obtener customer por ID
-customerController.getCustomerById = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const customer = await customerModel.findById(id);
-
-        if (!customer) {
-            return res.status(404).json({ message: "Customer not found" });
-        }
-
-        res.json(customer);
-    } catch (error) {
-        res.status(500).json({ message: "Error fetching customer", error });
+export const getCustomerById = async (req, res) => {
+  try {
+    const customer = await Customer
+      .findById(req.params.id)
+      .select("-password -__v");
+    if (!customer) {
+      return res.status(404).json({ message: "Customer not found" });
     }
-};
-
-// Crear customer
-customerController.insertCustomer = async (req, res) => {
-    try {
-        const { name, email, password, dui, isVerified } = req.body;
-
-        if (!name || !email || !password || !dui) {
-            return res.status(400).json({ message: "Missing required fields: name, email, password, or dui" });
-        }
-
-        const existingCustomer = await customerModel.findOne({ email });
-        if (existingCustomer) {
-            return res.status(409).json({ message: "Email already registered" });
-        }
-
-        const newCustomer = new customerModel({
-            name,
-            email,
-            password,
-            dui,
-            isVerified: isVerified || false
-        });
-
-        await newCustomer.save();
-        res.status(201).json({ message: "Customer Added", customer: newCustomer });
-
-    } catch (error) {
-        res.status(500).json({ message: "Error creating customer", error });
-    }
+    res.json(customer);
+  } catch (error) {
+    console.error("Error fetching customer:", error);
+    res.status(500).json({ message: "Error fetching customer" });
+  }
 };
 
 // Eliminar customer
-customerController.deleteCustomer = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const deleted = await customerModel.findByIdAndDelete(id);
-
-        if (!deleted) {
-            return res.status(404).json({ message: "Customer not found" });
-        }
-
-        res.json({ message: "Customer Deleted" });
-    } catch (error) {
-        res.status(500).json({ message: "Error deleting customer", error });
+export const deleteCustomer = async (req, res) => {
+  try {
+    const deleted = await Customer.findByIdAndDelete(req.params.id);
+    if (!deleted) {
+      return res.status(404).json({ message: "Customer not found" });
     }
+    res.json({ message: "Customer eliminado correctamente" });
+  } catch (error) {
+    console.error("Error deleting customer:", error);
+    res.status(500).json({ message: "Error deleting customer" });
+  }
 };
-
-// Actualizar customer
-customerController.updateCustomer = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const { name, email, password, dui, isVerified } = req.body;
-
-        const updatedCustomer = await customerModel.findByIdAndUpdate(
-            id,
-            { name, email, password, dui, isVerified },
-            { new: true, runValidators: true }
-        );
-
-        if (!updatedCustomer) {
-            return res.status(404).json({ message: "Customer not found" });
-        }
-
-        res.json({ message: "Customer Updated", customer: updatedCustomer });
-    } catch (error) {
-        res.status(500).json({ message: "Error updating customer", error });
-    }
-};
-
-export default customerController;

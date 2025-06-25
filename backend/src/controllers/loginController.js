@@ -1,52 +1,46 @@
+// src/controllers/loginController.js
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import Client from "../models/client.js";
+import Customer from "../models/Customers.js";
 import { config } from "../config.js";
 
 export const loginClient = async (req, res) => {
   try {
     const { email, password } = req.body;
+    console.log('→ Login attempt:', email, '/', password);
 
-    // 1) Validar campos obligatorios
-    if (!email || !password) {
-      return res
-        .status(400)
-        .json({ message: "Email y contraseña son obligatorios" });
-    }
+    const customer = await Customer.findOne({ email }).select('+password');
+    console.log('→ Found user, hashed password:', customer?.password);
 
-    // 2) Buscar cliente por email
-    const client = await Client.findOne({ email });
-    if (!client) {
+    if (!customer) {
       return res.status(401).json({ message: "Email no registrado" });
     }
 
-    // 3) Comparar contraseña
-    const isValid = await bcrypt.compare(password, client.password);
-    if (!isValid) {
+    const valid = await bcrypt.compare(password, customer.password);
+    console.log('→ bcrypt.compare:', valid);
+
+    if (!valid) {
       return res.status(401).json({ message: "Contraseña incorrecta" });
     }
 
-    // 4) Generar JWT
-    const payload = { userId: client._id, userType: "client" };
+
+    const payload = { userId: customer._id, userType: "customer" };
     const token = jwt.sign(payload, config.jwt.secret, {
-      expiresIn: config.jwt.expire,    
+      expiresIn: config.jwt.expiresIn
     });
 
-    // 5) Responder con token y datos mínimos (sin password)
     return res.status(200).json({
       message: "Login exitoso",
       token,
       user: {
-        id: client._id,
-        name: client.name,
-        email: client.email,
-        dui: client.dui,             
-      },
+        id:        customer._id,
+        name:      customer.name,
+        email:     customer.email,
+        telephone: customer.telephone
+      }
     });
   } catch (error) {
     console.error("Error en loginClient:", error);
-    return res
-      .status(500)
-      .json({ message: "Error interno del servidor", error: error.message });
+    return res.status(500).json({ message: "Error interno del servidor" });
   }
 };

@@ -1,0 +1,25 @@
+{
+  "name": "dangstoreptc",
+  "version": "1.0.0",
+  "description": "- **Nombre del equipo:** DANGSTORE \r - **Integrantes:**\r   - Claudia Maria Hernandez Ortega\r   - Ruth Geraldine Fuentes Ramirez\r   - Samuel Antonio Sanchez Sanchez\r   - Carlos Rodrigo Henriquez Buendia\r   - Gabriel Alexander Garcia Quintana",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/clausssssssssssssss/DANGSTOREPTC.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/clausssssssssssssss/DANGSTOREPTC/issues"
+  },
+  "homepage": "https://github.com/clausssssssssssssss/DANGSTOREPTC#readme",
+  "devDependencies": {
+    "autoprefixer": "^10.4.21",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^4.1.10"
+  }
+}

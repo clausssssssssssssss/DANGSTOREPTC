@@ -5,7 +5,7 @@ import NavBar from './components/navBar'
 import AuthApp from './pages/AuthApp'
 //import Encargo  from './pages/Encargo'
 //import Catalogo from './pages/Catalogo'
-//import Contacto from './pages/Contacto'
+import Contacto from './pages/Contacto'
 //import Acerca   from './pages/Acerca'
 //import Perfil   from './pages/Perfil'//
 import './App.css'
@@ -91,6 +91,7 @@ function App() {
                         <Route path="perfil" element={<Perfil />} />  */}
                         {/* Cualquier otra ruta privada redirige a catálogo */}
                         <Route path="*" element={<Navigate to="catalogo" replace />} />
+                         <Route path="contacto" element={<Contacto />} />
                       </Routes>
                     </>
                   }

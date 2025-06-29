@@ -3,7 +3,7 @@ import passwordRecoveryController from "../controllers/passwordRecoveryControlle
 
 const router = Router();
 
-router.post("/send-code",    passwordRecoveryController.sendCode);
+router.post("/send-code", passwordRecoveryController.sendRecoveryCode);
 router.post("/verify-code",  passwordRecoveryController.verifyCode);
 router.post("/reset",        passwordRecoveryController.resetPassword);
 

@@ -1,12 +1,13 @@
-// backend/src/controllers/customerController.js
 import bcrypt from "bcryptjs";
-import jwt    from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 import Customer from "../models/Customers.js";
 import { config } from "../config.js";
-import { sendEmail } from "../utils/passwordRecoveryMail.js";
+import { sendEmail } from "../utils/mailService.js";
 
-// Registro de customer
-export const registerCustomer = async (req, res) => {
+const customerController = {};
+
+// Registrar cliente
+customerController.registerCustomer = async (req, res) => {
   try {
     const { name, email, password, telephone } = req.body;
     if (!name || !email || !password || !telephone) {
@@ -19,7 +20,10 @@ export const registerCustomer = async (req, res) => {
 
     const hashed = await bcrypt.hash(password, 10);
     const newCustomer = await Customer.create({
-      name, email, password: hashed, telephone
+      name,
+      email,
+      password: hashed,
+      telephone,
     });
 
     const payload = { userId: newCustomer._id, userType: "customer" };
@@ -40,9 +44,9 @@ export const registerCustomer = async (req, res) => {
       message: "Customer registrado correctamente",
       token,
       user: {
-        id:        newCustomer._id,
-        name:      newCustomer.name,
-        email:     newCustomer.email,
+        id: newCustomer._id,
+        name: newCustomer.name,
+        email: newCustomer.email,
         telephone: newCustomer.telephone,
       },
     });
@@ -55,43 +59,57 @@ export const registerCustomer = async (req, res) => {
   }
 };
 
-// Obtener todos los customers
-export const getAllCustomers = async (req, res) => {
+// Obtener todos los clientes
+customerController.getAllCustomers = async (req, res) => {
   try {
     const customers = await Customer.find().select("-password -__v");
     res.json(customers);
   } catch (error) {
-    console.error("Error fetching customers:", error);
-    res.status(500).json({ message: "Error fetching customers" });
+    console.error("Error al obtener clientes:", error);
+    res.status(500).json({ message: "Error al obtener clientes" });
   }
 };
 
-// Obtener customer por ID
-export const getCustomerById = async (req, res) => {
+// Obtener cliente por ID
+customerController.getCustomerById = async (req, res) => {
   try {
-    const customer = await Customer
-      .findById(req.params.id)
-      .select("-password -__v");
+    const customer = await Customer.findById(req.params.id).select("-password -__v");
     if (!customer) {
-      return res.status(404).json({ message: "Customer not found" });
+      return res.status(404).json({ message: "Cliente no encontrado" });
     }
     res.json(customer);
   } catch (error) {
-    console.error("Error fetching customer:", error);
-    res.status(500).json({ message: "Error fetching customer" });
+    console.error("Error al obtener cliente:", error);
+    res.status(500).json({ message: "Error al obtener cliente" });
   }
 };
 
-// Eliminar customer
-export const deleteCustomer = async (req, res) => {
+// Eliminar cliente
+customerController.deleteCustomer = async (req, res) => {
   try {
     const deleted = await Customer.findByIdAndDelete(req.params.id);
     if (!deleted) {
-      return res.status(404).json({ message: "Customer not found" });
+      return res.status(404).json({ message: "Cliente no encontrado" });
     }
-    res.json({ message: "Customer eliminado correctamente" });
+    res.json({ message: "Cliente eliminado correctamente" });
   } catch (error) {
-    console.error("Error deleting customer:", error);
-    res.status(500).json({ message: "Error deleting customer" });
+    console.error("Error al eliminar cliente:", error);
+    res.status(500).json({ message: "Error al eliminar cliente" });
   }
 };
+
+// Obtener perfil del cliente autenticado
+customerController.getProfile = async (req, res) => {
+  try {
+    const customer = await Customer.findById(req.user.id).select("-password -__v");
+    if (!customer) {
+      return res.status(404).json({ message: "Cliente no encontrado" });
+    }
+    res.json(customer);
+  } catch (error) {
+    console.error("Error al obtener perfil:", error);
+    res.status(500).json({ message: "Error al obtener el perfil del cliente" });
+  }
+};
+
+export default customerController;

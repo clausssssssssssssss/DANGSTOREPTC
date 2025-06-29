@@ -1,7 +1,7 @@
 // src/controllers/passwordRecoveryController.js
 import bcrypt from "bcryptjs";
 import Customer from "../models/Customers.js";
-import { sendEmail, HTMLRecoveryEmail } from "../utils/passwordRecoveryMail.js";
+import { sendEmail, HTMLRecoveryEmail } from "../utils/mailService.js";
 
 const passwordRecoveryController = {};
 
@@ -9,7 +9,7 @@ const passwordRecoveryController = {};
  * POST /api/password-recovery/send-code
  * Genera y envía un código de 4 dígitos, lo guarda con expiración de 15 min.
  */
-passwordRecoveryController.sendCode = async (req, res) => {
+passwordRecoveryController.sendRecoveryCode = async (req, res) => {
   try {
     const { email } = req.body;
     if (!email) {

@@ -113,25 +113,21 @@ const handleForgotPassword = async () => {
     alert("Por favor ingresa tu correo electrónico");
     return;
   }
-  try {
-    const res = await fetch(`${API_URL}/api/password-recovery/send-code`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email: forgotEmail }),
-    });
-    const data = await res.json();
-    if (!res.ok) {
-      alert(data.message || "Error enviando código");
-      return;
-    }
-    // mostramos feedback y vamos a la vista de código
-    setIsEmailSubmitted(true);
-    setTimeout(() => setCurrentView("verification"), 1500);
-  } catch (err) {
-    console.error(err);
-    alert("Error de conexión");
+  const res = await fetch(`${API_URL}/api/password-recovery/send-code`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email: forgotEmail }),
+  });
+  const data = await res.json();
+  if (!res.ok) {
+    alert(data.message || "Error enviando código");
+    return;
   }
+  setIsEmailSubmitted(true);
+  setTimeout(() => setCurrentView("verification"), 1500);
 };
+
+
 
 
   // Funciones de código de verificación
@@ -145,7 +141,15 @@ const handleForgotPassword = async () => {
     }
   };
 
-  
+  useEffect(() => {
+    if (
+      currentView === 'verification' &&
+      verificationCode.every(digit => digit !== '')
+    ) {
+      handleVerifyCode();
+    }
+  }, [verificationCode, currentView]);
+
 
   const handleKeyDown = (index, e) => {
     if (e.key === 'Backspace' && !verificationCode[index] && index > 0) {
@@ -178,7 +182,6 @@ const handleVerifyCode = async () => {
     }
   };
 
-
   const handleResendCode = () => {
     setIsResending(true);
     setTimeout(() => {
@@ -209,7 +212,7 @@ const handleVerifyCode = async () => {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        email: forgotEmail,       // email que guardaste en el paso 1
+        email: forgotEmail,       
         code,
         newPassword: password,
       }),
@@ -226,15 +229,6 @@ const handleVerifyCode = async () => {
     alert("Error de conexión");
   }
 };
-
-  // Auto-submit código cuando esté completo
-  useEffect(() => {
-    if (verificationCode.every(digit => digit !== '')) {
-      setTimeout(() => {
-        handleVerifyCode();
-      }, 500);
-    }
-  }, [verificationCode]);
 
   // Validaciones para nueva contraseña
   const isPasswordValid = newPasswordData.password.length >= 6;
@@ -470,7 +464,7 @@ const handleVerifyCode = async () => {
               <div className="input-group">
                 <label className="input-label">Correo electrónico:</label>
                 <div className="input-with-icon">
-                  <span className="input-icon">📧</span>
+                  <span className="input-icon"></span>
                   <input
                     type="email"
                     value={forgotEmail}
@@ -516,27 +510,37 @@ const handleVerifyCode = async () => {
   }
 
   // Vista de Código de Verificación
-  if (currentView === 'verification' && (
-      <div className="auth-container">
-        {/* ... decoración y logo ... */}
-        <div className="auth-card">
-          <h1>Código de verificación</h1>
-          <div className="verification-inputs">
-            {verificationCode.map((d, i) => (
-              <input
-                key={i}
-                id={`code-${i}`}
-                type="text"
-                value={d}
-                maxLength={1}
-                onChange={(e) => handleCodeChange(i, e.target.value)}
-              />
-            ))}
-          </div>
+  if (currentView === 'verification') {
+  return (
+    <div className="auth-container">
+      {/* …decoración y logo… */}
+      <div className="auth-card">
+        <h1 className="auth-title">Código de verificación</h1>
+        <div className="verification-inputs">
+          {verificationCode.map((digit, idx) => (
+            <input
+              key={idx}
+              id={`code-${idx}`}
+              type="text"
+              value={digit}
+              maxLength={1}
+              onChange={e => handleCodeChange(idx, e.target.value)}
+              onKeyDown={e => handleKeyDown(idx, e)}
+              className="verification-input"
+            />
+          ))}
         </div>
+        <button
+          onClick={handleVerifyCode}
+          disabled={verificationCode.join('').length !== 4}
+          className="auth-button"
+        >
+          Verificar código
+        </button>
       </div>
-    )
-  );
+    </div>
+  )
+}
   // Vista de Nueva Contraseña
   if (currentView === 'reset-password') {
     return (

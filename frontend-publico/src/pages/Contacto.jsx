@@ -1,9 +1,11 @@
 // src/pages/Contacto.jsx
-export default function Contacto() {
-  return <h2>📩 Contáctanos</h2>;
-}
+import React from 'react';
 
-// src/pages/Encargo.jsx
-export default function Encargo() {
-  return <h2>🛒 Haz tu encargo</h2>;
+export default function Contacto() {
+  return (
+    <main className="p-8">
+      <h1 className="text-3xl font-bold mb-4">Contacto</h1>
+      <p>Ponte en contacto con nosotros en contacto@tudominio.com.</p>
+    </main>
+  );
 }

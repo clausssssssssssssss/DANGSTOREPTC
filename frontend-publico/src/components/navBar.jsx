@@ -2,6 +2,7 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { Search, ShoppingCart, User } from 'lucide-react';
+import CarritoDeCompras from '../pages/CarritoDeCompras';
 
 export default function NavBar() {
   return (
@@ -15,7 +16,7 @@ export default function NavBar() {
       </div>
       <div className="space-x-3">
         <NavLink to="/catalogo"><Search size={20}/></NavLink>
-        <NavLink to="/carrito"><ShoppingCart size={20}/></NavLink>
+        <NavLink to="/CarritoDeCompras"><ShoppingCart size={20}/></NavLink>
         <NavLink to="/perfil"><User size={20}/></NavLink>
       </div>
     </nav>

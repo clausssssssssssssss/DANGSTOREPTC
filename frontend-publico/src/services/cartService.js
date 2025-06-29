@@ -1,4 +1,4 @@
-import api from './api';
+import api from './api.js';
 
 export const getCart = async () => {
   try {
@@ -42,3 +42,5 @@ export const clearCart = async () => {
     throw error;
   }
 };
+
+export default api;

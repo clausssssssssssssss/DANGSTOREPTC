@@ -1,19 +1,11 @@
 // src/pages/Catalogo.jsx
+import React from 'react';
+
 export default function Catalogo() {
-  return <h2>🎉 Bienvenido al Catálogo</h2>;
-}
-
-// src/pages/Acerca.jsx
-export default function Acerca() {
-  return <h2>ℹ️ Acerca de nosotros</h2>;
-}
-
-// src/pages/Contacto.jsx
-export default function Contacto() {
-  return <h2>📩 Contáctanos</h2>;
-}
-
-// src/pages/Encargo.jsx
-export default function Encargo() {
-  return <h2>🛒 Haz tu encargo</h2>;
+  return (
+    <main className="p-8">
+      <h1 className="text-3xl font-bold mb-4">Catálogo</h1>
+      <p>Aquí irá tu listado de productos.</p>
+    </main>
+  );
 }

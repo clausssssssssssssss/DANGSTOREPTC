@@ -1,16 +1,17 @@
 // src/App.jsx
 import React, { Suspense } from 'react'
-import { Routes, Route, Navigate } from 'react-router-dom'
+import { Routes, Route, Navigate, Outlet } from 'react-router-dom'
 import NavBar from './components/navBar'
 import AuthApp from './pages/AuthApp'
-//import Encargo  from './pages/Encargo'
-//import Catalogo from './pages/Catalogo'
-//import Contacto from './pages/Contacto'
-//import Acerca   from './pages/Acerca'
-//import Perfil   from './pages/Perfil'//
+import Encargo  from './pages/Encargo'
+import CarritoDeCompras from './pages/CarritoDeCompras'//
+import Catalogo from './pages/Catalogo'
+import Contacto from './pages/Contacto'
+import Acerca   from './pages/Acerca'
+import Perfil   from './pages/Perfil' //
 import './App.css'
 
-// Spinner y ErrorBoundary (los mismos que ya tienes)
+// Spinner y ErrorBoundary 
 const LoadingSpinner = () => (
   <div className="min-h-screen bg-gradient-to-br from-purple-400 via-purple-500 to-purple-600 flex items-center justify-center">
     <div className="text-center">
@@ -19,7 +20,6 @@ const LoadingSpinner = () => (
     </div>
   </div>
 )
-
 const ErrorFallback = ({ error, resetError }) => (
   <div className="min-h-screen bg-gradient-to-br from-red-400 via-red-500 to-red-600 flex items-center justify-center p-4">
     <div className="bg-white rounded-3xl shadow-2xl p-8 w-full max-w-md text-center">
@@ -41,7 +41,6 @@ const ErrorFallback = ({ error, resetError }) => (
     </div>
   </div>
 )
-
 class AppErrorBoundary extends React.Component {
   constructor(props) {
     super(props)
@@ -62,49 +61,47 @@ class AppErrorBoundary extends React.Component {
   }
 }
 
+// Layout que envuelve todas las rutas privadas
+function ProtectedLayout() {
+  return (
+    <>
+      <NavBar />
+      <Outlet />
+    </>
+  )
+}
+
 function App() {
   const token = localStorage.getItem('token')
 
   return (
-    <div className="App">
       <AppErrorBoundary>
         <Suspense fallback={<LoadingSpinner />}>
-
           <Routes>
-            {/* 1) / y /auth → flujo de login/registro/password */}
+            {/* 1) Rutas de autenticación */}
             <Route path="/" element={<Navigate to="/auth" replace />} />
             <Route path="/auth/*" element={<AuthApp />} />
 
-            {/* 2) Rutas protegidas → mostrar NavBar + página */}
-            {token ? (
-              <>
-                <Route
-                  path="/*"
-                  element={
-                    <>
-                      <NavBar />
-                      <Routes>
-                        {/*/<Route path="encargo" element={<Encargo />} />
-                        <Route path="catalogo" element={<Catalogo />} />
-                        <Route path="contacto" element={<Contacto />} />
-                        <Route path="acerca" element={<Acerca />} />
-                        <Route path="perfil" element={<Perfil />} />  */}
-                        {/* Cualquier otra ruta privada redirige a catálogo */}
-                        <Route path="*" element={<Navigate to="catalogo" replace />} />
-                      </Routes>
-                    </>
-                  }
-                />
-              </>
-            ) : (
-              // Si no hay token, cualquier ruta distinta de /auth va a /auth
-              <Route path="*" element={<Navigate to="/auth" replace />} />
-            )}
-          </Routes>
+            {/* 2) Rutas protegidas (sólo si hay token) */}
+            {token && (
+              <Route element={<ProtectedLayout />}>
+                <Route path="encargo"  element={<Encargo  />} />
+                <Route path="catalogo" element={<Catalogo />} />
+                <Route path="CarritoDeCompras" element={<CarritoDeCompras />} />
+                <Route path="contacto" element={<Contacto />} />
+                <Route path="acerca"   element={<Acerca />} />
+                <Route path="perfil"   element={<Perfil />} />
 
+                {/* fallback dentro de privadas */}
+                <Route path="*" element={<Navigate to="/catalogo" replace />} />
+              </Route>
+            )}
+
+            {/* 3) Si no hay token, forzar a /auth */}
+            {!token && <Route path="*" element={<Navigate to="/auth" replace />} />}
+          </Routes>
         </Suspense>
       </AppErrorBoundary>
-    </div>
   )
 }
 

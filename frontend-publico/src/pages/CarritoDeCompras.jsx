@@ -3,7 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import { useCart } from '../hooks/useCart';
 import CartItem from '../components/CartItem';
 import './CarritoDeCompras.css';
+import { useNavigate } from 'react-router-dom';
 
+
+const navigate = useNavigate();
+const handleCheckout = () => navigate('/checkout');
 const CarritoDeCompras = () => {
   const { cart, total, loading, error, clearCart } = useCart();
   const navigate = useNavigate();

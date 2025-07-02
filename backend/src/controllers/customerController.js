@@ -5,28 +5,46 @@ import Customer from "../models/Customers.js";
 import { config } from "../config.js";
 import { sendEmail } from "../utils/passwordRecoveryMail.js";
 
-// Registro de customer
+/**
+ * Controlador para el registro de un nuevo customer.
+ * Verifica datos obligatorios, encripta contraseña, crea el registro,
+ * genera un token JWT y envía un email de bienvenida.
+ *
+ * @param {import('express').Request} req - Objeto de petición Express.
+ * @param {import('express').Response} res - Objeto de respuesta Express.
+ * @returns {Promise<void>} Respuesta con estado y datos del usuario o error.
+ */
 export const registerCustomer = async (req, res) => {
   try {
     const { name, email, password, telephone } = req.body;
+    // Validar campos obligatorios
     if (!name || !email || !password || !telephone) {
       return res.status(400).json({ message: "Faltan datos obligatorios" });
     }
 
+    // Verificar si el email ya está registrado
     if (await Customer.findOne({ email })) {
       return res.status(409).json({ message: "Email ya registrado" });
     }
 
+    // Encriptar la contraseña
     const hashed = await bcrypt.hash(password, 10);
+
+    // Crear el nuevo customer en la base de datos
     const newCustomer = await Customer.create({
-      name, email, password: hashed, telephone
+      name,
+      email,
+      password: hashed,
+      telephone,
     });
 
+    // Generar payload y firmar token JWT
     const payload = { userId: newCustomer._id, userType: "customer" };
     const token = jwt.sign(payload, config.jwt.secret, {
       expiresIn: config.jwt.expiresIn,
     });
 
+    // Enviar email de bienvenida
     await sendEmail({
       to: newCustomer.email,
       subject: "¡Bienvenido a DANGSTORE!",
@@ -36,6 +54,7 @@ export const registerCustomer = async (req, res) => {
       `,
     });
 
+    // Respuesta exitosa con token y datos del usuario (sin contraseña)
     res.status(201).json({
       message: "Customer registrado correctamente",
       token,
@@ -47,6 +66,7 @@ export const registerCustomer = async (req, res) => {
       },
     });
   } catch (error) {
+    // Manejo de error en caso de duplicidad de clave única
     if (error.code === 11000) {
       return res.status(409).json({ message: "Email ya registrado" });
     }
@@ -55,9 +75,17 @@ export const registerCustomer = async (req, res) => {
   }
 };
 
-// Obtener todos los customers
+/**
+ * Controlador para obtener todos los customers.
+ * Excluye campos sensibles como contraseña y versión.
+ *
+ * @param {import('express').Request} req - Objeto de petición Express.
+ * @param {import('express').Response} res - Objeto de respuesta Express.
+ * @returns {Promise<void>} Lista de customers o error.
+ */
 export const getAllCustomers = async (req, res) => {
   try {
+    // Obtener todos los documentos de Customer sin contraseña ni __v
     const customers = await Customer.find().select("-password -__v");
     res.json(customers);
   } catch (error) {
@@ -66,9 +94,17 @@ export const getAllCustomers = async (req, res) => {
   }
 };
 
-// Obtener customer por ID
+/**
+ * Controlador para obtener un customer por su ID.
+ * Retorna 404 si no existe.
+ *
+ * @param {import('express').Request} req - Objeto de petición Express.
+ * @param {import('express').Response} res - Objeto de respuesta Express.
+ * @returns {Promise<void>} Datos del customer o error.
+ */
 export const getCustomerById = async (req, res) => {
   try {
+    // Buscar por ID y excluir campos sensibles
     const customer = await Customer
       .findById(req.params.id)
       .select("-password -__v");
@@ -82,9 +118,17 @@ export const getCustomerById = async (req, res) => {
   }
 };
 
-// Eliminar customer
+/**
+ * Controlador para eliminar un customer por su ID.
+ * Retorna 404 si no se encuentra y mensaje de confirmación si se elimina.
+ *
+ * @param {import('express').Request} req - Objeto de petición Express.
+ * @param {import('express').Response} res - Objeto de respuesta Express.
+ * @returns {Promise<void>} Mensaje de éxito o error.
+ */
 export const deleteCustomer = async (req, res) => {
   try {
+    // Eliminar documento por ID
     const deleted = await Customer.findByIdAndDelete(req.params.id);
     if (!deleted) {
       return res.status(404).json({ message: "Customer not found" });

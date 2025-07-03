@@ -1,9 +1,11 @@
-const express = require('express');
+// routes/orderRoutes.js
+import express from 'express';
+import orderController from '../controllers/orderController.js';
+import authMiddleware from '../middleware/authMiddleware.js';
+
 const router = express.Router();
-const orderController = require('../controllers/orderController');
-const authMiddleware = require('../middleware/authMiddleware');
 
 router.post('/checkout', authMiddleware, orderController.checkout);
 router.get('/history', authMiddleware, orderController.getOrderHistory);
 
-module.exports = router;
+export default router;

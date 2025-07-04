@@ -1,6 +1,6 @@
 import Cart from '../models/Cart.js';
 import Product from '../models/Product.js';
-import CustomizedProducts from '../models/customizedProducts.js';
+import CustomizedProducts from '../models/customizedOrders.js';
 import Customer from '../models/Customers.js';
 import Sale from '../models/Order.js';
 

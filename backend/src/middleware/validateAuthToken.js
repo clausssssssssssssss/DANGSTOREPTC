@@ -1,33 +1,25 @@
-// src/middleware/validateAuthToken.js
 import jwt from "jsonwebtoken";
 import { config } from "../config.js";
 
-/**
- * Middleware para validar el JWT de autenticación.
- *
- * Si se pasa un array de `allowedUserTypes`, restringe el acceso
- * a usuarios con esos roles.
- *
- * @param {Array<string>} [allowedUserTypes=[]] - Tipos de usuario permitidos
- * @returns {import('express').RequestHandler}
- */
-function validateAuthToken(allowedUserTypes = []) {
+export default function validateAuthToken(allowedUserTypes = []) {
   return (req, res, next) => {
     try {
       const authHeader = req.headers["authorization"];
-      const token = authHeader && authHeader.split(" ")[1]; // Bearer <token>
-
+      const token = authHeader && authHeader.split(" ")[1];
       if (!token) {
         return res.status(401).json({ message: "No token provided" });
       }
 
       const decoded = jwt.verify(token, config.jwt.secret);
-      req.user = decoded;
+      // Aquí reasigno userId → id para unificar con req.user.id
+      req.user = {
+        id:        decoded.userId,
+        userType:  decoded.userType,
+      };
 
-      // Verificar roles permitidos si los hay
       if (
         allowedUserTypes.length > 0 &&
-        !allowedUserTypes.includes(decoded.userType)
+        !allowedUserTypes.includes(req.user.userType)
       ) {
         return res
           .status(403)
@@ -44,13 +36,9 @@ function validateAuthToken(allowedUserTypes = []) {
       if (err.name === "JsonWebTokenError") {
         return res.status(403).json({ message: "Invalid token" });
       }
-
       return res
         .status(500)
         .json({ message: "Internal server error", error: err.message });
     }
   };
 }
-
-// Exportación por defecto para facilidad de import
-export default validateAuthToken;

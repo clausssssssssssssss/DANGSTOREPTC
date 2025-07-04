@@ -1,13 +1,13 @@
 /**
  * Modelo Mongoose para la colección de productos personalizados.
- * @module models/CustomizedProduct
+ * @module models/customizedProduct
  */
-const mongoose = require('mongoose');
-const { Schema, model } = mongoose;
+// backend/src/models/customizedProducts.js
+import { Schema, model } from 'mongoose';
 
 /**
  * Esquema para un producto personalizado.
- * @typedef {Object} CustomizedProduct
+ * @typedef {Object} customizedProduct
  * @property {String} imagen - Nombre o ruta del archivo de imagen (por ejemplo: 'foto1.png').
  * @property {String} [descripcion] - Breve descripción de la imagen.
  * @property {Number} cotizacion - Valor numérico de la cotización asociada. Debe ser un entero >= 0.
@@ -74,4 +74,5 @@ const CustomizedProductSchema = new Schema(
 );
 
 // Exporta el modelo bajo el nombre 'CustomizedProduct' y lo asocia a la colección 'customizedProducts'.
-module.exports = model('CustomizedProduct', CustomizedProductSchema);
+export default model('CustomizedProduct', CustomizedProductSchema);
+

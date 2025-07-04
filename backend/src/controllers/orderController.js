@@ -1,66 +1,40 @@
-// src/controllers/orderController.js
-import Order from '../models/Order.js';
-import Cart from '../models/Cart.js';
-import { NotFoundError, BadRequestError } from '../utils/errors.js';
+import Order from "../models/Order.js";
 
-/**
- * Procesa el checkout: crea una orden, vacía el carrito y retorna el ID de la orden.
+const ordersController = {};
+
+/** POST /api/orders
+ *  Crea la Order en Mongo una vez que PayPal devolvió status=COMPLETED
  */
-export const checkout = async (req, res, next) => {
+ordersController.createOrder = async (req, res) => {
+  const { items, total, paypalOrderID, paypalStatus } = req.body;
   try {
-    const userId = req.user.id;
-    // Obtener el carrito del usuario
-    const cart = await Cart.findOne({ user: userId }).populate('items.product');
-    if (!cart || cart.items.length === 0) {
-      throw new BadRequestError('El carrito está vacío');
-    }
-
-    // Calcular el total
-    const total = cart.items.reduce((sum, item) => sum + (item.product.price * item.quantity), 0);
-
-    // Crear la orden
     const order = new Order({
-      user: userId,
-      items: cart.items.map(item => ({
-        product:  item.product._id,
-        quantity: item.quantity,
-        price:    item.product.price
-      })),
+      user: req.user.id,
+      items,
       total,
-      status: 'pendiente'
+      status: paypalStatus === "COMPLETED" ? "COMPLETED" : "PENDING",
+      paypal: { orderID: paypalOrderID, captureStatus: paypalStatus }
     });
     await order.save();
-
-    // Vaciar el carrito
-    cart.items = [];
-    await cart.save();
-
-    res.status(201).json({ success: true, orderId: order._id });
-  } catch (error) {
-    next(error);
+    return res.status(201).json(order);
+  } catch (err) {
+    console.error("CreateOrder error:", err);
+    return res.status(400).json({ message: "No se pudo crear la orden" });
   }
 };
 
-/**
- * Devuelve el historial de órdenes del usuario autenticado.
+/** GET /api/orders
+ *  Historial de órdenes del usuario
  */
-export const getOrderHistory = async (req, res, next) => {
+ordersController.getOrders = async (req, res) => {
   try {
-    const userId = req.user.id;
-    const orders = await Order.find({ user: userId })
+    const orders = await Order.find({ user: req.user.id })
       .sort({ createdAt: -1 })
-      .populate('items.product');
-
-    res.status(200).json(
-      orders.map(order => ({
-        id:     order._id,
-        date:   order.createdAt,
-        total:  order.total,
-        status: order.status,
-        items:  order.items
-      }))
-    );
-  } catch (error) {
-    next(error);
+      .populate("items.product", "name price");
+    return res.status(200).json(orders);
+  } catch (err) {
+    return res.status(500).json({ message: "Error al obtener órdenes" });
   }
 };
+
+export default ordersController;

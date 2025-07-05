@@ -5,8 +5,11 @@ import {
   getAllCustomers,
   getCustomerById,
   deleteCustomer,
+   getProfile,
 } from "../controllers/customerController.js";
 import { loginClient } from "../controllers/loginController.js";
+import authMiddleware from '../middleware/authMiddleware.js';
+
 
 /**
  * Rutas para la entidad Customer:
@@ -30,7 +33,7 @@ router.post("/", registerCustomer);
 router.post("/login", loginClient);
 
 // Perfil del cliente autenticado (debe ir antes de :id) sino va dar error :( lo descubri a la mala 
-router.get("/me", authMiddleware, customerController.getProfile);
+router.get("/me", authMiddleware, getProfile);
 
 /**
  * GET /            -> getAllCustomers

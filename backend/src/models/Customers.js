@@ -1,4 +1,3 @@
-
 import { Schema, model } from "mongoose";
 
 /**
@@ -13,6 +12,7 @@ const customerSchema = new Schema({
     trim: true,
     maxLength: 200,
   },
+
   /** Correo electrónico único y en minúsculas */
   email: {
     type: String,
@@ -20,6 +20,7 @@ const customerSchema = new Schema({
     unique: true,
     lowercase: true,
   },
+
   /** Contraseña en formato hash, mínimo 6 caracteres */
   password: {
     type: String,
@@ -27,6 +28,7 @@ const customerSchema = new Schema({
     minLength: 6,
     select: false, // Excluir por defecto en las consultas
   },
+
   /** Número de teléfono único del cliente */
   telephone: {
     type: String,
@@ -34,11 +36,13 @@ const customerSchema = new Schema({
     unique: true,
     trim: true,
   },
+
   /** Indica si el email ha sido verificado */
   isVerified: {
     type: Boolean,
     default: false,
   },
+
   /**
    * Datos para recuperación de contraseña:
    * - code: código enviado al usuario
@@ -54,6 +58,23 @@ const customerSchema = new Schema({
       select: false,
     },
   },
+
+  /** Lista de productos favoritos */
+  favorites: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "Product",
+    }
+  ],
+
+  /** Lista de órdenes realizadas por el cliente (opcional) */
+  orders: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "Order",
+    }
+  ],
+
 }, {
   // Agrega campos createdAt y updatedAt automáticamente
   timestamps: true,

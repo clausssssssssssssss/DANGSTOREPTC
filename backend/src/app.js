@@ -6,6 +6,13 @@ import customerRoutes         from "./routes/customers.js";
 import passwordRecoveryRoutes from "./routes/passwordRecovery.js";
 import cartRoutes from "./routes/cart.js";
 
+import contactRoutes from "./routes/contact.js";
+import catalogRoutes from "./routes/catalogo.js";
+import productRoutes from "./routes/products.js";
+import profileRoutes from "./routes/profile.js";
+
+
+
 const app = express();
 import orderRoutes from "./routes/orderRoutes.js";
 
@@ -38,10 +45,14 @@ app.use('/api/cart', cartRoutes);
 
 
 
-import contactRoutes from "./routes/contact.js";
+
 
 
 app.use("/api/contact", contactRoutes);
+app.use("/api/catalog", catalogRoutes);
+app.use("/api/products", productRoutes);
+app.use("/api/profile", profileRoutes);
+
 
 
 export default app;

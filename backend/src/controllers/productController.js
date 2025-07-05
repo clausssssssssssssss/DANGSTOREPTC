@@ -1,5 +1,5 @@
 const productController = {};
-import productModel from "../models/product.js";
+import productModel from "../models/Product.js";
 
 // Obtener todos los productos
 productController.getProducts = async (req, res) => {

@@ -142,7 +142,7 @@ export const deleteCustomer = async (req, res) => {
 };
 
 // Obtener perfil del cliente autenticado
-customerController.getProfile = async (req, res) => {
+export const getProfile = async (req, res) => {
   try {
     const customer = await Customer.findById(req.user.id).select("-password -__v");
     if (!customer) {

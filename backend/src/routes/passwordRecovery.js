@@ -16,7 +16,7 @@ const router = Router();
  * POST /send-code
  * Genera y envía un código de recuperación con expiración de 15 minutos.
  */
-router.post("/send-code", passwordRecoveryController.sendCode);
+router.post("/send-code", passwordRecoveryController.sendRecoveryCode);
 
 /**
  * POST /verify-code
@@ -29,5 +29,6 @@ router.post("/verify-code", passwordRecoveryController.verifyCode);
  * Valida el código y actualiza la contraseña del cliente.
  */
 router.post("/reset", passwordRecoveryController.resetPassword);
+
 
 export default router;

@@ -1,41 +1,18 @@
-// src/models/Order.js
-import mongoose from 'mongoose';
+import { Schema, model } from "mongoose";
 
-const orderSchema = new mongoose.Schema({
-  user: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Customer', // Asegúrate de tener un modelo 'Customer'
-    required: true,
-  },
-  items: [
-    {
-      product: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Product', // Asegúrate de tener un modelo 'Product'
-        required: true,
-      },
-      quantity: {
-        type: Number,
-        required: true,
-      },
-      price: {
-        type: Number,
-        required: true,
-      },
-    }
-  ],
-  total: {
-    type: Number,
-    required: true,
-  },
-  status: {
-    type: String,
-    enum: ['pendiente', 'procesado', 'enviado', 'cancelado', 'entregado'],
-    default: 'pendiente',
-  },
-}, {
-  timestamps: true, // Para habilitar createdAt y updatedAt
-});
+const orderSchema = new Schema({
+  user:    { type: Schema.Types.ObjectId, ref: "Customer", required: true },
+  items:   [{
+    product:  { type: Schema.Types.ObjectId, ref: "Product", required: true },
+    quantity: { type: Number, required: true },
+    price:    { type: Number, required: true }
+  }],
+  total:   { type: Number, required: true },
+  status:  { type: String, enum: ["PENDING","COMPLETED","CANCELLED"], default: "PENDING" },
+  paypal: {
+    orderID: { type: String, required: true },
+    captureStatus: String
+  }
+}, { timestamps: true });
 
-const Order = mongoose.model('Order', orderSchema);
-export default Order;
+export default model("Order", orderSchema);

@@ -1,27 +1,45 @@
-// src/models/Cart.js
 import { Schema, model, Types } from 'mongoose';
 
-const cartItemSchema = new Schema({
-  product: { 
-    type: Types.ObjectId, 
-    ref: 'Product', 
-    required: true 
-  },
-  quantity: { 
-    type: Number, 
-    required: true, 
-    min: 1 
-  }
-}, { _id: false });
-
+/**
+ * Esquema de datos para el carrito de compras.
+ * Representa los items y estado de un carrito asignado a un cliente.
+ */
 const cartSchema = new Schema({
-  user: {
-    type: Types.ObjectId,
-    ref: 'Customer',
-    required: true,
-    unique: true
+  /** Cliente propietario del carrito */
+  user: { type: Types.ObjectId, ref: 'Customer', required: true, unique: true },
+
+  /** Productos estándar en el carrito */
+  products: [
+    {
+      product: { type: Types.ObjectId, ref: 'Product', required: true },
+      quantity: { type: Number, required: true, min: 1 }
+    }
+  ],
+
+  /** Productos personalizados en el carrito */
+  customizedProducts: [
+    {
+      item: { type: Types.ObjectId, ref: 'CustomizedProduct', required: true },
+      quantity: { type: Number, required: true, min: 1 }
+    }
+  ],
+
+  /** Estado del carrito */
+  state: {
+    type: String,
+    enum: ['Pendiente', 'Pagado', 'Cancelado'],
+    default: 'Pendiente'
   },
-  items: [cartItemSchema]
+
+  /** Punto de entrega seleccionado */
+  deliveryPoint: { type: String },
+
+  /** Método de pago elegido */
+  paymentMethod: {
+    type: String,
+    enum: ['Wompi', 'Tarjeta', 'Efectivo'],
+    default: 'Wompi'
+  }
 }, {
   timestamps: true
 });

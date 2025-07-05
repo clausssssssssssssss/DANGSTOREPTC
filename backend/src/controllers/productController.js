@@ -27,84 +27,58 @@ productController.getProductById = async (req, res) => {
     }
 };
 
-// Crear producto
-productController.insertProduct = async (req, res) => {
-    try {
-        const { name, price, stock, description, category, images } = req.body;
-
-        if (!name || price == null || stock == null || !category) {
-            return res.status(400).json({ message: "Missing required fields: name, price, stock, or category" });
-        }
-
-        const newProduct = new productModel({
-            name,
-            price,
-            stock,
-            description,
-            category,
-            images
-        });
-
-        await newProduct.save();
-        res.status(201).json({ message: "Product Added", product: newProduct });
-
-    } catch (error) {
-        res.status(500).json({ message: "Error creating product", error });
+/**
+ * POST /api/products
+ * Crea un nuevo producto.
+ */
+export const insertProduct = async (req, res) => {
+  try {
+    const { name, price, stock, description, category, images } = req.body;
+    if (!name || price == null || stock == null || !category) {
+      return res.status(400).json({ message: "Missing required fields" });
     }
+    const newProduct = new Product({ name, price, stock, description, category, images });
+    await newProduct.save();
+    res.status(201).json(newProduct);
+  } catch (error) {
+    console.error("Error creating product:", error);
+    res.status(500).json({ message: "Error creating product" });
+  }
 };
 
-// Eliminar producto
-productController.deleteProduct = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const deleted = await productModel.findByIdAndDelete(id);
-
-        if (!deleted) {
-            return res.status(404).json({ message: "Product not found" });
-        }
-
-        res.json({ message: "Product Deleted" });
-    } catch (error) {
-        res.status(500).json({ message: "Error deleting product", error });
+/**
+ * PUT /api/products/:id
+ * Actualiza un producto existente.
+ */
+export const updateProduct = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updates = req.body;
+    const updated = await Product.findByIdAndUpdate(id, updates, { new: true, runValidators: true });
+    if (!updated) {
+      return res.status(404).json({ message: "Product not found" });
     }
+    res.json(updated);
+  } catch (error) {
+    console.error("Error updating product:", error);
+    res.status(500).json({ message: "Error updating product" });
+  }
 };
 
-// Actualizar producto
-productController.updateProduct = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const { name, price, stock, description, category, images } = req.body;
-
-        const updatedProduct = await productModel.findByIdAndUpdate(
-            id,
-            { name, price, stock, description, category, images },
-            { new: true, runValidators: true }
-        );
-
-        if (!updatedProduct) {
-            return res.status(404).json({ message: "Product not found" });
-        }
-
-        res.json({ message: "Product Updated", product: updatedProduct });
-    } catch (error) {
-        res.status(500).json({ message: "Error updating product", error });
+/**
+ * DELETE /api/products/:id
+ * Elimina un producto.
+ */
+export const deleteProduct = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const deleted = await Product.findByIdAndDelete(id);
+    if (!deleted) {
+      return res.status(404).json({ message: "Product not found" });
     }
+    res.json({ message: "Product deleted" });
+  } catch (error) {
+    console.error("Error deleting product:", error);
+    res.status(500).json({ message: "Error deleting product" });
+  }
 };
-
-// Obtener productos por categoría
-productController.getProductsByCategory = async (req, res) => {
-    try {
-        const { category } = req.params;
-        const products = await productModel.find({ category });
-
-        if (!products.length) {
-            return res.status(404).json({ message: "No products found in this category" });
-        }
-
-        res.json(products);
-    } catch (error) {
-        res.status(500).json({ message: "Error fetching products by category", error });
-    }
-};
-
-export default productController;

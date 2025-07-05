@@ -1,43 +1,51 @@
-const productController = {};
 import productModel from "../models/Product.js";
+
+const productController = {};
 
 // Obtener todos los productos
 productController.getProducts = async (req, res) => {
-    try {
-        const products = await productModel.find();
-        res.json(products);
-    } catch (error) {
-        res.status(500).json({ message: "Error fetching products", error });
-    }
+  try {
+    const products = await productModel.find();
+    res.json(products);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching products", error });
+  }
 };
 
 // Obtener producto por ID
 productController.getProductById = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const product = await productModel.findById(id);
+  try {
+    const { id } = req.params;
+    const product = await productModel.findById(id);
 
-        if (!product) {
-            return res.status(404).json({ message: "Product not found" });
-        }
-
-        res.json(product);
-    } catch (error) {
-        res.status(500).json({ message: "Error fetching product", error });
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
     }
+
+    res.json(product);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching product", error });
+  }
 };
 
-/**
- * POST /api/products
- * Crea un nuevo producto.
- */
-export const insertProduct = async (req, res) => {
+// Obtener productos populares (ejemplo simple)
+productController.getPopularProducts = async (req, res) => {
+  try {
+    const popularProducts = await productModel.find().limit(5);
+    res.json(popularProducts);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching popular products", error });
+  }
+};
+
+// Crear un nuevo producto
+productController.insertProduct = async (req, res) => {
   try {
     const { name, price, stock, description, category, images } = req.body;
     if (!name || price == null || stock == null || !category) {
       return res.status(400).json({ message: "Missing required fields" });
     }
-    const newProduct = new Product({ name, price, stock, description, category, images });
+    const newProduct = new productModel({ name, price, stock, description, category, images });
     await newProduct.save();
     res.status(201).json(newProduct);
   } catch (error) {
@@ -46,15 +54,12 @@ export const insertProduct = async (req, res) => {
   }
 };
 
-/**
- * PUT /api/products/:id
- * Actualiza un producto existente.
- */
-export const updateProduct = async (req, res) => {
+// Actualizar un producto existente
+productController.updateProduct = async (req, res) => {
   try {
     const { id } = req.params;
     const updates = req.body;
-    const updated = await Product.findByIdAndUpdate(id, updates, { new: true, runValidators: true });
+    const updated = await productModel.findByIdAndUpdate(id, updates, { new: true, runValidators: true });
     if (!updated) {
       return res.status(404).json({ message: "Product not found" });
     }
@@ -65,14 +70,11 @@ export const updateProduct = async (req, res) => {
   }
 };
 
-/**
- * DELETE /api/products/:id
- * Elimina un producto.
- */
-export const deleteProduct = async (req, res) => {
+// Eliminar un producto
+productController.deleteProduct = async (req, res) => {
   try {
     const { id } = req.params;
-    const deleted = await Product.findByIdAndDelete(id);
+    const deleted = await productModel.findByIdAndDelete(id);
     if (!deleted) {
       return res.status(404).json({ message: "Product not found" });
     }
@@ -82,3 +84,5 @@ export const deleteProduct = async (req, res) => {
     res.status(500).json({ message: "Error deleting product" });
   }
 };
+
+export default productController;

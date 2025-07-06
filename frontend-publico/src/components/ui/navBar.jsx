@@ -1,8 +1,6 @@
-// src/components/NavBar.jsx
 import React from 'react';
-import { NavLink } from 'react-router-dom';
+import { Link, NavLink } from 'react-router-dom';
 import { Search, ShoppingCart, User } from 'lucide-react';
-import CarritoDeCompras from '../pages/CarritoDeCompras';
 
 export default function NavBar() {
   return (
@@ -13,9 +11,7 @@ export default function NavBar() {
         <NavLink to="/catalogo"   className="hover:underline">Catálogo</NavLink>
         <NavLink to="/contacto"   className="hover:underline">Contacto</NavLink>
         <NavLink to="/acerca"     className="hover:underline">Acerca</NavLink>
-        <Link to="/historial-pedidos" className="...">
-  Mis Pedidos
-</Link>
+        <NavLink to="/historial-pedidos" className="hover:underline">Mis Pedidos</NavLink>
       </div>
       <div className="space-x-3">
         <NavLink to="/catalogo"><Search size={20}/></NavLink>

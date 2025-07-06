@@ -1,6 +1,6 @@
 // src/pages/ProductsPage.jsx
 import React from 'react';
-import { useProducts } from '../hooks/useProducts';
+import { useProducts } from '../../hooks/useProducts';
 import ProductList from '../components/ProductList/ProductList';
 
 const ProductsPage = () => {

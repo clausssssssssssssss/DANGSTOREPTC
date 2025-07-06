@@ -1,15 +1,15 @@
 import React, { Suspense } from 'react'
 import { Routes, Route, Navigate, Outlet } from 'react-router-dom'
-import NavBar from './components/navBar'
+import NavBar from './components/ui/navBar'
 import AuthApp from './pages/AuthApp'
 import Encargo from './pages/Encargo'
-import CarritoDeCompras from './pages/CarritoDeCompras'
+//import CarritoDeCompras from './pages/CarritoDeCompras'//
 import Catalogo from './pages/Catalogo'
 import Contacto from './pages/Contacto'
 import Acerca from './pages/Acerca'
 import Perfil from './pages/Perfil'
-import MetodoDePago from './components/MetodoDePago' // Nuevo componente
-import OrderHistory from './components/OrderHistory' // Nuevo componente
+//import MetodoDePago from './components/MetodoDePago' // Nuevo componente//
+//import OrderHistory from './components/OrderHistory' // Nuevo componente//
 import './App.css'
 
 // Spinner y ErrorBoundary 
@@ -90,9 +90,9 @@ function App() {
             <Route element={<ProtectedLayout />}>
               <Route path="encargo" element={<Encargo />} />
               <Route path="catalogo" element={<Catalogo />} />
-              <Route path="carrito" element={<CarritoDeCompras />} />
-              <Route path="checkout" element={<MetodoDePago />} /> {/* Nueva ruta */}
-              <Route path="historial-pedidos" element={<OrderHistory />} /> {/* Nueva ruta */}
+              {/*<Route path="carrito" element={<CarritoDeCompras />} />
+              {/*<Route path="checkout" element={<MetodoDePago />} /> {/* Nueva ruta */}
+              {/*<Route path="historial-pedidos" element={<OrderHistory />} /> {/* Nueva ruta */}
               <Route path="contacto" element={<Contacto />} />
               <Route path="acerca" element={<Acerca />} />
               <Route path="perfil" element={<Perfil />} />

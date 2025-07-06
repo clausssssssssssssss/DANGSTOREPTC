@@ -19,7 +19,7 @@ const cartSchema = new Schema({
   /** Productos personalizados en el carrito */
   customizedProducts: [
     {
-      item: { type: Types.ObjectId, ref: 'CustomizedProduct', required: true },
+      item: { type: Types.ObjectId, ref: 'CustomizedOrder', required: true },
       quantity: { type: Number, required: true, min: 1 }
     }
   ],

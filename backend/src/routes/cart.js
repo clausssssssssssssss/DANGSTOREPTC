@@ -4,7 +4,6 @@ import {
   getCart,
   updateCartItem,
   removeCartItem,
-  checkoutCart
 } from '../controllers/cartController.js';
 
 const router = Router();
@@ -29,9 +28,6 @@ router.put('/', updateCartItem);
  */
 router.delete('/', removeCartItem);
 
-/** POST /api/cart/:userId/checkout
- *  Inicia el pago con Wompi y crea la venta
- */
-router.post('/:userId/checkout', checkoutCart);
+
 
 export default router;

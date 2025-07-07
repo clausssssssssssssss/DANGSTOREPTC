@@ -1,4 +1,4 @@
-import app from "./app.js"; // Importa la configuración principal de la aplicación
+import app from "./src/app.js"; // Importa la configuración principal de la aplicación
 import "./database.js";
 import dotenv from "dotenv";
 

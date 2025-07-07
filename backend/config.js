@@ -18,7 +18,6 @@ export const config = {
     user: process.env.ADMIN_EMAIL,
     pass: process.env.APP_PASSWORD_EMAIL,
   },
-  appUrl: process.env.APP_URL || 'http://localhost:4000',
   paypal: {
     clientId: process.env.PAYPAL_CLIENT_ID,
     clientSecret:   process.env.PAYPAL_CLIENT_SECRET

@@ -1,6 +1,6 @@
 // src/controllers/paymentController.js
 import paypal from "@paypal/checkout-server-sdk";
-import { config } from "../config.js";
+import { config } from '../../config.js';
 
 // Configuración de PayPal Sandbox
 const clientId     = config.paypal.clientId;

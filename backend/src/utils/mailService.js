@@ -1,6 +1,6 @@
 // src/utils/passwordRecoveryMail.js
 import nodemailer from 'nodemailer';
-import { config } from '../config.js';
+import { config } from '../../config.js';
 
 /**
  * Transporter de Nodemailer configurado para Gmail SMTP.

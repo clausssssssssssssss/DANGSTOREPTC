@@ -1,7 +1,7 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import Customer from "../models/Customers.js";
-import { config } from "../config.js";
+import { config } from '../../config.js';
 import { sendEmail } from "../utils/mailService.js";
 
 const customerController = {};

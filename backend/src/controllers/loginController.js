@@ -2,7 +2,7 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import Customer from "../models/Customers.js";
-import { config } from "../config.js";
+import { config } from '../../config.js';
 
 /**
  * Controlador para el login de un cliente.

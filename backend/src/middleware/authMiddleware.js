@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-import { config } from "../config.js";
+import { config } from '../../config.js';
 import customersModel from "../models/Customers.js";
 import adminModel from "../models/Admin.js"; // 👈 este es el nuevo modelo
 

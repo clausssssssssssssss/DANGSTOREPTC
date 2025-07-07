@@ -1,0 +1,162 @@
+ /* src/assets/css/Encargo.css */
+
+/* 1. Fondo degradado en toda la página */
+.encargo-page {
+  min-height: 100vh;
+  padding: 2rem;
+  background: linear-gradient(135deg, #E2CFEA 0%, #E3E5FF 100%);
+  display: flex;
+  justify-content: center;
+  align-items: start;
+}
+
+/* 2. Contenedor central translúcido */
+.encargo-card {
+  width: 100%;
+  max-width: 1200px;
+  background: rgba(255,255,255,0.7);
+  border-radius: 1rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  padding: 2rem;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+}
+@media (min-width: 768px) {
+  .encargo-card {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* 3. Zona de subida con borde punteado */
+.encargo-upload {
+  border: 2px dashed #A0AEC0;
+  border-radius: 1rem;
+  height: 20rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  background: #fff;
+}
+.encargo-upload input[type="file"] {
+  display: none;
+}
+.encargo-upload label {
+  cursor: pointer;
+  color: #718096;
+  text-align: center;
+}
+.encargo-upload img.preview-main {
+  width: 16rem;
+  height: 16rem;
+  object-fit: cover;
+  border-radius: 0.75rem;
+}
+.encargo-upload img.preview-thumb {
+  position: absolute;
+  bottom: 1rem;
+  right: 1rem;
+  width: 4rem;
+  height: 4rem;
+  object-fit: cover;
+  border-radius: 0.5rem;
+  background: white;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+/* 4. Formulario de selección y texto */
+.encargo-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+.encargo-form label {
+  font-size: 0.9rem;
+  color: #4A5568;
+  margin-bottom: 0.25rem;
+}
+.encargo-form select,
+.encargo-form textarea {
+  width: 100%;
+  border: 1px solid #CBD5E0;
+  border-radius: 0.75rem;
+  padding: 0.75rem;
+  font-size: 1rem;
+  resize: none;
+}
+.encargo-form select:focus,
+.encargo-form textarea:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(168,85,247,0.3);
+}
+
+/* 5. Botón Enviar */
+.encargo-form button.submit {
+  margin-top: auto;
+  background: #10B981;
+  color: white;
+  font-weight: 600;
+  padding: 0.75rem;
+  border: none;
+  border-radius: 0.75rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.encargo-form button.submit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.encargo-form button.submit:hover:not(:disabled) {
+  background: #059669;
+}
+
+/* 6. Modal de éxito */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.modal-content {
+  background: white;
+  border-radius: 1rem;
+  padding: 2rem;
+  max-width: 24rem;
+  width: 90%;
+  text-align: center;
+  position: relative;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+}
+.modal-close {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  background: transparent;
+  border: none;
+  font-size: 1.25rem;
+  cursor: pointer;
+  color: #718096;
+}
+.modal-content h2 {
+  font-size: 1.25rem;
+  margin-bottom: 1rem;
+  color: #2D3748;
+}
+.modal-content p {
+  color: #4A5568;
+  margin-bottom: 1.5rem;
+}
+.modal-content button {
+  background: #E2E8F0;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.75rem;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.modal-content button:hover {
+  background: #CBD5E0;
+}

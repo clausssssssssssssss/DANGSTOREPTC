@@ -1,0 +1,243 @@
+/* NavBar.css */
+.navbar {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  background-color: white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border-bottom: 1px solid #e5e7eb;
+  z-index: 50;
+}
+
+.navbar-container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.navbar-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 64px;
+}
+
+/* Logo Styles */
+.logo-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  transition: transform 0.3s ease;
+}
+
+.logo-link:hover {
+  transform: scale(1.05);
+}
+
+.logo-container {
+  display: flex;
+  animation: logoFloat 3s ease-in-out infinite;
+}
+
+.logo-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.3s ease;
+}
+
+.logo-icon.cyan {
+  background-color: #22d3ee;
+  animation: pulseColor 2s ease-in-out infinite;
+}
+
+.logo-icon.pink {
+  background-color: #fb7185;
+  margin-left: -8px;
+  animation: pulseColor 2s ease-in-out infinite 0.5s;
+}
+
+.logo-letter {
+  color: white;
+  font-weight: bold;
+  font-size: 18px;
+  animation: letterBounce 2s ease-in-out infinite;
+}
+
+.logo-text {
+  font-weight: bold;
+  font-size: 20px;
+  color: #111827;
+  background: linear-gradient(45deg, #22d3ee, #fb7185, #22d3ee);
+  background-size: 200% 200%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: textGradient 3s ease-in-out infinite;
+}
+
+/* Logo Animations */
+@keyframes logoFloat {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-2px);
+  }
+}
+
+@keyframes pulseColor {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.8;
+  }
+}
+
+@keyframes letterBounce {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-1px);
+  }
+}
+
+@keyframes textGradient {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+/* Navigation Links */
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+}
+
+.nav-link {
+  color: #374151;
+  font-weight: 500;
+  text-decoration: none;
+  padding-bottom: 4px;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: linear-gradient(45deg, #22d3ee, #fb7185);
+  transition: width 0.3s ease;
+}
+
+.nav-link:hover {
+  color: #111827;
+  transform: translateY(-1px);
+}
+
+.nav-link:hover::after {
+  width: 100%;
+}
+
+.nav-link.active {
+  color: #111827;
+  border-bottom: 2px solid #22d3ee;
+}
+
+/* Action Icons */
+.action-icons {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.icon-link {
+  padding: 8px;
+  color: #4b5563;
+  border-radius: 50%;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.icon-link::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: linear-gradient(45deg, #22d3ee, #fb7185);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: all 0.3s ease;
+  z-index: -1;
+}
+
+.icon-link:hover {
+  color: white;
+  transform: scale(1.1) rotate(5deg);
+}
+
+.icon-link:hover::before {
+  width: 100%;
+  height: 100%;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .navbar-container {
+    padding: 0 0.5rem;
+  }
+  
+  .nav-links {
+    display: none;
+  }
+  
+  .logo-text {
+    font-size: 18px;
+  }
+  
+  .action-icons {
+    gap: 8px;
+  }
+  
+  .logo-container {
+    animation: logoFloat 2s ease-in-out infinite;
+  }
+}
+
+/* Pause animations when user prefers reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .logo-container,
+  .logo-icon,
+  .logo-letter,
+  .logo-text {
+    animation: none;
+  }
+  
+  .logo-link:hover,
+  .nav-link:hover,
+  .icon-link:hover {
+    transform: none;
+  }
+}

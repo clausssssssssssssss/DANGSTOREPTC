@@ -1,18 +1,8 @@
-// src/pages/Perfil.jsx
-import React from 'react';
-
-export default function Acerca() {
-  return (
-    <main className="p-8">
-      <h1 className="text-3xl font-bold mb-4">Mi Perfil</h1>
-      <p>Aquí puedes ver y editar tu información personal.</p>
-    </main>
-  );
-}
 // src/pages/Encargo.jsx
 import { CloudUpload } from 'lucide-react';
 import usePersonalizedOrder from '../hooks/usePersonalizedOrder';
 import Modal from '../components/ui/Modal';
+import './Encargo.css';
 
 export default function Encargo() {
   const {
@@ -30,43 +20,29 @@ export default function Encargo() {
 
   return (
     // 1. Contenedor full-screen con fondo degradado
-    <div className="
-      min-h-screen p-6
-      bg-gradient-to-br from-purple-200 via-purple-100 to-indigo-100
-      flex justify-center items-start
-    ">
+    <div className="encargo-container">
       {/* 2. Tarjeta blanca translúcida con sombra */}
-      <div className="
-        w-full max-w-5xl
-        bg-white/70 rounded-2xl shadow-xl p-8
-        grid grid-cols-1 md:grid-cols-2 gap-8
-      ">
+      <div className="encargo-card">
         {/* 3. Zona de subida con borde punteado */}
-        <div className="
-          border-2 border-dashed border-gray-400
-          rounded-xl h-80 flex items-center justify-center
-        ">
+        <div className="upload-zone">
           {preview ? (
-            <div className="relative">
+            <div className="image-preview">
               <img
                 src={preview}
                 alt="Preview"
-                className="w-64 h-64 object-cover rounded-lg"
+                className="preview-image"
               />
-              <div className="absolute bottom-2 right-2 bg-white bg-opacity-80 p-1 rounded-full shadow">
-                <img src={preview} alt="thumb" className="w-16 h-16 object-cover rounded-md" />
+              <div className="preview-thumbnail">
+                <img src={preview} alt="thumb" className="thumbnail-image" />
               </div>
             </div>
           ) : (
             <label
               htmlFor="image-upload"
-              className="
-                w-full h-full flex flex-col items-center justify-center
-                text-gray-500 hover:text-gray-700 cursor-pointer
-              "
+              className="upload-label"
             >
-              <CloudUpload size={48} />
-              <span className="mt-2 text-sm">Haz click para subir</span>
+              <CloudUpload size={48} className="upload-icon" />
+              <span className="upload-text">Haz click para subir</span>
             </label>
           )}
           <input
@@ -74,21 +50,18 @@ export default function Encargo() {
             type="file"
             accept="image/*"
             onChange={handleImageChange}
-            className="hidden"
+            className="hidden-input"
           />
         </div>
 
         {/* 4. Panel de selección y texto */}
-        <div className="flex flex-col space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Tipo</label>
+        <div className="form-panel">
+          <div className="field-group">
+            <label className="field-label">Tipo</label>
             <select
               value={modelType}
               onChange={e => setModelType(e.target.value)}
-              className="
-                w-full border border-gray-300 rounded-lg p-2
-                focus:outline-none focus:ring-2 focus:ring-purple-300
-              "
+              className="field-select"
             >
               <option value="">Selecciona...</option>
               <option value="llavero">Llavero</option>
@@ -96,28 +69,21 @@ export default function Encargo() {
               <option value="cuadro_grande">Cuadro grande</option>
             </select>
           </div>
-          <div className="flex-1">
-            <label className="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
+          <div className="field-group flex-1">
+            <label className="field-label">Descripción</label>
             <textarea
               value={description}
               onChange={e => setDescription(e.target.value)}
               rows={6}
-              className="
-                w-full border border-gray-300 rounded-lg p-3
-                focus:outline-none focus:ring-2 focus:ring-purple-300
-                resize-none
-              "
+              className="field-textarea"
               placeholder="Escribe detalles adicionales..."
             />
           </div>
-          {error && <p className="text-red-500 text-sm">{error}</p>}
+          {error && <p className="error-message">{error}</p>}
           <button
             onClick={submit}
             disabled={loading || !preview || !modelType}
-            className="
-              mt-auto bg-green-500 text-white font-medium py-2 rounded-lg
-              hover:bg-green-600 shadow-md disabled:opacity-50
-            "
+            className="submit-button"
           >
             {loading ? 'Enviando...' : 'Enviar'}
           </button>
@@ -127,12 +93,12 @@ export default function Encargo() {
       {/* 5. Modal de éxito */}
       {success && (
         <Modal onClose={() => window.location.reload()}>
-          <div className="p-6 text-center">
-            <h2 className="text-xl font-semibold mb-4">Tu pedido ha sido enviado</h2>
-            <p className="mb-6">Te caerá una notificación de tu cotización.</p>
+          <div className="modal-body">
+            <h2 className="modal-title">Tu pedido ha sido enviado</h2>
+            <p className="modal-text">Te caerá una notificación de tu cotización.</p>
             <button
               onClick={() => window.location.reload()}
-              className="bg-gray-200 px-4 py-2 rounded-md hover:bg-gray-300"
+              className="modal-button"
             >
               Aceptar
             </button>

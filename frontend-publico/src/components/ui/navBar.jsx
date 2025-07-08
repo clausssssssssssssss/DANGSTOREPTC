@@ -10,15 +10,14 @@ export default function NavBar() {
         <div className="navbar-content">
           
           {/* Logo */}
-          <NavLink to="/" className="logo-link">
-            <div className="logo-container">
-              <div className="logo-icon cyan">
-                <span className="logo-letter">C</span>
-              </div>
-              <div className="logo-icon pink">
-                <span className="logo-letter">D</span>
-              </div>
-            </div>
+          <NavLink to="/acerca" className="logo-link">
+          <div className="logo-icon">
+  <img 
+    src="src/assets/DANGSTORELOGOPRUEBA__1.png" // o la ruta donde tengas tu logo
+    alt="" 
+    className="logo-image"
+  />
+</div>
             <span className="logo-text">DANGSTORE</span>
           </NavLink>
           

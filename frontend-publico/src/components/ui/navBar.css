@@ -1,12 +1,22 @@
-/* NavBar.css */
+/* NavBar.css - Versión Mejorada con Logo y Animaciones */
 .navbar {
   position: fixed;
   top: 0;
   width: 100%;
-  background-color: white;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  border-bottom: 1px solid #e5e7eb;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  box-shadow: 
+    0 4px 20px rgba(0, 0, 0, 0.08),
+    0 1px 3px rgba(0, 0, 0, 0.1);
+  border-bottom: 1px solid rgba(186, 104, 200, 0.1);
   z-index: 50;
+  transition: all 0.3s ease;
+}
+
+.navbar:hover {
+  box-shadow: 
+    0 6px 30px rgba(186, 104, 200, 0.15),
+    0 2px 8px rgba(77, 208, 225, 0.1);
 }
 
 .navbar-container {
@@ -22,222 +32,278 @@
   height: 64px;
 }
 
-/* Logo Styles */
+/* Logo Styles - Logo de Tienda */
+.logo-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.logo-icon:hover .logo-image {
+  transform: scale(1.1) rotate(5deg);
+  filter: brightness(1.1);
+}
 .logo-link {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
   text-decoration: none;
-  transition: transform 0.3s ease;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  padding: 8px 12px;
+  border-radius: 12px;
 }
 
 .logo-link:hover {
-  transform: scale(1.05);
+  transform: scale(1.05) translateY(-2px);
+  background: linear-gradient(135deg, rgba(77, 208, 225, 0.1), rgba(186, 104, 200, 0.1));
+  box-shadow: 0 8px 25px rgba(186, 104, 200, 0.2);
 }
 
 .logo-container {
   display: flex;
-  animation: logoFloat 3s ease-in-out infinite;
+  position: relative;
+  animation: logoFloat 4s ease-in-out infinite;
 }
 
+/* Logo de Tienda con Efectos */
 .logo-icon {
-  width: 32px;
-  height: 32px;
-  border-radius: 4px;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: transform 0.3s ease;
+  background: linear-gradient(135deg, #4DD0E1 0%, #BA68C8 50%, #9C27B0 100%);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(186, 104, 200, 0.3);
 }
 
-.logo-icon.cyan {
-  background-color: #22d3ee;
-  animation: pulseColor 2s ease-in-out infinite;
+.logo-icon::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  transition: left 0.6s ease;
 }
 
-.logo-icon.pink {
-  background-color: #fb7185;
-  margin-left: -8px;
-  animation: pulseColor 2s ease-in-out infinite 0.5s;
+.logo-icon:hover::before {
+  left: 100%;
 }
 
-.logo-letter {
-  color: white;
-  font-weight: bold;
-  font-size: 18px;
-  animation: letterBounce 2s ease-in-out infinite;
+.logo-icon:hover {
+  transform: scale(1.1) rotate(5deg);
+  box-shadow: 0 8px 25px rgba(186, 104, 200, 0.5);
 }
 
-.logo-text {
-  font-weight: bold;
+/* Icono de Tienda (🛍️ o 🏪) */
+.store-icon {
   font-size: 20px;
-  color: #111827;
-  background: linear-gradient(45deg, #22d3ee, #fb7185, #22d3ee);
-  background-size: 200% 200%;
+  color: white;
+  animation: storeIconBounce 3s ease-in-out infinite;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+}
+
+@keyframes storeIconBounce {
+  0%, 100% {
+    transform: translateY(0px) scale(1);
+  }
+  50% {
+    transform: translateY(-2px) scale(1.05);
+  }
+}
+
+/* DANGSTORE con Gradiente Morado/Aqua */
+.logo-text {
+  font-weight: 800;
+  font-size: 22px;
+  background: linear-gradient(135deg, #9C27B0 0%, #4DD0E1 50%, #BA68C8 100%);
+  background-size: 300% 300%;
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  animation: textGradient 3s ease-in-out infinite;
-}
-
-/* Logo Animations */
-@keyframes logoFloat {
-  0%, 100% {
-    transform: translateY(0px);
-  }
-  50% {
-    transform: translateY(-2px);
-  }
-}
-
-@keyframes pulseColor {
-  0%, 100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-  50% {
-    transform: scale(1.1);
-    opacity: 0.8;
-  }
-}
-
-@keyframes letterBounce {
-  0%, 100% {
-    transform: translateY(0px);
-  }
-  50% {
-    transform: translateY(-1px);
-  }
-}
-
-@keyframes textGradient {
-  0%, 100% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-}
-
-/* Navigation Links */
-.nav-links {
-  display: flex;
-  align-items: center;
-  gap: 32px;
-}
-
-.nav-link {
-  color: #374151;
-  font-weight: 500;
-  text-decoration: none;
-  padding-bottom: 4px;
-  transition: all 0.3s ease;
+  animation: gradientShift 4s ease-in-out infinite;
   position: relative;
+  letter-spacing: 0.5px;
 }
 
-.nav-link::after {
+.logo-text::after {
   content: '';
   position: absolute;
   bottom: -2px;
   left: 0;
   width: 0;
   height: 2px;
-  background: linear-gradient(45deg, #22d3ee, #fb7185);
-  transition: width 0.3s ease;
+  background: linear-gradient(135deg, #4DD0E1, #9C27B0);
+  animation: textUnderline 3s ease-in-out infinite;
+}
+
+@keyframes gradientShift {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  25% {
+    background-position: 100% 50%;
+  }
+  50% {
+    background-position: 50% 0%;
+  }
+  75% {
+    background-position: 50% 100%;
+  }
+}
+
+@keyframes textUnderline {
+  0%, 100% { width: 0; }
+  50% { width: 100%; }
+}
+
+/* Logo Animations */
+@keyframes logoFloat {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  33% {
+    transform: translateY(-3px) rotate(1deg);
+  }
+  66% {
+    transform: translateY(2px) rotate(-1deg);
+  }
+}
+
+/* Navigation Links con Animaciones Cool */
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 40px;
+}
+
+.nav-link {
+  color: #374151;
+  font-weight: 600;
+  font-size: 16px;
+  text-decoration: none;
+  padding: 12px 16px;
+  border-radius: 10px;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  text-transform: capitalize;
+  letter-spacing: 0.3px;
+}
+
+/* Efecto de Fondo Deslizante */
+.nav-link::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(77, 208, 225, 0.15), rgba(186, 104, 200, 0.15));
+  transition: left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: -1;
+}
+
+/* Línea Inferior Animada */
+.nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: 4px;
+  left: 50%;
+  width: 0;
+  height: 3px;
+  background: linear-gradient(135deg, #4DD0E1, #9C27B0);
+  border-radius: 2px;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: translateX(-50%);
 }
 
 .nav-link:hover {
-  color: #111827;
-  transform: translateY(-1px);
+  color: #9C27B0;
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 8px 20px rgba(186, 104, 200, 0.3);
+}
+
+.nav-link:hover::before {
+  left: 0;
 }
 
 .nav-link:hover::after {
-  width: 100%;
+  width: 80%;
 }
 
+/* Estado Activo */
 .nav-link.active {
-  color: #111827;
-  border-bottom: 2px solid #22d3ee;
+  color: #9C27B0;
+  background: linear-gradient(135deg, rgba(77, 208, 225, 0.1), rgba(186, 104, 200, 0.1));
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(186, 104, 200, 0.2);
 }
 
-/* Action Icons */
+.nav-link.active::after {
+  width: 90%;
+  background: linear-gradient(135deg, #9C27B0, #4DD0E1);
+}
+
+/* Animación de Entrada para Links */
+.nav-link {
+  animation: linkAppear 0.6s ease-out both;
+}
+
+.nav-link:nth-child(1) { animation-delay: 0.1s; }
+.nav-link:nth-child(2) { animation-delay: 0.2s; }
+.nav-link:nth-child(3) { animation-delay: 0.3s; }
+.nav-link:nth-child(4) { animation-delay: 0.4s; }
+
+@keyframes linkAppear {
+  0% {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Action Icons con Efectos Mejorados */
 .action-icons {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 20px;
 }
 
 .icon-link {
-  padding: 8px;
+  padding: 12px;
   color: #4b5563;
-  border-radius: 50%;
+  border-radius: 12px;
   text-decoration: none;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.3s ease;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
+  overflow: hidden;
+  width: 44px;
+  height: 44px;
 }
 
 .icon-link::before {
   content: '';
   position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 0;
-  height: 0;
-  background: linear-gradient(45deg, #22d3ee, #fb7185);
-  border-radius: 50%;
-  transform: translate(-50%, -50%);
-  transition: all 0.3s ease;
-  z-index: -1;
-}
-
-.icon-link:hover {
-  color: white;
-  transform: scale(1.1) rotate(5deg);
-}
-
-.icon-link:hover::before {
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-  .navbar-container {
-    padding: 0 0.5rem;
-  }
-  
-  .nav-links {
-    display: none;
-  }
-  
-  .logo-text {
-    font-size: 18px;
-  }
-  
-  .action-icons {
-    gap: 8px;
-  }
-  
-  .logo-container {
-    animation: logoFloat 2s ease-in-out infinite;
-  }
-}
-
-/* Pause animations when user prefers reduced motion */
-@media (prefers-reduced-motion: reduce) {
-  .logo-container,
-  .logo-icon,
-  .logo-letter,
-  .logo-text {
-    animation: none;
-  }
-  
-  .logo-link:hover,
-  .nav-link:hover,
-  .icon-link:hover {
-    transform: none;
-  }
+  background: linear-gradient(135deg, #4DD0E1, #BA68C8);
+  opacity: 0;
+  border-radius: 12px;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: scale(0);
 }

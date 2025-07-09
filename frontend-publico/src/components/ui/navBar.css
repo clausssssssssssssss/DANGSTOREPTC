@@ -1,22 +1,30 @@
-/* NavBar.css - Versión Mejorada con Logo y Animaciones */
+/* NavBar.css - Versión con Fondo Oscuro Completo y Animaciones de Iconos */
 .navbar {
   position: fixed;
   top: 0;
   width: 100%;
-  background: rgba(255, 255, 255, 0.95);
+  background: linear-gradient(135deg, 
+    rgba(45, 55, 72, 0.98) 0%, 
+    rgba(30, 41, 59, 0.98) 25%,
+    rgba(51, 65, 85, 0.98) 50%,
+    rgba(30, 41, 59, 0.98) 75%,
+    rgba(45, 55, 72, 0.98) 100%);
   backdrop-filter: blur(20px);
   box-shadow: 
-    0 4px 20px rgba(0, 0, 0, 0.08),
-    0 1px 3px rgba(0, 0, 0, 0.1);
-  border-bottom: 1px solid rgba(186, 104, 200, 0.1);
+    0 4px 20px rgba(0, 0, 0, 0.3),
+    0 1px 3px rgba(77, 208, 225, 0.2),
+    0 0 0 1px rgba(186, 104, 200, 0.3);
+  border-bottom: 1px solid rgba(186, 104, 200, 0.4);
   z-index: 50;
   transition: all 0.3s ease;
 }
 
 .navbar:hover {
   box-shadow: 
-    0 6px 30px rgba(186, 104, 200, 0.15),
-    0 2px 8px rgba(77, 208, 225, 0.1);
+    0 6px 30px rgba(0, 0, 0, 0.4),
+    0 2px 8px rgba(77, 208, 225, 0.3),
+    0 0 0 1px rgba(186, 104, 200, 0.5);
+  /* Mantener el mismo fondo oscuro, sin cambiar a blanco */
 }
 
 .navbar-container {
@@ -32,18 +40,7 @@
   height: 64px;
 }
 
-/* Logo Styles - Logo de Tienda */
-.logo-image {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.logo-icon:hover .logo-image {
-  transform: scale(1.1) rotate(5deg);
-  filter: brightness(1.1);
-}
+/* Logo Styles - Adaptado para fondo oscuro */
 .logo-link {
   display: flex;
   align-items: center;
@@ -52,12 +49,32 @@
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   padding: 8px 12px;
   border-radius: 12px;
+  position: relative;
+  overflow: hidden;
+}
+
+.logo-link::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, 
+    rgba(77, 208, 225, 0.15), 
+    rgba(186, 104, 200, 0.15));
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  border-radius: 12px;
+}
+
+.logo-link:hover::before {
+  opacity: 1;
 }
 
 .logo-link:hover {
   transform: scale(1.05) translateY(-2px);
-  background: linear-gradient(135deg, rgba(77, 208, 225, 0.1), rgba(186, 104, 200, 0.1));
-  box-shadow: 0 8px 25px rgba(186, 104, 200, 0.2);
+  box-shadow: 0 8px 25px rgba(186, 104, 200, 0.4);
 }
 
 .logo-container {
@@ -66,7 +83,7 @@
   animation: logoFloat 4s ease-in-out infinite;
 }
 
-/* Logo de Tienda con Efectos */
+/* Logo de Tienda con Efectos Mejorados */
 .logo-icon {
   width: 40px;
   height: 40px;
@@ -101,7 +118,19 @@
   box-shadow: 0 8px 25px rgba(186, 104, 200, 0.5);
 }
 
-/* Icono de Tienda (🛍️ o 🏪) */
+.logo-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.logo-icon:hover .logo-image {
+  transform: scale(1.1) rotate(5deg);
+  filter: brightness(1.1);
+}
+
+/* Icono de Tienda alternativo */
 .store-icon {
   font-size: 20px;
   color: white;
@@ -118,7 +147,7 @@
   }
 }
 
-/* DANGSTORE con Gradiente Morado/Aqua */
+/* DANGSTORE con Gradiente Mejorado */
 .logo-text {
   font-weight: 800;
   font-size: 22px;
@@ -176,20 +205,20 @@
   }
 }
 
-/* Navigation Links con Animaciones Cool */
+/* Navigation Links - Adaptados para fondo oscuro */
 .nav-links {
   display: flex;
   align-items: center;
-  gap: 40px;
+  gap: 35px;
 }
 
 .nav-link {
-  color: #374151;
+  color: #e2e8f0; /* Texto claro para fondo oscuro */
   font-weight: 600;
   font-size: 16px;
   text-decoration: none;
-  padding: 12px 16px;
-  border-radius: 10px;
+  padding: 12px 18px;
+  border-radius: 12px;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   overflow: hidden;
@@ -205,16 +234,19 @@
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(135deg, rgba(77, 208, 225, 0.15), rgba(186, 104, 200, 0.15));
+  background: linear-gradient(135deg, 
+    rgba(77, 208, 225, 0.2), 
+    rgba(186, 104, 200, 0.2));
   transition: left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   z-index: -1;
+  border-radius: 12px;
 }
 
 /* Línea Inferior Animada */
 .nav-link::after {
   content: '';
   position: absolute;
-  bottom: 4px;
+  bottom: 6px;
   left: 50%;
   width: 0;
   height: 3px;
@@ -225,9 +257,9 @@
 }
 
 .nav-link:hover {
-  color: #9C27B0;
-  transform: translateY(-3px) scale(1.05);
-  box-shadow: 0 8px 20px rgba(186, 104, 200, 0.3);
+  color: #4DD0E1; /* Aqua claro en hover */
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 6px 20px rgba(77, 208, 225, 0.4);
 }
 
 .nav-link:hover::before {
@@ -235,20 +267,22 @@
 }
 
 .nav-link:hover::after {
-  width: 80%;
+  width: 75%;
 }
 
 /* Estado Activo */
 .nav-link.active {
-  color: #9C27B0;
-  background: linear-gradient(135deg, rgba(77, 208, 225, 0.1), rgba(186, 104, 200, 0.1));
-  transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(186, 104, 200, 0.2);
+  color: #4DD0E1; /* Aqua para el estado activo */
+  background: linear-gradient(135deg, 
+    rgba(77, 208, 225, 0.25), 
+    rgba(186, 104, 200, 0.25));
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(77, 208, 225, 0.3);
 }
 
 .nav-link.active::after {
-  width: 90%;
-  background: linear-gradient(135deg, #9C27B0, #4DD0E1);
+  width: 85%;
+  background: linear-gradient(135deg, #4DD0E1, #9C27B0);
 }
 
 /* Animación de Entrada para Links */
@@ -272,16 +306,16 @@
   }
 }
 
-/* Action Icons con Efectos Mejorados */
+/* Action Icons con Animaciones Individuales */
 .action-icons {
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 18px;
 }
 
 .icon-link {
   padding: 12px;
-  color: #4b5563;
+  color: #cbd5e1; /* Color claro para fondo oscuro */
   border-radius: 12px;
   text-decoration: none;
   display: flex;
@@ -301,9 +335,352 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(135deg, #4DD0E1, #BA68C8);
+  background: linear-gradient(135deg, 
+    rgba(77, 208, 225, 0.2), 
+    rgba(186, 104, 200, 0.2));
   opacity: 0;
   border-radius: 12px;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   transform: scale(0);
+}
+
+.icon-link:hover::before {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.icon-link:hover {
+  color: #4DD0E1;
+  transform: translateY(-3px) scale(1.1);
+  box-shadow: 0 8px 25px rgba(77, 208, 225, 0.4);
+}
+
+/* Animaciones específicas para cada ícono */
+
+/* Ícono de Búsqueda - Rotación */
+.icon-link:nth-child(1):hover svg {
+  animation: searchPulse 0.6s ease-in-out;
+}
+
+@keyframes searchPulse {
+  0%, 100% { transform: scale(1) rotate(0deg); }
+  50% { transform: scale(1.2) rotate(180deg); }
+}
+
+/* Ícono de Carrito - Shake */
+.icon-link:nth-child(2):hover svg {
+  animation: cartShake 0.6s ease-in-out;
+}
+
+@keyframes cartShake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-3px); }
+  20%, 40%, 60%, 80% { transform: translateX(3px); }
+}
+
+/* Ícono de Usuario - Bounce */
+.icon-link:nth-child(3):hover svg {
+  animation: userBounce 0.6s ease-in-out;
+}
+
+@keyframes userBounce {
+  0%, 100% { transform: translateY(0); }
+  25% { transform: translateY(-8px) scale(1.1); }
+  50% { transform: translateY(-4px) scale(1.05); }
+  75% { transform: translateY(-2px) scale(1.02); }
+}
+
+/* Efectos adicionales para cada ícono */
+.icon-link:nth-child(1)::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: radial-gradient(circle, rgba(77, 208, 225, 0.3) 0%, transparent 70%);
+  border-radius: 50%;
+  transition: all 0.3s ease;
+  transform: translate(-50%, -50%);
+}
+
+.icon-link:nth-child(1):hover::after {
+  width: 60px;
+  height: 60px;
+}
+
+.icon-link:nth-child(2)::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: radial-gradient(circle, rgba(186, 104, 200, 0.3) 0%, transparent 70%);
+  border-radius: 50%;
+  transition: all 0.3s ease;
+  transform: translate(-50%, -50%);
+}
+
+.icon-link:nth-child(2):hover::after {
+  width: 60px;
+  height: 60px;
+}
+
+.icon-link:nth-child(3)::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: radial-gradient(circle, rgba(147, 197, 253, 0.3) 0%, transparent 70%);
+  border-radius: 50%;
+  transition: all 0.3s ease;
+  transform: translate(-50%, -50%);
+}
+
+.icon-link:nth-child(3):hover::after {
+  width: 60px;
+  height: 60px;
+}
+
+/* Estado activo para iconos */
+.icon-link.active {
+  color: #4DD0E1;
+  background: linear-gradient(135deg, 
+    rgba(77, 208, 225, 0.25), 
+    rgba(186, 104, 200, 0.25));
+  box-shadow: 0 4px 15px rgba(77, 208, 225, 0.3);
+  transform: scale(1.05);
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .nav-links {
+    gap: 25px;
+  }
+  
+  .nav-link {
+    padding: 10px 15px;
+    font-size: 15px;
+  }
+}
+
+@media (max-width: 768px) {
+  .navbar-content {
+    height: 56px;
+  }
+  
+  .nav-links {
+    display: none; /* Ocultar en móvil - implementar menú hamburguesa */
+  }
+  
+  .logo-text {
+    font-size: 20px;
+  }
+  
+  .logo-icon {
+    width: 36px;
+    height: 36px;
+  }
+  
+  .action-icons {
+    gap: 15px;
+  }
+  
+  .icon-link {
+    width: 40px;
+    height: 40px;
+    padding: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .navbar-container {
+    padding: 0 0.75rem;
+  }
+  
+  .logo-text {
+    font-size: 18px;
+  }
+  
+  .logo-icon {
+    width: 32px;
+    height: 32px;
+  }
+  
+  .action-icons {
+    gap: 12px;
+  }
+  
+  .icon-link {
+    width: 36px;
+    height: 36px;
+    padding: 8px;
+  }
+}
+
+/* Mejoras de accesibilidad */
+.nav-link:focus,
+.icon-link:focus,
+.logo-link:focus {
+  outline: 2px solid #4DD0E1;
+  outline-offset: 2px;
+}
+
+/* Modo oscuro - ya está implementado por defecto */
+@media (prefers-color-scheme: dark) {
+  /* Los estilos ya están optimizados para fondo oscuro */
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .nav-links {
+    gap: 25px;
+  }
+  
+  .nav-link {
+    padding: 10px 15px;
+    font-size: 15px;
+  }
+}
+
+@media (max-width: 768px) {
+  .navbar-content {
+    height: 56px;
+  }
+  
+  .nav-links {
+    display: none; /* Ocultar en móvil - implementar menú hamburguesa */
+  }
+  
+  .logo-text {
+    font-size: 20px;
+  }
+  
+  .logo-icon {
+    width: 36px;
+    height: 36px;
+  }
+  
+  .action-icons {
+    gap: 15px;
+  }
+  
+  .icon-link {
+    width: 40px;
+    height: 40px;
+    padding: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .navbar-container {
+    padding: 0 0.75rem;
+  }
+  
+  .logo-text {
+    font-size: 18px;
+  }
+  
+  .logo-icon {
+    width: 32px;
+    height: 32px;
+  }
+  
+  .action-icons {
+    gap: 12px;
+  }
+  
+  .icon-link {
+    width: 36px;
+    height: 36px;
+    padding: 8px;
+  }
+}
+
+/* Mejoras de accesibilidad */
+.nav-link:focus,
+.icon-link:focus,
+.logo-link:focus {
+  outline: 2px solid #4DD0E1;
+  outline-offset: 2px;
+}
+
+/* Mejoras para pantallas de alta resolución */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .logo-image {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+  }
+}
+
+/* Reducir animaciones para usuarios sensibles */
+@media (prefers-reduced-motion: reduce) {
+  .logo-container,
+  .store-icon,
+  .logo-text::after,
+  .nav-link,
+  .icon-link:nth-child(1):hover svg,
+  .icon-link:nth-child(2):hover svg,
+  .icon-link:nth-child(3):hover svg {
+    animation: none !important;
+  }
+  
+  .nav-link:hover,
+  .icon-link:hover,
+  .logo-link:hover {
+    transform: none !important;
+  }
+}
+
+/* Efectos adicionales para mejorar la experiencia */
+.navbar::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(90deg, 
+    transparent, 
+    rgba(77, 208, 225, 0.5), 
+    rgba(186, 104, 200, 0.5), 
+    transparent);
+  opacity: 0.7;
+  animation: borderGlow 3s ease-in-out infinite;
+}
+
+@keyframes borderGlow {
+  0%, 100% {
+    opacity: 0.7;
+    transform: scaleX(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scaleX(1.02);
+  }
+}
+
+/* Animación sutil para el fondo del navbar */
+.navbar {
+  background-attachment: fixed;
+  background-size: 400% 400%;
+  animation: navbarGradient 15s ease infinite;
+}
+
+@keyframes navbarGradient {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  25% {
+    background-position: 100% 0%;
+  }
+  50% {
+    background-position: 100% 100%;
+  }
+  75% {
+    background-position: 0% 100%;
+  }
 }

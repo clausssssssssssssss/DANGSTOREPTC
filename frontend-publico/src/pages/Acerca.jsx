@@ -156,7 +156,7 @@ const About = () => {
               <h3>Visión</h3>
               <p>
                 Ser una marca reconocida por su creatividad y calidad en el diseño de accesorios artesanales, expandiéndonos a nuevos productos como pines y objetos decorativos, mientras
-                  fortalecemos la conexión con nuestros clientes  y mantenemos la esencia creativa que nos distingue.
+                  fortalecemos la conexión con nuestros clientes  y mantenemos la esencia creativa que nos distingue.
               </p>
             </div>
 
@@ -225,16 +225,6 @@ const About = () => {
                 <p>📧 dangstore2024@gmail.com</p>
                 <p>📱 +1234567890</p>
                 <p>📍 San Salvador, El Salvador</p>
-              </div>
-            </div>
-
-            {/* Síguenos */}
-            <div className="footer-section">
-              <h4>Síguenos</h4>
-              <p>Mantente conectado con nosotros para las últimas novedades y productos exclusivos.</p>
-              <div className="newsletter">
-                <input type="email" placeholder="Tu email" className="newsletter-input" />
-                <button className="newsletter-button">Suscribirse</button>
               </div>
             </div>
           </div>

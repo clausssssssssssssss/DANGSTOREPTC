@@ -51,7 +51,7 @@ const About = () => {
           <div className="video-overlay">
             <div className="hero-content">
               <h1 className="hero-title">DANGSTORE</h1>
-              <p className="hero-subtitle">Tu recorrido en plantas, tu estilo en lavero</p>
+              <p className="hero-subtitle">Tus recuerdos en pixeles, tu estilo en llavero.</p>
               <div className="hero-decoration">
                 <div className="decoration-line"></div>
                 <div className="decoration-dots">
@@ -74,20 +74,17 @@ const About = () => {
               <h2 className="section-title">¿Qué hacemos?</h2>
               <div className="description-text">
                 <p>
-                  En DangStore creamos llaveros con 
-                  <strong> temas fieschi, jirino o personalizados!</strong> Elige tu personaje 
-                  favorito o pedi uno a tu estilo.
+                  Convertimos pequeños píxeles en grandes ideas. Cada llavero es elaborado a
+                   mano con  <strong>precisión y dedicación</strong>, dando vida a personajes, íconos y figuras
+                   que marcan tu estilo único.
                 </p>
                 <p>
-                  En DangStore diseñamos cuadros con 
-                  <strong> figma Swisha.</strong> Podés elegir virtualmente no 
-                  hecho o pedir uno único hecho a tu 
-                  medida.
+                 En DangStore creamos <strong>llaveros</strong> con Hama Beads, ¡listos o personalizados! Elegí 
+                 tu personaje favorito o pedí uno a tu estilo.
                 </p>
                 <p>
-                  Convertimos pequeños pixeles en grandes ideas. Cada llavero es elaborado a 
-                  mano con precisión y dedicación, dando vida a personajes, íconos y figuras que 
-                  reflejan tu personalidad única.
+                 En DangStore diseñamos <strong>cuadros</strong> con Hama Beads. Podés elegir un diseño ya hecho o pedir uno único
+                  hecho a tu medida.
                 </p>
               </div>
             </div>
@@ -137,12 +134,8 @@ const About = () => {
               </div>
               <h3>Misión</h3>
               <p>
-                Ofrecer accesorios únicos y productos hechos a mano, 
-                elaborados con dedicación y 
-                creatividad. Cada pieza hasta bizús, fomentando 
-                el arte y la expresión personal a través de nuestros productos como 
-                llaveros y diseños que 
-                nos distinguen.
+                Ofrecer accesorios únicos y creativos hechos a mano, elaborados principalmente con hama beads, brindando
+                 a cada cliente un producto especial, un detalle hecho con dedicación, que transmita originalidad y alegría.
               </p>
             </div>
 
@@ -162,16 +155,8 @@ const About = () => {
               </div>
               <h3>Visión</h3>
               <p>
-                Ser una marca reconocida por su 
-                creatividad y calidad en 
-                el diseño de accesorios 
-                artesanales. Aspiramos a 
-                expandir nuestro alcance, 
-                llevando nuestros productos como 
-                llaveros y elementos únicos a nivel 
-                nacional, siempre manteniendo 
-                nuestros valores que 
-                nos distinguen.
+                Ser una marca reconocida por su creatividad y calidad en el diseño de accesorios artesanales, expandiéndonos a nuevos productos como pines y objetos decorativos, mientras
+                  fortalecemos la conexión con nuestros clientes  y mantenemos la esencia creativa que nos distingue.
               </p>
             </div>
 
@@ -188,17 +173,7 @@ const About = () => {
               </div>
               <h3>Valores</h3>
               <p>
-                <strong>Creatividad:</strong> 
-                Responsabilidad, 
-                Compromiso, 
-                Confianza, 
-                Excelencia.
-                <br /><br />
-                Nos comprometemos a ofrecer 
-                productos de alta calidad 
-                con un servicio responsable 
-                y confiable para nuestros 
-                clientes.
+              Respeto, Responsabilidad, Creatividad, Confianza, Honestidad.
               </p>
             </div>
           </div>
@@ -269,7 +244,7 @@ const About = () => {
             <div className="footer-bottom-content">
               <p>&copy; 2024 DANGSTORE. Todos los derechos reservados.</p>
               <div className="footer-bottom-links">
-                <a href="/privacidad">Política de Privacidad</a>
+                <a href="/privacidad">Política de Privacidad</a>  
                 <a href="/terminos">Términos de Servicio</a>
               </div>
             </div>

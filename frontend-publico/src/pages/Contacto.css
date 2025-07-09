@@ -1,4 +1,4 @@
-/* Contacto.css - Versión Aqua/Morado con Animaciones */
+/* Contacto.css - Versión Aqua/Morado con Animaciones y Texto Legible */
 
 /* Reset y configuración base */
 * {
@@ -198,11 +198,11 @@ body {
 .info-section {
   margin-bottom: 1.5rem;
   padding: 1.5rem;
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.8);
   border-radius: 1rem;
   border-left: 4px solid transparent;
   background-image: 
-    linear-gradient(rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.2)),
+    linear-gradient(rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.8)),
     linear-gradient(135deg, #4DD0E1, #BA68C8);
   background-origin: border-box;
   background-clip: content-box, border-box;
@@ -244,7 +244,7 @@ body {
   box-shadow: 
     0 15px 35px rgba(186, 104, 200, 0.3),
     0 0 0 1px rgba(255, 255, 255, 0.4);
-  background: rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.9);
 }
 
 .info-section:hover::before {
@@ -255,14 +255,14 @@ body {
   display: block;
   font-size: 1.1rem;
   font-weight: 700;
-  color: #9C27B0;
+  color: #7B1FA2;
   margin-bottom: 0.75rem;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .info-section p {
   font-size: 0.95rem;
-  color: #333;
+  color: #2C2C2C;
   margin: 0;
   line-height: 1.6;
   margin-bottom: 0.5rem;
@@ -279,7 +279,7 @@ body {
   align-items: center;
   margin-top: 1rem;
   padding: 1rem;
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.8);
   border-radius: 1rem;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
@@ -304,6 +304,7 @@ body {
 .social-item:hover {
   transform: translateY(-5px) scale(1.05);
   box-shadow: 0 20px 40px rgba(186, 104, 200, 0.4);
+  background: rgba(255, 255, 255, 0.95);
 }
 
 .social-item:hover::before {
@@ -335,7 +336,7 @@ body {
 
 .social-item span:last-child {
   font-size: 1rem;
-  color: #333;
+  color: #2C2C2C;
   font-weight: 600;
   position: relative;
   z-index: 1;

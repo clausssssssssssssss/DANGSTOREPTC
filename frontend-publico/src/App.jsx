@@ -11,6 +11,8 @@ import Perfil from './pages/Perfil'
 //import MetodoDePago from './components/MetodoDePago' // Nuevo componente//
 //import OrderHistory from './components/OrderHistory' // Nuevo componente//
 import './App.css'
+import CartPage from './pages/CartPage';
+
 
 // Spinner y ErrorBoundary 
 const LoadingSpinner = () => (
@@ -96,12 +98,13 @@ function App() {
               <Route path="contacto" element={<Contacto />} />
               <Route path="acerca" element={<Acerca />} />
               <Route path="perfil" element={<Perfil />} />
+              <Route path="/carrito" element={<CartPage />} />
 
               {/* fallback dentro de privadas */}
               <Route path="*" element={<Navigate to="/catalogo" replace />} />
             </Route>
           )}
-
+<Route path="/carrito" element={<CartPage />} />
           {/* 3) Si no hay token, forzar a /auth */}
           {!token && <Route path="*" element={<Navigate to="/auth" replace />} />}
         </Routes>

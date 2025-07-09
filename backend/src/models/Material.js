@@ -1,12 +1,9 @@
-/**
- * Modelo Mongoose para la colección de materiales.
- * @module models/Material
- */
-const mongoose = require('mongoose');
-const { Schema, model } = mongoose;
+import mongoose from 'mongoose';
+import { Schema, model } from 'mongoose';
+import cloudinary from 'cloudinary';
 
+// Esquema para un material en inventario
 /**
- * Esquema para un material en inventario.
  * @typedef {Object} Material
  * @property {String} name - Nombre del material (por ejemplo: 'Cadena Acero').
  * @property {String} type - Tipo o categoría del material (por ejemplo: 'metal').
@@ -30,20 +27,20 @@ const MaterialSchema = new Schema(
     quantity: {
       type: Number,
       required: [true, 'El campo quantity es obligatorio'],
-      min: [0, 'La quantity no puede ser negativa']
+      min: [0, 'La cantidad no puede ser negativa']
     },
-    disponibilidad: {
-      type: Boolean,
-      required: [true, 'El campo disponibilidad es obligatorio']
-    },
-    entrydate: {
+    dateOfEntry: {
       type: Date,
-      required: [true, 'El campo entrydate es obligatorio']
+      required: [true, 'El campo dateOfEntry es obligatorio']
     },
     investment: {
       type: Number,
       required: [true, 'El campo investment es obligatorio'],
       min: [0, 'La inversión no puede ser negativa']
+    },
+    image: {
+      type: String,  // Aquí almacenaremos la URL de la imagen
+      required: [true, 'La imagen es obligatoria']
     }
   },
   {
@@ -53,4 +50,4 @@ const MaterialSchema = new Schema(
   }
 );
 
-module.exports = model('Material', MaterialSchema);
+export default model('Material', MaterialSchema);

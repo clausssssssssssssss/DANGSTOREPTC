@@ -1,6 +1,6 @@
 // src/services/productService.js
 
-const API_BASE_URL = 'http://tu-backend.com/api'; // Ajusta esta URL
+const API_BASE_URL = 'http://localhost:4000/api/productsi'; // Ajusta esta URL
 
 export const productService = {
   async getProducts() {

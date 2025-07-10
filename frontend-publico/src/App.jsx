@@ -1,6 +1,8 @@
 import React, { Suspense } from 'react'
 import { Routes, Route, Navigate, Outlet } from 'react-router-dom'
+import { AuthProvider } from './hooks/useAuth'
 import NavBar from './components/ui/navBar'
+
 import AuthApp from './pages/AuthApp'
 import Encargo from './pages/Encargo'
 import CarritoDeCompras from './pages/CarritoDeCompras'
@@ -8,12 +10,11 @@ import Catalogo from './pages/Catalogo'
 import Contacto from './pages/Contacto'
 import Acerca from './pages/Acerca'
 import Perfil from './pages/Perfil'
-//import MetodoDePago from './components/MetodoDePago' // Nuevo componente//
-//import OrderHistory from './components/OrderHistory' // Nuevo componente//
+import UserProfile from './pages/UserProfile'
+
 import './App.css'
 
-
-// Spinner y ErrorBoundary 
+// Spinner de carga
 const LoadingSpinner = () => (
   <div className="min-h-screen bg-gradient-to-br from-purple-400 via-purple-500 to-purple-600 flex items-center justify-center">
     <div className="text-center">
@@ -23,6 +24,7 @@ const LoadingSpinner = () => (
   </div>
 )
 
+// Fallback para errores
 const ErrorFallback = ({ error, resetError }) => (
   <div className="min-h-screen bg-gradient-to-br from-red-400 via-red-500 to-red-600 flex items-center justify-center p-4">
     <div className="bg-white rounded-3xl shadow-2xl p-8 w-full max-w-md text-center">
@@ -45,18 +47,23 @@ const ErrorFallback = ({ error, resetError }) => (
   </div>
 )
 
+// Componente para capturar errores
 class AppErrorBoundary extends React.Component {
   constructor(props) {
     super(props)
     this.state = { hasError: false, error: null }
   }
+
   static getDerivedStateFromError(error) {
     return { hasError: true, error }
   }
+
   componentDidCatch(error, info) {
     console.error('ErrorBoundary caught:', error, info)
   }
+
   resetError = () => this.setState({ hasError: false, error: null })
+
   render() {
     if (this.state.hasError) {
       return <ErrorFallback error={this.state.error} resetError={this.resetError} />
@@ -65,7 +72,7 @@ class AppErrorBoundary extends React.Component {
   }
 }
 
-// Layout que envuelve todas las rutas privadas
+// Layout que envuelve las rutas privadas
 function ProtectedLayout() {
   return (
     <>
@@ -80,32 +87,33 @@ function App() {
 
   return (
     <AppErrorBoundary>
-      <Suspense fallback={<LoadingSpinner />}>
-        <Routes>
-          {/* 1) Rutas de autenticación */}
-          <Route path="/" element={<Navigate to="/auth" replace />} />
-          <Route path="/auth/*" element={<AuthApp />} />
+      <AuthProvider>
+        <Suspense fallback={<LoadingSpinner />}>
+          <Routes>
+            {/* Rutas de autenticación */}
+            <Route path="/" element={<Navigate to="/auth" replace />} />
+            <Route path="/auth/*" element={<AuthApp />} />
 
-          {/* 2) Rutas protegidas (sólo si hay token) */}
-          {token && (
-            <Route element={<ProtectedLayout />}>
-              <Route path="encargo" element={<Encargo />} />
-              <Route path="catalogo" element={<Catalogo />} />
-              <Route path="carrito" element={<CarritoDeCompras />} />
-              {/*<Route path="checkout" element={<MetodoDePago />} /> {/* Nueva ruta */}
-              {/*<Route path="historial-pedidos" element={<OrderHistory />} /> {/* Nueva ruta */}
-              <Route path="contacto" element={<Contacto />} />
-              <Route path="acerca" element={<Acerca />} />
-              <Route path="perfil" element={<Perfil />} />
+            {/* Rutas protegidas (si hay token) */}
+            {token && (
+              <Route element={<ProtectedLayout />}>
+                <Route path="encargo" element={<Encargo />} />
+                <Route path="catalogo" element={<Catalogo />} />
+                <Route path="carrito" element={<CarritoDeCompras />} />
+                <Route path="contacto" element={<Contacto />} />
+                <Route path="acerca" element={<Acerca />} />
+                <Route path="perfil" element={<UserProfile />} />
 
-              {/* fallback dentro de privadas */}
-              <Route path="*" element={<Navigate to="/catalogo" replace />} />
-            </Route>
-          )}
-          {/* 3) Si no hay token, forzar a /auth */}
-          {!token && <Route path="*" element={<Navigate to="/auth" replace />} />}
-        </Routes>
-      </Suspense>
+                {/* fallback dentro de rutas privadas */}
+                <Route path="*" element={<Navigate to="/catalogo" replace />} />
+              </Route>
+            )}
+
+            {/* Si no hay token, forzar a /auth */}
+            {!token && <Route path="*" element={<Navigate to="/auth" replace />} />}
+          </Routes>
+        </Suspense>
+      </AuthProvider>
     </AppErrorBoundary>
   )
 }

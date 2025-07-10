@@ -1,0 +1,126 @@
+/* UserProfile.css */
+
+.container {
+  max-width: 1024px;
+  margin: 0 auto;
+  background: white;
+  box-shadow: 0 0 15px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.header {
+  background-color: #fff;
+  border-bottom: 1px solid #ddd;
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header .logo {
+  font-weight: 700;
+  font-size: 1.5rem;
+  color: #d6336c; /* similar a rosa */
+}
+
+.nav-links span {
+  margin: 0 1rem;
+  cursor: pointer;
+  color: #555;
+}
+
+.nav-links span:hover {
+  color: #d6336c;
+}
+
+.sidebar {
+  width: 250px;
+  border-right: 1px solid #ddd;
+  background: #fafafa;
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+}
+
+.sidebar button {
+  background: none;
+  border: none;
+  padding: 0.75rem 1rem;
+  text-align: left;
+  font-size: 1rem;
+  color: #555;
+  cursor: pointer;
+  margin-bottom: 0.5rem;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.sidebar button.active {
+  background: #d6336c;
+  color: white;
+}
+
+.sidebar button:hover {
+  background: #f0c1d5;
+  color: #d6336c;
+}
+
+.main-content {
+  flex: 1;
+  padding: 1rem 2rem;
+  background: #f7f7f7;
+  overflow-y: auto;
+}
+
+/* Ejemplo para tarjetas */
+.card {
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.05);
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+/* Botones */
+.btn-primary {
+  background: #d6336c;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.btn-primary:hover {
+  background: #b52b5a;
+}
+
+/* Inputs */
+.input {
+  width: 100%;
+  padding: 0.5rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  margin-bottom: 1rem;
+}
+
+/* Mensajes */
+.message-success {
+  background-color: #d4edda;
+  color: #155724;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+}
+
+.message-error {
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+}

@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-import { config } from "../config.js";
+import { config } from "../../config.js";
 
 export const loginAdmin = async (req, res) => {
   // 1) Imprime en consola qué está leyendo config.admin

@@ -12,14 +12,18 @@ export const config = {
   },
   jwt: {
     secret: process.env.JWT_SECRET,  
-    expiresIn: process.env.JWT_EXPIRES_IN,  
+    expiresIn: process.env.JWT_EXPIRES_IN || '1h',  
   },
-    email: {
-    user: process.env.ADMIN_EMAIL,
-    pass: process.env.APP_PASSWORD_EMAIL,
+  admin: {
+    email: process.env.ADMIN_EMAIL,
+    password: process.env.ADMIN_PASSWORD,
   },
   paypal: {
     clientId: process.env.PAYPAL_CLIENT_ID,
     clientSecret:   process.env.PAYPAL_CLIENT_SECRET
   },
+  email: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  }
 };

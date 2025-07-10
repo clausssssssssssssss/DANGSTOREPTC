@@ -13,6 +13,8 @@ import contactRoutes          from './src/routes/contact.js';
 import catalogRoutes          from './src/routes/catalogo.js';
 import productRoutes          from './src/routes/products.js';
 import profileRoutes          from './src/routes/profile.js';
+import adminAuthRoutes        from './src/routes/adminAuth.js';
+
 
 const app = express();
 
@@ -32,5 +34,7 @@ app.use('/api/contact',         contactRoutes);
 app.use('/api/catalog',         catalogRoutes);
 app.use('/api/products',        productRoutes);
 app.use('/api/profile',         profileRoutes);
+app.use('/api/admins',          adminAuthRoutes);
+
 
 export default app;

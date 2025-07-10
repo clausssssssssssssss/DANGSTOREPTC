@@ -15,19 +15,19 @@ export default async function connectDB() {
 }
 
 mongoose.connection.on('connected', () => {
-  console.log('🔗 Mongoose connected to MongoDB');
+  console.log(' Mongoose connected to MongoDB');
 });
 
 mongoose.connection.on('error', (err) => {
-  console.error('🔴 Mongoose connection error:', err);
+  console.error('Mongoose connection error:', err);
 });
 
 mongoose.connection.on('disconnected', () => {
-  console.log('🔌 Mongoose disconnected from MongoDB');
+  console.log('Mongoose disconnected from MongoDB');
 });
 
 process.on('SIGINT', async () => {
   await mongoose.connection.close();
-  console.log('👋 MongoDB connection closed due to app termination');
+  console.log(' MongoDB connection closed due to app termination');
   process.exit(0);
 });

@@ -48,23 +48,50 @@ export const quoteCustomOrder = async (req, res) => {
   await order.save();
   res.json(order);
 };
-
-/** Usuario acepta/rechaza cotización */
 export const respondCustomOrder = async (req, res) => {
-  const { decision } = req.body; // 'accept' o 'reject'
-  const order = await CustomizedOrder.findById(req.params.id);
-  if (decision === 'reject') {
-    order.status = 'pending';
+  try {
+    const { decision } = req.body;
+    const { id } = req.params;
+
+    // 1) Buscamos la orden
+    const order = await CustomizedOrder.findById(id);
+    if (!order) {
+      return res
+        .status(404)
+        .json({ message: 'Encargo personalizado no encontrado.' });
+    }
+
+    // 2) Validamos la decisión
+    if (decision !== 'accept' && decision !== 'reject') {
+      return res
+        .status(400)
+        .json({ message: 'El campo decision debe ser "accept" o "reject".' });
+    }
+
+    // 3) Procesamos el rechazo
+    if (decision === 'reject') {
+      order.status = 'pending';
+      await order.save();
+      return res.json(order);
+    }
+
+    // 4) Procesamos la aceptación
+    order.status = 'accepted';
     await order.save();
-    return res.json(order);
+
+    // 5) Lo metemos al carrito sólo si existe usuario
+    let cart = await Cart.findOne({ user: req.user.id });
+    if (!cart) cart = new Cart({ user: req.user.id });
+    cart.customizedProducts.push({ item: order._id, quantity: 1 });
+    await cart.save();
+
+    // 6) Respuesta
+    return res.json({ order, cart });
+
+  } catch (err) {
+    console.error('Error en respondCustomOrder:', err);
+    return res
+      .status(500)
+      .json({ message: 'Error procesando respuesta de encargo', error: err.message });
   }
-  // accept
-  order.status = 'accepted';
-  await order.save();
-  // meter al carrito
-  let cart = await Cart.findOne({ user: req.user.id });
-  if (!cart) cart = new Cart({ user: req.user.id });
-  cart.customizedProducts.push({ item: order._id, quantity: 1 });
-  await cart.save();
-  res.json({ order, cart });
 };

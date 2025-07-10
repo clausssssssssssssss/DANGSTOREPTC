@@ -1,20 +1,19 @@
 import React, { Suspense } from 'react'
 import { Routes, Route, Navigate, Outlet } from 'react-router-dom'
-import { AuthProvider } from './hooks/useAuth'
 import NavBar from './components/ui/navBar'
-
 import AuthApp from './pages/AuthApp'
 import Encargo from './pages/Encargo'
 import CarritoDeCompras from './pages/CarritoDeCompras'
 import Catalogo from './pages/Catalogo'
 import Contacto from './pages/Contacto'
 import Acerca from './pages/Acerca'
-import Perfil from './pages/Perfil'
 import UserProfile from './pages/UserProfile'
-
+import MetodoDePago from './components/MetodoDePago'  
+import OrderHistory from './components/OrderHistory'  
+import { AuthProvider } from './hooks/useAuth'   // <-- importa tu AuthProvider aquí
 import './App.css'
 
-// Spinner de carga
+// Spinner y ErrorBoundary 
 const LoadingSpinner = () => (
   <div className="min-h-screen bg-gradient-to-br from-purple-400 via-purple-500 to-purple-600 flex items-center justify-center">
     <div className="text-center">
@@ -24,12 +23,11 @@ const LoadingSpinner = () => (
   </div>
 )
 
-// Fallback para errores
 const ErrorFallback = ({ error, resetError }) => (
   <div className="min-h-screen bg-gradient-to-br from-red-400 via-red-500 to-red-600 flex items-center justify-center p-4">
     <div className="bg-white rounded-3xl shadow-2xl p-8 w-full max-w-md text-center">
       <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-        <span className="text-red-600 text-2xl">⚠️</span>
+        <span className="text-red-600 text-2xl">⚠</span>
       </div>
       <h1 className="text-2xl font-bold text-gray-800 mb-2">Error de Aplicación</h1>
       <p className="text-gray-600 mb-4">Algo salió mal. Por favor, intenta recargar la página.</p>
@@ -47,23 +45,18 @@ const ErrorFallback = ({ error, resetError }) => (
   </div>
 )
 
-// Componente para capturar errores
 class AppErrorBoundary extends React.Component {
   constructor(props) {
     super(props)
     this.state = { hasError: false, error: null }
   }
-
   static getDerivedStateFromError(error) {
     return { hasError: true, error }
   }
-
   componentDidCatch(error, info) {
     console.error('ErrorBoundary caught:', error, info)
   }
-
   resetError = () => this.setState({ hasError: false, error: null })
-
   render() {
     if (this.state.hasError) {
       return <ErrorFallback error={this.state.error} resetError={this.resetError} />
@@ -72,7 +65,7 @@ class AppErrorBoundary extends React.Component {
   }
 }
 
-// Layout que envuelve las rutas privadas
+// Layout que envuelve todas las rutas privadas
 function ProtectedLayout() {
   return (
     <>
@@ -86,35 +79,36 @@ function App() {
   const token = localStorage.getItem('token')
 
   return (
-    <AppErrorBoundary>
-      <AuthProvider>
+    <AuthProvider>
+      <AppErrorBoundary>
         <Suspense fallback={<LoadingSpinner />}>
           <Routes>
-            {/* Rutas de autenticación */}
+            {/* 1) Rutas de autenticación */}
             <Route path="/" element={<Navigate to="/auth" replace />} />
             <Route path="/auth/*" element={<AuthApp />} />
 
-            {/* Rutas protegidas (si hay token) */}
+            {/* 2) Rutas protegidas (sólo si hay token) */}
             {token && (
               <Route element={<ProtectedLayout />}>
                 <Route path="encargo" element={<Encargo />} />
                 <Route path="catalogo" element={<Catalogo />} />
                 <Route path="carrito" element={<CarritoDeCompras />} />
+                <Route path="checkout" element={<MetodoDePago />} /> 
+                <Route path="historial-pedidos" element={<OrderHistory />} /> 
                 <Route path="contacto" element={<Contacto />} />
                 <Route path="acerca" element={<Acerca />} />
                 <Route path="perfil" element={<UserProfile />} />
 
-                {/* fallback dentro de rutas privadas */}
+                {/* fallback dentro de privadas */}
                 <Route path="*" element={<Navigate to="/catalogo" replace />} />
               </Route>
             )}
-
-            {/* Si no hay token, forzar a /auth */}
+            {/* 3) Si no hay token, forzar a /auth */}
             {!token && <Route path="*" element={<Navigate to="/auth" replace />} />}
           </Routes>
         </Suspense>
-      </AuthProvider>
-    </AppErrorBoundary>
+      </AppErrorBoundary>
+    </AuthProvider>
   )
 }
 

@@ -1,21 +1,36 @@
-import axios from 'axios';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
 
 export const checkout = async () => {
   try {
-    const response = await axios.post(`${API_URL}/orders/checkout`);
-    return response.data;
+    const res = await fetch(`${API_URL}/orders/checkout`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (!res.ok) {
+      const errorData = await res.json().catch(() => ({}));
+      throw errorData.message || `Error: ${res.status}`;
+    }
+
+    return await res.json();
   } catch (error) {
-    throw error.response?.data || error.message;
+    throw error.message || 'Error en checkout';
   }
 };
 
 export const getHistory = async () => {
   try {
-    const response = await axios.get(`${API_URL}/orders/history`);
-    return response.data;
+    const res = await fetch(`${API_URL}/orders/history`);
+
+    if (!res.ok) {
+      const errorData = await res.json().catch(() => ({}));
+      throw errorData.message || `Error: ${res.status}`;
+    }
+
+    return await res.json();
   } catch (error) {
-    throw error.response?.data || error.message;
+    throw error.message || 'Error en getHistory';
   }
 };

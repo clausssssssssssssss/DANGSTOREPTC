@@ -1,19 +1,18 @@
 import jwt from "jsonwebtoken";
 import { config } from '../../config.js';
 import customersModel from "../models/Customers.js";
-import adminModel from "../models/Admin.js";
 
 /**
  * authMiddleware([allowedRoles])
  *  - Si allowedRoles está vacío: permite cualquier usuario autenticado.
- *  - Si allowedRoles incluye roles (e.g. ['admin']): sólo deja pasar a esos usuarios.
+ *  - Si allowedRoles incluye roles (e.g. ['admin']): solo deja pasar a esos userTypes.
  */
 const authMiddleware = (allowedRoles = []) => {
   return async (req, res, next) => {
     try {
       // 1) Extraer token de header o cookie
       const authHeader = req.headers.authorization;
-      let token = authHeader && authHeader.startsWith("Bearer ")
+      const token = authHeader && authHeader.startsWith("Bearer ")
         ? authHeader.split(" ")[1]
         : req.cookies.authToken;
 
@@ -21,15 +20,19 @@ const authMiddleware = (allowedRoles = []) => {
         return res.status(401).json({ success: false, message: "No autenticado" });
       }
 
-      // 2) Verificar token
+      // 2) Verificar token y loggear payload
       const decoded = jwt.verify(token, config.jwt.secret);
+      console.log("→ authMiddleware: decoded:", decoded, "allowedRoles:", allowedRoles);
 
-      // 3) Cargar datos de usuario según su tipo
+      // 3) Cargar datos de usuario según userType
       let userData;
       if (decoded.userType === "customer") {
         userData = await customersModel.findById(decoded.userId).select("-password");
+        console.log("→ authMiddleware: userData (customer):", userData);
       } else if (decoded.userType === "admin") {
-        userData = await adminModel.findById(decoded.userId).select("-password");
+        // No tenemos tabla de admins; confiamos en el payload del token
+        userData = { userId: decoded.userId, userType: "admin", email: decoded.email };
+        console.log("→ authMiddleware: userData (admin):", userData);
       } else {
         return res.status(401).json({ success: false, message: "Tipo de usuario inválido" });
       }
@@ -38,16 +41,12 @@ const authMiddleware = (allowedRoles = []) => {
         return res.status(404).json({ success: false, message: "Usuario no encontrado" });
       }
 
-      // 4) Verificar roles si se especificaron
-      if (
-        Array.isArray(allowedRoles) &&
-        allowedRoles.length > 0 &&
-        !allowedRoles.includes(decoded.userType)
-      ) {
+      // 4) Verificar roles permitidos
+      if (allowedRoles.length > 0 && !allowedRoles.includes(decoded.userType)) {
         return res.status(403).json({ success: false, message: "Permiso denegado" });
       }
 
-      // 5) Inyectar user y continuar
+      // 5) Inyectar datos y continuar
       req.user     = userData;
       req.userType = decoded.userType;
       next();

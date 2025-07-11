@@ -39,17 +39,18 @@ router.get("/me", authMiddleware, getProfile);
  * GET /            -> getAllCustomers
  *   Obtiene lista de todos los clientes sin campos sensibles.
  */
-router.get("/", getAllCustomers);
+router.get("/",  authMiddleware(['admin']),getAllCustomers);
 
 /**
  * GET /:id         -> getCustomerById
  *   Obtiene un cliente por su ID, retorna 404 si no existe.
  */
-router.get("/:id", getCustomerById);
+router.get("/:id", authMiddleware(['admin']), getCustomerById);
 
 /**
  * DELETE /:id      -> deleteCustomer
  *   Elimina un cliente por su ID, retorna 404 si no existe.
  */
 router.delete('/:id', authMiddleware(['admin']),deleteCustomer );
+
 export default router;

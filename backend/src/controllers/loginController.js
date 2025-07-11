@@ -19,7 +19,7 @@ export const loginClient = async (req, res) => {
     // 2) Buscar cliente por email e INCLUIR el campo password
     const customer = await Customer
       .findOne({ email })
-      .select('+password');  // <— fuerza traer el campo password aunque en el schema esté select:false
+      .select('+password');
 
     console.log('→ Found user, hashed password:', customer?.password);
 
@@ -52,7 +52,7 @@ export const loginClient = async (req, res) => {
         name:      customer.name,
         email:     customer.email,
         telephone: customer.telephone
-      },
+      }
     });
 
   } catch (error) {

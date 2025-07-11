@@ -9,8 +9,6 @@ import Contacto from './pages/Contacto'
 import Acerca from './pages/Acerca'
 import UserProfile from './pages/UserProfile'
 
-import MetodoDePago from './components/MetodoDePago'
-import OrderHistory from './components/OrderHistory'
 
 import { AuthProvider, useAuth } from './hooks/useAuth.jsx'
 import './App.css'
@@ -144,8 +142,6 @@ const App = () => {
               <Route path="encargo" element={<Encargo />} />
               <Route path="catalogo" element={<Catalogo />} />
               <Route path="carrito" element={<CarritoDeCompras />} />
-              <Route path="checkout" element={<MetodoDePago />} />
-              <Route path="historial-pedidos" element={<OrderHistory />} />
               <Route path="contacto" element={<Contacto />} />
               <Route path="acerca" element={<Acerca />} />
               <Route path="perfil" element={<UserProfile />} />

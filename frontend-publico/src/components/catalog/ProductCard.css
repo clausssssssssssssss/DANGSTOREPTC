@@ -1,9 +1,7 @@
-/* ProductCard.css */
-
 .product-card {
-<<<<<<< HEAD
   background: #ffffff;
-  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
   overflow: hidden;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   display: flex;
@@ -15,64 +13,43 @@
 .product-card:hover {
   transform: translateY(-4px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-=======
-  background: #fff;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-  overflow: hidden;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  cursor: pointer;
-  display: flex;
-  flex-direction: column;
-}
-
-.product-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 12px rgba(0,0,0,0.15);
->>>>>>> 26b87e29789c76a4e2024700d076fc27853a0c9f
 }
 
 .product-image {
   width: 100%;
-<<<<<<< HEAD
-  height: 200px;         /* fijar alto o adaptar a tu diseño */
-  object-fit: cover;
-=======
-  height: 200px;
+  height: 200px;          /* ajustable a tu diseño */
   object-fit: cover;
   background: #f7fafc;
->>>>>>> 26b87e29789c76a4e2024700d076fc27853a0c9f
 }
 
 .product-info {
   padding: 16px;
-<<<<<<< HEAD
   display: flex;
   flex-direction: column;
   flex: 1;
+  text-align: center;
 }
 
 .product-info h3 {
   margin: 0 0 8px;
   font-size: 1.1rem;
-  color: #333333;
+  color: #2d3748;
 }
 
 .price {
   margin: 0 0 16px;
   font-size: 1rem;
   font-weight: bold;
-  color: #27ae60;        /* verde, ajústalo a tu paleta */
+  color: #27ae60;         /* verde principal */
 }
 
 .add-to-cart-btn {
-  margin-top: auto;      /* empuja el botón al fondo */
-  background-color: #27ae60;
+  margin-top: auto;       /* empuja el botón al fondo */
+  background-color: #4DD0E1;
   color: #ffffff;
   border: none;
-  border-radius: 4px;
-  padding: 12px;
+  border-radius: 20px;
+  padding: 10px 16px;
   font-size: 0.9rem;
   font-weight: 600;
   cursor: pointer;
@@ -80,35 +57,5 @@
 }
 
 .add-to-cart-btn:hover {
-  background-color: #219150;
-=======
-  text-align: center;
-}
-
-.product-info h3 {
-  font-size: 1.1rem;
-  margin: 0 0 8px 0;
-  color: #2d3748;
-}
-
-.price {
-  font-size: 1rem;
-  color: #4a5568;
-  margin-bottom: 12px;
-}
-
-.add-to-cart-btn {
-  background-color: #4DD0E1;
-  color: #fff;
-  border: none;
-  border-radius: 20px;
-  padding: 10px 16px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background 0.3s ease;
-}
-
-.add-to-cart-btn:hover {
   background-color: #26C6DA;
->>>>>>> 26b87e29789c76a4e2024700d076fc27853a0c9f
 }

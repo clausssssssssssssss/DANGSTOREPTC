@@ -51,6 +51,5 @@ router.get("/:id", getCustomerById);
  * DELETE /:id      -> deleteCustomer
  *   Elimina un cliente por su ID, retorna 404 si no existe.
  */
-router.delete("/:id", deleteCustomer);
-
+router.delete('/:id', authMiddleware(['admin']),deleteCustomer );
 export default router;

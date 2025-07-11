@@ -73,7 +73,7 @@ fakePaymentController.fakeCheckout = async (req, res) => {
     // 4) Vaciar el carrito
     cart.products = [];
     cart.customizedProducts = [];
-    cart.state = 'Pagado';
+    cart.state = 'Pendiente';
     await cart.save();
 
     return res.status(200).json({

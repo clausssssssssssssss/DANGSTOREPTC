@@ -1,5 +1,6 @@
+// src/App.jsx
 import React, { Suspense } from 'react'
-import { Routes, Route, Navigate, Outlet } from 'react-router-dom'
+import { Routes, Route, Navigate, Outlet, useLocation } from 'react-router-dom'
 import NavBar from './components/ui/navBar'
 import AuthApp from './pages/AuthApp'
 import Encargo from './pages/Encargo'
@@ -7,7 +8,8 @@ import CarritoDeCompras from './pages/CarritoDeCompras'
 import Catalogo from './pages/Catalogo'
 import Contacto from './pages/Contacto'
 import Acerca from './pages/Acerca'
-import UserProfile from './pages/UserProfile'  // Mantenemos el import original
+import UserProfile from './pages/UserProfile'
+import { AuthProvider, useAuth } from './hooks/useAuth.jsx'
 import './App.css'
 
 // Componente de carga mejorado
@@ -29,14 +31,12 @@ const ErrorFallback = ({ error, resetError }) => (
       </div>
       <h1 className="text-2xl font-bold text-gray-800 mb-2">¡Error!</h1>
       <p className="text-gray-600 mb-4">Algo salió mal. Por favor, intenta recargar la página.</p>
-      
       <details className="text-left mb-6 bg-gray-50 rounded-lg p-3">
         <summary className="cursor-pointer text-sm font-medium text-gray-700">Detalles del error</summary>
         <pre className="text-xs mt-2 p-2 bg-gray-100 rounded overflow-auto max-h-40">
           {error.stack || error.message}
         </pre>
       </details>
-      
       <div className="flex flex-col sm:flex-row gap-3">
         <button
           onClick={resetError}
@@ -65,7 +65,6 @@ class AppErrorBoundary extends React.Component {
   
   componentDidCatch(error, errorInfo) {
     console.error('Error Boundary:', error, errorInfo)
-    // Aquí podrías enviar el error a un servicio de tracking
   }
   
   resetError = () => this.setState({ hasError: false, error: null })
@@ -78,23 +77,39 @@ class AppErrorBoundary extends React.Component {
   }
 }
 
-// Layout protegido mejorado
+// Layout para rutas protegidas
 const ProtectedLayout = () => (
   <div className="flex flex-col min-h-screen">
     <NavBar />
     <main className="flex-grow p-4 md:p-6 bg-gray-50">
       <Outlet />
     </main>
-    {/* Aquí podrías añadir un footer si lo necesitas */}
   </div>
 )
 
-// Componente principal App
+// Componente que redirige "/" a /auth o /catalogo
+function RootRedirect() {
+  const { user } = useAuth()
+  return user
+    ? <Navigate to="/catalogo" replace />
+    : <Navigate to="/auth" replace />
+}
+
+// PrivateRoute: solo deja pasar si hay user
+function PrivateRoute({ children }) {
+  const { user } = useAuth()
+  const location = useLocation()
+  if (!user) {
+    return <Navigate to="/auth" state={{ from: location }} replace />
+  }
+  return children
+}
+
 const App = () => {
   const [authChecked, setAuthChecked] = React.useState(false)
-  const [token, setToken] = React.useState(null)
+  const [token, setToken]             = React.useState(null)
 
-  // Verificar autenticación al montar el componente
+  // Verificar token al montar
   React.useEffect(() => {
     const storedToken = localStorage.getItem('token')
     setToken(storedToken)
@@ -106,39 +121,39 @@ const App = () => {
   }
 
   return (
-    <AppErrorBoundary>
-      <Suspense fallback={<LoadingSpinner />}>
-        <Routes>
-          {/* Ruta raíz redirige a /auth o /catalogo según autenticación */}
-          <Route path="/" element={
-            token ? <Navigate to="/catalogo" replace /> : <Navigate to="/auth" replace />
-          } />
+    <AuthProvider>
+      <AppErrorBoundary>
+        <Suspense fallback={<LoadingSpinner />}>
+          <Routes>
+            {/* 1) Ruta raíz */}
+            <Route path="/" element={<RootRedirect />} />
 
-          {/* Rutas públicas */}
-          <Route path="/auth/*" element={<AuthApp />} />
+            {/* 2) Rutas públicas (login/register) */}
+            <Route path="/auth/*" element={<AuthApp />} />
 
-          {/* Rutas protegidas */}
-          <Route element={<ProtectedLayout />}>
-            {token ? (
-              <>
-                <Route path="encargo" element={<Encargo />} />
-                <Route path="catalogo" element={<Catalogo />} />
-                <Route path="carrito" element={<CarritoDeCompras />} />
-                <Route path="contacto" element={<Contacto />} />
-                <Route path="acerca" element={<Acerca />} />
-                <Route path="perfil" element={<UserProfile />} /> {/* Mantenemos la ruta 'perfil' pero usando el componente UserProfile */}
-                
-                {/* Redirección para rutas desconocidas */}
-                <Route path="*" element={<Navigate to="/catalogo" replace />} />
-              </>
-            ) : (
-              // Si no hay token pero se intenta acceder a ruta protegida
-              <Route path="*" element={<Navigate to="/auth" replace />} />
-            )}
-          </Route>
-        </Routes>
-      </Suspense>
-    </AppErrorBoundary>
+            {/* 3) Rutas protegidas */}
+            <Route
+              path="/"
+              element={
+                <PrivateRoute>
+                  <ProtectedLayout />
+                </PrivateRoute>
+              }
+            >
+              <Route path="encargo"  element={<Encargo />} />
+              <Route path="catalogo" element={<Catalogo />} />
+              <Route path="carrito"  element={<CarritoDeCompras />} />
+              <Route path="contacto" element={<Contacto />} />
+              <Route path="acerca"   element={<Acerca />} />
+              <Route path="perfil"   element={<UserProfile />} />
+            </Route>
+
+            {/* 4) Catch-all */}
+            <Route path="*" element={<RootRedirect />} />
+          </Routes>
+        </Suspense>
+      </AppErrorBoundary>
+    </AuthProvider>
   )
 }
 

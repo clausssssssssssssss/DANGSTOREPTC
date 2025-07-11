@@ -1,9 +1,10 @@
 // src/components/ProductList/ProductList.jsx
 import React from 'react';
 import PropTypes from 'prop-types';
-import ProductCard from './ProductCard';
+import ProductCard from './ProductCard.jsx';  // <-- Asegúrate de la ruta y extensión
+import './ProductList.css';                    // si tienes estilos para la lista
 
-const ProductList = ({ products, onAddToCart, loading, error, onRefresh }) => {
+const ProductList = ({ products, loading, error, onRefresh, onAddToCart, onProductClick }) => {
   if (loading) {
     return (
       <div className="loading-state">
@@ -17,10 +18,7 @@ const ProductList = ({ products, onAddToCart, loading, error, onRefresh }) => {
     return (
       <div className="error-state">
         <p>Error: {error}</p>
-        <button 
-          onClick={onRefresh} 
-          className="retry-button"
-        >
+        <button onClick={onRefresh} className="retry-button">
           Reintentar
         </button>
       </div>
@@ -31,10 +29,7 @@ const ProductList = ({ products, onAddToCart, loading, error, onRefresh }) => {
     return (
       <div className="empty-state">
         <p>No hay productos disponibles</p>
-        <button 
-          onClick={onRefresh} 
-          className="refresh-button"
-        >
+        <button onClick={onRefresh} className="refresh-button">
           Recargar productos
         </button>
       </div>
@@ -56,10 +51,11 @@ const ProductList = ({ products, onAddToCart, loading, error, onRefresh }) => {
       
       <div className="product-grid">
         {products.map(product => (
-          <ProductCard
+         <ProductCard
             key={product.id}
             product={product}
-            onAddToCart={onAddToCart}
+            onAddToCart={() => onAddToCart(product)}
+            onClick={() => onProductClick(product)}
           />
         ))}
       </div>
@@ -70,23 +66,24 @@ const ProductList = ({ products, onAddToCart, loading, error, onRefresh }) => {
 ProductList.propTypes = {
   products: PropTypes.arrayOf(
     PropTypes.shape({
-      id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
-      name: PropTypes.string.isRequired,
-      price: PropTypes.number.isRequired,
-      image: PropTypes.string,
+      id:          PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+      name:        PropTypes.string.isRequired,
+      price:       PropTypes.number.isRequired,
+      image:       PropTypes.string,
       description: PropTypes.string,
     })
   ),
-  onAddToCart: PropTypes.func.isRequired,
-  onRefresh: PropTypes.func.isRequired,
-  loading: PropTypes.bool,
-  error: PropTypes.string,
+  onAddToCart:    PropTypes.func.isRequired,
+  onProductClick: PropTypes.func.isRequired,
+  onRefresh:      PropTypes.func.isRequired,
+  loading:        PropTypes.bool,
+  error:          PropTypes.string,
 };
 
 ProductList.defaultProps = {
   products: [],
-  loading: false,
-  error: null,
+  loading:  false,
+  error:    null,
 };
 
 export default ProductList;

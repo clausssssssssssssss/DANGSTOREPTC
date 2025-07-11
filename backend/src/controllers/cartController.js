@@ -5,10 +5,12 @@ import CustomizedOrder from '../models/customizedOrders.js';  // Modelo de órde
 
 // Añade un producto o ítem personalizado al carrito
 export const addToCart = async (req, res) => {
+    console.log('📥 addToCart body:', req.body);
+  console.log('👤 addToCart user:', req.user);
   try {
     // Extrae datos del body: ID de usuario, ID de producto, cantidad e ID de ítem personalizado
-    const { userId, productId, quantity = 1, customItemId } = req.body;
-
+ const userId = req.user.id;
+    const { productId, quantity = 1, customItemId } = req.body;
     // Busca el carrito del usuario o crea uno nuevo
     let cart = await Cart.findOne({ user: userId });
     if (!cart) cart = new Cart({ user: userId });
@@ -39,16 +41,16 @@ export const addToCart = async (req, res) => {
     // Retorna el carrito actualizado
     res.status(200).json({ message: 'Carrito actualizado', cart });
   } catch (error) {
-    // En caso de error, loguea y envía una respuesta 500
-    console.error('Error añadiendo al carrito:', error);
-    res.status(500).json({ message: 'Error añadiendo al carrito', error });
+    console.error('❌ Error añadiendo al carrito:', error);
+    return res.status(500).json({ message: 'Error añadiendo al carrito', error: error.message });
   }
 };
 
 // Obtiene el carrito de un usuario con sus productos e ítems personalizados
 export const getCart = async (req, res) => {
   try {
-    const { userId } = req.params;  // ID de usuario en ruta
+    const userId = req.user.id;
+    const { productId, quantity = 1, customItemId } = req.body;  // ID de usuario en ruta
 
     // Busca el carrito y llena referencias a productos e ítems
     const cart = await Cart.findOne({ user: userId })
@@ -68,8 +70,8 @@ export const getCart = async (req, res) => {
 // Actualiza la cantidad de un ítem en el carrito según tipo (product/custom)
 export const updateCartItem = async (req, res) => {
   try {
-    const { userId, itemId, type, quantity } = req.body;
-    const cart = await Cart.findOne({ user: userId });
+    const userId = req.user.id;
+    const { productId, quantity = 1, customItemId } = req.body;
     if (!cart) 
       return res.status(404).json({ message: 'Carrito no encontrado' });
 
@@ -96,8 +98,8 @@ export const updateCartItem = async (req, res) => {
 // Elimina un ítem (producto o personalizado) del carrito
 export const removeCartItem = async (req, res) => {
   try {
-    const { userId, itemId, type } = req.body;
-    const cart = await Cart.findOne({ user: userId });
+    const userId = req.user.id;
+    const { productId, quantity = 1, customItemId } = req.body;
     if (!cart) 
       return res.status(404).json({ message: 'Carrito no encontrado' });
 

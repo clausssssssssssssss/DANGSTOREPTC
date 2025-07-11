@@ -37,8 +37,8 @@ const cartSchema = new Schema({
   /** Método de pago elegido */
   paymentMethod: {
     type: String,
-    enum: ['Wompi', 'Tarjeta', 'Efectivo'],
-    default: 'Wompi'
+    enum: ['Paypal', 'Tarjeta', 'Efectivo'],
+    default: 'PayPal'
   }
 }, {
   timestamps: true

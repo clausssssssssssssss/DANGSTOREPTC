@@ -6,42 +6,44 @@ import { config } from '../../config.js';
 
 /**
  * Controlador para el login de un cliente.
- * Verifica credenciales, compara contraseña, genera token JWT y devuelve datos de usuario.
- *
- * @param {import('express').Request} req - Objeto de petición Express.
- * @param {import('express').Response} res - Objeto de respuesta Express.
- * @returns {Promise<void>} Respuesta con estado, token y datos de usuario o error.
+ * Normaliza email, incluye contraseña con select('+password'), compara hash
+ * y firma un JWT con userType para distinguir customer/admin.
  */
 export const loginClient = async (req, res) => {
   try {
-    const { email, password } = req.body;
-    console.log('→ Login attempt:', email, '/', password);
+    // 1) Normalizar entrada
+    const email    = req.body.email.trim().toLowerCase();
+    const password = req.body.password;
+    console.log('→ Login attempt:', email);
 
-    // Buscar cliente por email e incluir campo password
-    const customer = await Customer.findOne({ email }).select('+password');
+    // 2) Buscar cliente por email e INCLUIR el campo password
+    const customer = await Customer
+      .findOne({ email })
+      .select('+password');
+
     console.log('→ Found user, hashed password:', customer?.password);
 
-    // Si no existe el cliente
+    // 3) Si no existe el cliente
     if (!customer) {
       return res.status(401).json({ message: "Email no registrado" });
     }
 
-    // Comparar contraseña en texto plano con la hash almacenada
+    // 4) Comparar contraseña en texto plano con el hash almacenado
     const valid = await bcrypt.compare(password, customer.password);
     console.log('→ bcrypt.compare:', valid);
 
-    // Si la contraseña no coincide
     if (!valid) {
       return res.status(401).json({ message: "Contraseña incorrecta" });
     }
 
-    // Crear payload para JWT
-    const payload = { userId: customer._id, userType: "customer" };
-    const token = jwt.sign(payload, config.jwt.secret, {
-      expiresIn: config.jwt.expiresIn,
-    });
+    // 5) Crear y firmar el JWT
+    const payload = {
+      userId:   customer._id,
+      userType: "customer"
+    };
+    const token = jwt.sign(payload, config.jwt.secret, { expiresIn: '1h' });
 
-    // Responder con token y datos del usuario (sin contraseña)
+    // 6) Responder con token y datos (sin password)
     return res.status(200).json({
       message: "Login exitoso",
       token,
@@ -49,9 +51,10 @@ export const loginClient = async (req, res) => {
         id:        customer._id,
         name:      customer.name,
         email:     customer.email,
-        telephone: customer.telephone,
-      },
+        telephone: customer.telephone
+      }
     });
+
   } catch (error) {
     console.error("Error en loginClient:", error);
     return res.status(500).json({ message: "Error interno del servidor" });

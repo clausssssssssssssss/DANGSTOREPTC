@@ -18,7 +18,7 @@ const customerSchema = new Schema({
     type: String,
     required: true,
     unique: true,
-    lowercase: true,
+    lowercase: false,
   },
 
   /** Contraseña en formato hash, mínimo 6 caracteres */

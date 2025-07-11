@@ -18,21 +18,30 @@ const profileController = {
 
   /**
    * PUT /api/profile
-   * Actualiza datos personales: nombre, teléfono, fechaNacimiento.
+   * Actualiza datos personales: nombre, teléfono y email.
    */
   updateProfile: async (req, res) => {
     try {
-      const { name, telephone, birthdate } = req.body;
+      const { name, telephone, email } = req.body;
 
-      req.user.name = name || req.user.name;
+      // Validar email si se proporciona
+      if (email) {
+        const exists = await Customer.findOne({ email: email.toLowerCase() });
+        if (exists && exists._id.toString() !== req.user._id.toString()) {
+          return res.status(400).json({ message: "Email ya en uso" });
+        }
+        req.user.email = email.toLowerCase();
+      }
+
+      // Actualizar nombre y teléfono
+      req.user.name      = name      || req.user.name;
       req.user.telephone = telephone || req.user.telephone;
-      req.user.birthdate = birthdate || req.user.birthdate;
 
       await req.user.save();
-
       res.json({ message: "Perfil actualizado", user: req.user });
+
     } catch (err) {
-      console.error(err);
+      console.error("updateProfile error:", err);
       res.status(500).json({ message: "Error al actualizar perfil" });
     }
   },
@@ -45,21 +54,31 @@ const profileController = {
     try {
       const { currentPassword, newPassword, confirmPassword } = req.body;
 
+      // Verificar coincidencia de nuevas contraseñas
       if (newPassword !== confirmPassword) {
         return res.status(400).json({ message: "Las nuevas contraseñas no coinciden" });
       }
 
-      const valid = await bcrypt.compare(currentPassword, req.user.password);
+      // Recargar usuario para incluir campo password
+      const user = await Customer.findById(req.user._id).select('+password');
+      if (!user) {
+        return res.status(404).json({ message: "Usuario no encontrado" });
+      }
+
+      // Verificar contraseña actual
+      const valid = await bcrypt.compare(currentPassword, user.password);
       if (!valid) {
         return res.status(400).json({ message: "Contraseña actual incorrecta" });
       }
 
-      req.user.password = await bcrypt.hash(newPassword, 10);
-      await req.user.save();
+      // Hashear y guardar nueva contraseña
+      user.password = await bcrypt.hash(newPassword, 10);
+      await user.save();
 
       res.json({ message: "Contraseña actualizada" });
+
     } catch (err) {
-      console.error(err);
+      console.error("changePassword error:", err);
       res.status(500).json({ message: "Error al cambiar contraseña" });
     }
   },
@@ -70,10 +89,12 @@ const profileController = {
    */
   getOrders: async (req, res) => {
     try {
-      const orders = await Order.find({ customerId: req.user._id }).sort({ createdAt: -1 });
+// Después
+const orders = await Order.find({ user: req.user._id }).sort({ createdAt: -1 })
+        .sort({ createdAt: -1 });
       res.json(orders);
     } catch (err) {
-      console.error(err);
+      console.error("getOrders error:", err);
       res.status(500).json({ message: "Error al obtener pedidos" });
     }
   },
@@ -85,10 +106,11 @@ const profileController = {
   getFavorites: async (req, res) => {
     try {
       const favorites = req.user.favorites || [];
-      const products = await Product.find({ _id: { $in: favorites } }).select("name images");
+      const products = await Product.find({ _id: { $in: favorites } })
+        .select("name images");
       res.json(products);
     } catch (err) {
-      console.error(err);
+      console.error("getFavorites error:", err);
       res.status(500).json({ message: "Error al obtener favoritos" });
     }
   },
@@ -100,23 +122,24 @@ const profileController = {
   toggleFavorite: async (req, res) => {
     try {
       const productId = req.params.productId;
-
-      const index = req.user.favorites.findIndex(fav => fav.toString() === productId);
+      const index = req.user.favorites.findIndex(
+        fav => fav.toString() === productId
+      );
 
       if (index > -1) {
-        // Ya está, lo quitamos
+        // Quitar de favoritos
         req.user.favorites.splice(index, 1);
         await req.user.save();
         return res.json({ message: "Producto eliminado de favoritos", favorites: req.user.favorites });
       }
 
-      // No está, lo agregamos
+      // Agregar a favoritos
       req.user.favorites.push(productId);
       await req.user.save();
       res.json({ message: "Producto agregado a favoritos", favorites: req.user.favorites });
 
     } catch (err) {
-      console.error(err);
+      console.error("toggleFavorite error:", err);
       res.status(500).json({ message: "Error al actualizar favoritos" });
     }
   }

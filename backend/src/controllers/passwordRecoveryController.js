@@ -72,7 +72,10 @@ passwordRecoveryController.resetPassword = async (req, res) => {
     }
 
     // Buscar customer
-    const customer = await Customer.findOne({ email });
+// carga también el code y expires del resetCode, que en el schema tienen select:false
+const customer = await Customer
+  .findOne({ email })
+  .select("+resetCode.code +resetCode.expires");
     if (!customer) {
       return res.status(404).json({ message: "Email no registrado" });
     }
@@ -123,7 +126,10 @@ passwordRecoveryController.verifyCode = async (req, res) => {
     }
 
     // Buscar customer e identificar resetCode
-    const customer = await Customer.findOne({ email });
+// carga también el code y expires del resetCode, que en el schema tienen select:false
+const customer = await Customer
+  .findOne({ email })
+  .select("+resetCode.code +resetCode.expires");
     if (!customer || !customer.resetCode || customer.resetCode.code !== code) {
       return res.status(400).json({ message: "Código incorrecto" });
     }

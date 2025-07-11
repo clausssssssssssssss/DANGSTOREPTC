@@ -10,16 +10,10 @@ import Order from '../models/Order.js';
  */
 const fakePaymentController = {};
 
-/**
- * Simula el checkout: crea una orden basada en el carrito y marca como pagado.
- *
- * @route POST /api/payments/fake
- * @middleware validateAuthToken
- */
+// src/controllers/fakePaymentController.js
 fakePaymentController.fakeCheckout = async (req, res) => {
   try {
     const userId = req.user.id;
-    // Buscamos y poblamos el carrito del usuario
     const cart = await Cart.findOne({ user: userId })
       .populate('products.product')
       .populate('customizedProducts.item');
@@ -29,42 +23,59 @@ fakePaymentController.fakeCheckout = async (req, res) => {
     }
 
     // 1) Calcular total
-    let total = 0;
-    cart.products.forEach(p => total += p.product.price * p.quantity);
-    cart.customizedProducts.forEach(c => total += c.item.cotizacion * c.quantity);
+    const totalProducts = cart.products.reduce(
+      (sum, p) => sum + p.product.price * p.quantity,
+      0
+    );
 
-    // 2) Crear la orden simulada usando la propiedad 'paypal'
-    const fakeOrderID = `fake_tx_${Date.now()}`;
-    const order = new Order({
-      user: userId,
-      items: [
-        ...cart.products.map(p => ({
-          product:  p.product._id,
-          quantity: p.quantity,
-          price:    p.product.price
-        })),
-        ...cart.customizedProducts.map(c => ({
+    const totalCustom = cart.customizedProducts.reduce(
+      (sum, c) => {
+        // usa price del customizedOrder, o 0 si no existe
+        const itemPrice = typeof c.item.price === 'number' ? c.item.price : 0;
+        return sum + itemPrice * c.quantity;
+      },
+      0
+    );
+
+    const total = totalProducts + totalCustom;
+
+    // 2) Armar array de items
+    const items = [
+      ...cart.products.map(p => ({
+        product:  p.product._id,
+        quantity: p.quantity,
+        price:    p.product.price
+      })),
+      ...cart.customizedProducts.map(c => {
+        const itemPrice = typeof c.item.price === 'number' ? c.item.price : 0;
+        return {
           product:  c.item._id,
           quantity: c.quantity,
-          price:    c.item.cotizacion
-        }))
-      ],
+          price:    itemPrice
+        };
+      })
+    ];
+
+    // 3) Crear la orden simulada
+    const fakeOrderID = `fake_tx_${Date.now()}`;
+    const order = new Order({
+      user:   userId,
+      items,
       total,
       status: 'COMPLETED',
       paypal: {
-        orderID: fakeOrderID,
+        orderID:       fakeOrderID,
         captureStatus: 'COMPLETED'
       }
     });
     await order.save();
 
-    // 3) Vaciar el carrito
+    // 4) Vaciar el carrito
     cart.products = [];
     cart.customizedProducts = [];
-    cart.state = 'Pagado';
+    cart.state = 'Pendiente';
     await cart.save();
 
-    // 4) Respuesta al cliente
     return res.status(200).json({
       message: 'Pago simulado y orden creada exitosamente',
       order

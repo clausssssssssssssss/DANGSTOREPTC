@@ -1,6 +1,8 @@
 // src/App.jsx
 import React, { Suspense } from 'react'
 import { Routes, Route, Navigate, Outlet, useLocation } from 'react-router-dom'
+// --- Se elimina esta línea:
+// import PrivateRoute from './components/privateRoute.jsx';
 import NavBar from './components/ui/navBar'
 import AuthApp from './pages/AuthApp'
 import Encargo from './pages/Encargo'
@@ -95,7 +97,7 @@ function RootRedirect() {
     : <Navigate to="/auth" replace />
 }
 
-// PrivateRoute: solo deja pasar si hay user
+// PrivateRoute inline: solo deja pasar si hay user
 function PrivateRoute({ children }) {
   const { user } = useAuth()
   const location = useLocation()

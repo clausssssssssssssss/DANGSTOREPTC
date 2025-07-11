@@ -1,3 +1,4 @@
+
 // src/pages/CarritoDeCompras.jsx
 import React from 'react';
 import { Link } from 'react-router-dom';
@@ -23,9 +24,8 @@ const CarritoDeCompras = () => {
     setLoading(true);
     setError('');
     setSuccess(false);
-
     try {
-      const res = await fetch('http://localhost:3001/api/orders', {
+      const res = await fetch('/api/payments/fake', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
@@ -35,6 +35,8 @@ const CarritoDeCompras = () => {
         }),
       });
       if (!res.ok) throw new Error(`Status ${res.status}`);
+      const data = await res.json();
+      console.log('Fake payment:', data);
       setSuccess(true);
       clearCart();
     } catch (err) {

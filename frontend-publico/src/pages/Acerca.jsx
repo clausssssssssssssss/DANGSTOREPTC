@@ -1,6 +1,6 @@
 // About.jsx - Página Acerca de DANGSTORE
 import React, { useEffect, useRef } from 'react';
-import './Acerca.css';
+import '../components/styles/Acerca.css';
 
 const About = () => {
   const videoRef = useRef(null);

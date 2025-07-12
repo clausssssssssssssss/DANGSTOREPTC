@@ -3,7 +3,7 @@ import React from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { Search, ShoppingCart, User } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth.jsx';
-import { useCart } from '../../hooks/useCart.jsx';
+import { useCart } from '../cart/useCart.jsx';
 import './NavBar.css';
 
 export default function NavBar() {

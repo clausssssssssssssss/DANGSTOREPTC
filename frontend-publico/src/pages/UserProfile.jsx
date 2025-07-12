@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import {
   Heart, ShoppingCart, User, Gift, LogOut,
 } from 'lucide-react';
-import './UserProfile.css';
+import '../components/styles/UserProfile.css';
 
 import PersonalDataSection from '../components/profile/PersonalDataSection';
 import OrdersSection from '../components/profile/OrdersSection';

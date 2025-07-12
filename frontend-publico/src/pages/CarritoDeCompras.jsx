@@ -2,10 +2,10 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth.jsx';
-import { useCart } from '../hooks/useCart.jsx';
+import { useCart } from '../components/cart/useCart.jsx';
 import { ShoppingBag, Trash2, Plus, Minus, ArrowLeft, CreditCard } from 'lucide-react';
 import CartItem from '../components/cart/CartItem.jsx';
-import './CarritoDeCompras.css';
+import '../components/styles/CarritoDeCompras.css';
 
 const CarritoDeCompras = () => {
   const { user } = useAuth();

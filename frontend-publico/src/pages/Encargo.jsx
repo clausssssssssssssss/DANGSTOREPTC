@@ -1,8 +1,8 @@
 // src/pages/Encargo.jsx
 import { CloudUpload } from 'lucide-react';
-import usePersonalizedOrder from '../hooks/usePersonalizedOrder.jsx';
+import usePersonalizedOrder from '../components/personalizedOrder/usePersonalizedOrder.jsx';
 import Modal from '../components/ui/Modal';
-import './Encargo.css';
+import '../components/styles/Encargo.css';
 
 export default function Encargo() {
   const {

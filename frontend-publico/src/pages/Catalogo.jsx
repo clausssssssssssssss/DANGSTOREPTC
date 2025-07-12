@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { useAuth }     from '../hooks/useAuth.jsx';
-import { useProducts } from '../hooks/useProducts.jsx';
-import { useCart }     from '../hooks/useCart.jsx';
+import { useProducts } from '../components/catalog/useProducts.jsx';
+import { useCart }     from '../components/cart/useCart.jsx';
 
 import ProductList     from '../components/catalog/ProductList';
-import './Catalogo.css';
+import '../components/styles/Catalogo.css';
 
 export default function Catalogo() {
   const { user } = useAuth();

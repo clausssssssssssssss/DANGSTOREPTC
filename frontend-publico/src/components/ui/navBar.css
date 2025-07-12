@@ -712,3 +712,24 @@
   position: relative;
 
 }
+.icon-link { position: relative; }
+.cart-badge {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background: #4DD0E1;
+  color: white;
+  font-size: 10px;
+  padding: 2px 5px;
+  border-radius: 50%;
+}
+.icon-badge {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background: #E33;
+  color: white;
+  font-size: 10px;
+  padding: 2px 5px;
+  border-radius: 50%;
+}

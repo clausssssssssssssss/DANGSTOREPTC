@@ -689,21 +689,26 @@
   position: relative;
 }
 
+/* Pequeño círculo con número sobre el carrito */
 .cart-badge {
   position: absolute;
   top: 6px;
   right: 6px;
-  min-width: 18px;
-  height: 18px;
+  min-width: 16px;
+  height: 16px;
   padding: 0 4px;
-  background: #e53e3e;
+  background: #e53e3e;      /* rojo */
   color: white;
-  font-size: 12px;
+  font-size: 10px;
   font-weight: bold;
-  line-height: 18px;
-  border-radius: 9999px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  line-height: 16px;
+  text-align: center;
+  border-radius: 8px;
   pointer-events: none;
+}
+
+/* Asegúrate de que el contenedor tenga position: relative */
+.icon-link {
+  position: relative;
+
 }

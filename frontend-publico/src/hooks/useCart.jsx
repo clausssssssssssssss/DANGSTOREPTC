@@ -3,33 +3,42 @@ import { useState, useEffect } from 'react';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
 
-export function useCart() {
-  const [cart, setCart]       = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError]     = useState(null);
+export function useCart(userId) {
+  const [cart, setCart] = useState([]);
 
-  // 1) Al montar, traemos el carrito
+  // 1) Al montar o cambiar userId, recuperamos el carrito
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      setCart(null);
-      setLoading(false);
-      return;
-    }
+    if (!userId) return;
 
-    fetch(`${API_URL}/api/cart`, {
-      headers: { Authorization: `Bearer ${token}` }
-    })
-      .then(async res => {
-        if (!res.ok) {
-          throw new Error(`Error ${res.status}`);
-        }
-        return res.json();
-      })
-      .then(data => setCart(data))
-      .catch(err => setError(err))
-      .finally(() => setLoading(false));
-  }, []);
+    const token = localStorage.getItem('token');
+    if (!token) return;
+
+    (async () => {
+      try {
+        const res = await fetch(`${API_URL}/api/cart/${userId}`, {
+          headers: { 
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`
+          }
+        });
+        if (!res.ok) throw new Error();
+        const data = await res.json();
+        // data es el cart completo; aquí extraemos un array plano
+        const items = data.products.map(p => ({
+          product: {
+            id:    p.product._id,
+            name:  p.product.name,
+            price: p.product.price,
+            image: p.product.images?.[0] || ''
+          },
+          quantity: p.quantity
+        }));
+        setCart(items);
+      } catch {
+        setCart([]);
+      }
+    })();
+  }, [userId]);
 
   // 2) Función para añadir al carrito
   async function addToCart({ productId, quantity = 1 }) {
@@ -42,26 +51,28 @@ export function useCart() {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`
       },
-      body: JSON.stringify({
-        productId,
-        quantity,
-        // si quieres enviar un método de pago fijo mientras no implementas el checkout:
-        paymentMethod: 'Efectivo'
-      })
+      body: JSON.stringify({ productId, quantity })
     });
 
-    if (res.status === 403) {
-      throw new Error('No tienes permiso para agregar al carrito');
-    }
     if (!res.ok) {
-      const text = await res.text();
-      throw new Error(`Error ${res.status}: ${text}`);
+      const err = await res.json();
+      throw new Error(err.message || `Error ${res.status}`);
     }
 
-    const updatedCart = await res.json();
-    setCart(updatedCart);
-    return updatedCart;
+    const { cart: updated } = await res.json();
+    // Volvemos a mapear a nuestro formato plano
+    const items = updated.products.map(p => ({
+      product: {
+        id:    p.product._id,
+        name:  p.product.name,
+        price: p.product.price,
+        image: p.product.images?.[0] || ''
+      },
+      quantity: p.quantity
+    }));
+    setCart(items);
+    return items;
   }
 
-  return { cart, loading, error, addToCart };
+  return { cart, addToCart };
 }

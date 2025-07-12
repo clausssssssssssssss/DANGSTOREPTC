@@ -1,5 +1,6 @@
+// src/middleware/authMiddleware.js
 import jwt from "jsonwebtoken";
-import { config } from '../../config.js';
+import { config } from "../../config.js";
 import customersModel from "../models/Customers.js";
 
 /**
@@ -10,48 +11,59 @@ import customersModel from "../models/Customers.js";
 const authMiddleware = (allowedRoles = []) => {
   return async (req, res, next) => {
     try {
-      // 1) Extraer token de header o cookie
+      // 1️⃣ Extraer token
       const authHeader = req.headers.authorization;
       const token = authHeader && authHeader.startsWith("Bearer ")
         ? authHeader.split(" ")[1]
         : req.cookies.authToken;
 
       if (!token) {
+        console.log("🚫 No token provided");
         return res.status(401).json({ success: false, message: "No autenticado" });
       }
 
-      // 2) Verificar token y loggear payload
+      // 2️⃣ Verificar token
       const decoded = jwt.verify(token, config.jwt.secret);
-      console.log("→ authMiddleware: decoded:", decoded, "allowedRoles:", allowedRoles);
+      console.log("✅ Token decoded:", decoded, "| allowedRoles:", allowedRoles);
 
-      // 3) Cargar datos de usuario según userType
+      // Convertir userType a minúsculas para evitar problemas de case sensitivity
+      const userType = decoded.userType.toLowerCase();
+
+      // 3️⃣ Cargar usuario desde DB si es customer
       let userData;
-      if (decoded.userType === "customer") {
+      if (userType === "customer") {
         userData = await customersModel.findById(decoded.userId).select("-password");
-        console.log("→ authMiddleware: userData (customer):", userData);
-      } else if (decoded.userType === "admin") {
-        // No tenemos tabla de admins; confiamos en el payload del token
+        console.log("📄 Customer loaded from DB:", userData);
+
+      } else if (userType === "admin") {
+        // Si es admin, no hay modelo: lo tomamos del payload
         userData = { userId: decoded.userId, userType: "admin", email: decoded.email };
-        console.log("→ authMiddleware: userData (admin):", userData);
+        console.log("👑 Admin from token:", userData);
+
       } else {
+        console.log("🚫 Invalid userType:", decoded.userType);
         return res.status(401).json({ success: false, message: "Tipo de usuario inválido" });
       }
 
       if (!userData) {
+        console.log("🚫 Usuario no encontrado en DB");
         return res.status(404).json({ success: false, message: "Usuario no encontrado" });
       }
 
-      // 4) Verificar roles permitidos
-      if (allowedRoles.length > 0 && !allowedRoles.includes(decoded.userType)) {
+      // 4️⃣ Verificar roles permitidos (usar también userType en minúsculas)
+      if (allowedRoles.length > 0 && !allowedRoles.includes(userType)) {
+        console.log("🚫 Rol no permitido:", userType);
         return res.status(403).json({ success: false, message: "Permiso denegado" });
       }
 
-      // 5) Inyectar datos y continuar
-      req.user     = userData;
-      req.userType = decoded.userType;
+      // 5️⃣ Inyectar datos y continuar
+      req.user = userData;
+      req.userType = userType;
+      console.log("✅ Usuario autenticado:", req.user);
       next();
+
     } catch (error) {
-      console.error("authMiddleware error:", error);
+      console.error("🔥 authMiddleware error:", error);
       return res.status(401).json({ success: false, message: "Token inválido o expirado" });
     }
   };

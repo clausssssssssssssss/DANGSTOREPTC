@@ -2,24 +2,24 @@ import productModel from "../models/Product.js";
 
 const productController = {};
 
-// Obtener todos los productos
+// 📄 obtener todos los productos
 productController.getProducts = async (req, res) => {
   try {
-    const products = await productModel.find();
+    const products = await productModel.find(); // saco todos los productos
     res.json(products);
   } catch (error) {
     res.status(500).json({ message: "Error fetching products", error });
   }
 };
 
-// Obtener producto por ID
+// 📄 obtener un producto por su ID
 productController.getProductById = async (req, res) => {
   try {
     const { id } = req.params;
-    const product = await productModel.findById(id);
+    const product = await productModel.findById(id); // busco producto por id
 
     if (!product) {
-      return res.status(404).json({ message: "Product not found" });
+      return res.status(404).json({ message: "Product not found" }); // si no lo encuentro aviso
     }
 
     res.json(product);
@@ -28,25 +28,28 @@ productController.getProductById = async (req, res) => {
   }
 };
 
-// Obtener productos populares (ejemplo simple)
+// 📄 obtener productos populares (solo ejemplo)
 productController.getPopularProducts = async (req, res) => {
   try {
-    const popularProducts = await productModel.find().limit(5);
+    const popularProducts = await productModel.find().limit(5); // traigo máximo 5
     res.json(popularProducts);
   } catch (error) {
     res.status(500).json({ message: "Error fetching popular products", error });
   }
 };
 
-// Crear un nuevo producto
+// 📄 crear un nuevo producto
 productController.insertProduct = async (req, res) => {
   try {
     const { name, price, stock, description, category, images } = req.body;
+
+    // reviso que no falten los campos principales
     if (!name || price == null || stock == null || !category) {
       return res.status(400).json({ message: "Missing required fields" });
     }
+
     const newProduct = new productModel({ name, price, stock, description, category, images });
-    await newProduct.save();
+    await newProduct.save(); // lo guardo en la BD
     res.status(201).json(newProduct);
   } catch (error) {
     console.error("Error creating product:", error);
@@ -54,15 +57,22 @@ productController.insertProduct = async (req, res) => {
   }
 };
 
-// Actualizar un producto existente
+// 📄 actualizar un producto existente
 productController.updateProduct = async (req, res) => {
   try {
     const { id } = req.params;
     const updates = req.body;
-    const updated = await productModel.findByIdAndUpdate(id, updates, { new: true, runValidators: true });
+
+    const updated = await productModel.findByIdAndUpdate(
+      id,
+      updates,
+      { new: true, runValidators: true }
+    );
+
     if (!updated) {
       return res.status(404).json({ message: "Product not found" });
     }
+
     res.json(updated);
   } catch (error) {
     console.error("Error updating product:", error);
@@ -70,14 +80,16 @@ productController.updateProduct = async (req, res) => {
   }
 };
 
-// Eliminar un producto
+// 📄 eliminar un producto por su ID
 productController.deleteProduct = async (req, res) => {
   try {
     const { id } = req.params;
+
     const deleted = await productModel.findByIdAndDelete(id);
     if (!deleted) {
       return res.status(404).json({ message: "Product not found" });
     }
+
     res.json({ message: "Product deleted" });
   } catch (error) {
     console.error("Error deleting product:", error);

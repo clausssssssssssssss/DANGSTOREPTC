@@ -8,8 +8,6 @@ import Catalogo from './pages/Catalogo'
 import Contacto from './pages/Contacto'
 import Acerca from './pages/Acerca'
 import UserProfile from './pages/UserProfile'
-
-
 import { AuthProvider, useAuth } from './hooks/useAuth.jsx'
 import './App.css'
 
@@ -88,66 +86,56 @@ function ProtectedLayout() {
   )
 }
 
-// Ruta raíz que redirige al login o al catálogo según autenticación
+// redirige “/” ⇒ /auth o /catalogo
 function RootRedirect() {
   const { user } = useAuth()
   return user
-    ? <Navigate to="/catalogo" replace />
-    : <Navigate to="/auth" replace />
+    ? <Navigate to="/catalogo" replace/>
+    : <Navigate to="/auth" replace/>
 }
 
-// Componente inline para proteger rutas
+// protege rutas hijas
 function PrivateRoute({ children }) {
   const { user } = useAuth()
+  console.log('🔒 PrivateRoute sees user:', user);
   const location = useLocation()
   if (!user) {
-    return <Navigate to="/auth" state={{ from: location }} replace />
+    return <Navigate to="/auth" state={{ from: location }} replace/>
   }
   return children
 }
 
 const App = () => {
   const [authChecked, setAuthChecked] = React.useState(false)
-
-  React.useEffect(() => {
-    // Marca que ya cargamos el token local antes de renderizar rutas
-    setAuthChecked(true)
-  }, [])
-
-  if (!authChecked) {
-    return <LoadingSpinner />
-  }
+  React.useEffect(() => { setAuthChecked(true) }, [])
+  if (!authChecked) return <LoadingSpinner/>
 
   return (
     <AuthProvider>
       <AppErrorBoundary>
-        <Suspense fallback={<LoadingSpinner />}>
+        <Suspense fallback={<LoadingSpinner/>}>
           <Routes>
-
-            {/* Redirección inicial */}
+            {/* 1) exact "/" */}
             <Route path="/" element={<RootRedirect />} />
 
-            {/* Login y registro */}
+            {/* 2) "/auth/*" */}
             <Route path="/auth/*" element={<AuthApp />} />
 
-            {/* Rutas protegidas */}
-            <Route
-              path="/"
-              element={
-                <PrivateRoute>
-                  <ProtectedLayout />
-                </PrivateRoute>
-              }
-            >
-              <Route path="encargo" element={<Encargo />} />
+            {/* 3) rutas privadas envueltas por PrivateRoute */}
+            <Route element={
+              <PrivateRoute>
+                <ProtectedLayout/>
+              </PrivateRoute>
+            }>
+              <Route path="encargo"  element={<Encargo />} />
               <Route path="catalogo" element={<Catalogo />} />
-              <Route path="carrito" element={<CarritoDeCompras />} />
+              <Route path="carrito"  element={<CarritoDeCompras />} />
               <Route path="contacto" element={<Contacto />} />
-              <Route path="acerca" element={<Acerca />} />
-              <Route path="perfil" element={<UserProfile />} />
+              <Route path="acerca"   element={<Acerca />} />
+              <Route path="perfil"   element={<UserProfile />} />
             </Route>
 
-            {/* Catch-all */}
+            {/* 4) cualquier otra URL */}
             <Route path="*" element={<RootRedirect />} />
           </Routes>
         </Suspense>

@@ -1,12 +1,16 @@
-import React, { useState, useEffect, useRef } from 'react'; 
+import React, { useState, useEffect, useRef } from 'react';
 import { Eye, EyeOff, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import './AuthApp.css';
+
+// ——— imports para el login y contexto ———
+import { useAuth, parseJwt } from '../hooks/useAuth.jsx';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
 
 const AuthApp = () => {
   const navigate = useNavigate();
+  const { setUser } = useAuth();                // ← nuevo
   const [currentView, setCurrentView] = useState('login');
   
   // Estados para Login
@@ -31,7 +35,7 @@ const AuthApp = () => {
   const [isEmailSubmitted, setIsEmailSubmitted] = useState(false);
 
   // Estados para Código de Verificación
-   const [verificationCode, setVerificationCode] = useState(['', '', '', '']);
+  const [verificationCode, setVerificationCode] = useState(['', '', '', '']);
   const lastTriedCode = useRef(''); // ← guarda el último código verificado
 
   // Estados para Nueva Contraseña
@@ -49,62 +53,66 @@ const AuthApp = () => {
 
   // Funciones de manejo de Login
   const handleLogin = async () => {
-  const { email, password } = loginData;
-  if (!email || !password) {
-    alert('Por favor completa todos los campos');
-    return;
-  }
-  try {
-    const res = await fetch(`${API_URL}/api/customers/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password })
-    });
-    const data = await res.json();
-    if (!res.ok) {
-      alert(data.message || 'Error en el login');
-    } else {
-      // guardamos token y notificamos
-    localStorage.setItem('token', data.token);
-    navigate('/catalogo', { replace: true });    
+    const { email, password } = loginData;
+    if (!email || !password) {
+      alert('Por favor completa todos los campos');
+      return;
     }
-  } catch (err) {
-    console.error(err);
-    alert('Error de conexión');
-  }
-};
+    try {
+      const res = await fetch(`${API_URL}/api/customers/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        alert(data.message || 'Error en el login');
+        return;
+      }
+      console.log('🔑 Login successful, token:', data.token);
+      // guardamos token y actualizamos contexto
+      localStorage.setItem('token', data.token);
+      const decoded = parseJwt(data.token);
+      setUser({ id: decoded.userId ?? decoded.id, name: decoded.name });
+      console.log('👤 User set in context:', { id: decoded.userId ?? decoded.id, name: decoded.name });
+      navigate('/catalogo', { replace: true });
+    } catch (err) {
+      console.error(err);
+      alert('Error de conexión');
+    }
+  };
 
   // Funciones de manejo de Registro
-const handleRegister = async () => {
-  const { nombre, email, telefono, password } = registerData;
-  if (!nombre || !email || !telefono || !password) {
-    alert('Por favor completa todos los campos');
-    return;
-  }
-  try {
-    const res = await fetch(`${API_URL}/api/customers`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        name: nombre,
-        email,
-        telephone: telefono,
-        password
-      })
-    });
-    const data = await res.json();
-    if (!res.ok) {
-      alert(data.message || 'Error en el registro');
-    } else {
-      alert('Registro exitoso!');
-       // tras registrar por primera vez, vamos a “Acerca”
-      navigate('/acerca', { replace: true });
+  const handleRegister = async () => {
+    const { nombre, email, telefono, password } = registerData;
+    if (!nombre || !email || !telefono || !password) {
+      alert('Por favor completa todos los campos');
+      return;
     }
-  } catch (err) {
-    console.error(err);
-    alert('Error de conexión');
-  }
-};
+    try {
+      const res = await fetch(`${API_URL}/api/customers`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: nombre,
+          email,
+          telephone: telefono,
+          password
+        })
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        alert(data.message || 'Error en el registro');
+      } else {
+        alert('Registro exitoso!');
+        // tras registrar por primera vez, vamos a “Acerca”
+        navigate('/acerca', { replace: true });
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Error de conexión');
+    }
+  };
 
   // Funciones de recuperación de contraseña
   // paso 1: envío del código

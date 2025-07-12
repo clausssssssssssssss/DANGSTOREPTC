@@ -684,3 +684,26 @@
     background-position: 0% 100%;
   }
 }
+/* Badge para el carrito */
+.icon-link {
+  position: relative;
+}
+
+.cart-badge {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  background: #e53e3e;
+  color: white;
+  font-size: 12px;
+  font-weight: bold;
+  line-height: 18px;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}

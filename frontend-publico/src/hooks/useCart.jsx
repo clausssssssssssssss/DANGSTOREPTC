@@ -1,40 +1,67 @@
-import { useState, useEffect, useCallback } from 'react';
+// src/hooks/useCart.jsx
+import { useState, useEffect } from 'react';
 
-const API_BASE = 'http://localhost:4000/api';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
 
-export function useCart(userId) {
-  const [cart, setCart] = useState([]);
+export function useCart() {
+  const [cart, setCart]       = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError]     = useState(null);
 
-  const fetchCart = useCallback(async () => {
-    if (!userId) return;
-    const res = await fetch(`${API_BASE}/cart/${userId}`, {
-      headers: {
-        'Authorization': `Bearer ${localStorage.getItem('token')}`,
-      }
-    });
-    if (!res.ok) throw new Error(`Status ${res.status}`);
-    const data = await res.json();
-    setCart(data.products.map(p => ({ product: p.product, quantity: p.quantity })));
-  }, [userId]);
-
+  // 1) Al montar, traemos el carrito
   useEffect(() => {
-    fetchCart();
-  }, [fetchCart]);
+    const token = localStorage.getItem('token');
+    if (!token) {
+      setCart(null);
+      setLoading(false);
+      return;
+    }
 
-  const addToCart = async ({ productId, quantity = 1 }) => {
-    console.log('→ enviando token:', localStorage.getItem('token'));
-    const res = await fetch(`${API_BASE}/cart`, {
+    fetch(`${API_URL}/api/cart`, {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+      .then(async res => {
+        if (!res.ok) {
+          throw new Error(`Error ${res.status}`);
+        }
+        return res.json();
+      })
+      .then(data => setCart(data))
+      .catch(err => setError(err))
+      .finally(() => setLoading(false));
+  }, []);
+
+  // 2) Función para añadir al carrito
+  async function addToCart({ productId, quantity = 1 }) {
+    const token = localStorage.getItem('token');
+    if (!token) throw new Error('No estás autenticado');
+
+    const res = await fetch(`${API_URL}/api/cart`, {
       method: 'POST',
       headers: {
-        'Content-Type':  'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`
       },
-      body: JSON.stringify({ productId, quantity })
+      body: JSON.stringify({
+        productId,
+        quantity,
+        // si quieres enviar un método de pago fijo mientras no implementas el checkout:
+        paymentMethod: 'Efectivo'
+      })
     });
-    if (!res.ok) throw new Error(`Status ${res.status}`);
-    // idealmente refrescar el carrito tras añadir
-    await fetchCart();
-  };
 
-  return { cart, addToCart };
+    if (res.status === 403) {
+      throw new Error('No tienes permiso para agregar al carrito');
+    }
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error(`Error ${res.status}: ${text}`);
+    }
+
+    const updatedCart = await res.json();
+    setCart(updatedCart);
+    return updatedCart;
+  }
+
+  return { cart, loading, error, addToCart };
 }

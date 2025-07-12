@@ -21,6 +21,16 @@ export default function Encargo() {
   return (
     // 1. Contenedor full-screen con fondo degradado
     <div className="encargo-container">
+      {/* Título espectacular */}
+      <div className="encargo-header">
+        <h1 className="encargo-title">Encargo Personalizado</h1>
+        <h2 className="encargo-subtitle">Crea tu llavero o cuadro único</h2>
+        <p className="encargo-description">
+          Sube tu imagen favorita y personaliza tu producto. 
+          Creamos diseños únicos especialmente para ti.
+        </p>
+      </div>
+
       {/* 2. Tarjeta blanca translúcida con sombra */}
       <div className="encargo-card">
         {/* 3. Zona de subida con borde punteado */}

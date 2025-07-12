@@ -13,8 +13,26 @@ const profileController = {
    * Obtiene los datos del usuario autenticado.
    */
   getProfile: async (req, res) => {
-    res.json(req.user);
-  },
+  console.log('Usuario en req.user:', req.user);
+
+  try {
+    if (!req.user) {
+      return res.status(401).json({ message: "Usuario no autenticado" });
+    }
+
+    // Envía solo los campos que usas en el frontend
+    const userData = {
+      name: req.user.name || "",
+      email: req.user.email || "",
+      telephone: req.user.telephone || ""
+    };
+
+    res.json(userData);
+  } catch (error) {
+    console.error("getProfile error:", error);
+    res.status(500).json({ message: "Error al obtener perfil" });
+  }
+},
 
   /**
    * PUT /api/profile

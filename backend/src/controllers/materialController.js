@@ -2,14 +2,14 @@ import { v2 as cloudinary } from 'cloudinary';
 import Material from '../models/Material.js';
 import { config } from '../../config.js';
 
-// Configuración de Cloudinary
+// Configuro cloudinary con mis credenciales
 cloudinary.config({
   cloud_name: config.cloudinary.cloudinary_name,
   api_key: config.cloudinary.cloudinary_api_key,
   api_secret: config.cloudinary.cloudinary_api_secret,
 });
 
-// Función para subir imagen a Cloudinary
+// función para subir una imagen a cloudinary usando un buffer
 const uploadToCloudinary = (buffer) => {
   return new Promise((resolve, reject) => {
     const stream = cloudinary.uploader.upload_stream(
@@ -25,38 +25,38 @@ const uploadToCloudinary = (buffer) => {
 
 const materialController = {};
 
-// Validación de tipos de imagen permitidos
+// tipos válidos de imágenes que acepto
 const validImageTypes = [
   'image/jpeg', 'image/png', 'image/gif', 'image/webp',
   'image/svg+xml', 'image/avif', 'image/jpg'
 ];
 
-// Insertar un nuevo material con imagen
+// 📄 insertar un material con imagen
 materialController.insertMaterial = async (req, res) => {
   try {
     const { name, type, quantity, dateOfEntry, investment } = req.body;
-    const { image } = req.files; // Imagen enviada como archivo
+    const { image } = req.files; // saco la imagen del form-data
 
     if (!image) {
       return res.status(400).json({ message: 'La imagen es obligatoria' });
     }
 
-    // Validar el tipo de la imagen
+    // reviso que el formato de la imagen sea válido
     if (!validImageTypes.includes(image.mimetype)) {
       return res.status(400).json({ message: 'Formato de imagen no válido' });
     }
 
-    // Subir la imagen a Cloudinary
-    const result = await uploadToCloudinary(image.data); // Usamos el buffer de la imagen
+    // subo la imagen a cloudinary
+    const result = await uploadToCloudinary(image.data);
 
-    // Crear un nuevo objeto Material
+    // creo el documento con la URL de la imagen de cloudinary
     const newMaterial = new Material({
       name,
       type,
       quantity,
       dateOfEntry,
       investment,
-      image: result.secure_url, // Guardamos la URL de la imagen
+      image: result.secure_url,
     });
 
     await newMaterial.save();
@@ -67,10 +67,10 @@ materialController.insertMaterial = async (req, res) => {
   }
 };
 
-// Obtener todos los materiales
+// 📄 obtener todos los materiales
 materialController.getAllMaterials = async (req, res) => {
   try {
-    const materials = await Material.find();
+    const materials = await Material.find(); // traigo todo
     res.json(materials);
   } catch (error) {
     console.error('Error obteniendo materiales:', error);
@@ -78,7 +78,7 @@ materialController.getAllMaterials = async (req, res) => {
   }
 };
 
-// Obtener un material por ID
+// 📄 obtener material por ID
 materialController.getMaterialById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -95,7 +95,7 @@ materialController.getMaterialById = async (req, res) => {
   }
 };
 
-// Actualizar un material existente
+// 📄 actualizar material existente
 materialController.updateMaterial = async (req, res) => {
   try {
     const { id } = req.params;
@@ -106,19 +106,18 @@ materialController.updateMaterial = async (req, res) => {
       return res.status(404).json({ message: 'Material no encontrado' });
     }
 
-    // Validar el tipo de la nueva imagen si se envía una nueva
-    let imageUrl = materialToUpdate.image; // Mantener la imagen antigua si no se envía una nueva
+    let imageUrl = materialToUpdate.image; // si no mandan nueva imagen dejo la anterior
     if (image) {
       if (!validImageTypes.includes(image.mimetype)) {
         return res.status(400).json({ message: 'Formato de imagen no válido' });
       }
 
-      // Subir la nueva imagen a Cloudinary
-      const result = await uploadToCloudinary(image.data); // Usamos el buffer de la nueva imagen
-      imageUrl = result.secure_url; // Actualizamos la URL con la nueva imagen
+      // subo la nueva imagen
+      const result = await uploadToCloudinary(image.data);
+      imageUrl = result.secure_url;
     }
 
-    // Actualizar el material con los nuevos datos
+    // guardo los cambios
     const updatedMaterial = await Material.findByIdAndUpdate(
       id,
       { name, type, quantity, dateOfEntry, investment, image: imageUrl },
@@ -132,7 +131,7 @@ materialController.updateMaterial = async (req, res) => {
   }
 };
 
-// Eliminar un material
+// 📄 eliminar material
 materialController.deleteMaterial = async (req, res) => {
   try {
     const { id } = req.params;
@@ -142,7 +141,7 @@ materialController.deleteMaterial = async (req, res) => {
       return res.status(404).json({ message: 'Material no encontrado' });
     }
 
-    // Si el material tiene una imagen, eliminarla de Cloudinary
+    // si tiene imagen, la elimino también de cloudinary
     if (materialToDelete.image) {
       const publicId = materialToDelete.image.split('/').pop().split('.')[0];
       await cloudinary.uploader.destroy(publicId);
@@ -155,15 +154,15 @@ materialController.deleteMaterial = async (req, res) => {
   }
 };
 
-// Buscar materiales (por nombre, tipo o cualquier otro campo)
+// 📄 buscar materiales por nombre o tipo
 materialController.searchMaterials = async (req, res) => {
   try {
     const { query } = req.query; 
     
     const materials = await Material.find({
       $or: [
-        { name: { $regex: query, $options: 'i' } }, // Buscar por nombre (sin importar mayúsculas/minúsculas)
-        { type: { $regex: query, $options: 'i' } }  // Buscar por tipo
+        { name: { $regex: query, $options: 'i' } }, // búsqueda insensible a mayúsculas
+        { type: { $regex: query, $options: 'i' } }
       ]
     });
 

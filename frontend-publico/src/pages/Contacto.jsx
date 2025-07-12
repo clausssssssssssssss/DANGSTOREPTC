@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import "./Contacto.css";
+import '../components/styles/Contacto.css';
 
 const Contacto = () => {
   const [form, setForm] = useState({
@@ -9,6 +9,7 @@ const Contacto = () => {
   });
 
   const [status, setStatus] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     setForm({
@@ -19,6 +20,7 @@ const Contacto = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     setStatus("Enviando...");
 
     try {
@@ -41,6 +43,8 @@ const Contacto = () => {
     } catch (error) {
       console.error("Error al enviar el mensaje:", error);
       setStatus("Ocurrió un error al enviar el mensaje ❌");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -76,7 +80,7 @@ const Contacto = () => {
         <div className="contact-form">
           <h3>Envíanos un mensaje</h3>
           
-          <form onSubmit={handleSubmit}>
+          <div className={loading ? 'loading' : ''}>
             <div className="form-field">
               <label>Nombre:</label>
               <input
@@ -85,6 +89,7 @@ const Contacto = () => {
                 value={form.name}
                 onChange={handleChange}
                 required
+                disabled={loading}
               />
             </div>
 
@@ -96,26 +101,38 @@ const Contacto = () => {
                 value={form.email}
                 onChange={handleChange}
                 required
+                disabled={loading}
               />
             </div>
 
-            <div className="form-field">
+            <div className="form-field flex-1">
               <label>Mensaje:</label>
               <textarea
                 name="message"
                 value={form.message}
                 onChange={handleChange}
                 required
-                rows="5"
+                rows={5}
+                disabled={loading}
+                placeholder="Escribe tu mensaje aquí..."
               ></textarea>
             </div>
 
-            <button type="submit" className="submit-button">
-              Enviar Mensaje
+            <button 
+              type="submit" 
+              className="submit-button"
+              onClick={handleSubmit}
+              disabled={loading || !form.name || !form.email || !form.message}
+            >
+              {loading ? 'Enviando...' : 'Enviar Mensaje'}
             </button>
 
-            {status && <div className="status-message">{status}</div>}
-          </form>
+            {status && (
+              <div className={`status-message ${status ? 'show' : ''}`}>
+                {status}
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>

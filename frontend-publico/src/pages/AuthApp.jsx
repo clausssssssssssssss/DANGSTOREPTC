@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Eye, EyeOff, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import './AuthApp.css';
+import '../components/styles/AuthApp.css';
 
 // ——— imports para el login y contexto ———
 import { useAuth, parseJwt } from '../hooks/useAuth.jsx';

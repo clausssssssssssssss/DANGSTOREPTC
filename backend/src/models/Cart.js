@@ -35,9 +35,9 @@ const cartSchema = new Schema({
   deliveryPoint: { type: String },
 
   /** Método de pago elegido */
-  paymentMethod: {
-    type: String,
-    enum: ['Paypal', 'Tarjeta', 'Efectivo'],
+ paymentMethod: {
+    type:    String,
+    enum:    ['PayPal', 'Tarjeta', 'Efectivo'],  // ← aquí ahora sí 'PayPal'
     default: 'PayPal'
   }
 }, {

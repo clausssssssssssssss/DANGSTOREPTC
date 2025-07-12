@@ -114,7 +114,11 @@ const Contacto = () => {
               Enviar Mensaje
             </button>
 
-            {status && <div className="status-message">{status}</div>}
+            {status && (
+              <div className={`status-message ${status ? 'show' : ''}`}>
+                {status}
+              </div>
+            )}
           </form>
         </div>
       </div>

@@ -684,3 +684,31 @@
     background-position: 0% 100%;
   }
 }
+/* Badge para el carrito */
+.icon-link {
+  position: relative;
+}
+
+/* Pequeño círculo con número sobre el carrito */
+.cart-badge {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  background: #e53e3e;      /* rojo */
+  color: white;
+  font-size: 10px;
+  font-weight: bold;
+  line-height: 16px;
+  text-align: center;
+  border-radius: 8px;
+  pointer-events: none;
+}
+
+/* Asegúrate de que el contenedor tenga position: relative */
+.icon-link {
+  position: relative;
+
+}

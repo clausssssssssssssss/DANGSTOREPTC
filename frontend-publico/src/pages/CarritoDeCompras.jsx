@@ -25,15 +25,14 @@ const CarritoDeCompras = () => {
     setError('');
     setSuccess(false);
     try {
-      const res = await fetch('/api/payments/fake', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          userId, 
-          items: cart.map(item => ({ productId: item.product.id, quantity: item.quantity })), 
-          total 
-        }),
-      });
+     const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:4000'}/api/payment/fake`, {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    Authorization: `Bearer ${localStorage.getItem('token')}`
+  },
+  body: JSON.stringify({ userId, items: cart, total })
+});
       if (!res.ok) throw new Error(`Status ${res.status}`);
       const data = await res.json();
       console.log('Fake payment:', data);

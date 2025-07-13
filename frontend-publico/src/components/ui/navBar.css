@@ -733,3 +733,38 @@
   padding: 2px 5px;
   border-radius: 50%;
 }
+.icon-link {
+  position: relative;    /* ← necesario para el punto absoluto */
+  padding: 12px;
+  color: #cbd5e1;
+  border-radius: 12px;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  width: 44px;
+  height: 44px;
+}
+
+/* Punto de notificación junto al icono de perfil */
+.notification-dot {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 8px;
+  height: 8px;
+  background: #ff3b30;
+  border-radius: 50%;
+  z-index: 10;
+}
+/* Punto de notificación en el sidebar */
+.notification-dot-sidebar {
+  display: inline-block;
+  margin-left: 8px;
+  width: 8px;
+  height: 8px;
+  background: #ff3b30;
+  border-radius: 50%;
+  vertical-align: middle;
+}

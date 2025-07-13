@@ -1,5 +1,5 @@
+// src/pages/Encargo.jsx
 import { CloudUpload } from 'lucide-react';
-// IMPORTA desde components/personalizedOrder, no desde la raíz de src
 import useCustomerOrders from '../components/personalizedOrder/useCustomerOrders.jsx';
 import Modal from '../components/ui/Modal';
 import '../components/styles/Encargo.css';
@@ -77,7 +77,10 @@ export default function Encargo() {
               placeholder="Escribe detalles adicionales..."
             />
           </div>
+
+          {/* Mostrar mensaje de error si existe */}
           {error && <p className="error-message">{error}</p>}
+
           <button
             onClick={submit}
             disabled={loading || !preview || !modelType}
@@ -88,6 +91,7 @@ export default function Encargo() {
         </div>
       </div>
 
+      {/* Modal de éxito cuando success === true */}
       {success && (
         <Modal onClose={() => window.location.reload()}>
           <div className="modal-body">

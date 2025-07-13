@@ -1,8 +1,8 @@
-import React from 'react';
+// src/components/ui/NavBar.jsx
+import React, { useState, useEffect } from 'react';  // ← añade useState, useEffect
 import { NavLink, useLocation } from 'react-router-dom';
 import { Search, ShoppingCart, User } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth.jsx';
-// IMPORTA bien tu hook de carrito
 import { useCart } from '../cart/useCart.jsx';
 import './NavBar.css';
 
@@ -11,13 +11,36 @@ export default function NavBar() {
   const { user } = useAuth();
   const userId = user?.id;
 
-  // Pasa userId al hook
+  // Carrito
   const { cart } = useCart(userId);
-
-  // Badget de cantidad
   const itemCount = Array.isArray(cart)
     ? cart.reduce((sum, i) => sum + i.quantity, 0)
     : 0;
+
+  // Estado para saber si hay cotizaciones "quoted"
+  const [hasQuotes, setHasQuotes] = useState(false);
+
+  useEffect(() => {
+    async function fetchQuotes() {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+      try {
+        const res = await fetch(
+          `${import.meta.env.VITE_API_URL || 'http://localhost:4000'}/api/custom-orders/me`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        if (!res.ok) return;
+        const orders = await res.json();
+        // marcar si alguna cotización está en estado 'quoted'
+        if (orders.some(o => o.status === 'quoted')) {
+          setHasQuotes(true);
+        }
+      } catch (err) {
+        // console.warn(err);
+      }
+    }
+    fetchQuotes();
+  }, []);
 
   const handleSearchClick = e => {
     if (location.pathname === '/catalogo') {
@@ -33,7 +56,11 @@ export default function NavBar() {
           {/* Logo */}
           <NavLink to="/acerca" className="logo-link">
             <div className="logo-icon">
-              <img src="src/assets/DANGSTORELOGOPRUEBA__1.png" alt="Logo" className="logo-image" />
+              <img
+                src="src/assets/DANGSTORELOGOPRUEBA__1.png"
+                alt="Logo"
+                className="logo-image"
+              />
             </div>
             <span className="logo-text">DANGSTORE</span>
           </NavLink>
@@ -72,6 +99,7 @@ export default function NavBar() {
               aria-label="Perfil de usuario"
             >
               <User size={20} />
+              {hasQuotes && <span className="notification-dot" />}
             </NavLink>
           </div>
         </div>

@@ -13,7 +13,6 @@ logoutController.logout = async (req, res) => {
      secure: process.env.NODE_ENV === 'production'
    });
  
- 
    // Enviar una respuesta indicando que el logout fue exitoso
    return res.status(200).json({ message: 'Logged out successfully' });
  };

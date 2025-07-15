@@ -696,6 +696,41 @@
   .logout-button.confirm:hover {
     background: #dc2626;
   }
+
+  /*----------------------------*/
+
+  .favorites-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+  }
+  
+  .favorite-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border: 1px solid #eee;
+    padding: 8px;
+    border-radius: 8px;
+    background: #fff;
+  }
+  
+  .favorite-image-container {
+    width: 120px;
+    height: 120px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .favorite-image-container img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: cover;
+    border-radius: 4px;
+  }
+  
   
   /* Responsive layout */
   @media (min-width: 768px) {

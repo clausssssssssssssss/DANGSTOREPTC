@@ -1,5 +1,5 @@
 import React from 'react';
-import { useCart } from './useCart';
+import { useCart } from './hook/useCart';
 import './Cartitem.css';
 
 const CartItem = ({ product, quantity }) => {

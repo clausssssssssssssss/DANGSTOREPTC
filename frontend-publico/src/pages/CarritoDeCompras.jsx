@@ -2,12 +2,18 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth.jsx';
-import { useCart } from '../components/cart/useCart.jsx';
+import { useCart } from '../components/cart/hook/useCart.jsx';
 import { ShoppingBag, Trash2, Plus, Minus, ArrowLeft, CreditCard } from 'lucide-react';
 import CartItem from '../components/cart/CartItem.jsx';
 import '../components/styles/CarritoDeCompras.css';
 
+
+
 const CarritoDeCompras = () => {
+   if (!user) {
+        toast.warning("Debes iniciar sesión para agregar al carrito");
+        return;
+      }
   const { user } = useAuth();
   const userId = user?.id;
   const { cart, clearCart, updateQuantity, removeFromCart } = useCart(userId);
@@ -18,7 +24,7 @@ const CarritoDeCompras = () => {
 
   const total = cart.reduce((acc, item) => acc + item.product.price * item.quantity, 0);
   const itemCount = cart.reduce((acc, item) => acc + item.quantity, 0);
-
+  
   const handleFakePayment = async () => {
     setLoading(true);
     setError('');
@@ -30,7 +36,7 @@ const CarritoDeCompras = () => {
     'Content-Type': 'application/json',
     Authorization: `Bearer ${localStorage.getItem('token')}`
   },
-  body: JSON.stringify({ userId, items: cart, total })
+    body: JSON.stringify({ userId, items: cart, total })
 });
       if (!res.ok) throw new Error(`Status ${res.status}`);
       const data = await res.json();
@@ -243,6 +249,7 @@ const CarritoDeCompras = () => {
       </div>
     </div>
   );
-};
+}
+ 
 
 export default CarritoDeCompras;

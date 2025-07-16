@@ -1,5 +1,5 @@
 import React, { Suspense } from 'react'
-import { Routes, Route, Navigate, Outlet, useLocation } from 'react-router-dom'
+import { Routes, Route, Navigate, Outlet } from 'react-router-dom'
 import NavBar from './components/ui/navBar'
 import AuthApp from './pages/AuthApp'
 import Encargo from './pages/Encargo'
@@ -8,7 +8,9 @@ import Catalogo from './pages/Catalogo'
 import Contacto from './pages/Contacto'
 import Acerca from './pages/Acerca'
 import UserProfile from './pages/UserProfile'
-import { AuthProvider, useAuth } from './hooks/useAuth.jsx'
+import { AuthProvider } from './hooks/useAuth'
+import { ToastContainer } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 import './App.css'
 import { FavoritesProvider } from './context/FavoritesContext.jsx'
 // Spinner para carga inicial
@@ -21,7 +23,6 @@ const LoadingSpinner = () => (
   </div>
 )
 
-// Componente que muestra el error si algo falla
 const ErrorFallback = ({ error, resetError }) => (
   <div className="min-h-screen bg-gradient-to-br from-red-400 via-red-500 to-red-600 flex items-center justify-center p-4">
     <div className="bg-white rounded-3xl shadow-2xl p-8 w-full max-w-md text-center">
@@ -74,8 +75,8 @@ class AppErrorBoundary extends React.Component {
   }
 }
 
-// Layout que envuelve las rutas privadas
-function ProtectedLayout() {
+// Layout principal
+function MainLayout() {
   return (
     <div className="flex flex-col min-h-screen">
       <NavBar />
@@ -86,58 +87,30 @@ function ProtectedLayout() {
   )
 }
 
-// redirige “/” ⇒ /auth o /catalogo
-function RootRedirect() {
-  const { user } = useAuth()
-  return user
-    ? <Navigate to="/catalogo" replace/>
-    : <Navigate to="/auth" replace/>
-}
-
-// protege rutas hijas
-function PrivateRoute({ children }) {
-  const { user } = useAuth()
-  console.log('🔒 PrivateRoute sees user:', user);
-  const location = useLocation()
-  if (!user) {
-    return <Navigate to="/auth" state={{ from: location }} replace/>
-  }
-  return children
-}
-
 const App = () => {
   const [authChecked, setAuthChecked] = React.useState(false)
   React.useEffect(() => { setAuthChecked(true) }, [])
-  if (!authChecked) return <LoadingSpinner/>
+  if (!authChecked) return <LoadingSpinner />
 
   return (
     <AuthProvider>
       <FavoritesProvider>
       <AppErrorBoundary>
-        <Suspense fallback={<LoadingSpinner/>}>
+        <Suspense fallback={<LoadingSpinner />}>
+          <ToastContainer position="top-right" autoClose={3000} />
+
           <Routes>
-            {/* 1) exact "/" */}
-            <Route path="/" element={<RootRedirect />} />
-
-            {/* 2) "/auth/*" */}
-            <Route path="/auth/*" element={<AuthApp />} />
-
-            {/* 3) rutas privadas envueltas por PrivateRoute */}
-            <Route element={
-              <PrivateRoute>
-                <ProtectedLayout/>
-              </PrivateRoute>
-            }>
-              <Route path="encargo"  element={<Encargo />} />
-              <Route path="catalogo" element={<Catalogo />} />
-              <Route path="carrito"  element={<CarritoDeCompras />} />
-              <Route path="contacto" element={<Contacto />} />
-              <Route path="acerca"   element={<Acerca />} />
-              <Route path="perfil"   element={<UserProfile />} />
+            <Route element={<MainLayout />}>
+              <Route path="/" element={<Catalogo />} />
+              <Route path="/auth/*" element={<AuthApp />} />
+              <Route path="/encargo" element={<Encargo />} />
+              <Route path="/catalogo" element={<Catalogo />} />
+              <Route path="/carrito" element={<CarritoDeCompras />} />
+              <Route path="/contacto" element={<Contacto />} />
+              <Route path="/acerca" element={<Acerca />} />
+              <Route path="/perfil" element={<UserProfile />} />
+              <Route path="*" element={<Navigate to="/" replace />} />
             </Route>
-
-            {/* 4) cualquier otra URL */}
-            <Route path="*" element={<RootRedirect />} />
           </Routes>
         </Suspense>
       </AppErrorBoundary>
@@ -145,5 +118,4 @@ const App = () => {
     </AuthProvider>
   )
 }
-
 export default App

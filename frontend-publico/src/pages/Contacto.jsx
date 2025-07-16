@@ -1,5 +1,8 @@
 import React, { useState } from "react";
 import '../components/styles/Contacto.css';
+import { useAuth } from "../hooks/useAuth";
+import { toast } from "react-toastify";
+
 
 const Contacto = () => {
   const [form, setForm] = useState({
@@ -19,7 +22,11 @@ const Contacto = () => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+     e.preventDefault();
+    if (!user) {
+      toast.warning("Debes iniciar sesión para enviar un mensaje");
+      return;
+    }
     setLoading(true);
     setStatus("Enviando...");
 

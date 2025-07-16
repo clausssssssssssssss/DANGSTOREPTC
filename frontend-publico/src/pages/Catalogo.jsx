@@ -5,14 +5,11 @@ import { useCart }     from '../components/cart/useCart.jsx';
 import { useFavorites } from '../components/catalog/useFavorites.jsx';
 import ProductList     from '../components/catalog/ProductList';
 import '../components/styles/Catalogo.css';
+import { toast } from 'react-toastify';
 
 export default function Catalogo() {
   const { user } = useAuth();
-
-  // 1) Traer productos
   const { products, loading, error, refresh } = useProducts();
-
-  // 2) Hook de carrito
   const { addToCart } = useCart();
 
   // 3) Hook de favoritos
@@ -20,10 +17,12 @@ export default function Catalogo() {
 
   // 4) Modal (opcional)
   const [selected, setSelected] = useState(null);
-  const openDetail  = product => {
+
+  const openDetail = product => {
     setSelected(product);
     document.body.style.overflow = 'hidden';
   };
+
   const closeDetail = () => {
     setSelected(null);
     document.body.style.overflow = 'auto';
@@ -39,16 +38,20 @@ export default function Catalogo() {
   }));
 
   if (loading) return <p className="status-message">Cargando productos…</p>;
-  if (error)   return <p className="status-message error">Error al cargar catálogo: {error}</p>;
+  if (error) return <p className="status-message error">Error al cargar catálogo: {error}</p>;
 
   // 6) Handler seguro para añadir al carrito
   const handleAdd = async ({ id }) => {
+    if (!user) {
+      toast.warning("Debes iniciar sesión para agregar al carrito");
+      return;
+    }
     try {
       await addToCart({ productId: id, quantity: 1 });
-      alert('¡Producto añadido al carrito!');
+      toast.success('¡Producto añadido al carrito!');
     } catch (err) {
       console.error(err);
-      alert(err.message);
+      toast.error(err.message);
     }
   };
 

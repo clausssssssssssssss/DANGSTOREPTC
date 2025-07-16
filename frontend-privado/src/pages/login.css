@@ -1,0 +1,289 @@
+/* Reset y configuración base */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+
+body {
+    font-family: 'Inter', sans-serif;
+    background: linear-gradient(135deg, #f8f6ff 0%, #e8dff5 100%);
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+/* Contenedor principal */
+.container {
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    position: relative;
+}
+
+/* Decoraciones de llaveros */
+.keychain-decoration {
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    opacity: 0.3;
+    animation: float 3s ease-in-out infinite;
+}
+
+.keychain-1 {
+    background: linear-gradient(45deg, #a855f7, #d946ef);
+    top: 10%;
+    left: 10%;
+    animation-delay: 0s;
+}
+
+.keychain-2 {
+    background: linear-gradient(45deg, #ec4899, #f472b6);
+    top: 20%;
+    right: 15%;
+    animation-delay: 1s;
+}
+
+.keychain-3 {
+    background: linear-gradient(45deg, #8b5cf6, #a78bfa);
+    bottom: 15%;
+    left: 20%;
+    animation-delay: 2s;
+}
+
+.keychain-4 {
+    background: linear-gradient(45deg, #c084fc, #e879f9);
+    bottom: 25%;
+    right: 10%;
+    animation-delay: 0.5s;
+}
+
+/* Animaciones */
+@keyframes float {
+    0%, 100% { 
+        transform: translateY(0px) rotate(0deg); 
+    }
+    50% { 
+        transform: translateY(-20px) rotate(180deg); 
+    }
+}
+
+@keyframes slideIn {
+    from { 
+        opacity: 0; 
+        transform: translateY(20px); 
+    }
+    to { 
+        opacity: 1; 
+        transform: translateY(0); 
+    }
+}
+
+@keyframes ripple {
+    to {
+        transform: scale(4);
+        opacity: 0;
+    }
+}
+
+/* Pantallas */
+.screen {
+    display: none;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 24px;
+    padding: 40px;
+    box-shadow: 0 20px 40px rgba(139, 92, 246, 0.15);
+    border: 1px solid rgba(168, 85, 247, 0.1);
+    max-width: 400px;
+    width: 100%;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.screen.active {
+    display: block;
+    animation: slideIn 0.5s ease-out;
+}
+
+.screen::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #a855f7, #d946ef, #ec4899);
+    border-radius: 24px 24px 0 0;
+}
+
+/* Logo y branding */
+.logo {
+    font-size: 2.5rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, #a855f7, #d946ef);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.logo::before {
+    content: '🔑';
+    font-size: 2rem;
+}
+
+.subtitle {
+    color: #6b7280;
+    font-size: 0.9rem;
+    margin-bottom: 30px;
+}
+
+/* Formularios */
+.form-group {
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: #4b5563;
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    font-family: 'Inter', sans-serif;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: #a855f7;
+    box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.1);
+}
+
+/* Botones */
+.btn {
+    width: 100%;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Inter', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #a855f7, #d946ef);
+    color: white;
+    margin-bottom: 15px;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #9333ea, #c026d3);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(168, 85, 247, 0.3);
+}
+
+.btn-secondary {
+    background: transparent;
+    color: #6b7280;
+    border: 2px solid #e5e7eb;
+}
+
+.btn-secondary:hover {
+    background: #f9fafb;
+    border-color: #d1d5db;
+}
+
+/* Enlaces */
+.link {
+    color: #a855f7;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.link:hover {
+    color: #9333ea;
+}
+
+/* Divisores */
+.divider {
+    margin: 20px 0;
+    text-align: center;
+    color: #9ca3af;
+    font-size: 0.8rem;
+}
+
+/* Pantalla de bienvenida */
+.welcome-screen {
+    text-align: center;
+}
+
+.welcome-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin-bottom: 15px;
+}
+
+.welcome-subtitle {
+    color: #6b7280;
+    font-size: 1.1rem;
+    margin-bottom: 30px;
+    line-height: 1.6;
+}
+
+/* Mensajes de éxito */
+.success-message {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    padding: 12px 20px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+/* Botón de retroceso */
+.back-btn {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background: none;
+    border: none;
+    color: #6b7280;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+}
+
+.back-btn:hover {
+    background: #f3f4f6;
+    color: #a855f7;
+}

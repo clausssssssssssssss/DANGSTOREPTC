@@ -1,10 +1,18 @@
-// src/components/ProductList/ProductList.jsx
 import React from 'react';
 import PropTypes from 'prop-types';
-import ProductCard from './ProductCard.jsx';  // <-- Asegúrate de la ruta y extensión
-import './ProductList.css';                    // si tienes estilos para la lista
+import ProductCard from './ProductCard.jsx';
+import './ProductList.css';
 
-const ProductList = ({ products, loading, error, onRefresh, onAddToCart, onProductClick }) => {
+const ProductList = ({
+  products,
+  loading,
+  error,
+  onRefresh,
+  onAddToCart,
+  onProductClick,
+  favorites,
+  toggleFavorite
+}) => {
   if (loading) {
     return (
       <div className="loading-state">
@@ -40,22 +48,24 @@ const ProductList = ({ products, loading, error, onRefresh, onAddToCart, onProdu
     <section className="product-list">
       <div className="list-header">
         <h2>Productos Disponibles</h2>
-        <button 
-          onClick={onRefresh} 
+        <button
+          onClick={onRefresh}
           className="refresh-button"
           aria-label="Actualizar lista de productos"
         >
           Actualizar
         </button>
       </div>
-      
+
       <div className="product-grid">
         {products.map(product => (
-         <ProductCard
+          <ProductCard
             key={product.id}
             product={product}
             onAddToCart={() => onAddToCart(product)}
             onClick={() => onProductClick(product)}
+            isFavorite={favorites.includes(product.id)}
+            onToggleFavorite={() => toggleFavorite(product.id)}
           />
         ))}
       </div>
@@ -78,12 +88,17 @@ ProductList.propTypes = {
   onRefresh:      PropTypes.func.isRequired,
   loading:        PropTypes.bool,
   error:          PropTypes.string,
+  favorites:      PropTypes.arrayOf(
+    PropTypes.oneOfType([PropTypes.string, PropTypes.number])
+  ),
+  toggleFavorite: PropTypes.func.isRequired,
 };
 
 ProductList.defaultProps = {
   products: [],
   loading:  false,
   error:    null,
+  favorites: [],
 };
 
 export default ProductList;

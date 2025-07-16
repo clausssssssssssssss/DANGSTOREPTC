@@ -101,7 +101,7 @@ const App = () => {
 
           <Routes>
             <Route element={<MainLayout />}>
-              <Route path="/" element={<Catalogo />} />
+              <Route path="/" element={<Acerca />} />
               <Route path="/auth/*" element={<AuthApp />} />
               <Route path="/encargo" element={<Encargo />} />
               <Route path="/catalogo" element={<Catalogo />} />

@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { useAuth }     from '../hooks/useAuth.jsx';
-import { useProducts } from '../components/catalog/useProducts.jsx';
-import { useCart }     from '../components/cart/useCart.jsx';
-import { useFavorites } from '../components/catalog/useFavorites.jsx';
+import { useProducts } from '../components/catalog/hook/useProducts.jsx';
+import { useCart }     from '../components/cart/hook/useCart.jsx';
+import { useFavorites } from '../components/catalog/hook/useFavorites.jsx';
 import ProductList     from '../components/catalog/ProductList';
 import '../components/styles/Catalogo.css';
 import { toast } from 'react-toastify';

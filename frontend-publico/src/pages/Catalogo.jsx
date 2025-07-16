@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useAuth }     from '../hooks/useAuth.jsx';
 import { useProducts } from '../components/catalog/useProducts.jsx';
 import { useCart }     from '../components/cart/useCart.jsx';
-
+import { useFavorites } from '../components/catalog/useFavorites.jsx';
 import ProductList     from '../components/catalog/ProductList';
 import '../components/styles/Catalogo.css';
 
@@ -15,7 +15,10 @@ export default function Catalogo() {
   // 2) Hook de carrito
   const { addToCart } = useCart();
 
-  // 3) Modal (opcional)
+  // 3) Hook de favoritos
+  const { favorites, toggleFavorite } = useFavorites(user?.id);
+
+  // 4) Modal (opcional)
   const [selected, setSelected] = useState(null);
   const openDetail  = product => {
     setSelected(product);
@@ -26,19 +29,19 @@ export default function Catalogo() {
     document.body.style.overflow = 'auto';
   };
 
-  // 4) Formatear lista
+  // 5) Formatear lista para ProductList
   const listData = products.map(p => ({
-    id:    p._id,
-    name:  p.name,
-    price: p.price,
-    image: p.images?.[0],
+    id:       p._id,
+    name:     p.name,
+    price:    p.price,
+    image:    p.images?.[0] || '',   // Asegura que no sea undefined
     category: p.category
   }));
 
   if (loading) return <p className="status-message">Cargando productos…</p>;
   if (error)   return <p className="status-message error">Error al cargar catálogo: {error}</p>;
 
-  // 5) Handler seguro con try/catch
+  // 6) Handler seguro para añadir al carrito
   const handleAdd = async ({ id }) => {
     try {
       await addToCart({ productId: id, quantity: 1 });
@@ -64,6 +67,8 @@ export default function Catalogo() {
             onRefresh      ={refresh}
             onAddToCart    ={handleAdd}
             onProductClick ={openDetail}
+            favorites      ={favorites}          // Pasa favoritos
+            toggleFavorite ={toggleFavorite}     // Pasa toggle
           />
         </main>
 

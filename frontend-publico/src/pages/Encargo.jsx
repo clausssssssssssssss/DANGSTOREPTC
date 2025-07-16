@@ -1,6 +1,6 @@
-// src/pages/Encargo.jsx
 import { CloudUpload } from 'lucide-react';
-import usePersonalizedOrder from '../components/personalizedOrder/usePersonalizedOrder.jsx';
+// IMPORTA desde components/personalizedOrder, no desde la raíz de src
+import useCustomerOrders from '../components/personalizedOrder/useCustomerOrders.jsx';
 import Modal from '../components/ui/Modal';
 import '../components/styles/Encargo.css';
 
@@ -16,12 +16,10 @@ export default function Encargo() {
     setDescription,
     handleImageChange,
     submit
-  } = usePersonalizedOrder();
+  } = useCustomerOrders();
 
   return (
-    // 1. Contenedor full-screen con fondo degradado
     <div className="encargo-container">
-      {/* Título espectacular */}
       <div className="encargo-header">
         <h1 className="encargo-title">Encargo Personalizado</h1>
         <h2 className="encargo-subtitle">Crea tu llavero o cuadro único</h2>
@@ -31,26 +29,17 @@ export default function Encargo() {
         </p>
       </div>
 
-      {/* 2. Tarjeta blanca translúcida con sombra */}
       <div className="encargo-card">
-        {/* 3. Zona de subida con borde punteado */}
         <div className="upload-zone">
           {preview ? (
             <div className="image-preview">
-              <img
-                src={preview}
-                alt="Preview"
-                className="preview-image"
-              />
+              <img src={preview} alt="Preview" className="preview-image" />
               <div className="preview-thumbnail">
                 <img src={preview} alt="thumb" className="thumbnail-image" />
               </div>
             </div>
           ) : (
-            <label
-              htmlFor="image-upload"
-              className="upload-label"
-            >
+            <label htmlFor="image-upload" className="upload-label">
               <CloudUpload size={48} className="upload-icon" />
               <span className="upload-text">Haz click para subir</span>
             </label>
@@ -64,7 +53,6 @@ export default function Encargo() {
           />
         </div>
 
-        {/* 4. Panel de selección y texto */}
         <div className="form-panel">
           <div className="field-group">
             <label className="field-label">Tipo</label>
@@ -100,7 +88,6 @@ export default function Encargo() {
         </div>
       </div>
 
-      {/* 5. Modal de éxito */}
       {success && (
         <Modal onClose={() => window.location.reload()}>
           <div className="modal-body">

@@ -888,6 +888,15 @@
   }
 }
 
+.favorite-btn.active {
+  color: #e63946 !important;
+  background: rgba(230, 57, 70, 0.25) !important;
+  transform: scale(1.1) !important;
+  box-shadow: 0 10px 30px rgba(230, 57, 70, 0.5) !important;
+}
+
+
+
 /* Compatibilidad con navegadores antiguos */
 @supports not (backdrop-filter: blur(10px)) {
   .popular-banner,

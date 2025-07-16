@@ -10,7 +10,7 @@ import Acerca from './pages/Acerca'
 import UserProfile from './pages/UserProfile'
 import { AuthProvider, useAuth } from './hooks/useAuth.jsx'
 import './App.css'
-
+import { FavoritesProvider } from './context/FavoritesContext.jsx'
 // Spinner para carga inicial
 const LoadingSpinner = () => (
   <div className="min-h-screen bg-gradient-to-br from-purple-400 via-purple-500 to-purple-600 flex items-center justify-center">
@@ -112,6 +112,7 @@ const App = () => {
 
   return (
     <AuthProvider>
+      <FavoritesProvider>
       <AppErrorBoundary>
         <Suspense fallback={<LoadingSpinner/>}>
           <Routes>
@@ -140,6 +141,7 @@ const App = () => {
           </Routes>
         </Suspense>
       </AppErrorBoundary>
+      </FavoritesProvider>
     </AuthProvider>
   )
 }

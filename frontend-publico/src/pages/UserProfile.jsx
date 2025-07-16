@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import {
   Heart, ShoppingCart, User, Gift, LogOut
 } from 'lucide-react';
+import { useAuth } from '../hooks/useAuth.jsx';
 import '../components/styles/UserProfile.css';
 
 import PersonalDataSection from '../components/profile/PersonalDataSection';
@@ -14,6 +15,16 @@ import UserSection         from '../components/profile/UserSection';
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
 
 const UserProfile = () => {
+  const { user } = useAuth(); // 
+
+  useEffect(() => {
+    if (!user) {
+      toast.warning("Debes iniciar sesión para ver tu perfil");
+    }
+  }, [user]); // 
+
+  if (!user) return null; // 
+
   const [activeSection, setActiveSection] = useState('personal');
 
   // --- Estado para cotizaciones ---

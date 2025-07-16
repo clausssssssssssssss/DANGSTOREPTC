@@ -1,13 +1,14 @@
 // src/components/ui/NavBar.jsx
-import React, { useState, useEffect } from 'react';  // ← añade useState, useEffect
-import { NavLink, useLocation } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { Search, ShoppingCart, User } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth.jsx';
-import { useCart } from '../cart/useCart.jsx';
+import { useCart } from '../cart/hook/useCart.jsx';
 import './NavBar.css';
 
 export default function NavBar() {
   const location = useLocation();
+  const navigate = useNavigate();
   const { user } = useAuth();
   const userId = user?.id;
 
@@ -31,7 +32,6 @@ export default function NavBar() {
         );
         if (!res.ok) return;
         const orders = await res.json();
-        // marcar si alguna cotización está en estado 'quoted'
         if (orders.some(o => o.status === 'quoted')) {
           setHasQuotes(true);
         }
@@ -46,6 +46,14 @@ export default function NavBar() {
     if (location.pathname === '/catalogo') {
       e.preventDefault();
       window.toggleCatalogFilters?.();
+    }
+  };
+
+  // Evita acceso si no está logueado
+  const handleProtectedClick = (e, route) => {
+    if (!user) {
+      e.preventDefault();
+      navigate('/auth');
     }
   };
 
@@ -67,17 +75,29 @@ export default function NavBar() {
 
           {/* Enlaces */}
           <div className="nav-links">
-            <NavLink to="/encargo"  className={({isActive})=>`nav-link ${isActive?'active':''}`}>Encargo</NavLink>
-            <NavLink to="/catalogo" className={({isActive})=>`nav-link ${isActive?'active':''}`}>Catálogo</NavLink>
-            <NavLink to="/contacto" className={({isActive})=>`nav-link ${isActive?'active':''}`}>Contacto</NavLink>
-            <NavLink to="/acerca"   className={({isActive})=>`nav-link ${isActive?'active':''}`}>Acerca</NavLink>
+            <NavLink
+              to="/encargo"
+              onClick={(e) => handleProtectedClick(e, '/encargo')}
+              className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
+            >
+              Encargo
+            </NavLink>
+            <NavLink to="/catalogo" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
+              Catálogo
+            </NavLink>
+            <NavLink to="/contacto" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
+              Contacto
+            </NavLink>
+            <NavLink to="/acerca" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
+              Acerca
+            </NavLink>
           </div>
 
           {/* Íconos de acción */}
           <div className="action-icons">
             <NavLink
               to="/catalogo"
-              className={({isActive})=>`icon-link ${isActive?'active':''}`}
+              className={({ isActive }) => `icon-link ${isActive ? 'active' : ''}`}
               onClick={handleSearchClick}
               aria-label="Buscar"
             >
@@ -86,7 +106,8 @@ export default function NavBar() {
 
             <NavLink
               to="/carrito"
-              className={({isActive})=>`icon-link ${isActive?'active':''}`}
+              onClick={(e) => handleProtectedClick(e, '/carrito')}
+              className={({ isActive }) => `icon-link ${isActive ? 'active' : ''}`}
               aria-label="Carrito de compras"
             >
               <ShoppingCart size={20} />
@@ -95,7 +116,8 @@ export default function NavBar() {
 
             <NavLink
               to="/perfil"
-              className={({isActive})=>`icon-link ${isActive?'active':''}`}
+              onClick={(e) => handleProtectedClick(e, '/perfil')}
+              className={({ isActive }) => `icon-link ${isActive ? 'active' : ''}`}
               aria-label="Perfil de usuario"
             >
               <User size={20} />

@@ -1,51 +1,49 @@
 import React, { useState } from 'react';
-import { useAuth }     from '../hooks/useAuth.jsx';
-import { useProducts } from '../components/catalog/useProducts.jsx';
-import { useCart }     from '../components/cart/useCart.jsx';
-
-import ProductList     from '../components/catalog/ProductList';
+import { useAuth } from '../hooks/useAuth.jsx';
+import { useProducts } from '../components/catalog/hook/useProducts.jsx';
+import { useCart } from '../components/cart/hook/useCart.jsx';
+import ProductList from '../components/catalog/ProductList';
 import '../components/styles/Catalogo.css';
+import { toast } from 'react-toastify';
 
 export default function Catalogo() {
   const { user } = useAuth();
-
-  // 1) Traer productos
   const { products, loading, error, refresh } = useProducts();
-
-  // 2) Hook de carrito
   const { addToCart } = useCart();
-
-  // 3) Modal (opcional)
   const [selected, setSelected] = useState(null);
-  const openDetail  = product => {
+
+  const openDetail = product => {
     setSelected(product);
     document.body.style.overflow = 'hidden';
   };
+
   const closeDetail = () => {
     setSelected(null);
     document.body.style.overflow = 'auto';
   };
 
-  // 4) Formatear lista
   const listData = products.map(p => ({
-    id:    p._id,
-    name:  p.name,
+    id: p._id,
+    name: p.name,
     price: p.price,
     image: p.images?.[0],
     category: p.category
   }));
 
   if (loading) return <p className="status-message">Cargando productos…</p>;
-  if (error)   return <p className="status-message error">Error al cargar catálogo: {error}</p>;
+  if (error) return <p className="status-message error">Error al cargar catálogo: {error}</p>;
 
-  // 5) Handler seguro con try/catch
   const handleAdd = async ({ id }) => {
+    if (!user) {
+      toast.warning("Debes iniciar sesión para agregar al carrito");
+      return;
+    }
     try {
       await addToCart({ productId: id, quantity: 1 });
-      alert('¡Producto añadido al carrito!');
+      toast.success('¡Producto añadido al carrito!');
     } catch (err) {
       console.error(err);
-      alert(err.message);
+      toast.error(err.message);
     }
   };
 
@@ -58,12 +56,12 @@ export default function Catalogo() {
 
         <main className="main-content">
           <ProductList
-            products       ={listData}
-            loading        ={loading}
-            error          ={error}
-            onRefresh      ={refresh}
-            onAddToCart    ={handleAdd}
-            onProductClick ={openDetail}
+            products={listData}
+            loading={loading}
+            error={error}
+            onRefresh={refresh}
+            onAddToCart={handleAdd}
+            onProductClick={openDetail}
           />
         </main>
 

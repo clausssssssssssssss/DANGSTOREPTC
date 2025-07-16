@@ -5,6 +5,10 @@ import Modal from '../components/ui/Modal';
 import '../components/styles/Encargo.css';
 
 export default function Encargo() {
+   if (!user) {
+        toast.warning("Debes iniciar sesión para agregar al carrito");
+        return;
+      }
   const {
     preview,
     modelType,

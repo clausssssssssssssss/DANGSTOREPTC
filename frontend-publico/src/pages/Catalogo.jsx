@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth }     from '../hooks/useAuth.jsx';
 import { useProducts } from '../components/catalog/hook/useProducts.jsx';
-import { useCart }     from '../components/catalog/useFavorites.jsx';
+import { useCart } from '../components/cart/hook/useCart.jsx';
 import { useFavorites } from '../components/catalog/useFavorites.jsx';
 import ProductList     from '../components/catalog/ProductList.jsx';
 import '../components/styles/Catalogo.css';

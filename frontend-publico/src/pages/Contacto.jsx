@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import '../components/styles/Contacto.css';
 import { useAuth } from "../hooks/useAuth";
+import { toast } from "react-toastify";
 
 
 const Contacto = () => {

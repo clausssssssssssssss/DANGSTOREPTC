@@ -15,7 +15,7 @@ const upload = multer({ dest: 'uploads/' });
 router.post(
   '/',
   validateAuthToken(),
-  upload.single('image'),
+  upload.single('uploads'),
   createCustomOrder
 );
 

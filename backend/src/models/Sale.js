@@ -9,10 +9,7 @@ const saleSchema = new Schema(
         required: true
       }
     ],
-    category: {
-      type: String,
-      required: true
-    },
+
     customer: {
       type: String,
       required: true

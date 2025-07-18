@@ -5,6 +5,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth.jsx';
 import '../components/styles/UserProfile.css';
+import { toast } from 'react-toastify';
 
 import PersonalDataSection from '../components/profile/PersonalDataSection';
 import OrdersSection       from '../components/profile/OrdersSection';
@@ -18,9 +19,6 @@ const UserProfile = () => {
   const { user } = useAuth(); // 
 
   useEffect(() => {
-    if (!user) {
-      toast.warning("Debes iniciar sesión para ver tu perfil");
-    }
   }, [user]); // 
 
   if (!user) return null; // 

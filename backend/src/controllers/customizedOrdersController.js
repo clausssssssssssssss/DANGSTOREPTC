@@ -1,6 +1,6 @@
 // src/controllers/customizedOrdersController.js
 import CustomizedOrder from '../models/customizedOrders.js';
-import Cart from '../models/Cart.js';
+import Order from '../models/Order.js';
 
 /** Usuario sube imagen y crea la orden pendiente */
 export const createCustomOrder = async (req, res) => {

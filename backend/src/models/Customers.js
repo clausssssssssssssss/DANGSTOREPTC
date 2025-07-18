@@ -43,21 +43,6 @@ const customerSchema = new Schema({
     default: false,
   },
 
-  /**
-   * Datos para recuperación de contraseña:
-   * - code: código enviado al usuario
-   * - expires: fecha de expiración del código
-   */
-  resetCode: {
-    code: {
-      type: String,
-      select: false, // No exponer en consultas a menos que se requiera
-    },
-    expires: {
-      type: Date,
-      select: false,
-    },
-  },
 
   /** Lista de productos favoritos */
   favorites: [

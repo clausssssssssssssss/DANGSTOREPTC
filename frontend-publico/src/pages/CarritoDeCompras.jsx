@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth.jsx';
 import { useCart } from '../components/cart/hook/useCart.jsx';
 import { ShoppingBag, Trash2, Plus, Minus, ArrowLeft, CreditCard } from 'lucide-react';
+import { toast } from 'react-toastify';
 import CartItem from '../components/cart/CartItem.jsx';
 import '../components/styles/CarritoDeCompras.css';
 

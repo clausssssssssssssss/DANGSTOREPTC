@@ -1,11 +1,23 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import './ProductCard.css'; // si tienes estilos propios
+import './ProductCard.css';
 
 export default function ProductCard({ product, onAddToCart, onClick, isFavorite, onToggleFavorite }) {
+  // Elegir la primera imagen o un placeholder
+  const imageUrl =
+    Array.isArray(product.images) && product.images.length > 0
+      ? product.images[0]
+      : 'https://via.placeholder.com/300x200?text=Sin+imagen';
+
+  // 🔎 Debug: mostrar qué se está renderizando
+  console.log('Rendering product card:');
+  console.log('name:', product.name);
+  console.log('images:', product.images);
+  console.log('imageUrl usado:', imageUrl);
+
   return (
     <div className="product-card" onClick={onClick}>
-      <img src={product.image} alt={product.name} className="product-image" />
+      <img src={imageUrl} alt={product.name} className="product-image" />
       <div className="product-info">
         <h3>{product.name}</h3>
         <p>${product.price.toFixed(2)}</p>
@@ -21,15 +33,15 @@ export default function ProductCard({ product, onAddToCart, onClick, isFavorite,
         </button>
 
         <button
-  className={`favorite-btn ${isFavorite ? 'active' : ''}`}
-  onClick={e => {
-    e.stopPropagation();
-    onToggleFavorite();
-  }}
-  aria-label={isFavorite ? "Quitar de favoritos" : "Agregar a favoritos"}
->
-  ♥
-</button>
+          className={`favorite-btn ${isFavorite ? 'active' : ''}`}
+          onClick={e => {
+            e.stopPropagation();
+            onToggleFavorite();
+          }}
+          aria-label={isFavorite ? "Quitar de favoritos" : "Agregar a favoritos"}
+        >
+          ♥
+        </button>
       </div>
     </div>
   );
@@ -40,7 +52,7 @@ ProductCard.propTypes = {
     id:          PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
     name:        PropTypes.string.isRequired,
     price:       PropTypes.number.isRequired,
-    image:       PropTypes.string,
+    images:      PropTypes.arrayOf(PropTypes.string),
   }).isRequired,
   onAddToCart:     PropTypes.func.isRequired,
   onClick:         PropTypes.func.isRequired,

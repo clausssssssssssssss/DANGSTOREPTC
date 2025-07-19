@@ -1,44 +1,36 @@
-// src/controllers/passwordRecoveryController.js
 import bcrypt from "bcryptjs";
 import Customer from "../models/Customers.js";
 import { sendEmail, HTMLRecoveryEmail } from "../utils/mailService.js";
 
 const passwordRecoveryController = {};
 
-/**
- * POST /api/password-recovery/send-code
- * Genera y envía un código de 4 dígitos para recuperar contraseña.
- * El código expira en 15 minutos.
- *
- * @param {import('express').Request} req - Objeto de petición Express.
- * @param {import('express').Response} res - Objeto de respuesta Express.
- * @returns {Promise<void>} Mensaje de éxito o error.
- */
+// Envía un código de 4 dígitos para recuperar contraseña, válido 15 minutos
 passwordRecoveryController.sendRecoveryCode = async (req, res) => {
   try {
     const { email } = req.body;
-    // Validar email
+
+    // Validar que venga el email
     if (!email) {
       return res.status(400).json({ message: "El email es obligatorio" });
     }
 
-    // Verificar existencia de customer
+    // Buscar cliente por email
     const customer = await Customer.findOne({ email });
     if (!customer) {
       return res.status(404).json({ message: "Email no registrado" });
     }
 
-    // 1) Generar código aleatorio de 4 dígitos
+    // Generar código aleatorio de 4 dígitos
     const code = Math.floor(1000 + Math.random() * 9000).toString();
 
-    // 2) Guardar código y tiempo de expiración (15 minutos)
+    // Guardar código y fecha de expiración (15 minutos)
     customer.resetCode = {
       code,
       expires: new Date(Date.now() + 15 * 60 * 1000),
     };
     await customer.save();
 
-    // 3) Enviar email con código
+    // Enviar email con el código de recuperación
     await sendEmail({
       to: email,
       subject: "Recuperación de contraseña",
@@ -46,7 +38,7 @@ passwordRecoveryController.sendRecoveryCode = async (req, res) => {
       html: HTMLRecoveryEmail(code),
     });
 
-    // Responder al cliente
+    // Responder que se envió el código
     res.json({ message: "Código enviado al correo" });
   } catch (error) {
     console.error("Error en sendCode:", error);
@@ -54,54 +46,48 @@ passwordRecoveryController.sendRecoveryCode = async (req, res) => {
   }
 };
 
-/**
- * POST /api/password-recovery/reset
- * Valida el código enviado y su expiración, luego actualiza la contraseña.
- * Limpia el campo resetCode tras el cambio.
- *
- * @param {import('express').Request} req - Objeto de petición Express.
- * @param {import('express').Response} res - Objeto de respuesta Express.
- * @returns {Promise<void>} Mensaje de éxito o error.
- */
+// Valida el código recibido y actualiza la contraseña
 passwordRecoveryController.resetPassword = async (req, res) => {
   try {
     const { email, code, newPassword } = req.body;
+
     // Validar datos obligatorios
     if (!email || !code || !newPassword) {
       return res.status(400).json({ message: "Faltan datos obligatorios" });
     }
 
-    // Buscar customer
-// carga también el code y expires del resetCode, que en el schema tienen select:false
-const customer = await Customer
-  .findOne({ email })
-  .select("+resetCode.code +resetCode.expires");
+    // Buscar cliente y obtener el código y expiración
+    const customer = await Customer
+      .findOne({ email })
+      .select("+resetCode.code +resetCode.expires");
     if (!customer) {
       return res.status(404).json({ message: "Email no registrado" });
     }
 
-    // Verificar existencia de resetCode previo
+    // Revisar si hay código previo para recuperación
     const { resetCode: rc = {} } = customer;
     if (!rc.code) {
       return res.status(400).json({ message: "No se solicitó restablecer contraseña" });
     }
 
-    // Validar que el código coincida
+    // Verificar que el código coincida
     if (rc.code !== code) {
       return res.status(400).json({ message: "Código incorrecto" });
     }
 
-    // Verificar que no haya expirado
+    // Verificar que el código no haya expirado
     if (rc.expires < new Date()) {
       return res.status(400).json({ message: "Código expirado" });
     }
 
-    // Encriptar y actualizar nueva contraseña
+    // Encriptar y actualizar la nueva contraseña
     customer.password = await bcrypt.hash(newPassword, 10);
-    // Eliminar resetCode para evitar reutilización
+
+    // Limpiar el código para evitar reutilización
     customer.resetCode = {};
     await customer.save();
 
+    // Confirmar cambio exitoso
     res.json({ message: "Contraseña restablecida exitosamente" });
   } catch (error) {
     console.error("Error en resetPassword:", error);
@@ -109,32 +95,26 @@ const customer = await Customer
   }
 };
 
-/**
- * POST /api/password-recovery/verify-code
- * Verifica que el código enviado por email sea válido y no esté expirado.
- *
- * @param {import('express').Request} req - Objeto de petición Express.
- * @param {import('express').Response} res - Objeto de respuesta Express.
- * @returns {Promise<void>} Confirmación de validez o error.
- */
+// Verifica que el código recibido sea válido y no esté expirado
 passwordRecoveryController.verifyCode = async (req, res) => {
   try {
     const { email, code } = req.body;
-    // Validar datos obligatorios
+
+    // Validar que email y código existan
     if (!email || !code) {
       return res.status(400).json({ message: "Email y código son obligatorios" });
     }
 
-    // Buscar customer e identificar resetCode
-// carga también el code y expires del resetCode, que en el schema tienen select:false
-const customer = await Customer
-  .findOne({ email })
-  .select("+resetCode.code +resetCode.expires");
+    // Buscar cliente y obtener código y expiración
+    const customer = await Customer
+      .findOne({ email })
+      .select("+resetCode.code +resetCode.expires");
+
     if (!customer || !customer.resetCode || customer.resetCode.code !== code) {
       return res.status(400).json({ message: "Código incorrecto" });
     }
 
-    // Verificar expiración
+    // Verificar que el código no haya expirado
     if (customer.resetCode.expires < new Date()) {
       return res.status(400).json({ message: "Código expirado" });
     }

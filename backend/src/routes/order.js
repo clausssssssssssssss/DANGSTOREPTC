@@ -1,13 +1,13 @@
 import { Router } from "express";
-import validateAuthToken from "../middleware/validateAuthToken.js";
+import authMiddleware from "../middleware/authMiddleware.js";
 import ordersController from "../controllers/orderController.js";
 
 const router = Router();
 
 // Crear order en tu BD (tras captura en frontend/api)
-router.post("/",     validateAuthToken(), ordersController.createOrder);
+router.post("/",     authMiddleware(), ordersController.createOrder);
 
 // Obtener historial
-router.get("/",      validateAuthToken(), ordersController.getOrders);
+router.get("/",      authMiddleware(), ordersController.getOrders);
 
 export default router;

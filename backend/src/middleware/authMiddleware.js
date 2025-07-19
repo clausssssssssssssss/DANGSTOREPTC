@@ -13,13 +13,16 @@ const authMiddleware = (allowedRoles = []) => {
     try {
       // 1️⃣ Extraer token
       const authHeader = req.headers.authorization;
-      const token = authHeader && authHeader.startsWith("Bearer ")
-        ? authHeader.split(" ")[1]
-        : req.cookies.authToken;
+      const token =
+        authHeader && authHeader.startsWith("Bearer ")
+          ? authHeader.split(" ")[1]
+          : req.cookies.authToken;
 
       if (!token) {
         console.log("🚫 No token provided");
-        return res.status(401).json({ success: false, message: "No autenticado" });
+        return res
+          .status(401)
+          .json({ success: false, message: "No autenticado" });
       }
 
       // 2️⃣ Verificar token
@@ -32,28 +35,40 @@ const authMiddleware = (allowedRoles = []) => {
       // 3️⃣ Cargar usuario desde DB si es customer
       let userData;
       if (userType === "customer") {
-        userData = await customersModel.findById(decoded.userId).select("-password");
+        userData = await customersModel
+          .findById(decoded.userId)
+          .select("-password");
         console.log("📄 Customer loaded from DB:", userData);
-
       } else if (userType === "admin") {
-        // Si es admin, no hay modelo: lo tomamos del payload
-        userData = { userId: decoded.userId, userType: "admin", email: decoded.email };
+        userData = {
+          userId: decoded.userId,
+          userType: "admin",
+          email: decoded.email,
+        };
         console.log("👑 Admin from token:", userData);
-
       } else {
         console.log("🚫 Invalid userType:", decoded.userType);
-        return res.status(401).json({ success: false, message: "Tipo de usuario inválido" });
+        return res
+          .status(401)
+          .json({ success: false, message: "Tipo de usuario inválido" });
       }
 
       if (!userData) {
         console.log("🚫 Usuario no encontrado en DB");
-        return res.status(404).json({ success: false, message: "Usuario no encontrado" });
+        return res
+          .status(404)
+          .json({ success: false, message: "Usuario no encontrado" });
       }
 
-      // 4️⃣ Verificar roles permitidos (usar también userType en minúsculas)
-      if (allowedRoles.length > 0 && !allowedRoles.includes(userType)) {
+      // 4️⃣ Verificar roles permitidos (sin importar mayúsculas/minúsculas)
+      if (
+        allowedRoles.length > 0 &&
+        !allowedRoles.map(r => r.toLowerCase()).includes(userType)
+      ) {
         console.log("🚫 Rol no permitido:", userType);
-        return res.status(403).json({ success: false, message: "Permiso denegado" });
+        return res
+          .status(403)
+          .json({ success: false, message: "Permiso denegado" });
       }
 
       // 5️⃣ Inyectar datos y continuar
@@ -61,10 +76,11 @@ const authMiddleware = (allowedRoles = []) => {
       req.userType = userType;
       console.log("✅ Usuario autenticado:", req.user);
       next();
-
     } catch (error) {
       console.error("🔥 authMiddleware error:", error);
-      return res.status(401).json({ success: false, message: "Token inválido o expirado" });
+      return res
+        .status(401)
+        .json({ success: false, message: "Token inválido o expirado" });
     }
   };
 };

@@ -11,6 +11,10 @@ export default function Catalogo() {
 
   // 1) Traer productos
   const { products, loading, error, refresh } = useProducts();
+  console.log('Productos raw del backend:', products);
+products.forEach(p => {
+  console.log(`Producto: ${p.name}, Imágenes:`, p.images);
+});
 
   // 2) Hook de carrito
   const { addToCart } = useCart();
@@ -30,13 +34,19 @@ export default function Catalogo() {
   };
 
   // 5) Formatear lista para ProductList
-  const listData = products.map(p => ({
+ const listData = products.map(p => {
+  console.log(`Mapeando ${p.name}:`);
+  console.log(`Primera imagen original:`, p.images?.[0]);
+  console.log(`Primera imagen después del mapeo:`, p.images?.[0] || '');
+  
+  return {
     id:       p._id,
     name:     p.name,
     price:    p.price,
-    image:    p.images?.[0] || '',   // Asegura que no sea undefined
+    images:   Array.isArray(p.images) ? p.images : [],
     category: p.category
-  }));
+  };
+});
 
   if (loading) return <p className="status-message">Cargando productos…</p>;
   if (error)   return <p className="status-message error">Error al cargar catálogo: {error}</p>;
@@ -73,25 +83,25 @@ export default function Catalogo() {
         </main>
 
         {selected && (
-          <div className="modal-overlay" onClick={closeDetail}>
-            <div className="modal-card" onClick={e => e.stopPropagation()}>
-              <button className="close-btn" onClick={closeDetail}>×</button>
-              <img src={selected.image} alt={selected.name} />
-              <h2>{selected.name}</h2>
-              <p>{selected.category}</p>
-              <p className="detail-price">${selected.price.toFixed(2)}</p>
-              <button
-                className="btn btn-primary"
-                onClick={async () => {
-                  await handleAdd({ id: selected.id });
-                  closeDetail();
-                }}
-              >
-                🛒 Añadir al carrito
-              </button>
-            </div>
-          </div>
-        )}
+  <div className="modal-overlay" onClick={closeDetail}>
+    <div className="modal-card" onClick={e => e.stopPropagation()}>
+      <button className="close-btn" onClick={closeDetail}>×</button>
+      <img src={selected.images?.[0] || ''} alt={selected.name} />
+      <h2>{selected.name}</h2>
+      <p>{selected.category}</p>
+      <p className="detail-price">${selected.price.toFixed(2)}</p>
+      <button
+        className="btn btn-primary"
+        onClick={async () => {
+          await handleAdd({ id: selected._id }); 
+          closeDetail();
+        }}
+      >
+        🛒 Añadir al carrito
+      </button>
+    </div>
+  </div>
+)}
       </div>
     </div>
   );

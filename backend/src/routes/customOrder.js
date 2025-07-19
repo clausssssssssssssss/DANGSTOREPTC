@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import multer from 'multer';
-import validateAuthToken from '../middleware/validateAuthToken.js';
+import authMiddleware from '../middleware/authMiddleware.js';
 import {
   createCustomOrder,
   getMyCustomOrders,
@@ -14,7 +14,7 @@ const upload = multer({ dest: 'uploads/' });
 // Crear solicitud
 router.post(
   '/',
-  validateAuthToken(),
+  authMiddleware(),
   upload.single('image'),
   createCustomOrder
 );
@@ -22,21 +22,21 @@ router.post(
 // Ver mis solicitudes
 router.get(
   '/me',
-  validateAuthToken(),
+  authMiddleware(),
   getMyCustomOrders
 );
 
 // Cotizar (admin)
 router.put(
   '/:id/quote',
-  validateAuthToken(['admin']),
+  authMiddleware(['admin']),
   quoteCustomOrder
 );
 
 // Aceptar / rechazar (usuario)
 router.put(
   '/:id/respond',
-  validateAuthToken(),
+  authMiddleware(),
   respondCustomOrder
 );
 

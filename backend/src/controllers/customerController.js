@@ -6,18 +6,11 @@ import { sendEmail } from "../utils/mailService.js";
 
 const customerController = {};
 
-/**
- * Controlador para el registro de un nuevo customer.
- * Verifica datos obligatorios, encripta contraseña, crea el registro,
- * genera un token JWT y envía un email de bienvenida.
- *
- * @param {import('express').Request} req - Objeto de petición Express.
- * @param {import('express').Response} res - Objeto de respuesta Express.
- * @returns {Promise<void>} Respuesta con estado y datos del usuario o error.
- */
+// Registrar un nuevo cliente
 export const registerCustomer = async (req, res) => {
   try {
     const { name, email, password, telephone } = req.body;
+
     // Validar campos obligatorios
     if (!name || !email || !password || !telephone) {
       return res.status(400).json({ message: "Faltan datos obligatorios" });
@@ -31,7 +24,7 @@ export const registerCustomer = async (req, res) => {
     // Encriptar la contraseña
     const hashed = await bcrypt.hash(password, 10);
 
-    // Crear el nuevo customer en la base de datos
+    // Crear nuevo cliente en la base de datos
     const newCustomer = await Customer.create({
       name,
       email,
@@ -39,7 +32,7 @@ export const registerCustomer = async (req, res) => {
       telephone,
     });
 
-    // Generar payload y firmar token JWT
+    // Crear token JWT
     const payload = { userId: newCustomer._id, userType: "customer" };
     const token = jwt.sign(payload, config.jwt.secret, {
       expiresIn: config.jwt.expiresIn,
@@ -50,12 +43,12 @@ export const registerCustomer = async (req, res) => {
       to: newCustomer.email,
       subject: "¡Bienvenido a DANGSTORE!",
       html: `
-        <h1>Hola ${newCustomer.name} 👋</h1>
+        <h1>Hola ${newCustomer.name}</h1>
         <p>Gracias por registrarte en DANGSTORE. Ya puedes disfrutar de nuestros productos.</p>
       `,
     });
 
-    // Respuesta exitosa con token y datos del usuario (sin contraseña)
+    // Responder con datos del usuario y token (sin contraseña)
     res.status(201).json({
       message: "Customer registrado correctamente",
       token,
@@ -66,8 +59,9 @@ export const registerCustomer = async (req, res) => {
         telephone: newCustomer.telephone,
       },
     });
+
   } catch (error) {
-    // Manejo de error en caso de duplicidad de clave única
+    // Manejo de error por duplicidad de email
     if (error.code === 11000) {
       return res.status(409).json({ message: "Email ya registrado" });
     }
@@ -76,17 +70,9 @@ export const registerCustomer = async (req, res) => {
   }
 };
 
-/**
- * Controlador para obtener todos los customers.
- * Excluye campos sensibles como contraseña y versión.
- *
- * @param {import('express').Request} req - Objeto de petición Express.
- * @param {import('express').Response} res - Objeto de respuesta Express.
- * @returns {Promise<void>} Lista de customers o error.
- */
+// Obtener todos los clientes (sin contraseña ni versión)
 export const getAllCustomers = async (req, res) => {
   try {
-    // Obtener todos los documentos de Customer sin contraseña ni __v
     const customers = await Customer.find().select("-password -__v");
     res.json(customers);
   } catch (error) {
@@ -95,23 +81,17 @@ export const getAllCustomers = async (req, res) => {
   }
 };
 
-/**
- * Controlador para obtener un customer por su ID.
- * Retorna 404 si no existe.
- *
- * @param {import('express').Request} req - Objeto de petición Express.
- * @param {import('express').Response} res - Objeto de respuesta Express.
- * @returns {Promise<void>} Datos del customer o error.
- */
+// Obtener cliente por ID
 export const getCustomerById = async (req, res) => {
   try {
-    // Buscar por ID y excluir campos sensibles
     const customer = await Customer
       .findById(req.params.id)
       .select("-password -__v");
+
     if (!customer) {
       return res.status(404).json({ message: "Cliente no encontrado" });
     }
+
     res.json(customer);
   } catch (error) {
     console.error("Error al obtener cliente:", error);
@@ -119,21 +99,15 @@ export const getCustomerById = async (req, res) => {
   }
 };
 
-/**
- * Controlador para eliminar un customer por su ID.
- * Retorna 404 si no se encuentra y mensaje de confirmación si se elimina.
- *
- * @param {import('express').Request} req - Objeto de petición Express.
- * @param {import('express').Response} res - Objeto de respuesta Express.
- * @returns {Promise<void>} Mensaje de éxito o error.
- */
+// Eliminar cliente por ID
 export const deleteCustomer = async (req, res) => {
   try {
-    // Eliminar documento por ID
     const deleted = await Customer.findByIdAndDelete(req.params.id);
+
     if (!deleted) {
       return res.status(404).json({ message: "Cliente no encontrado" });
     }
+
     res.json({ message: "Cliente eliminado correctamente" });
   } catch (error) {
     console.error("Error al eliminar cliente:", error);
@@ -145,9 +119,11 @@ export const deleteCustomer = async (req, res) => {
 export const getProfile = async (req, res) => {
   try {
     const customer = await Customer.findById(req.user.id).select("-password -__v");
+
     if (!customer) {
       return res.status(404).json({ message: "Cliente no encontrado" });
     }
+
     res.json(customer);
   } catch (error) {
     console.error("Error al obtener perfil:", error);

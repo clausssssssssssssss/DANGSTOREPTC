@@ -6,11 +6,21 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'http://localhost:4000',    // tu servidor Express
+        target: 'http://localhost:4000',
         changeOrigin: true,
         secure: false,
         rewrite: (path) => path.replace(/^\/api/, '/api')
       }
     }
-  }
+  },
+  // Configuración para evitar procesamiento de URLs externas
+  build: {
+    assetsInlineLimit: 0,
+    rollupOptions: {
+      external: (id) => {
+        return id.startsWith('https://') || id.startsWith('http://')
+      }
+    }
+  },
+  assetsInclude: ['**/*.jpg', '**/*.png', '**/*.gif', '**/*.svg']
 })

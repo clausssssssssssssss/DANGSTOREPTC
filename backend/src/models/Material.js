@@ -3,15 +3,6 @@ import { Schema, model } from 'mongoose';
 import cloudinary from 'cloudinary';
 
 // Esquema para un material en inventario
-/**
- * @typedef {Object} Material
- * @property {String} name - Nombre del material (por ejemplo: 'Cadena Acero').
- * @property {String} type - Tipo o categoría del material (por ejemplo: 'metal').
- * @property {Number} quantity - Cantidad disponible. Debe ser un número >= 0.
- * @property {Boolean} disponibilidad - Indica si el material está disponible.
- * @property {Date} entrydate - Fecha de entrada al inventario.
- * @property {Number} investment - Costo o inversión por unidad. Debe ser un número >= 0.
- */
 const MaterialSchema = new Schema(
   {
     name: {
@@ -44,9 +35,9 @@ const MaterialSchema = new Schema(
     }
   },
   {
-    timestamps: true,
-    versionKey: false,
-    collection: 'materials'
+    timestamps: true, // Agrega createdAt y updatedAt automáticamente
+    versionKey: false, // Elimina el campo __v
+    collection: 'materials' // Nombre explícito de la colección
   }
 );
 

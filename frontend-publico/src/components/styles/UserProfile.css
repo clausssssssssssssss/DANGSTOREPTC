@@ -692,6 +692,90 @@
     color: white;
     border: none;
   }
+
+  .favorites-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+  
+  .favorite-item {
+    position: relative;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: transform 0.2s ease;
+  }
+  
+  .favorite-item:hover {
+    transform: translateY(-3px);
+  }
+  
+  .favorite-image-container {
+    width: 100%;
+    height: 150px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f9f9f9;
+  }
+  
+  .favorite-image-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  .favorite-image-placeholder {
+    width: 100%;
+    height: 100%;
+    font-size: 14px;
+    color: #777;
+    background: #eee;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem;
+    text-align: center;
+  }
+  
+  .favorite-info {
+    padding: 0.5rem;
+  }
+  
+  .favorite-info h4 {
+    font-size: 1rem;
+    margin: 0.5rem 0;
+    color: #333;
+  }
+  
+  .favorite-button {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .favorite-icon {
+    color: #bbb;
+    transition: color 0.2s ease;
+  }
+  
+  .favorite-icon.active {
+    color: crimson;
+  }
+  
+  .favorite-button:hover .favorite-icon {
+    color: #ff4d4d;
+  }
+  
   
   .logout-button.confirm:hover {
     background: #dc2626;

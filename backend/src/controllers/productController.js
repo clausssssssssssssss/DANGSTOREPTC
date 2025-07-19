@@ -5,8 +5,16 @@ const productController = {};
 // 📄 obtener todos los productos
 productController.getProducts = async (req, res) => {
   try {
-    const products = await productModel.find(); // saco todos los productos
-    res.json(products);
+    // Usar .lean() para devolver objetos JS puros y no documentos mongoose
+    const products = await productModel.find().lean();
+
+    // Garantizar que images exista y sea array
+    const fixedProducts = products.map(p => ({
+      ...p,
+      images: Array.isArray(p.images) ? p.images : []
+    }));
+
+    res.json(fixedProducts);
   } catch (error) {
     res.status(500).json({ message: "Error fetching products", error });
   }

@@ -1,10 +1,19 @@
 import React from "react";
-import { useState } from "react";
-import InputField from "../components/payment/InputField";
-import Button from "../components/payment/Button";
-import usePaymentFakeForm from "../components/payment/hook/usePaymentFakeForm";
+import { useAuth } from "../../hooks/useAuth.jsx";
+import { useCart } from "../cart/hook/useCart.jsx";
+import usePaymentFakeForm from "../payment/hook/usePaymentFakeForm.jsx";
+import InputField from "../payment/InputField";
+import Button from "../payment/Button";
+
 
 const FormPaymentFake = () => {
+  const { user } = useAuth();
+  const userId = user?.id;
+  const { cart, clearCart } = useCart(userId);
+
+  // calcula total y cantidad
+  const total = cart.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
+
   const {
     formData,
     datosEnviados,
@@ -13,6 +22,19 @@ const FormPaymentFake = () => {
     limpiarFormulario,
     handleFakePayment,
   } = usePaymentFakeForm();
+
+  const onPay = async () => {
+    const success = await handleFakePayment({ 
+      userId, 
+      items: cart, 
+      total, 
+      clientData: formData 
+    });
+    if (success) {
+      clearCart();
+      limpiarFormulario();
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4">
@@ -87,12 +109,11 @@ const FormPaymentFake = () => {
                 {parseFloat(datosEnviados.monto).toFixed(2)}
               </p>
             </div>
-            <Button
-              onClick={handleFakePayment}
-              variant="secondary"
-              className="mt-3 text-sm"
-              text="Pagar"
-            />
+              <Button 
+          onClick={onPay} 
+          text={`Pagar $${total.toFixed(2)}`} 
+          variant="secondary" 
+        />
           </div>
         )}
       </div>

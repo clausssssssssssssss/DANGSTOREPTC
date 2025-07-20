@@ -79,7 +79,7 @@ export default function NavBar() {
               Encargo
             </NavLink>
             <NavLink to="/catalogo" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
-              Catá logo
+              Catalogo
             </NavLink>
             <NavLink to="/contacto" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
               Contacto

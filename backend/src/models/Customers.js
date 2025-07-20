@@ -26,7 +26,7 @@ const customerSchema = new Schema({
     type: String,
     required: true,
     minLength: 6,
-    select: false, // Excluir por defecto en las consultas
+    select: false,
   },
 
   /** Número de teléfono único del cliente */

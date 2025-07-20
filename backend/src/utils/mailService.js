@@ -1,10 +1,10 @@
 // src/utils/passwordRecoveryMail.js
+
 import nodemailer from 'nodemailer';
 import { config } from '../../config.js';
 
 /**
- * Transporter de Nodemailer configurado para Gmail SMTP.
- * Utiliza credenciales definidas en el archivo de configuración.
+ * Configura el transporter de Nodemailer para Gmail SMTP.
  */
 const transporter = nodemailer.createTransport({
   host: 'smtp.gmail.com',
@@ -17,17 +17,8 @@ const transporter = nodemailer.createTransport({
 });
 
 /**
- * Envía un correo electrónico utilizando el transporter configurado.
- *
- * @async
- * @function sendEmail
- * @param {Object} options - Opciones del correo.
- * @param {string} options.to - Destinatario(s) del correo.
- * @param {string} options.subject - Asunto del correo.
- * @param {string} [options.text] - Cuerpo del correo en texto plano.
- * @param {string} [options.html] - Cuerpo del correo en HTML.
- * @throws Lanzará un error si el envío falla.
- * @returns {Promise<Object>} Resultado de transporter.sendMail
+ * Envía un correo electrónico con las opciones proporcionadas.
+ * Utiliza el transporter configurado anteriormente.
  */
 const sendEmail = async ({ to, subject, text, html }) => {
   try {
@@ -45,11 +36,7 @@ const sendEmail = async ({ to, subject, text, html }) => {
 };
 
 /**
- * Genera el contenido HTML para el correo de recuperación de contraseña.
- *
- * @function HTMLRecoveryEmail
- * @param {string} code - Código de recuperación de 4 dígitos.
- * @returns {string} Cadena HTML para el correo.
+ * Genera el contenido HTML para el mensaje de recuperación de contraseña.
  */
 const HTMLRecoveryEmail = (code) => `
   <div style="font-family: Arial; text-align: center;">
@@ -59,20 +46,25 @@ const HTMLRecoveryEmail = (code) => `
   </div>
 `;
 
-// Clases de error para uso general en controladores
+/**
+ * Error HTTP 404 - Recurso no encontrado.
+ */
 class NotFoundError extends Error {
   constructor(message) {
     super(message);
     this.name = 'NotFoundError';
-    this.statusCode = 404;
+    this.statusCode = 404; // Código de estado HTTP
   }
 }
 
+/**
+ * Error HTTP 400 - Solicitud incorrecta.
+ */
 class BadRequestError extends Error {
   constructor(message) {
     super(message);
     this.name = 'BadRequestError';
-    this.statusCode = 400;
+    this.statusCode = 400; // Código de estado HTTP
   }
 }
 

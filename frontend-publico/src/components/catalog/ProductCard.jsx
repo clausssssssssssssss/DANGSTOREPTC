@@ -16,20 +16,21 @@ export default function ProductCard({ product, onAddToCart, onClick, isFavorite,
             e.stopPropagation();
             onAddToCart();
           }}
+          aria-label="Agregar al carrito"
         >
           Agregar al carrito
         </button>
 
         <button
-  className={`favorite-btn ${isFavorite ? 'active' : ''}`}
-  onClick={e => {
-    e.stopPropagation();
-    onToggleFavorite();
-  }}
-  aria-label={isFavorite ? "Quitar de favoritos" : "Agregar a favoritos"}
->
-  ♥
-</button>
+          className={`favorite-btn ${isFavorite ? 'active' : ''}`}
+          onClick={e => {
+            e.stopPropagation();
+            onToggleFavorite();
+          }}
+          aria-label={isFavorite ? "Quitar de favoritos" : "Agregar a favoritos"}
+        >
+          ♥
+        </button>
       </div>
     </div>
   );

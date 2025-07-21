@@ -3,15 +3,15 @@ import { useCart } from './hook/useCart';
 import './Cartitem.css';
 
 const CartItem = ({ product, quantity }) => {
-  const { addToCart, removeFromCart } = useCart();
+  const { updateQuantity, removeFromCart } = useCart();
 
   const handleIncrease = () => {
-    addToCart(product, quantity + 1);
+    updateQuantity(product.id, quantity + 1);
   };
 
   const handleDecrease = () => {
     if (quantity > 1) {
-      addToCart(product, quantity - 1);
+      updateQuantity(product.id, quantity - 1);
     } else {
       removeFromCart(product.id);
     }

@@ -75,15 +75,11 @@ export default function NavBar() {
 
           {/* Enlaces */}
           <div className="nav-links">
-            <NavLink
-              to="/encargo"
-              onClick={(e) => handleProtectedClick(e, '/encargo')}
-              className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
-            >
+            <NavLink to="/encargo"  className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
               Encargo
             </NavLink>
             <NavLink to="/catalogo" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
-              Catálogo
+              Catalogo
             </NavLink>
             <NavLink to="/contacto" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
               Contacto
@@ -106,7 +102,6 @@ export default function NavBar() {
 
             <NavLink
               to="/carrito"
-              onClick={(e) => handleProtectedClick(e, '/carrito')}
               className={({ isActive }) => `icon-link ${isActive ? 'active' : ''}`}
               aria-label="Carrito de compras"
             >

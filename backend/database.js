@@ -1,33 +1,25 @@
 import mongoose from "mongoose";
 import { config } from "./config.js";
 
-export default async function connectDB() {
-  const uri = config.db.URI;
-  console.log("Connect URI:", uri);
-  
-  try {
-    await mongoose.connect(uri);
-    console.log("✅ Database is connected");
-  } catch (err) {
-    console.error("❌ Database connection error:", err);
-    process.exit(1);
-  }
-}
+mongoose.connect(config.db.URI);
+
+const connection = mongoose.connection;
 
 mongoose.connection.on('connected', () => {
   console.log(' Mongoose connected to MongoDB');
 });
 
-mongoose.connection.on('error', (err) => {
-  console.error('Mongoose connection error:', err);
+// Veo si funciona
+connection.once("open", () => {
+  console.log("DB is connected");
 });
 
-mongoose.connection.on('disconnected', () => {
-  console.log('Mongoose disconnected from MongoDB');
+// Veo si se desconectó
+connection.on("disconnected", () => {
+  console.log("DB is disconnected");
 });
 
-process.on('SIGINT', async () => {
-  await mongoose.connection.close();
-  console.log(' MongoDB connection closed due to app termination');
-  process.exit(0);
+// Veo si hay un error
+connection.on("error", (error) => {
+  console.log("error found" + error);
 });

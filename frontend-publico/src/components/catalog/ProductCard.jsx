@@ -28,6 +28,7 @@ export default function ProductCard({ product, onAddToCart, onClick, isFavorite,
             e.stopPropagation();
             onAddToCart();
           }}
+          aria-label="Agregar al carrito"
         >
           Agregar al carrito
         </button>

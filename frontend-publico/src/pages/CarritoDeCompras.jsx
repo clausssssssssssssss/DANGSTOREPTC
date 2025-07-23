@@ -4,16 +4,14 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth.jsx';
 import { useCart } from '../components/cart/hook/useCart.jsx';
 import { ShoppingBag, Trash2, Plus, Minus, ArrowLeft, CreditCard } from 'lucide-react';
+import { toast } from 'react-toastify';
 import CartItem from '../components/cart/CartItem.jsx';
 import '../components/styles/CarritoDeCompras.css';
 
 
 
 const CarritoDeCompras = () => {
-   if (!user) {
-        toast.warning("Debes iniciar sesión para agregar al carrito");
-        return;
-      }
+
   const { user } = useAuth();
   const userId = user?.id;
   const { cart, clearCart, updateQuantity, removeFromCart } = useCart(userId);
@@ -30,7 +28,7 @@ const CarritoDeCompras = () => {
     setError('');
     setSuccess(false);
     try {
-     const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:4000'}/api/payment/fake`, {
+     const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:4000'}/api/testPayment`, {
   method: 'POST',
   headers: {
     'Content-Type': 'application/json',

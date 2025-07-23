@@ -3,12 +3,10 @@ import { CloudUpload } from 'lucide-react';
 import useCustomerOrders from '../components/personalizedOrder/useCustomerOrders.jsx';
 import Modal from '../components/ui/Modal';
 import '../components/styles/Encargo.css';
+import { toast } from 'react-toastify';
 
 export default function Encargo() {
-   if (!user) {
-        toast.warning("Debes iniciar sesión para agregar al carrito");
-        return;
-      }
+
   const {
     preview,
     modelType,

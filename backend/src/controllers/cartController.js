@@ -1,4 +1,6 @@
 import Cart from '../models/Cart.js';
+import Order from '../models/Order.js';
+
 
 // Añadir producto o ítem personalizado al carrito del usuario
 export const addToCart = async (req, res) => {
@@ -132,5 +134,49 @@ export const removeCartItem = async (req, res) => {
   } catch (error) {
     console.error('❌ Error eliminando ítem:', error);
     return res.status(500).json({ message: 'Error eliminando ítem', error: error.message });
+  }
+};
+
+ //---------------Crear Orden---------------------//
+
+ 
+export const createOrder = async (req, res) => {
+  const { items, total, wompiOrderID, wompiStatus } = req.body;
+  try {
+    const order = new Order({
+      user: req.user.id,
+      items,
+      total,
+      status: wompiStatus === "COMPLETED" ? "COMPLETED" : "PENDING",
+      wompi: { orderID: wompiOrderID, captureStatus: wompiStatus }
+    });
+
+    await order.save();
+
+    // Vaciar carrito si el pago fue exitoso
+    if (wompiStatus === "COMPLETED") {
+      await Cart.findOneAndUpdate(
+        { user: req.user.id },
+        { $set: { products: [], customizedProducts: [] } }
+      );
+    }
+
+    return res.status(201).json(order);
+  } catch (err) {
+    console.error("CreateOrder error:", err);
+    return res.status(400).json({ message: "No se pudo crear la orden" });
+  }
+};
+
+// --------------------- OBTENER HISTORIAL DE ÓRDENES ---------------------
+
+export const getOrders = async (req, res) => {
+  try {
+    const orders = await Order.find({ user: req.user.id })
+      .sort({ createdAt: -1 })
+      .populate("items.product", "name price");
+    return res.status(200).json(orders);
+  } catch (err) {
+    return res.status(500).json({ message: "Error al obtener órdenes" });
   }
 };

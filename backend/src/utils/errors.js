@@ -1,5 +1,3 @@
-// src/utils/errors.js
-
 export class NotFoundError extends Error {
   constructor(message = 'Recurso no encontrado') {
     super(message);

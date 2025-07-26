@@ -1,51 +1,45 @@
-// src/pages/CarritoDeCompras.jsx
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth.jsx';
 import { useCart } from '../components/cart/hook/useCart.jsx';
-import { ShoppingBag, Trash2, Plus, Minus, ArrowLeft, CreditCard } from 'lucide-react';
-import { toast } from 'react-toastify';
-import CartItem from '../components/cart/CartItem.jsx';
+import { ShoppingBag, Trash2, Plus, Minus, ArrowLeft, CreditCard, Check } from 'lucide-react';
 import '../components/styles/CarritoDeCompras.css';
 
-
-
 const CarritoDeCompras = () => {
-
   const { user } = useAuth();
   const userId = user?.id;
   const { cart, clearCart, updateQuantity, removeFromCart } = useCart(userId);
 
-  const [loading, setLoading] = React.useState(false);
-  const [success, setSuccess] = React.useState(false);
-  const [error, setError] = React.useState('');
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState('');
 
-  const total = cart.reduce((acc, item) => acc + item.product.price * item.quantity, 0);
-  const itemCount = cart.reduce((acc, item) => acc + item.quantity, 0);
+  const total = cart.reduce((acc, item) => acc + (item.product?.price || 0) * (item.quantity || 0), 0);
+  const itemCount = cart.reduce((acc, item) => acc + (item.quantity || 0), 0);
   
   const handleFakePayment = async () => {
     setLoading(true);
     setError('');
     setSuccess(false);
+    
     try {
-     const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:4000'}/api/testPayment`, {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json',
-    Authorization: `Bearer ${localStorage.getItem('token')}`
-  },
-    body: JSON.stringify({ userId, items: cart, total })
-});
-      if (!res.ok) throw new Error(`Status ${res.status}`);
-      const data = await res.json();
-      console.log('Fake payment:', data);
+      await new Promise(resolve => setTimeout(resolve, 2000)); // Simular procesamiento
       setSuccess(true);
       clearCart();
     } catch (err) {
-      console.error('handleFakePayment:', err);
+      console.error('Error en pago:', err);
       setError('Error al procesar el pago. Intenta de nuevo.');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleQuantityUpdate = (productId, newQuantity) => {
+    if (newQuantity < 1) return;
+    try {
+      updateQuantity(productId, newQuantity);
+    } catch (err) {
+      console.error('Error actualizando cantidad:', err);
     }
   };
 
@@ -55,25 +49,20 @@ const CarritoDeCompras = () => {
     }
   };
 
-  // Página de éxito
+  // Página de éxito mejorada
   if (success) {
     return (
       <div className="cart-container">
         <div className="cart-content">
           <div className="success-page">
-            <div className="success-icon">
-              <div className="success-checkmark">
-                <div className="check-icon">
-                  <span className="icon-line line-tip"></span>
-                  <span className="icon-line line-long"></span>
-                  <div className="icon-circle"></div>
-                  <div className="icon-fix"></div>
-                </div>
+            <div className="success-animation">
+              <div className="success-circle">
+                <Check size={40} className="success-check" />
               </div>
             </div>
-            <h2 className="success-title">¡Pago realizado con éxito!</h2>
+            <h2 className="success-title">¡Pago Exitoso!</h2>
             <p className="success-message">
-              Gracias por tu compra. Tu pedido está siendo procesado y recibirás un correo de confirmación pronto.
+              Tu pedido ha sido procesado correctamente. Recibirás un correo de confirmación pronto.
             </p>
             <div className="success-actions">
               <Link to="/catalogo" className="btn btn-primary">
@@ -81,7 +70,7 @@ const CarritoDeCompras = () => {
                 Seguir comprando
               </Link>
               <Link to="/perfil" className="btn btn-secondary">
-                Ver mis pedidos
+                Ver pedidos
               </Link>
             </div>
           </div>
@@ -102,17 +91,19 @@ const CarritoDeCompras = () => {
           <h1 className="cart-title">
             <ShoppingBag size={28} />
             Carrito de compras
-            {itemCount > 0 && <span className="item-count">({itemCount} {itemCount === 1 ? 'producto' : 'productos'})</span>}
+            {itemCount > 0 && (
+              <span className="item-count">
+                ({itemCount} {itemCount === 1 ? 'producto' : 'productos'})
+              </span>
+            )}
           </h1>
         </div>
 
         {cart.length === 0 ? (
           <div className="empty-cart">
-            <div className="empty-cart-icon">
-              <ShoppingBag size={64} />
-            </div>
+            <ShoppingBag size={64} className="empty-icon" />
             <h3>Tu carrito está vacío</h3>
-            <p>¡Descubre nuestros increíbles productos y comienza a llenar tu carrito!</p>
+            <p>¡Explora nuestros productos y comienza a llenar tu carrito!</p>
             <Link to="/catalogo" className="btn btn-primary">
               <ShoppingBag size={20} />
               Explorar catálogo
@@ -120,64 +111,56 @@ const CarritoDeCompras = () => {
           </div>
         ) : (
           <div className="cart-layout">
-            {/* Items del carrito */}
-            <div className="cart-items-section">
-              <div className="cart-items-header">
-                <h3>Productos en tu carrito</h3>
-                <button 
-                  onClick={handleClearCart}
-                  className="clear-cart-btn"
-                  title="Vaciar carrito"
-                >
+            {/* Items */}
+            <div className="cart-items">
+              <div className="items-header">
+                <h3>Productos ({itemCount})</h3>
+                <button onClick={handleClearCart} className="clear-btn">
                   <Trash2 size={16} />
-                  Vaciar carrito
+                  Vaciar
                 </button>
               </div>
               
-              <div className="cart-items-list">
+              <div className="items-list">
                 {cart.map(item => (
-                  <div key={item.product.id} className="cart-item">
-                    <div className="item-image">
-                      <img 
-                        src={item.product.image || '/placeholder-product.jpg'} 
-                        alt={item.product.name}
-                      />
+                  <div key={item.product?.id} className="cart-item">
+                    <img 
+                      src={item.product?.image || '/placeholder-product.jpg'} 
+                      alt={item.product?.name || 'Producto'}
+                      className="item-img"
+                    />
+                    
+                    <div className="item-info">
+                      <h4>{item.product?.name || 'Producto'}</h4>
+                      <p>{item.product?.description || ''}</p>
+                      <span className="price">${(item.product?.price || 0).toFixed(2)}</span>
                     </div>
                     
-                    <div className="item-details">
-                      <h4 className="item-name">{item.product.name}</h4>
-                      <p className="item-description">{item.product.description}</p>
-                      <div className="item-price">
-                        ${item.product.price.toFixed(2)}
-                      </div>
-                    </div>
-                    
-                    <div className="item-actions">
+                    <div className="item-controls">
                       <div className="quantity-controls">
                         <button 
-                          onClick={() => updateQuantity && updateQuantity(item.product.id, item.quantity - 1)}
-                          className="quantity-btn"
+                          onClick={() => handleQuantityUpdate(item.product?.id, item.quantity - 1)}
                           disabled={item.quantity <= 1}
+                          className="qty-btn"
                         >
-                          <Minus size={16} />
+                          <Minus size={14} />
                         </button>
                         <span className="quantity">{item.quantity}</span>
                         <button 
-                          onClick={() => updateQuantity && updateQuantity(item.product.id, item.quantity + 1)}
-                          className="quantity-btn"
+                          onClick={() => handleQuantityUpdate(item.product?.id, item.quantity + 1)}
+                          className="qty-btn"
                         >
-                          <Plus size={16} />
+                          <Plus size={14} />
                         </button>
                       </div>
                       
                       <div className="item-total">
-                        ${(item.product.price * item.quantity).toFixed(2)}
+                        ${((item.product?.price || 0) * item.quantity).toFixed(2)}
                       </div>
                       
                       <button 
-                        onClick={() => removeFromCart && removeFromCart(item.product.id)}
+                        onClick={() => removeFromCart(item.product?.id)}
                         className="remove-btn"
-                        title="Eliminar producto"
                       >
                         <Trash2 size={16} />
                       </button>
@@ -187,59 +170,49 @@ const CarritoDeCompras = () => {
               </div>
             </div>
 
-            {/* Resumen del carrito */}
+            {/* Resumen */}
             <div className="cart-summary">
-              <div className="summary-header">
-                <h3>Resumen del pedido</h3>
-              </div>
+              <h3>Resumen</h3>
               
-              <div className="summary-details">
-                <div className="summary-row">
-                  <span>Subtotal ({itemCount} {itemCount === 1 ? 'producto' : 'productos'})</span>
+              <div className="summary-lines">
+                <div className="summary-line">
+                  <span>Subtotal</span>
                   <span>${total.toFixed(2)}</span>
                 </div>
-                <div className="summary-row">
+                <div className="summary-line">
                   <span>Envío</span>
-                  <span className="free-shipping">Gratis</span>
+                  <span className="free">Gratis</span>
                 </div>
-                <div className="summary-row">
-                  <span>Impuestos</span>
-                  <span>Incluidos</span>
-                </div>
-                <div className="summary-divider"></div>
-                <div className="summary-row total">
+                <div className="summary-line total-line">
                   <span>Total</span>
                   <span>${total.toFixed(2)}</span>
                 </div>
               </div>
 
-              <div className="summary-actions">
-                <button 
-                  onClick={handleFakePayment} 
-                  disabled={loading || cart.length === 0}
-                  className="checkout-btn"
-                >
-                  {loading ? (
-                    <div className="loading-spinner"></div>
-                  ) : (
-                    <>
-                      <CreditCard size={20} />
-                      Proceder al pago
-                    </>
-                  )}
-                </button>
-                
-                {error && (
-                  <div className="error-message">
-                    {error}
-                  </div>
+              <button 
+                onClick={handleFakePayment} 
+                disabled={loading || cart.length === 0}
+                className="checkout-btn"
+              >
+                {loading ? (
+                  <>
+                    <div className="spinner"></div>
+                    Procesando...
+                  </>
+                ) : (
+                  <>
+                    <CreditCard size={20} />
+                    Pagar ${total.toFixed(2)}
+                  </>
                 )}
-                
-                <div className="payment-info">
-                  <p>💳 Pago seguro y protegido</p>
-                  <p>📦 Envío gratis en compras mayores a $50</p>
-                  <p>↩️ Devoluciones gratuitas por 30 días</p>
-                </div>
+              </button>
+              
+              {error && <div className="error-msg">{error}</div>}
+              
+              <div className="payment-badges">
+                <span>🔒 Pago seguro</span>
+                <span>📦 Envío gratis</span>
+                <span>↩️ Devoluciones 30 días</span>
               </div>
             </div>
           </div>
@@ -247,7 +220,6 @@ const CarritoDeCompras = () => {
       </div>
     </div>
   );
-}
- 
+};
 
-export default CarritoDeCompras;
+export default CarritoDeCompras;  

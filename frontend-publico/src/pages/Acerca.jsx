@@ -223,7 +223,7 @@ const About = () => {
               <h4>Contacto</h4>
               <div className="contact-info">
                 <p>📧 dangstore2024@gmail.com</p>
-                <p>📱 +1234567890</p>
+                <p>📱 503+ 1234 1234</p>
                 <p>📍 San Salvador, El Salvador</p>
               </div>
             </div>
@@ -232,7 +232,7 @@ const About = () => {
           <div className="footer-bottom">
             <div className="footer-divider"></div>
             <div className="footer-bottom-content">
-              <p>&copy; 2024 DANGSTORE. Todos los derechos reservados.</p>
+              <p>&copy; 2025 DANGSTORE. Todos los derechos reservados.</p>
               <div className="footer-bottom-links">
                 <a href="/privacidad">Política de Privacidad</a>  
                 <a href="/terminos">Términos de Servicio</a>

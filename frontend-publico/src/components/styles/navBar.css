@@ -1,4 +1,4 @@
-/* NavBar.css - Versión con Fondo Oscuro Completo y Animaciones de Iconos */
+/* NavBar.css - Versión Responsive con Menú Hamburguesa */
 .navbar {
   position: fixed;
   top: 0;
@@ -24,7 +24,6 @@
     0 6px 30px rgba(0, 0, 0, 0.4),
     0 2px 8px rgba(77, 208, 225, 0.3),
     0 0 0 1px rgba(186, 104, 200, 0.5);
-  /* Mantener el mismo fondo oscuro, sin cambiar a blanco */
 }
 
 .navbar-container {
@@ -40,7 +39,7 @@
   height: 64px;
 }
 
-/* Logo Styles - Adaptado para fondo oscuro */
+/* Logo Styles */
 .logo-link {
   display: flex;
   align-items: center;
@@ -51,6 +50,7 @@
   border-radius: 12px;
   position: relative;
   overflow: hidden;
+  z-index: 60;
 }
 
 .logo-link::before {
@@ -83,7 +83,6 @@
   animation: logoFloat 4s ease-in-out infinite;
 }
 
-/* Logo de Tienda con Efectos Mejorados */
 .logo-icon {
   width: 40px;
   height: 40px;
@@ -130,24 +129,6 @@
   filter: brightness(1.1);
 }
 
-/* Icono de Tienda alternativo */
-.store-icon {
-  font-size: 20px;
-  color: white;
-  animation: storeIconBounce 3s ease-in-out infinite;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
-}
-
-@keyframes storeIconBounce {
-  0%, 100% {
-    transform: translateY(0px) scale(1);
-  }
-  50% {
-    transform: translateY(-2px) scale(1.05);
-  }
-}
-
-/* DANGSTORE con Gradiente Mejorado */
 .logo-text {
   font-weight: 800;
   font-size: 22px;
@@ -173,18 +154,10 @@
 }
 
 @keyframes gradientShift {
-  0%, 100% {
-    background-position: 0% 50%;
-  }
-  25% {
-    background-position: 100% 50%;
-  }
-  50% {
-    background-position: 50% 0%;
-  }
-  75% {
-    background-position: 50% 100%;
-  }
+  0%, 100% { background-position: 0% 50%; }
+  25% { background-position: 100% 50%; }
+  50% { background-position: 50% 0%; }
+  75% { background-position: 50% 100%; }
 }
 
 @keyframes textUnderline {
@@ -192,20 +165,56 @@
   50% { width: 100%; }
 }
 
-/* Logo Animations */
 @keyframes logoFloat {
-  0%, 100% {
-    transform: translateY(0px) rotate(0deg);
-  }
-  33% {
-    transform: translateY(-3px) rotate(1deg);
-  }
-  66% {
-    transform: translateY(2px) rotate(-1deg);
-  }
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  33% { transform: translateY(-3px) rotate(1deg); }
+  66% { transform: translateY(2px) rotate(-1deg); }
 }
 
-/* Navigation Links - Adaptados para fondo oscuro */
+/* MENÚ HAMBURGUESA */
+.hamburger-menu {
+  display: none;
+  flex-direction: column;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  z-index: 60;
+  position: relative;
+}
+
+.hamburger-menu:hover {
+  background: rgba(77, 208, 225, 0.1);
+}
+
+.hamburger-line {
+  width: 25px;
+  height: 3px;
+  background: linear-gradient(135deg, #4DD0E1, #BA68C8);
+  border-radius: 2px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-origin: center;
+}
+
+.hamburger-line:not(:last-child) {
+  margin-bottom: 4px;
+}
+
+/* Animación del hamburger cuando está abierto */
+.hamburger-menu.open .hamburger-line:nth-child(1) {
+  transform: rotate(45deg) translate(6px, 6px);
+}
+
+.hamburger-menu.open .hamburger-line:nth-child(2) {
+  opacity: 0;
+  transform: scale(0);
+}
+
+.hamburger-menu.open .hamburger-line:nth-child(3) {
+  transform: rotate(-45deg) translate(6px, -6px);
+}
+
+/* Navigation Links - Desktop */
 .nav-links {
   display: flex;
   align-items: center;
@@ -213,7 +222,7 @@
 }
 
 .nav-link {
-  color: #e2e8f0; /* Texto claro para fondo oscuro */
+  color: #e2e8f0;
   font-weight: 600;
   font-size: 16px;
   text-decoration: none;
@@ -226,7 +235,6 @@
   letter-spacing: 0.3px;
 }
 
-/* Efecto de Fondo Deslizante */
 .nav-link::before {
   content: '';
   position: absolute;
@@ -242,7 +250,6 @@
   border-radius: 12px;
 }
 
-/* Línea Inferior Animada */
 .nav-link::after {
   content: '';
   position: absolute;
@@ -257,7 +264,7 @@
 }
 
 .nav-link:hover {
-  color: #4DD0E1; /* Aqua claro en hover */
+  color: #4DD0E1;
   transform: translateY(-2px) scale(1.03);
   box-shadow: 0 6px 20px rgba(77, 208, 225, 0.4);
 }
@@ -270,9 +277,8 @@
   width: 75%;
 }
 
-/* Estado Activo */
 .nav-link.active {
-  color: #4DD0E1; /* Aqua para el estado activo */
+  color: #4DD0E1;
   background: linear-gradient(135deg, 
     rgba(77, 208, 225, 0.25), 
     rgba(186, 104, 200, 0.25));
@@ -285,28 +291,150 @@
   background: linear-gradient(135deg, #4DD0E1, #9C27B0);
 }
 
-/* Animación de Entrada para Links */
-.nav-link {
-  animation: linkAppear 0.6s ease-out both;
+/* MENÚ MÓVIL */
+.mobile-menu {
+  position: fixed;
+  top: 0;
+  right: -100%;
+  width: 280px;
+  height: 100vh;
+  background: linear-gradient(180deg, 
+    rgba(45, 55, 72, 0.98) 0%, 
+    rgba(30, 41, 59, 0.98) 50%,
+    rgba(51, 65, 85, 0.98) 100%);
+  backdrop-filter: blur(30px);
+  border-left: 1px solid rgba(186, 104, 200, 0.3);
+  box-shadow: -10px 0 30px rgba(0, 0, 0, 0.5);
+  transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 55;
+  overflow-y: auto;
 }
 
-.nav-link:nth-child(1) { animation-delay: 0.1s; }
-.nav-link:nth-child(2) { animation-delay: 0.2s; }
-.nav-link:nth-child(3) { animation-delay: 0.3s; }
-.nav-link:nth-child(4) { animation-delay: 0.4s; }
-
-@keyframes linkAppear {
-  0% {
-    opacity: 0;
-    transform: translateY(-20px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.mobile-menu.open {
+  right: 0;
 }
 
-/* Action Icons con Animaciones Individuales */
+/* Overlay para cerrar el menú */
+.mobile-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+  z-index: 54;
+}
+
+.mobile-overlay.open {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Header del menú móvil */
+.mobile-menu-header {
+  padding: 20px;
+  border-bottom: 1px solid rgba(186, 104, 200, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.mobile-menu-title {
+  font-size: 18px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #4DD0E1, #BA68C8);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.mobile-close-btn {
+  background: none;
+  border: none;
+  color: #cbd5e1;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.mobile-close-btn:hover {
+  background: rgba(77, 208, 225, 0.1);
+  color: #4DD0E1;
+}
+
+/* Links del menú móvil */
+.mobile-nav-links {
+  padding: 20px 0;
+}
+
+.mobile-nav-link {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 15px 20px;
+  color: #e2e8f0;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 16px;
+  transition: all 0.3s ease;
+  border-left: 3px solid transparent;
+  position: relative;
+  overflow: hidden;
+}
+
+.mobile-nav-link::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, 
+    rgba(77, 208, 225, 0.1), 
+    rgba(186, 104, 200, 0.1));
+  transition: left 0.3s ease;
+}
+
+.mobile-nav-link:hover::before {
+  left: 0;
+}
+
+.mobile-nav-link:hover {
+  color: #4DD0E1;
+  border-left-color: #4DD0E1;
+  background: rgba(77, 208, 225, 0.05);
+}
+
+.mobile-nav-link.active {
+  color: #4DD0E1;
+  border-left-color: #4DD0E1;
+  background: linear-gradient(90deg, 
+    rgba(77, 208, 225, 0.15), 
+    rgba(186, 104, 200, 0.1));
+}
+
+/* Iconos en el menú móvil */
+.mobile-nav-icon {
+  width: 20px;
+  height: 20px;
+  opacity: 0.8;
+}
+
+/* Separador en menú móvil */
+.mobile-separator {
+  height: 1px;
+  background: linear-gradient(90deg, 
+    transparent, 
+    rgba(186, 104, 200, 0.3), 
+    transparent);
+  margin: 10px 20px;
+}
+
+/* Action Icons */
 .action-icons {
   display: flex;
   align-items: center;
@@ -315,7 +443,7 @@
 
 .icon-link {
   padding: 12px;
-  color: #cbd5e1; /* Color claro para fondo oscuro */
+  color: #cbd5e1;
   border-radius: 12px;
   text-decoration: none;
   display: flex;
@@ -355,97 +483,6 @@
   box-shadow: 0 8px 25px rgba(77, 208, 225, 0.4);
 }
 
-/* Animaciones específicas para cada ícono */
-
-/* Ícono de Búsqueda - Rotación */
-.icon-link:nth-child(1):hover svg {
-  animation: searchPulse 0.6s ease-in-out;
-}
-
-@keyframes searchPulse {
-  0%, 100% { transform: scale(1) rotate(0deg); }
-  50% { transform: scale(1.2) rotate(180deg); }
-}
-
-/* Ícono de Carrito - Shake */
-.icon-link:nth-child(2):hover svg {
-  animation: cartShake 0.6s ease-in-out;
-}
-
-@keyframes cartShake {
-  0%, 100% { transform: translateX(0); }
-  10%, 30%, 50%, 70%, 90% { transform: translateX(-3px); }
-  20%, 40%, 60%, 80% { transform: translateX(3px); }
-}
-
-/* Ícono de Usuario - Bounce */
-.icon-link:nth-child(3):hover svg {
-  animation: userBounce 0.6s ease-in-out;
-}
-
-@keyframes userBounce {
-  0%, 100% { transform: translateY(0); }
-  25% { transform: translateY(-8px) scale(1.1); }
-  50% { transform: translateY(-4px) scale(1.05); }
-  75% { transform: translateY(-2px) scale(1.02); }
-}
-
-/* Efectos adicionales para cada ícono */
-.icon-link:nth-child(1)::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 0;
-  height: 0;
-  background: radial-gradient(circle, rgba(77, 208, 225, 0.3) 0%, transparent 70%);
-  border-radius: 50%;
-  transition: all 0.3s ease;
-  transform: translate(-50%, -50%);
-}
-
-.icon-link:nth-child(1):hover::after {
-  width: 60px;
-  height: 60px;
-}
-
-.icon-link:nth-child(2)::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 0;
-  height: 0;
-  background: radial-gradient(circle, rgba(186, 104, 200, 0.3) 0%, transparent 70%);
-  border-radius: 50%;
-  transition: all 0.3s ease;
-  transform: translate(-50%, -50%);
-}
-
-.icon-link:nth-child(2):hover::after {
-  width: 60px;
-  height: 60px;
-}
-
-.icon-link:nth-child(3)::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 0;
-  height: 0;
-  background: radial-gradient(circle, rgba(147, 197, 253, 0.3) 0%, transparent 70%);
-  border-radius: 50%;
-  transition: all 0.3s ease;
-  transform: translate(-50%, -50%);
-}
-
-.icon-link:nth-child(3):hover::after {
-  width: 60px;
-  height: 60px;
-}
-
-/* Estado activo para iconos */
 .icon-link.active {
   color: #4DD0E1;
   background: linear-gradient(135deg, 
@@ -455,7 +492,71 @@
   transform: scale(1.05);
 }
 
-/* Responsive Design */
+/* Badges y notificaciones */
+.cart-badge {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background: #4DD0E1;
+  color: white;
+  font-size: 10px;
+  padding: 2px 5px;
+  border-radius: 50%;
+  min-width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  border: 2px solid rgba(45, 55, 72, 0.8);
+}
+
+.notification-dot {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 8px;
+  height: 8px;
+  background: #ff3b30;
+  border-radius: 50%;
+  z-index: 10;
+  border: 2px solid rgba(45, 55, 72, 0.8);
+}
+
+/* Animaciones para iconos */
+.icon-link:nth-child(1):hover svg {
+  animation: searchPulse 0.6s ease-in-out;
+}
+
+.icon-link:nth-child(2):hover svg {
+  animation: cartShake 0.6s ease-in-out;
+}
+
+.icon-link:nth-child(3):hover svg {
+  animation: userBounce 0.6s ease-in-out;
+}
+
+@keyframes searchPulse {
+  0%, 100% { transform: scale(1) rotate(0deg); }
+  50% { transform: scale(1.2) rotate(180deg); }
+}
+
+@keyframes cartShake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-3px); }
+  20%, 40%, 60%, 80% { transform: translateX(3px); }
+}
+
+@keyframes userBounce {
+  0%, 100% { transform: translateY(0); }
+  25% { transform: translateY(-8px) scale(1.1); }
+  50% { transform: translateY(-4px) scale(1.05); }
+  75% { transform: translateY(-2px) scale(1.02); }
+}
+
+/* RESPONSIVE DESIGN */
+
+/* Tablets grandes (1024px y menor) */
 @media (max-width: 1024px) {
   .nav-links {
     gap: 25px;
@@ -467,13 +568,18 @@
   }
 }
 
+/* Tablets (768px y menor) */
 @media (max-width: 768px) {
   .navbar-content {
-    height: 56px;
+    height: 60px;
   }
   
   .nav-links {
-    display: none; /* Ocultar en móvil - implementar menú hamburguesa */
+    display: none;
+  }
+  
+  .hamburger-menu {
+    display: flex;
   }
   
   .logo-text {
@@ -496,90 +602,16 @@
   }
 }
 
+/* Móviles (480px y menor) */
 @media (max-width: 480px) {
   .navbar-container {
     padding: 0 0.75rem;
   }
   
-  .logo-text {
-    font-size: 18px;
-  }
-  
-  .logo-icon {
-    width: 32px;
-    height: 32px;
-  }
-  
-  .action-icons {
-    gap: 12px;
-  }
-  
-  .icon-link {
-    width: 36px;
-    height: 36px;
-    padding: 8px;
-  }
-}
-
-/* Mejoras de accesibilidad */
-.nav-link:focus,
-.icon-link:focus,
-.logo-link:focus {
-  outline: 2px solid #4DD0E1;
-  outline-offset: 2px;
-}
-
-/* Modo oscuro - ya está implementado por defecto */
-@media (prefers-color-scheme: dark) {
-  /* Los estilos ya están optimizados para fondo oscuro */
-}
-
-/* Responsive Design */
-@media (max-width: 1024px) {
-  .nav-links {
-    gap: 25px;
-  }
-  
-  .nav-link {
-    padding: 10px 15px;
-    font-size: 15px;
-  }
-}
-
-@media (max-width: 768px) {
   .navbar-content {
     height: 56px;
   }
   
-  .nav-links {
-    display: none; /* Ocultar en móvil - implementar menú hamburguesa */
-  }
-  
-  .logo-text {
-    font-size: 20px;
-  }
-  
-  .logo-icon {
-    width: 36px;
-    height: 36px;
-  }
-  
-  .action-icons {
-    gap: 15px;
-  }
-  
-  .icon-link {
-    width: 40px;
-    height: 40px;
-    padding: 10px;
-  }
-}
-
-@media (max-width: 480px) {
-  .navbar-container {
-    padding: 0 0.75rem;
-  }
-  
   .logo-text {
     font-size: 18px;
   }
@@ -598,34 +630,62 @@
     height: 36px;
     padding: 8px;
   }
+  
+  .mobile-menu {
+    width: 100%;
+    right: -100%;
+  }
+  
+  .hamburger-line {
+    width: 22px;
+    height: 2px;
+  }
+}
+
+/* Móviles muy pequeños (320px y menor) */
+@media (max-width: 320px) {
+  .logo-text {
+    font-size: 16px;
+  }
+  
+  .logo-icon {
+    width: 28px;
+    height: 28px;
+  }
+  
+  .icon-link {
+    width: 32px;
+    height: 32px;
+    padding: 6px;
+  }
+  
+  .action-icons {
+    gap: 8px;
+  }
 }
 
 /* Mejoras de accesibilidad */
 .nav-link:focus,
 .icon-link:focus,
-.logo-link:focus {
+.logo-link:focus,
+.hamburger-menu:focus,
+.mobile-nav-link:focus {
   outline: 2px solid #4DD0E1;
   outline-offset: 2px;
-}
-
-/* Mejoras para pantallas de alta resolución */
-@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
-  .logo-image {
-    image-rendering: -webkit-optimize-contrast;
-    image-rendering: crisp-edges;
-  }
 }
 
 /* Reducir animaciones para usuarios sensibles */
 @media (prefers-reduced-motion: reduce) {
   .logo-container,
-  .store-icon,
   .logo-text::after,
   .nav-link,
   .icon-link:nth-child(1):hover svg,
   .icon-link:nth-child(2):hover svg,
-  .icon-link:nth-child(3):hover svg {
+  .icon-link:nth-child(3):hover svg,
+  .mobile-menu,
+  .mobile-overlay {
     animation: none !important;
+    transition: none !important;
   }
   
   .nav-link:hover,
@@ -635,7 +695,7 @@
   }
 }
 
-/* Efectos adicionales para mejorar la experiencia */
+/* Efectos adicionales */
 .navbar::after {
   content: '';
   position: absolute;
@@ -671,100 +731,8 @@
 }
 
 @keyframes navbarGradient {
-  0%, 100% {
-    background-position: 0% 50%;
-  }
-  25% {
-    background-position: 100% 0%;
-  }
-  50% {
-    background-position: 100% 100%;
-  }
-  75% {
-    background-position: 0% 100%;
-  }
-}
-/* Badge para el carrito */
-.icon-link {
-  position: relative;
-}
-
-/* Pequeño círculo con número sobre el carrito */
-.cart-badge {
-  position: absolute;
-  top: 6px;
-  right: 6px;
-  min-width: 16px;
-  height: 16px;
-  padding: 0 4px;
-  background: #e53e3e;      /* rojo */
-  color: white;
-  font-size: 10px;
-  font-weight: bold;
-  line-height: 16px;
-  text-align: center;
-  border-radius: 8px;
-  pointer-events: none;
-}
-
-/* Asegúrate de que el contenedor tenga position: relative */
-.icon-link {
-  position: relative;
-
-}
-.icon-link { position: relative; }
-.cart-badge {
-  position: absolute;
-  top: 4px;
-  right: 4px;
-  background: #4DD0E1;
-  color: white;
-  font-size: 10px;
-  padding: 2px 5px;
-  border-radius: 50%;
-}
-.icon-badge {
-  position: absolute;
-  top: 4px;
-  right: 4px;
-  background: #E33;
-  color: white;
-  font-size: 10px;
-  padding: 2px 5px;
-  border-radius: 50%;
-}
-.icon-link {
-  position: relative;    /* ← necesario para el punto absoluto */
-  padding: 12px;
-  color: #cbd5e1;
-  border-radius: 12px;
-  text-decoration: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  width: 44px;
-  height: 44px;
-}
-
-/* Punto de notificación junto al icono de perfil */
-.notification-dot {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  width: 8px;
-  height: 8px;
-  background: #ff3b30;
-  border-radius: 50%;
-  z-index: 10;
-}
-/* Punto de notificación en el sidebar */
-.notification-dot-sidebar {
-  display: inline-block;
-  margin-left: 8px;
-  width: 8px;
-  height: 8px;
-  background: #ff3b30;
-  border-radius: 50%;
-  vertical-align: middle;
+  0%, 100% { background-position: 0% 50%; }
+  25% { background-position: 100% 0%; }
+  50% { background-position: 100% 100%; }
+  75% { background-position: 0% 100%; }
 }

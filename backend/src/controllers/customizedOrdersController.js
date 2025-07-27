@@ -3,44 +3,47 @@ import CustomizedOrder from '../models/customizedOrders.js';
 import Order from '../models/Order.js';
 
 /** Usuario sube imagen y crea la orden pendiente */
+
 export const createCustomOrder = async (req, res) => {
-  // 1) Verificar que el usuario está autenticado
   if (!req.user || !req.user.id) {
     return res.status(401).json({ message: 'No estás autenticado.' });
   }
 
-  // 2) Verificar que modelType y description vengan en el form-data
   const { modelType, description } = req.body;
+
+  console.log("🧪 REQ.user.id:", req.user.id);
+  console.log("🧪 REQ.body:", req.body);
+  console.log("🧪 REQ.file:", req.file);
+
   if (!modelType) {
     return res.status(400).json({ message: 'modelType es requerido.' });
   }
   if (!description) {
     return res.status(400).json({ message: 'description es requerido.' });
   }
-
-  // 3) Verificar que subió un archivo
   if (!req.file) {
     return res.status(400).json({ message: 'La imagen es requerida.' });
   }
 
   try {
-    // 4) Construir la URL y guardar
     const imageUrl = `/uploads/${req.file.filename}`;
     const order = new CustomizedOrder({
       user:        req.user.id,
       imageUrl,
       modelType,
-      description,     // ← ahora sí lo pasamos
+      description,
     });
     await order.save();
     return res.status(201).json(order);
   } catch (err) {
-    console.error("Error creando solicitud personalizada:", err);
-    return res
-      .status(500)
-      .json({ message: "Error creando solicitud", error: err.message });
+    console.error("🔥 Error creando solicitud personalizada:", err);
+    return res.status(500).json({
+      message: "Error creando solicitud",
+      error: err.message
+    });
   }
 };
+
 
 /** Usuario ve sus encargos personalizados */
 export const getMyCustomOrders = async (req, res) => {

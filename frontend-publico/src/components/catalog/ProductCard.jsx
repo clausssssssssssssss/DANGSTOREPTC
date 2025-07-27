@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import './ProductCard.css'; // si tienes estilos propios
+import './ProductCard.css';
+import { toast } from 'react-toastify';
 
 export default function ProductCard({ product, onAddToCart, onClick, isFavorite, onToggleFavorite }) {
   return (
@@ -26,6 +27,14 @@ export default function ProductCard({ product, onAddToCart, onClick, isFavorite,
           onClick={e => {
             e.stopPropagation();
             onToggleFavorite();
+
+           if (!isFavorite) {
+  console.log("Toast favorito agregado"); // ✅ Agregado para depurar
+  toast.success(`${product.name} se ha agregado a tus favoritos`);
+} else {
+  toast.info(`${product.name} se ha eliminado de tus favoritos`);
+}
+
           }}
           aria-label={isFavorite ? "Quitar de favoritos" : "Agregar a favoritos"}
         >
@@ -38,14 +47,14 @@ export default function ProductCard({ product, onAddToCart, onClick, isFavorite,
 
 ProductCard.propTypes = {
   product: PropTypes.shape({
-    id:          PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
-    name:        PropTypes.string.isRequired,
-    price:       PropTypes.number.isRequired,
-    image:       PropTypes.string,
+    id:    PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+    name:  PropTypes.string.isRequired,
+    price: PropTypes.number.isRequired,
+    image: PropTypes.string,
   }).isRequired,
-  onAddToCart:     PropTypes.func.isRequired,
-  onClick:         PropTypes.func.isRequired,
-  isFavorite:      PropTypes.bool,
+  onAddToCart:      PropTypes.func.isRequired,
+  onClick:          PropTypes.func.isRequired,
+  isFavorite:       PropTypes.bool,
   onToggleFavorite: PropTypes.func.isRequired,
 };
 

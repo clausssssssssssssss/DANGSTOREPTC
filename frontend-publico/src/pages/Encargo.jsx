@@ -126,5 +126,6 @@ const { user } = useAuth();
         </Modal>
       )}
     </div>
+    
   );
 }

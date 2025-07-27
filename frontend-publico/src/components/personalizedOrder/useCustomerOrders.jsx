@@ -1,5 +1,7 @@
 // src/components/personalizedOrder/useCustomerOrders.jsx
 import { useState } from 'react';
+import { toast } from 'react-toastify';
+
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
 
 export default function useCustomerOrders() {
@@ -36,34 +38,30 @@ export default function useCustomerOrders() {
     }
 
     try {
-      const token = localStorage.getItem('token');
-      console.log('🔑 Token:', token);
-      const form  = new FormData();
-      form.append('image', image);
-      form.append('modelType', modelType);
-      form.append('description', description);
+  const token = localStorage.getItem('token');
+  const form  = new FormData();
+  form.append('image', image);
+  form.append('modelType', modelType);
+  form.append('description', description);
 
-      console.log('🌐 Enviando a:', `${API_URL}/api/custom-orders`);
-      const res = await fetch(`${API_URL}/api/custom-orders`, {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${token}` },
-        body: form
-      });
-      console.log('⏳ Response status:', res.status);
+  const res = await fetch(`${API_URL}/api/custom-orders`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}` },
+    body: form
+  });
 
-      if (!res.ok) {
-        const errBody = await res.json().catch(() => null);
-        console.error('❌ Error response body:', errBody);
-        throw new Error(errBody?.message || 'Error al enviar el encargo');
-      }
+  if (!res.ok) {
+    const errBody = await res.json().catch(() => null);
+    throw new Error(errBody?.message || 'Error al enviar el encargo');
+  }
 
-      const data = await res.json();
-      console.log('✅ Éxito submit:', data);
-      setSuccess(true);
+  const data = await res.json();
+  setSuccess(true);
+  toast.success("Tu pedido ha sido enviado correctamente");
 
-    } catch (err) {
-      console.error('🔥 CATCH en submit:', err);
-      setError(err.message);
+} catch (err) {
+  console.error('CATCH en submit:', err);
+  setError(err.message);
     } finally {
       setLoading(false);
     }

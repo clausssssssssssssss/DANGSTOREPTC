@@ -4,7 +4,7 @@ import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { Search, ShoppingCart, User } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth.jsx';
 import { useCart } from '../cart/hook/useCart.jsx';
-import './NavBar.css';
+import '../styles/navbar.css';
 
 export default function NavBar() {
   const location = useLocation();

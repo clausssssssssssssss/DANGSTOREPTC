@@ -1,6 +1,9 @@
-// About.jsx - Página Acerca de DANGSTORE
 import React, { useEffect, useRef } from 'react';
+import '../components/styles/Footer.css';
 import '../components/styles/Acerca.css';
+import { Instagram } from 'lucide-react';
+
+
 
 const About = () => {
   const videoRef = useRef(null);
@@ -180,7 +183,26 @@ const About = () => {
         </div>
       </section>
 
+
+      <footer className="footer">
+      <div className="footer-container">
+        <h3 className="footer-title">DANGSTORE</h3>
+        <p className="footer-text">© {new Date().getFullYear()} Todos los derechos reservados.</p>
+        <p className="footer-text">Creado por estudiantes del Instituto Técnico Ricaldone</p>
+
+        <a
+          href="https://www.instagram.com/dangstore.sv?igsh=Nm1rdGF0cG9jMXgz" // cambia si tu cuenta es diferente
+          target="_blank"
+          rel="noopener noreferrer"
+          className="footer-link"
+        >
+          <Instagram size={20} className="instagram-icon" />
+          <span>Síguenos en Instagram</span>
+        </a>
+      </div>
+    </footer>
     </div>
+    
   );
 };
 

@@ -1,0 +1,43 @@
+.footer {
+  background-color: #1f2937; /* gris oscuro */
+  color: #f3f4f6;             /* texto gris claro */
+  padding: 24px 0;
+  margin-top: 40px;
+  text-align: center;
+}
+
+.footer-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+.footer-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 8px;
+  color: #6d15fa; /* amarillo bonito */
+}
+
+.footer-text {
+  font-size: 0.9rem;
+  margin: 4px 0;
+}
+
+.footer-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  color: #e5e7eb;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.footer-link:hover {
+  color: #6d15fa;
+}
+
+.instagram-icon {
+  stroke-width: 1.5;
+}

@@ -91,7 +91,6 @@ export default function NavBar() {
 
           {/* Íconos de acción */}
           <div className="action-icons">
-
             <NavLink
               to="/carrito"
               className={({ isActive }) => `icon-link ${isActive ? 'active' : ''}`}

@@ -5,6 +5,7 @@ import { toast } from "react-toastify";
 
 
 const Contacto = () => {
+  const { user } = useAuth();
   const [form, setForm] = useState({
     name: "",
     email: "",

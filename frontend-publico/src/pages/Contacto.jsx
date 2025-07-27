@@ -75,13 +75,7 @@ const Contacto = () => {
             <p>Domingos: Cerrado</p>
           </div>
           
-          <div className="info-section">
-            <strong>Redes sociales:</strong>
-            <div className="social-item">
-              <span className="instagram-icon">📷</span>
-              <span>DANGSTORE</span>
-            </div>
-          </div>
+        
         </div>
 
         {/* Lado derecho - Formulario */}

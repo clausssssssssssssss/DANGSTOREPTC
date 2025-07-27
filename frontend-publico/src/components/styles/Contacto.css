@@ -1,4 +1,4 @@
-/* Contacto.css - Versión Aqua/Morado con Animaciones Espectaculares */
+/* Contacto.css - Versión Simplificada sin Cuadros de Colores */
 
 /* Reset y configuración base */
 * {
@@ -110,7 +110,7 @@ body {
   }
 }
 
-/* Lado izquierdo - Información de contacto */
+/* Lado izquierdo - Información de contacto SIMPLIFICADO */
 .contact-info {
   background: rgba(255, 255, 255, 0.9);
   border-radius: 1.5rem;
@@ -121,12 +121,8 @@ body {
   justify-content: center;
   position: relative;
   overflow: hidden;
-  border: 2px solid transparent;
-  background-image: 
-    linear-gradient(rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.9)),
-    linear-gradient(135deg, #4DD0E1, #BA68C8);
-  background-origin: border-box;
-  background-clip: content-box, border-box;
+  /* REMOVIDO: border colorido y background-image complejo */
+  border: 1px solid rgba(0, 0, 0, 0.1);
   animation: infoSlideIn 0.6s ease-out 0.2s both;
 }
 
@@ -196,22 +192,20 @@ body {
   100% { width: 4rem; }
 }
 
+/* Secciones de información SIMPLIFICADAS */
 .info-section {
   margin-bottom: 1.5rem;
   padding: 1.5rem;
-  background: rgba(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.9);
   border-radius: 1rem;
-  border-left: 4px solid transparent;
-  background-image: 
-    linear-gradient(rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.8)),
-    linear-gradient(135deg, #4DD0E1, #BA68C8);
-  background-origin: border-box;
-  background-clip: content-box, border-box;
+  /* REMOVIDO: border colorido y background-image complejo */
+  border: 1px solid rgba(0, 0, 0, 0.08);
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
   position: relative;
   overflow: hidden;
   animation: sectionAppear 0.6s ease-out both;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .info-section:nth-child(2) { animation-delay: 0.3s; }
@@ -242,10 +236,9 @@ body {
 
 .info-section:hover {
   transform: translateX(8px) scale(1.02);
-  box-shadow: 
-    0 15px 35px rgba(186, 104, 200, 0.3),
-    0 0 0 1px rgba(255, 255, 255, 0.4);
-  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  background: rgba(255, 255, 255, 0.95);
+  border-color: rgba(0, 0, 0, 0.12);
 }
 
 .info-section:hover::before {
@@ -274,20 +267,22 @@ body {
   margin-bottom: 0;
 }
 
-/* Redes sociales con efectos espectaculares */
+/* Redes sociales SIMPLIFICADAS */
 .social-item {
   display: flex;
   align-items: center;
   margin-top: 1rem;
   padding: 1rem;
-  background: rgba(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.9);
   border-radius: 1rem;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
   position: relative;
   overflow: hidden;
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  /* SIMPLIFICADO: border simple en lugar de colorido */
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .social-item::before {
@@ -304,8 +299,9 @@ body {
 
 .social-item:hover {
   transform: translateY(-5px) scale(1.05);
-  box-shadow: 0 20px 40px rgba(186, 104, 200, 0.4);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
   background: rgba(255, 255, 255, 0.95);
+  border-color: rgba(0, 0, 0, 0.12);
 }
 
 .social-item:hover::before {
@@ -445,13 +441,13 @@ body {
   position: relative;
 }
 
-/* Inputs con gradiente */
+/* Inputs SIMPLIFICADOS */
 .form-field input,
 .form-field textarea {
   width: 100%;
-  border: 2px solid transparent;
-  background: linear-gradient(white, white) padding-box,
-              linear-gradient(135deg, #4DD0E1, #BA68C8) border-box;
+  /* SIMPLIFICADO: border simple en lugar de gradiente */
+  border: 2px solid rgba(0, 0, 0, 0.1);
+  background: white;
   border-radius: 1rem;
   padding: 1rem 1.25rem;
   font-size: 1rem;
@@ -460,23 +456,22 @@ body {
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   font-family: inherit;
   position: relative;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .form-field input:focus,
 .form-field textarea:focus {
   transform: translateY(-3px) scale(1.02);
-  box-shadow: 
-    0 15px 35px rgba(186, 104, 200, 0.3),
-    0 0 0 1px rgba(255, 255, 255, 0.4);
-  background: 
-    linear-gradient(rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.95)) padding-box,
-    linear-gradient(135deg, #9C27B0, #4DD0E1) border-box;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  background: rgba(255, 255, 255, 0.98);
+  border-color: #4DD0E1;
 }
 
 .form-field input:hover:not(:focus),
 .form-field textarea:hover:not(:focus) {
   transform: translateY(-1px);
-  box-shadow: 0 5px 15px rgba(186, 104, 200, 0.2);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  border-color: rgba(0, 0, 0, 0.15);
 }
 
 .form-field textarea {
@@ -821,19 +816,17 @@ body {
   }
 }
 
-/* Estados de validación con colores aqua/morado */
+/* Estados de validación SIMPLIFICADOS */
 .form-field input:invalid,
 .form-field textarea:invalid {
-  background: 
-    linear-gradient(white, white) padding-box,
-    linear-gradient(135deg, #FF6B6B, #FF8A80) border-box;
+  border-color: #FF6B6B;
+  box-shadow: 0 2px 8px rgba(255, 107, 107, 0.2);
 }
 
 .form-field input:valid,
 .form-field textarea:valid {
-  background: 
-    linear-gradient(white, white) padding-box,
-    linear-gradient(135deg, #4DD0E1, #81C784) border-box;
+  border-color: #4DD0E1;
+  box-shadow: 0 2px 8px rgba(77, 208, 225, 0.2);
 }
 
 /* Accesibilidad mejorada */

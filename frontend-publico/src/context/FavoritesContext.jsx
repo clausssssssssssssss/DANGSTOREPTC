@@ -40,37 +40,49 @@ export const FavoritesProvider = ({ children }) => {
     }
   };
 
-  const toggleFavorite = async (product) => {
-    const token = localStorage.getItem("authToken");
-    if (!token) {
-      toast.warning("Debes iniciar sesión para agregar favoritos");
-      return;
+const toggleFavorite = async (productId) => {
+  if (!user) {
+    console.warn('Usuario no autenticado, no se puede modificar favoritos');
+    return;
+  }
+
+  try {
+    const alreadyFavorite = favorites.includes(productId);
+    let updatedFavorites;
+
+    if (alreadyFavorite) {
+      // quitar de favoritos
+      updatedFavorites = favorites.filter((id) => id !== productId);
+      toast.info('Producto eliminado de favoritos 🗑️');
+    } else {
+      // agregar a favoritos
+      updatedFavorites = [...favorites, productId];
+      toast.success('Producto agregado a favoritos ❤️');
     }
 
-    try {
-      const res = await fetch(`${API_URL}/api/profile/favorites`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ productId: product._id }),
-      });
+    setFavorites(updatedFavorites);
 
-      const data = await res.json();
+    const res = await fetch(`${API_URL}/api/profile/favorites`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${user.token}`,
+      },
+      body: JSON.stringify({ favorites: updatedFavorites }),
+    });
 
-      if (!res.ok) {
-        console.error("❌ Error al actualizar favorito:", data);
-        return;
-      }
+    const data = await res.json();
 
-      setFavoritesList(data.favorites); // actualiza el estado con el nuevo array
-      toast.success(`'${product.name}' agregado a favoritos`, { autoClose: 1800 });
-
-    } catch (err) {
-      console.error("❌ Error al hacer toggle de favorito:", err);
+    if (!res.ok) {
+      throw new Error(data.message || 'Error al actualizar favoritos');
     }
-  };
+
+  } catch (error) {
+    console.error('Error al actualizar favoritos:', error);
+    toast.error('No se pudo actualizar tus favoritos. Intenta de nuevo.');
+  }
+};
+
 
   useEffect(() => {
     fetchFavorites();

@@ -91,14 +91,6 @@ export default function NavBar() {
 
           {/* Íconos de acción */}
           <div className="action-icons">
-            <NavLink
-              to="/catalogo"
-              className={({ isActive }) => `icon-link ${isActive ? 'active' : ''}`}
-              onClick={handleSearchClick}
-              aria-label="Buscar"
-            >
-              <Search size={20} />
-            </NavLink>
 
             <NavLink
               to="/carrito"

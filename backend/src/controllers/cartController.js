@@ -77,11 +77,11 @@ export const updateCartItem = async (req, res) => {
   try {
     const userId = req.user.id;
     const { itemId, type, quantity } = req.body;
-
+ 
     // Busco carrito del usuario
     let cart = await Cart.findOne({ user: userId });
     if (!cart) return res.status(404).json({ message: 'Carrito no encontrado' });
-
+ 
     // Dependiendo si es producto o ítem personalizado, busco y actualizo la cantidad
     if (type === 'product') {
       const idx = cart.products.findIndex(p => p.product.toString() === itemId);
@@ -95,12 +95,15 @@ export const updateCartItem = async (req, res) => {
       // Tipo inválido
       return res.status(400).json({ message: 'Tipo inválido' });
     }
-
-    // Guardo cambios en carrito
-    await cart.save();
-
-    // Confirmo que se actualizó
-    return res.status(200).json({ message: 'Carrito actualizado', cart });
+ 
+   await cart.save();
+ 
+// Re-poblar productos antes de enviar
+cart = await Cart.findOne({ user: userId })
+  .populate('products.product')
+  .populate('customizedProducts.item');
+ 
+return res.status(200).json({ message: 'Carrito actualizado', cart });
   } catch (error) {
     console.error('❌ Error actualizando carrito:', error);
     return res.status(500).json({ message: 'Error actualizando carrito', error: error.message });

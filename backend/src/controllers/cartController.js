@@ -120,7 +120,7 @@ export const removeCartItem = async (req, res) => {
     let cart = await Cart.findOne({ user: userId });
     if (!cart) return res.status(404).json({ message: 'Carrito no encontrado' });
 
-    // Filtro para eliminar el producto o ítem que coincida con itemId
+    // Elimino producto o ítem personalizado
     if (type === 'product') {
       cart.products = cart.products.filter(p => p.product.toString() !== itemId);
     } else if (type === 'custom') {
@@ -129,10 +129,15 @@ export const removeCartItem = async (req, res) => {
       return res.status(400).json({ message: 'Tipo inválido' });
     }
 
-    // Guardo carrito sin el item eliminado
+    // Guardo cambios
     await cart.save();
 
-    // Confirmo que se eliminó el ítem
+    // REPOBLO EL CARRITO para traer datos completos de productos e ítems
+    cart = await Cart.findOne({ user: userId })
+      .populate('products.product')
+      .populate('customizedProducts.item');
+
+    // Devuelvo carrito repoblado
     return res.status(200).json({ message: 'Ítem eliminado', cart });
   } catch (error) {
     console.error('❌ Error eliminando ítem:', error);
@@ -143,7 +148,7 @@ export const removeCartItem = async (req, res) => {
  //---------------Crear Orden---------------------//
 
  
-export const createOrder = async (req, res) => {
+ export const createOrder = async (req, res) => {
   const { items, total, wompiOrderID, wompiStatus } = req.body;
   try {
     const order = new Order({
@@ -164,6 +169,7 @@ export const createOrder = async (req, res) => {
       );
     }
 
+    // Enviar la orden creada
     return res.status(201).json(order);
   } catch (err) {
     console.error("CreateOrder error:", err);

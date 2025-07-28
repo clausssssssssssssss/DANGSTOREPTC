@@ -1,5 +1,5 @@
 // src/pages/Encargo.jsx
-import { CloudUpload } from 'lucide-react';
+import { CloudUpload, X } from 'lucide-react';
 import useCustomerOrders from '../components/personalizedOrder/useCustomerOrders.jsx';
 import { useAuth } from '../hooks/useAuth.jsx';
 import Modal from '../components/ui/Modal';
@@ -18,7 +18,8 @@ const { user } = useAuth();
     setModelType,
     setDescription,
     handleImageChange,
-    submit
+    submit,
+    clearImage
   } = useCustomerOrders();
 
   const handleEncargoSubmit = () => {
@@ -37,6 +38,11 @@ const { user } = useAuth();
     submit();
   };
 
+  // Nueva función para eliminar la imagen
+  const handleRemoveImage = () => {
+    clearImage();
+  };
+
   return (
     <div className="encargo-container">
       <div className="encargo-header">
@@ -52,6 +58,16 @@ const { user } = useAuth();
         <div className="upload-zone">
           {preview ? (
             <div className="image-preview">
+              {/* Botón para eliminar imagen */}
+              <button 
+                className="remove-image-btn"
+                onClick={handleRemoveImage}
+                type="button"
+                title="Eliminar imagen"
+              >
+                <X size={20} />
+              </button>
+              
               <img src={preview} alt="Preview" className="preview-image" />
               <div className="preview-thumbnail">
                 <img src={preview} alt="thumb" className="thumbnail-image" />

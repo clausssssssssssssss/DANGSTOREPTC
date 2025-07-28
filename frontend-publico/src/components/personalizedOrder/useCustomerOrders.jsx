@@ -21,6 +21,16 @@ export default function useCustomerOrders() {
     setPreview(URL.createObjectURL(file));
   };
 
+  const clearImage = () => {
+  setImage(null);
+  setPreview(null);
+  // También limpiar el input file
+  const input = document.getElementById('image-upload');
+  if (input) {
+    input.value = '';
+  }
+};
+
   const submit = async () => {
     console.log('🚀 submit called', { image, modelType, description });
     setLoading(true);
@@ -77,6 +87,7 @@ export default function useCustomerOrders() {
     setModelType,
     setDescription,
     handleImageChange,
+    clearImage,
     submit
   };
 }

@@ -1,12 +1,13 @@
 // src/pages/Encargo.jsx
 import { CloudUpload } from 'lucide-react';
 import useCustomerOrders from '../components/personalizedOrder/useCustomerOrders.jsx';
+import { useAuth } from '../hooks/useAuth.jsx';
 import Modal from '../components/ui/Modal';
 import '../components/styles/Encargo.css';
 import { toast } from 'react-toastify';
 
 export default function Encargo() {
-
+const { user } = useAuth();
   const {
     preview,
     modelType,
@@ -19,6 +20,22 @@ export default function Encargo() {
     handleImageChange,
     submit
   } = useCustomerOrders();
+
+  const handleEncargoSubmit = () => {
+    if (!user) {
+      toast.warning("Debes iniciar sesión para enviar un encargo");
+      return;
+    }
+
+    // Validaciones mínimas (opcional, ya están en el botón)
+    if (!preview || !modelType) {
+      toast.warning("Completa todos los campos para enviar tu encargo");
+      return;
+    }
+
+    // Si pasa todo, ejecuta el submit original
+    submit();
+  };
 
   return (
     <div className="encargo-container">
@@ -84,7 +101,7 @@ export default function Encargo() {
           {error && <p className="error-message">{error}</p>}
 
           <button
-            onClick={submit}
+            onClick={handleEncargoSubmit}
             disabled={loading || !preview || !modelType}
             className="submit-button"
           >
@@ -109,5 +126,6 @@ export default function Encargo() {
         </Modal>
       )}
     </div>
+    
   );
 }

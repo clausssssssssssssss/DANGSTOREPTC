@@ -30,7 +30,7 @@ const sendEmail = async ({ to, subject, text, html }) => {
       html,
     });
   } catch (err) {
-    console.error('Error enviando correo:', err);
+console.log('Enviando correo a:', config.email.user);
     throw err;
   }
 };

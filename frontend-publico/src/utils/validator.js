@@ -1,14 +1,3 @@
-/*export const formatCardNumber = (value) => {
-  return (
-    value
-      .replace(/\s+/g, "")
-      .replace(/[^0-9]/gi, "")
-      .match(/.{1,4}/g)
-      ?.join(" ") || value
-  );
-};*/
-
-
 export const formatCardNumber = (value) => {
   const cleanedValue = value.replace(/\s+/g, "").replace(/[^0-9]/g, "");
 

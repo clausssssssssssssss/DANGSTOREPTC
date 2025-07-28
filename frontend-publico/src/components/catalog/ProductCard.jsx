@@ -1,6 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import './ProductCard.css';
+import { toast } from 'react-toastify';
+import React from 'react';
+import PropTypes from 'prop-types';
+import './ProductCard.css';
+import { toast } from 'react-toastify';
 
 export default function ProductCard({ product, onAddToCart, onClick, isFavorite, onToggleFavorite }) {
   // Elegir la primera imagen o un placeholder
@@ -38,6 +43,13 @@ export default function ProductCard({ product, onAddToCart, onClick, isFavorite,
           onClick={e => {
             e.stopPropagation();
             onToggleFavorite();
+            toast.success(`${product.name} se ha agregado a tus favoritos ❤️`, {
+              position: 'top-right',
+              autoClose: 2000,
+              hideProgressBar: false,
+              pauseOnHover: true,
+              theme: 'colored',
+            });
           }}
           aria-label={isFavorite ? "Quitar de favoritos" : "Agregar a favoritos"}
         >
@@ -50,14 +62,14 @@ export default function ProductCard({ product, onAddToCart, onClick, isFavorite,
 
 ProductCard.propTypes = {
   product: PropTypes.shape({
-    id:          PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
-    name:        PropTypes.string.isRequired,
-    price:       PropTypes.number.isRequired,
-    images:      PropTypes.arrayOf(PropTypes.string),
+    id:    PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+    name:  PropTypes.string.isRequired,
+    price: PropTypes.number.isRequired,
+    image: PropTypes.string,
   }).isRequired,
-  onAddToCart:     PropTypes.func.isRequired,
-  onClick:         PropTypes.func.isRequired,
-  isFavorite:      PropTypes.bool,
+  onAddToCart:      PropTypes.func.isRequired,
+  onClick:          PropTypes.func.isRequired,
+  isFavorite:       PropTypes.bool,
   onToggleFavorite: PropTypes.func.isRequired,
 };
 

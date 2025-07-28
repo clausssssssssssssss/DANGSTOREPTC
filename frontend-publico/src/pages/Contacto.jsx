@@ -1,59 +1,37 @@
-import React, { useState } from "react";
+import React, { useEffect } from "react";
 import '../components/styles/Contacto.css';
+import useContactForm from '../components/contact/useContactForm';
 import { useAuth } from "../hooks/useAuth";
 import { toast } from "react-toastify";
 
-
 const Contacto = () => {
-  const [form, setForm] = useState({
-    name: "",
-    email: "",
-    message: "",
-  });
+  const { user } = useAuth();
 
-  const [status, setStatus] = useState("");
-  const [loading, setLoading] = useState(false);
+  const {
+    name, setName,
+    email, setEmail,
+    message, setMessage,
+    loading,
+    error,
+    success,
+    handleSubmit
+  } = useContactForm();
 
-  const handleChange = (e) => {
-    setForm({
-      ...form,
-      [e.target.name]: e.target.value,
-    });
-  };
+  const handleFormSubmit = async (e) => {
+    e.preventDefault();
 
-  const handleSubmit = async (e) => {
-     e.preventDefault();
     if (!user) {
       toast.warning("Debes iniciar sesión para enviar un mensaje");
       return;
     }
-    setLoading(true);
-    setStatus("Enviando...");
 
-    try {
-      const res = await fetch("http://localhost:4000/api/contact", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(form),
-      });
-
-      const data = await res.json();
-
-      if (res.ok) {
-        setStatus("Mensaje enviado correctamente ✅");
-        setForm({ name: "", email: "", message: "" });
-      } else {
-        setStatus("Error: " + data.message);
-      }
-    } catch (error) {
-      console.error("Error al enviar el mensaje:", error);
-      setStatus("Ocurrió un error al enviar el mensaje ❌");
-    } finally {
-      setLoading(false);
-    }
+    await handleSubmit(); // Llama al submit del hook
   };
+
+  useEffect(() => {
+    if (success) toast.success("Mensaje enviado con éxito 🎉");
+    if (error) toast.error(error);
+  }, [success, error]);
 
   return (
     <div className="contact-container">
@@ -73,28 +51,20 @@ const Contacto = () => {
             <p>Sábados: 10:00 - 14:00</p>
             <p>Domingos: Cerrado</p>
           </div>
-          
-          <div className="info-section">
-            <strong>Redes sociales:</strong>
-            <div className="social-item">
-              <span className="instagram-icon">📷</span>
-              <span>DANGSTORE</span>
-            </div>
-          </div>
         </div>
 
         {/* Lado derecho - Formulario */}
         <div className="contact-form">
           <h3>Envíanos un mensaje</h3>
-          
-          <div className={loading ? 'loading' : ''}>
+
+          <form onSubmit={handleFormSubmit} className={loading ? 'loading' : ''}>
             <div className="form-field">
               <label>Nombre:</label>
               <input
                 type="text"
                 name="name"
-                value={form.name}
-                onChange={handleChange}
+                value={name}
+                onChange={(e) => setName(e.target.value)}
                 required
                 disabled={loading}
               />
@@ -105,8 +75,8 @@ const Contacto = () => {
               <input
                 type="email"
                 name="email"
-                value={form.email}
-                onChange={handleChange}
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 required
                 disabled={loading}
               />
@@ -116,8 +86,8 @@ const Contacto = () => {
               <label>Mensaje:</label>
               <textarea
                 name="message"
-                value={form.message}
-                onChange={handleChange}
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
                 required
                 rows={5}
                 disabled={loading}
@@ -126,20 +96,13 @@ const Contacto = () => {
             </div>
 
             <button 
-              type="submit" 
+              type="submit"
               className="submit-button"
-              onClick={handleSubmit}
-              disabled={loading || !form.name || !form.email || !form.message}
+              disabled={loading || !name || !email || !message}
             >
               {loading ? 'Enviando...' : 'Enviar Mensaje'}
             </button>
-
-            {status && (
-              <div className={`status-message ${status ? 'show' : ''}`}>
-                {status}
-              </div>
-            )}
-          </div>
+          </form>
         </div>
       </div>
     </div>

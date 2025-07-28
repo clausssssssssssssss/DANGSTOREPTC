@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import { toast } from 'react-toastify';
+
 
 export function useFavorites(userId) {
   const [favorites, setFavorites] = useState([]);
@@ -82,35 +84,35 @@ export function useFavorites(userId) {
 
   // Toggle favorito - sincroniza backend y frontend
   const toggleFavorite = async (productId) => {
-    try {
-      // Optimistic update - actualizar UI inmediatamente
-      const currentFavorites = [...favorites];
-      let updatedFavorites;
-      
-      if (currentFavorites.includes(productId)) {
-        updatedFavorites = currentFavorites.filter(id => id !== productId);
-      } else {
-        updatedFavorites = [...currentFavorites, productId];
-      }
-      
-      // Actualizar UI inmediatamente
-      save(updatedFavorites);
-      
-      // Sincronizar con backend
-      const backendFavorites = await saveFavoriteToBackend(productId);
-      
-      // Actualizar con la respuesta del backend para asegurar consistencia
-      save(backendFavorites);
-      
-      console.log('✅ Favorito sincronizado correctamente');
-      
-    } catch (error) {
-      console.error('Error al toggle favorito:', error);
-      // Revertir cambio optimista en caso de error
-      loadFavoritesFromBackend();
-    }
-  };
+  try {
+    const currentFavorites = [...favorites];
+    let updatedFavorites;
+    
+    const wasFavorite = currentFavorites.includes(productId);
+    updatedFavorites = wasFavorite
+      ? currentFavorites.filter(id => id !== productId)
+      : [...currentFavorites, productId];
 
+    save(updatedFavorites); // Optimistic UI update
+
+    const backendFavorites = await saveFavoriteToBackend(productId);
+    save(backendFavorites); // Actualizar desde backend
+
+    // Mostrar toast según acción
+    if (wasFavorite) {
+      toast.success('💔 Producto eliminado de favoritos');
+    } else {
+      toast.success('❤️ Producto agregado a favoritos');
+    }
+
+    console.log('✅ Favorito sincronizado correctamente');
+  } catch (error) {
+    console.error('Error al toggle favorito:', error);
+    loadFavoritesFromBackend(); // Revertir
+  }
+};
+
+    
   return { 
     favorites, 
     toggleFavorite, 

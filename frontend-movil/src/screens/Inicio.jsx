@@ -7,8 +7,11 @@ import {
   ScrollView,
   Image,
   SafeAreaView,
+  Dimensions,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+
+const { width, height } = Dimensions.get('window');
 
 const Inicio = ({ navigation }) => {
   return (
@@ -48,10 +51,13 @@ const Inicio = ({ navigation }) => {
               style={styles.weekGradient}
             >
               <View style={styles.weekContent}>
-                <Text style={styles.weekTitle}>Esta semana</Text>
+                <Text style={styles.weekTitle}>Este día</Text>
                 <View style={styles.weekStats}>
                   <Text style={styles.weekPercentage}>95%</Text>
-                  <TouchableOpacity style={styles.verButton}>
+                  <TouchableOpacity 
+                    style={styles.verButton}
+                    onPress={() => navigation.navigate('Ventas')}
+                  >
                     <Text style={styles.verButtonText}>Ver</Text>
                   </TouchableOpacity>
                 </View>
@@ -63,23 +69,26 @@ const Inicio = ({ navigation }) => {
           <View style={styles.smallWidgetsContainer}>
             <TouchableOpacity
               style={styles.smallWidget}
-              onPress={() => navigation.navigate('Ventas', { period: 'day' })}
+              onPress={() => navigation.navigate('Ventas')}
             >
-              <Text style={styles.widgetTitle}>Este día</Text>
+              <Text style={styles.widgetTitle}>Esta semana</Text>
               <View style={styles.widgetContent}>
                 <Text style={styles.widgetAmount}>$14200</Text>
                 <View style={styles.progressBar}>
                   <View style={[styles.progressFill, { backgroundColor: '#10B981', height: '80%' }]} />
                 </View>
               </View>
-              <TouchableOpacity style={styles.irButton}>
+              <TouchableOpacity 
+                style={styles.irButton}
+                onPress={() => navigation.navigate('Ventas')}
+              >
                 <Text style={styles.irButtonText}>Ir</Text>
               </TouchableOpacity>
             </TouchableOpacity>
 
             <TouchableOpacity
               style={styles.smallWidget}
-              onPress={() => navigation.navigate('Ventas', { period: 'month' })}
+              onPress={() => navigation.navigate('Ventas')}
             >
               <Text style={styles.widgetTitle}>Mayo</Text>
               <View style={styles.widgetContent}>
@@ -88,7 +97,10 @@ const Inicio = ({ navigation }) => {
                   <View style={[styles.progressFill, { backgroundColor: '#8B5CF6', height: '85%' }]} />
                 </View>
               </View>
-              <TouchableOpacity style={styles.irButton}>
+              <TouchableOpacity 
+                style={styles.irButton}
+                onPress={() => navigation.navigate('Ventas')}
+              >
                 <Text style={styles.irButtonText}>Ir</Text>
               </TouchableOpacity>
             </TouchableOpacity>
@@ -125,48 +137,50 @@ const styles = StyleSheet.create({
   },
   header: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingTop: 20,
-    paddingBottom: 30,
+    paddingHorizontal: width * 0.05,
+    paddingTop: height * 0.02,
+    paddingBottom: height * 0.03,
+    position: 'relative',
   },
   profileSection: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   profileImage: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    marginRight: 15,
+    width: Math.max(50, width * 0.12),
+    height: Math.max(50, width * 0.12),
+    borderRadius: Math.max(25, width * 0.06),
+    marginRight: width * 0.04,
   },
   profileText: {
     flex: 1,
   },
   greeting: {
-    fontSize: 24,
+    fontSize: Math.max(24, width * 0.06),
     fontWeight: 'bold',
     color: '#1F2937',
     marginBottom: 4,
   },
   subGreeting: {
-    fontSize: 16,
+    fontSize: Math.max(16, width * 0.04),
     color: '#6B7280',
   },
   notificationButton: {
-    position: 'relative',
+    position: 'absolute',
+    right: width * 0.05,
   },
   bellIcon: {
-    width: 40,
-    height: 40,
+    width: Math.max(40, width * 0.1),
+    height: Math.max(40, width * 0.1),
     backgroundColor: '#FCD34D',
-    borderRadius: 20,
+    borderRadius: Math.max(20, width * 0.05),
     justifyContent: 'center',
     alignItems: 'center',
   },
   bellText: {
-    fontSize: 20,
+    fontSize: Math.max(20, width * 0.05),
   },
   notificationBadge: {
     position: 'absolute',
@@ -185,15 +199,24 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   mainContent: {
-    paddingHorizontal: 20,
+    paddingHorizontal: width * 0.05,
   },
   weekWidget: {
     marginBottom: 20,
-    borderRadius: 16,
+    borderRadius: 20,
     overflow: 'hidden',
+    shadowColor: '#8B5CF6',
+    shadowOffset: {
+      width: 0,
+      height: 8,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
+    elevation: 10,
   },
   weekGradient: {
-    padding: 20,
+    padding: 24,
+    position: 'relative',
   },
   weekContent: {
     flexDirection: 'row',
@@ -201,30 +224,49 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   weekTitle: {
-    fontSize: 18,
-    fontWeight: '600',
+    fontSize: Math.max(18, width * 0.045),
+    fontWeight: 'bold',
     color: 'white',
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
   weekStats: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   weekPercentage: {
-    fontSize: 32,
+    fontSize: Math.max(32, width * 0.08),
     fontWeight: 'bold',
     color: 'white',
     marginRight: 15,
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
   verButton: {
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
+    backgroundColor: 'rgba(255, 255, 255, 0.25)',
+    paddingHorizontal: 18,
+    paddingVertical: 10,
+    borderRadius: 25,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 3,
   },
   verButtonText: {
     color: 'white',
-    fontSize: 14,
-    fontWeight: '600',
+    fontSize: Math.max(14, width * 0.035),
+    fontWeight: 'bold',
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 1,
   },
   smallWidgetsContainer: {
     flexDirection: 'row',
@@ -234,23 +276,26 @@ const styles = StyleSheet.create({
   smallWidget: {
     flex: 1,
     backgroundColor: 'white',
-    borderRadius: 16,
-    padding: 16,
-    marginHorizontal: 5,
+    borderRadius: 18,
+    padding: 20,
+    marginHorizontal: 6,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
-      height: 2,
+      height: 4,
     },
-    shadowOpacity: 0.1,
-    shadowRadius: 3.84,
-    elevation: 5,
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 8,
+    borderWidth: 1,
+    borderColor: '#F3F4F6',
   },
   widgetTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#374151',
-    marginBottom: 12,
+    fontSize: Math.max(16, width * 0.04),
+    fontWeight: 'bold',
+    color: '#1F2937',
+    marginBottom: 15,
+    textAlign: 'center',
   },
   widgetContent: {
     flexDirection: 'row',
@@ -258,33 +303,45 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   widgetAmount: {
-    fontSize: 20,
+    fontSize: Math.max(20, width * 0.05),
     fontWeight: 'bold',
-    color: '#1F2937',
+    color: '#8B5CF6',
     flex: 1,
+    textAlign: 'center',
   },
   progressBar: {
-    width: 8,
-    height: 60,
-    backgroundColor: '#E5E7EB',
-    borderRadius: 4,
+    width: Math.max(8, width * 0.02),
+    height: Math.max(60, height * 0.08),
+    backgroundColor: '#F3F4F6',
+    borderRadius: Math.max(4, width * 0.01),
     overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
   },
   progressFill: {
     width: '100%',
     borderRadius: 4,
   },
   irButton: {
-    backgroundColor: '#F3F4F6',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 12,
-    alignSelf: 'flex-start',
+    backgroundColor: '#8B5CF6',
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 15,
+    alignSelf: 'center',
+    marginTop: 8,
+    shadowColor: '#8B5CF6',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 3,
   },
   irButtonText: {
-    color: '#6B7280',
-    fontSize: 12,
-    fontWeight: '600',
+    color: 'white',
+    fontSize: Math.max(12, width * 0.03),
+    fontWeight: 'bold',
   },
   pendientesSection: {
     marginBottom: 20,

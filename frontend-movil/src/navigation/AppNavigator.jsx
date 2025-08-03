@@ -11,6 +11,7 @@ import Inventario from '../screens/Inventario';
 import Ventas from '../screens/Ventas';
 import Notificaciones from '../screens/Notificaciones';
 import Pendientes from '../screens/Pendientes';
+import Perfil from '../screens/Perfil';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -117,13 +118,5 @@ const AppNavigator = () => {
     </NavigationContainer>
   );
 };
-
-// Componente temporal para Perfil
-const Perfil = () => (
-  <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F8FAFC' }}>
-    <Text style={{ fontSize: 24, fontWeight: 'bold', color: '#1F2937' }}>Perfil</Text>
-    <Text style={{ fontSize: 16, color: '#6B7280', marginTop: 10 }}>Pantalla de perfil en desarrollo</Text>
-  </View>
-);
 
 export default AppNavigator; 

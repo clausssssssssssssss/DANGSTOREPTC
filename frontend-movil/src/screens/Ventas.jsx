@@ -4,128 +4,36 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
-  ScrollView,
   SafeAreaView,
+  Dimensions,
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 
-const Ventas = ({ navigation, route }) => {
-  const period = route?.params?.period || 'week';
+const { width, height } = Dimensions.get('window');
 
-  const salesData = {
-    week: { total: '$45,200', growth: '+12%', orders: 156 },
-    day: { total: '$14,200', growth: '+8%', orders: 45 },
-    month: { total: '$142,000', growth: '+15%', orders: 520 },
-  };
-
-  const currentData = salesData[period];
-
-  const recentSales = [
-    { id: 1, customer: 'Cliente A', amount: '$2,500', status: 'Completada' },
-    { id: 2, customer: 'Cliente B', amount: '$1,800', status: 'Pendiente' },
-    { id: 3, customer: 'Cliente C', amount: '$3,200', status: 'Completada' },
-    { id: 4, customer: 'Cliente D', amount: '$950', status: 'Cancelada' },
-  ];
-
+const Ventas = ({ navigation }) => {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Ventas</Text>
-        <TouchableOpacity style={styles.filterButton}>
-          <Text style={styles.filterButtonText}>📊</Text>
+      <TouchableOpacity 
+          onPress={() => navigation.goBack()}
+          style={styles.backButton}
+        >
+          <Text style={styles.backButtonText}>←</Text>
         </TouchableOpacity>
+        <Text style={styles.headerTitle}>Ventas</Text>
+        <View style={styles.placeholder} />
       </View>
 
-      <ScrollView style={styles.content}>
-        {/* Period Selector */}
-        <View style={styles.periodSelector}>
-          <TouchableOpacity
-            style={[styles.periodButton, period === 'day' && styles.activePeriod]}
-            onPress={() => navigation.setParams({ period: 'day' })}
-          >
-            <Text style={[styles.periodText, period === 'day' && styles.activePeriodText]}>
-              Hoy
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.periodButton, period === 'week' && styles.activePeriod]}
-            onPress={() => navigation.setParams({ period: 'week' })}
-          >
-            <Text style={[styles.periodText, period === 'week' && styles.activePeriodText]}>
-              Esta Semana
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.periodButton, period === 'month' && styles.activePeriod]}
-            onPress={() => navigation.setParams({ period: 'month' })}
-          >
-            <Text style={[styles.periodText, period === 'month' && styles.activePeriodText]}>
-              Este Mes
-            </Text>
-          </TouchableOpacity>
+      <View style={styles.content}>
+        <View style={styles.iconContainer}>
+          <Text style={styles.icon}>💰</Text>
         </View>
-
-        {/* Sales Summary */}
-        <View style={styles.summaryCard}>
-          <LinearGradient
-            colors={['#8B5CF6', '#A78BFA']}
-            style={styles.summaryGradient}
-          >
-            <Text style={styles.summaryTitle}>Ventas Totales</Text>
-            <Text style={styles.summaryAmount}>{currentData.total}</Text>
-            <View style={styles.summaryStats}>
-              <Text style={styles.growthText}>{currentData.growth}</Text>
-              <Text style={styles.ordersText}>{currentData.orders} órdenes</Text>
-            </View>
-          </LinearGradient>
-        </View>
-
-        {/* Quick Stats */}
-        <View style={styles.quickStats}>
-          <View style={styles.statItem}>
-            <Text style={styles.statValue}>156</Text>
-            <Text style={styles.statLabel}>Órdenes</Text>
-          </View>
-          <View style={styles.statItem}>
-            <Text style={styles.statValue}>$2,890</Text>
-            <Text style={styles.statLabel}>Promedio</Text>
-          </View>
-          <View style={styles.statItem}>
-            <Text style={styles.statValue}>98%</Text>
-            <Text style={styles.statLabel}>Satisfacción</Text>
-          </View>
-        </View>
-
-        {/* Recent Sales */}
-        <View style={styles.recentSales}>
-          <Text style={styles.sectionTitle}>Ventas Recientes</Text>
-          {recentSales.map((sale) => (
-            <View key={sale.id} style={styles.saleCard}>
-              <View style={styles.saleInfo}>
-                <Text style={styles.customerName}>{sale.customer}</Text>
-                <Text style={styles.saleAmount}>{sale.amount}</Text>
-              </View>
-              <View style={[
-                styles.statusBadge,
-                { backgroundColor: sale.status === 'Completada' ? '#10B981' : 
-                                 sale.status === 'Pendiente' ? '#F59E0B' : '#EF4444' }
-              ]}>
-                <Text style={styles.statusText}>{sale.status}</Text>
-              </View>
-            </View>
-          ))}
-        </View>
-
-        {/* Action Buttons */}
-        <View style={styles.actionButtons}>
-          <TouchableOpacity style={styles.actionButton}>
-            <Text style={styles.actionButtonText}>📈 Ver Reporte</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.actionButton}>
-            <Text style={styles.actionButtonText}>📋 Nueva Venta</Text>
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
+        <Text style={styles.title}>Ventas</Text>
+        <Text style={styles.subtitle}>Pantalla en desarrollo</Text>
+        <Text style={styles.description}>
+          Esta funcionalidad estará disponible próximamente
+        </Text>
+      </View>
     </SafeAreaView>
   );
 };
@@ -139,197 +47,67 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingTop: 20,
-    paddingBottom: 20,
+    paddingHorizontal: width * 0.05,
+    paddingTop: height * 0.02,
+    paddingBottom: height * 0.025,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E5E7EB',
+    backgroundColor: 'white',
   },
-  headerTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#1F2937',
-  },
-  filterButton: {
+  backButton: {
     padding: 8,
   },
-  filterButtonText: {
-    fontSize: 20,
+  backButtonText: {
+    fontSize: Math.max(20, width * 0.06),
+    color: '#8B5CF6',
+    fontWeight: 'bold',
+  },
+  headerTitle: {
+    fontSize: Math.max(18, width * 0.045),
+    fontWeight: 'bold',
+    color: '#1F2937',
+  },
+  placeholder: {
+    width: 40,
   },
   content: {
-    paddingHorizontal: 20,
-  },
-  periodSelector: {
-    flexDirection: 'row',
-    backgroundColor: 'white',
-    borderRadius: 12,
-    padding: 4,
-    marginBottom: 20,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 3.84,
-    elevation: 5,
-  },
-  periodButton: {
     flex: 1,
-    paddingVertical: 12,
-    paddingHorizontal: 8,
-    borderRadius: 8,
+    justifyContent: 'center',
     alignItems: 'center',
+    paddingHorizontal: width * 0.1,
   },
-  activePeriod: {
-    backgroundColor: '#8B5CF6',
-  },
-  periodText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#6B7280',
-  },
-  activePeriodText: {
-    color: 'white',
-  },
-  summaryCard: {
-    marginBottom: 20,
-    borderRadius: 16,
-    overflow: 'hidden',
-  },
-  summaryGradient: {
-    padding: 24,
+  iconContainer: {
+    width: width * 0.25,
+    height: width * 0.25,
+    borderRadius: (width * 0.25) / 2,
+    backgroundColor: '#F3F4F6',
+    justifyContent: 'center',
     alignItems: 'center',
+    marginBottom: height * 0.03,
   },
-  summaryTitle: {
-    fontSize: 16,
-    color: 'white',
-    marginBottom: 8,
+  icon: {
+    fontSize: Math.max(40, width * 0.1),
   },
-  summaryAmount: {
-    fontSize: 36,
-    fontWeight: 'bold',
-    color: 'white',
-    marginBottom: 12,
-  },
-  summaryStats: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  growthText: {
-    fontSize: 16,
-    color: '#10B981',
-    fontWeight: 'bold',
-    marginRight: 15,
-  },
-  ordersText: {
-    fontSize: 14,
-    color: 'white',
-  },
-  quickStats: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 30,
-  },
-  statItem: {
-    backgroundColor: 'white',
-    padding: 16,
-    borderRadius: 12,
-    flex: 1,
-    marginHorizontal: 5,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 3.84,
-    elevation: 5,
-  },
-  statValue: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#8B5CF6',
-    marginBottom: 4,
-  },
-  statLabel: {
-    fontSize: 12,
-    color: '#6B7280',
-  },
-  recentSales: {
-    marginBottom: 30,
-  },
-  sectionTitle: {
-    fontSize: 20,
+  title: {
+    fontSize: Math.max(24, width * 0.06),
     fontWeight: 'bold',
     color: '#1F2937',
-    marginBottom: 15,
+    marginBottom: height * 0.01,
+    textAlign: 'center',
   },
-  saleCard: {
-    backgroundColor: 'white',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 3.84,
-    elevation: 5,
-  },
-  saleInfo: {
-    flex: 1,
-  },
-  customerName: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#1F2937',
-    marginBottom: 4,
-  },
-  saleAmount: {
-    fontSize: 14,
+  subtitle: {
+    fontSize: Math.max(18, width * 0.045),
     color: '#8B5CF6',
-    fontWeight: 'bold',
-  },
-  statusBadge: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 20,
-  },
-  statusText: {
-    color: 'white',
-    fontSize: 12,
     fontWeight: '600',
+    marginBottom: height * 0.02,
+    textAlign: 'center',
   },
-  actionButtons: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 30,
-  },
-  actionButton: {
-    backgroundColor: 'white',
-    padding: 16,
-    borderRadius: 12,
-    flex: 1,
-    marginHorizontal: 5,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 3.84,
-    elevation: 5,
-  },
-  actionButtonText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#374151',
+  description: {
+    fontSize: Math.max(14, width * 0.035),
+    color: '#6B7280',
+    textAlign: 'center',
+    lineHeight: Math.max(20, width * 0.05),
+    maxWidth: width * 0.8,
   },
 });
 

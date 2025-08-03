@@ -4,84 +4,36 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
-  ScrollView,
   SafeAreaView,
+  Dimensions,
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
+
+const { width, height } = Dimensions.get('window');
 
 const Inventario = ({ navigation }) => {
-  const inventoryStats = [
-    { title: 'Total Productos', value: '156', color: '#8B5CF6' },
-    { title: 'Stock Bajo', value: '12', color: '#EF4444' },
-    { title: 'Sin Stock', value: '3', color: '#F59E0B' },
-    { title: 'Categorías', value: '8', color: '#10B981' },
-  ];
-
-  const lowStockItems = [
-    { name: 'Producto A', current: 5, min: 10 },
-    { name: 'Producto B', current: 2, min: 15 },
-    { name: 'Producto C', current: 8, min: 20 },
-  ];
-
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Inventario</Text>
-        <TouchableOpacity style={styles.refreshButton}>
-          <Text style={styles.refreshButtonText}>🔄</Text>
+      <TouchableOpacity 
+          onPress={() => navigation.goBack()}
+          style={styles.backButton}
+        >
+          <Text style={styles.backButtonText}>←</Text>
         </TouchableOpacity>
+        <Text style={styles.headerTitle}>Inventario</Text>
+        <View style={styles.placeholder} />
       </View>
 
-      <ScrollView style={styles.content}>
-        {/* Stats Grid */}
-        <View style={styles.statsGrid}>
-          {inventoryStats.map((stat, index) => (
-            <View key={index} style={styles.statCard}>
-              <LinearGradient
-                colors={[stat.color, `${stat.color}80`]}
-                style={styles.statGradient}
-              >
-                <Text style={styles.statValue}>{stat.value}</Text>
-                <Text style={styles.statTitle}>{stat.title}</Text>
-              </LinearGradient>
-            </View>
-          ))}
+      <View style={styles.content}>
+        <View style={styles.iconContainer}>
+          <Text style={styles.icon}>📊</Text>
         </View>
-
-        {/* Low Stock Alert */}
-        <View style={styles.alertSection}>
-          <Text style={styles.sectionTitle}>Stock Bajo</Text>
-          {lowStockItems.map((item, index) => (
-            <View key={index} style={styles.alertCard}>
-              <View style={styles.alertInfo}>
-                <Text style={styles.alertProductName}>{item.name}</Text>
-                <Text style={styles.alertStock}>
-                  Stock actual: {item.current} / Mínimo: {item.min}
-                </Text>
-              </View>
-              <TouchableOpacity style={styles.reorderButton}>
-                <Text style={styles.reorderButtonText}>Reabastecer</Text>
-              </TouchableOpacity>
-            </View>
-          ))}
-        </View>
-
-        {/* Quick Actions */}
-        <View style={styles.quickActions}>
-          <Text style={styles.sectionTitle}>Acciones Rápidas</Text>
-          <View style={styles.actionButtons}>
-            <TouchableOpacity style={styles.actionButton}>
-              <Text style={styles.actionButtonText}>📦 Agregar Producto</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.actionButton}>
-              <Text style={styles.actionButtonText}>📊 Reporte</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.actionButton}>
-              <Text style={styles.actionButtonText}>🔍 Buscar</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </ScrollView>
+        <Text style={styles.title}>Inventario</Text>
+        <Text style={styles.subtitle}>Pantalla en desarrollo</Text>
+        <Text style={styles.description}>
+          Esta funcionalidad estará disponible próximamente
+        </Text>
+      </View>
     </SafeAreaView>
   );
 };
@@ -95,128 +47,67 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingTop: 20,
-    paddingBottom: 20,
+    paddingHorizontal: width * 0.05,
+    paddingTop: height * 0.02,
+    paddingBottom: height * 0.025,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E5E7EB',
+    backgroundColor: 'white',
   },
-  headerTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#1F2937',
-  },
-  refreshButton: {
+  backButton: {
     padding: 8,
   },
-  refreshButtonText: {
-    fontSize: 20,
+  backButtonText: {
+    fontSize: Math.max(20, width * 0.06),
+    color: '#8B5CF6',
+    fontWeight: 'bold',
+  },
+  headerTitle: {
+    fontSize: Math.max(18, width * 0.045),
+    fontWeight: 'bold',
+    color: '#1F2937',
+  },
+  placeholder: {
+    width: 40,
   },
   content: {
-    paddingHorizontal: 20,
-  },
-  statsGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    marginBottom: 30,
-  },
-  statCard: {
-    width: '48%',
-    marginBottom: 15,
-    borderRadius: 16,
-    overflow: 'hidden',
-  },
-  statGradient: {
-    padding: 20,
+    flex: 1,
+    justifyContent: 'center',
     alignItems: 'center',
+    paddingHorizontal: width * 0.1,
   },
-  statValue: {
-    fontSize: 28,
+  iconContainer: {
+    width: width * 0.25,
+    height: width * 0.25,
+    borderRadius: (width * 0.25) / 2,
+    backgroundColor: '#F3F4F6',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: height * 0.03,
+  },
+  icon: {
+    fontSize: Math.max(40, width * 0.1),
+  },
+  title: {
+    fontSize: Math.max(24, width * 0.06),
     fontWeight: 'bold',
-    color: 'white',
-    marginBottom: 8,
-  },
-  statTitle: {
-    fontSize: 14,
-    color: 'white',
+    color: '#1F2937',
+    marginBottom: height * 0.01,
     textAlign: 'center',
   },
-  alertSection: {
-    marginBottom: 30,
-  },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#1F2937',
-    marginBottom: 15,
-  },
-  alertCard: {
-    backgroundColor: 'white',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 3.84,
-    elevation: 5,
-  },
-  alertInfo: {
-    flex: 1,
-  },
-  alertProductName: {
-    fontSize: 16,
+  subtitle: {
+    fontSize: Math.max(18, width * 0.045),
+    color: '#8B5CF6',
     fontWeight: '600',
-    color: '#1F2937',
-    marginBottom: 4,
+    marginBottom: height * 0.02,
+    textAlign: 'center',
   },
-  alertStock: {
-    fontSize: 14,
-    color: '#EF4444',
-  },
-  reorderButton: {
-    backgroundColor: '#8B5CF6',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
-  },
-  reorderButtonText: {
-    color: 'white',
-    fontSize: 12,
-    fontWeight: '600',
-  },
-  quickActions: {
-    marginBottom: 30,
-  },
-  actionButtons: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  actionButton: {
-    backgroundColor: 'white',
-    padding: 16,
-    borderRadius: 12,
-    flex: 1,
-    marginHorizontal: 5,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 3.84,
-    elevation: 5,
-  },
-  actionButtonText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#374151',
+  description: {
+    fontSize: Math.max(14, width * 0.035),
+    color: '#6B7280',
+    textAlign: 'center',
+    lineHeight: Math.max(20, width * 0.05),
+    maxWidth: width * 0.8,
   },
 });
 

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { View, Text } from 'react-native';
-import SplashScreen from './SplashScreen';
+import SplashScreen from './components/SplashScreen';
+import AppNavigator from './src/navigation/AppNavigator';
 
 export default function App() {
   const [showSplash, setShowSplash] = useState(true);
@@ -9,11 +9,5 @@ export default function App() {
     return <SplashScreen onFinish={() => setShowSplash(false)} />;
   }
 
-    // Aquí va el contenido principal de la aplicación
-  return (
-    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-      <Text>Bienvenido a DangStore</Text>
-  
-    </View>
-  );
+  return <AppNavigator />;
 }

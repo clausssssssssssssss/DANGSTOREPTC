@@ -5,6 +5,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 
 // Importar pantallas
+import AuthApp from '../screens/AuthApp';
 import Inicio from '../screens/Inicio';
 import Productos from '../screens/Productos';
 import Inventario from '../screens/Inventario';
@@ -32,89 +33,113 @@ const VentasStack = () => (
   </Stack.Navigator>
 );
 
+// Tab Navigator para la aplicación principal (después de la autenticación)
+const MainTabNavigator = () => (
+  <Tab.Navigator
+    screenOptions={({ route }) => ({
+      headerShown: false,
+      tabBarIcon: ({ focused, color, size }) => {
+        let iconName;
+
+        if (route.name === 'Inicio') {
+          iconName = '🏠';
+        } else if (route.name === 'Productos') {
+          iconName = '📦';
+        } else if (route.name === 'Inventario') {
+          iconName = '📊';
+        } else if (route.name === 'Ventas') {
+          iconName = '💰';
+        } else if (route.name === 'Perfil') {
+          iconName = '👤';
+        }
+
+        return (
+          <Text style={{ 
+            fontSize: size, 
+            color: focused ? '#8B5CF6' : '#6B7280',
+            fontWeight: focused ? 'bold' : 'normal'
+          }}>
+            {iconName}
+          </Text>
+        );
+      },
+      tabBarActiveTintColor: '#8B5CF6',
+      tabBarInactiveTintColor: '#6B7280',
+      tabBarStyle: {
+        backgroundColor: 'white',
+        borderTopWidth: 1,
+        borderTopColor: '#E5E7EB',
+        paddingBottom: 5,
+        paddingTop: 5,
+        height: 60,
+      },
+      tabBarLabelStyle: {
+        fontSize: 12,
+        fontWeight: '600',
+      },
+    })}
+  >
+    <Tab.Screen 
+      name="Inicio" 
+      component={InicioStack}
+      options={{
+        tabBarLabel: 'Inicio',
+      }}
+    />
+    <Tab.Screen 
+      name="Productos" 
+      component={Productos}
+      options={{
+        tabBarLabel: 'Productos',
+      }}
+    />
+    <Tab.Screen 
+      name="Inventario" 
+      component={Inventario}
+      options={{
+        tabBarLabel: 'Inventario',
+      }}
+    />
+    <Tab.Screen 
+      name="Ventas" 
+      component={VentasStack}
+      options={{
+        tabBarLabel: 'Ventas',
+      }}
+    />
+    <Tab.Screen 
+      name="Perfil" 
+      component={Perfil}
+      options={{
+        tabBarLabel: 'Perfil',
+      }}
+    />
+  </Tab.Navigator>
+);
+
+// Stack principal que maneja la autenticación y la aplicación principal
 const AppNavigator = () => {
   return (
     <NavigationContainer>
-      <Tab.Navigator
-        screenOptions={({ route }) => ({
-          headerShown: false,
-          tabBarIcon: ({ focused, color, size }) => {
-            let iconName;
-
-            if (route.name === 'Inicio') {
-              iconName = '🏠';
-            } else if (route.name === 'Productos') {
-              iconName = '📦';
-            } else if (route.name === 'Inventario') {
-              iconName = '📊';
-            } else if (route.name === 'Ventas') {
-              iconName = '💰';
-            } else if (route.name === 'Perfil') {
-              iconName = '👤';
-            }
-
-            return (
-              <Text style={{ 
-                fontSize: size, 
-                color: focused ? '#8B5CF6' : '#6B7280',
-                fontWeight: focused ? 'bold' : 'normal'
-              }}>
-                {iconName}
-              </Text>
-            );
-          },
-          tabBarActiveTintColor: '#8B5CF6',
-          tabBarInactiveTintColor: '#6B7280',
-          tabBarStyle: {
-            backgroundColor: 'white',
-            borderTopWidth: 1,
-            borderTopColor: '#E5E7EB',
-            paddingBottom: 5,
-            paddingTop: 5,
-            height: 60,
-          },
-          tabBarLabelStyle: {
-            fontSize: 12,
-            fontWeight: '600',
-          },
-        })}
+      <Stack.Navigator 
+        initialRouteName="AuthApp"
+        screenOptions={{ headerShown: false }}
       >
-        <Tab.Screen 
-          name="Inicio" 
-          component={InicioStack}
+        <Stack.Screen 
+          name="AuthApp" 
+          component={AuthApp}
           options={{
-            tabBarLabel: 'Inicio',
+            headerShown: false,
           }}
         />
-        <Tab.Screen 
-          name="Productos" 
-          component={Productos}
+        <Stack.Screen 
+          name="MainApp" 
+          component={MainTabNavigator}
           options={{
-            tabBarLabel: 'Productos',
+            headerShown: false,
           }}
         />
-        <Tab.Screen 
-          name="Inventario" 
-          component={Inventario}
-          options={{
-            tabBarLabel: 'Inventario',
-          }}
-        />
-        <Tab.Screen 
-          name="Ventas" 
-          component={VentasStack}
-          options={{
-            tabBarLabel: 'Ventas',
-          }}
-        />
-        <Tab.Screen 
-          name="Perfil" 
-          component={Perfil}
-          options={{
-            tabBarLabel: 'Perfil',
-          }}
-        />
-      </Tab.Navigator>
+      </Stack.Navigator>
     </NavigationContainer>
   );
 };

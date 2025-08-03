@@ -942,3 +942,138 @@
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
   }
 }
+
+/* ESTILOS PARA MENSAJE DE AUTENTICACIÓN REQUERIDA */
+.auth-required-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  padding: 20px;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  /* Estilo de depuración temporal */
+  border: 3px solid red;
+}
+
+.auth-required-card {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  padding: 40px 30px;
+  text-align: center;
+  max-width: 400px;
+  width: 100%;
+  animation: slideInUp 0.6s ease-out;
+  /* Estilo de depuración temporal */
+  border: 2px solid blue;
+}
+
+.auth-required-icon {
+  margin-bottom: 20px;
+  color: #6d28d9;
+  display: flex;
+  justify-content: center;
+}
+
+.auth-required-title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0 0 12px 0;
+}
+
+.auth-required-message {
+  font-size: 1rem;
+  color: #6b7280;
+  line-height: 1.6;
+  margin: 0 0 30px 0;
+}
+
+.auth-required-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.auth-required-button {
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.auth-required-button.primary {
+  background: #6d28d9;
+  color: white;
+}
+
+.auth-required-button.primary:hover {
+  background: #5b21b6;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(109, 40, 217, 0.3);
+}
+
+.auth-required-button.secondary {
+  background: transparent;
+  color: #6d28d9;
+  border: 2px solid #6d28d9;
+}
+
+.auth-required-button.secondary:hover {
+  background: #6d28d9;
+  color: white;
+  transform: translateY(-2px);
+}
+
+/* Animación de entrada */
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive para el mensaje de autenticación */
+@media (max-width: 480px) {
+  .auth-required-container {
+    padding: 15px;
+    min-height: 50vh;
+  }
+  
+  .auth-required-card {
+    padding: 30px 20px;
+  }
+  
+  .auth-required-title {
+    font-size: 1.5rem;
+  }
+  
+  .auth-required-message {
+    font-size: 0.9rem;
+  }
+  
+  .auth-required-button {
+    padding: 10px 20px;
+    font-size: 0.9rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .auth-required-actions {
+    flex-direction: row;
+    justify-content: center;
+  }
+  
+  .auth-required-button {
+    min-width: 140px;
+  }
+}

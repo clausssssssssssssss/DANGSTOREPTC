@@ -34,7 +34,7 @@ export function useFavorites(userId) {
         // Sincronizar con localStorage también
         localStorage.setItem(`favorites-${userId}`, JSON.stringify(favoriteIds));
         
-        console.log('✅ Favoritos cargados desde backend:', favoriteIds);
+
       }
     } catch (error) {
       console.error('Error cargando favoritos:', error);
@@ -64,7 +64,7 @@ export function useFavorites(userId) {
 
       if (response.ok) {
         const result = await response.json();
-        console.log('✅ Favorito actualizado en backend:', result);
+
         return result.favorites; // Array de IDs desde el backend
       } else {
         throw new Error(`Error ${response.status}`);
@@ -98,7 +98,6 @@ export function useFavorites(userId) {
     save(backendFavorites); // Actualizar desde backend
 
     // Los toasts se manejan desde el componente padre
-    console.log('✅ Favorito sincronizado correctamente');
     
     return { wasFavorite, success: true };
   } catch (error) {

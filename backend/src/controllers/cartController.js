@@ -41,6 +41,11 @@ export const addToCart = async (req, res) => {
     // Guardo el carrito actualizado
     await cart.save();
 
+    // Re-poblar productos antes de enviar
+    cart = await Cart.findOne({ user: userId })
+      .populate('products.product')
+      .populate('customizedProducts.item');
+
     // Respondo que todo salió bien y mando el carrito actualizado
     return res.status(200).json({ message: 'Carrito actualizado', cart });
   } catch (error) {
@@ -131,6 +136,11 @@ export const removeCartItem = async (req, res) => {
 
     // Guardo carrito sin el item eliminado
     await cart.save();
+
+    // Re-poblar productos antes de enviar
+    cart = await Cart.findOne({ user: userId })
+      .populate('products.product')
+      .populate('customizedProducts.item');
 
     // Confirmo que se eliminó el ítem
     return res.status(200).json({ message: 'Ítem eliminado', cart });

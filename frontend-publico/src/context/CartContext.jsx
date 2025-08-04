@@ -1,18 +1,12 @@
-import { useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
+const CartContext = createContext();
 
-export function useCart(userId) {
+export function CartProvider({ children }) {
   const [cart, setCart] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Si no hay userId, inicializar con carrito vacío
-  useEffect(() => {
-    if (!userId) {
-      setCart([]);
-      setLoading(false);
-    }
-  }, [userId]);
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
 
   async function authFetch(path, opts = {}) {
     const token = localStorage.getItem('token');
@@ -40,34 +34,8 @@ export function useCart(userId) {
     return res.json();
   }
 
-  // Carga inicial del carrito
-  useEffect(() => {
-    if (!userId) return;
-
-    (async () => {
-      try {
-        const data = await authFetch(`/api/cart`);
-        setCart((data.products || []).map(p => ({
-          product: {
-            id: p.product._id,
-            name: p.product.name,
-            price: p.product.price,
-            image: p.product.images?.[0] || '',
-            description: p.product.description || ''
-          },
-          quantity: p.quantity
-        })));
-      } catch (err) {
-        console.error('useCart load:', err);
-      } finally {
-        setLoading(false);
-      }
-    })();
-  }, [userId]);
-
   // Sincroniza el estado local con la respuesta del backend
   function sync(cartDoc) {
-    console.log('🔄 Sync cart data:', cartDoc);
     const newCart = (cartDoc.products || []).map(p => ({
       product: {
         id: p.product._id,
@@ -78,12 +46,38 @@ export function useCart(userId) {
       },
       quantity: p.quantity
     }));
-    console.log('🔄 New cart state:', newCart);
     setCart(newCart);
   }
 
+  // Cargar carrito inicial
+  const loadCart = async (userId) => {
+    if (!userId) {
+      setCart([]);
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const data = await authFetch(`/api/cart`);
+      setCart((data.products || []).map(p => ({
+        product: {
+          id: p.product._id,
+          name: p.product.name,
+          price: p.product.price,
+          image: p.product.images?.[0] || '',
+          description: p.product.description || ''
+        },
+        quantity: p.quantity
+      })));
+    } catch (err) {
+      console.error('Global useCart load:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Añadir producto al carrito
-  async function addToCart({ productId, quantity = 1 }) {
+  const addToCart = async ({ productId, quantity = 1 }) => {
     const json = await authFetch('/api/cart', {
       method: 'POST',
       body: JSON.stringify({ productId, quantity })
@@ -91,30 +85,30 @@ export function useCart(userId) {
     // El backend puede devolver { cart } o directamente el carrito
     const cartData = json.cart || json;
     sync(cartData);
-  }
+  };
 
   // Actualizar cantidad
-  async function updateQuantity(productId, quantity) {
+  const updateQuantity = async (productId, quantity) => {
     const json = await authFetch('/api/cart', {
       method: 'PUT',
       body: JSON.stringify({ itemId: productId, type: 'product', quantity })
     });
     const cartData = json.cart || json;
     sync(cartData);
-  }
+  };
 
   // Eliminar un producto
-  async function removeFromCart(productId) {
+  const removeFromCart = async (productId) => {
     const json = await authFetch('/api/cart', {
       method: 'DELETE',
       body: JSON.stringify({ itemId: productId, type: 'product' })
     });
     const cartData = json.cart || json;
     sync(cartData);
-  }
+  };
 
   // Vaciar el carrito
-  async function clearCart() {
+  const clearCart = async () => {
     for (const item of cart) {
       await authFetch('/api/cart', {
         method: 'DELETE',
@@ -122,14 +116,37 @@ export function useCart(userId) {
       });
     }
     setCart([]);
-  }
+  };
 
-  return {
+  const value = {
     cart,
     loading,
+    loadCart,
     addToCart,
     updateQuantity,
     removeFromCart,
     clearCart
   };
+
+  return (
+    <CartContext.Provider value={value}>
+      {children}
+    </CartContext.Provider>
+  );
 }
+
+export function useCart(userId) {
+  const context = useContext(CartContext);
+  if (!context) {
+    throw new Error('useCart must be used within a CartProvider');
+  }
+
+  // Cargar carrito cuando cambie el userId
+  useEffect(() => {
+    if (userId && !context.loading) {
+      context.loadCart(userId);
+    }
+  }, [userId]);
+
+  return context;
+} 

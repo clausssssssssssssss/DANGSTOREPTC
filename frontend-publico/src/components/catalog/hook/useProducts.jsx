@@ -15,18 +15,7 @@ export function useProducts() {
       if (!res.ok) throw new Error(`Status ${res.status}`);
       const data = await res.json();
       
-      // DEBUGGING: Agrega esto para ver qué datos llegan
-      console.log('Datos del backend:', data);
-      data.forEach(product => {
-        console.log(`Producto: ${product.name}, Imágenes:`, product.images);
-        // En useProducts.jsx, cambia esta parte:
-console.log('Datos del backend:', data);
-data.forEach(product => {
-  console.log(`Producto: ${product.name}, Imágenes:`, product.images);
-  // AGREGA ESTA LÍNEA:
-  console.log(`URLs completas:`, product.images?.map(img => `"${img}"`));
-});
-      });
+
       
       setProducts(data);
     } catch (err) {

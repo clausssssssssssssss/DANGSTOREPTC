@@ -441,6 +441,15 @@
   gap: 18px;
 }
 
+/* Clases para controlar visibilidad */
+.desktop-only {
+  display: flex;
+}
+
+.mobile-login-only {
+  display: none;
+}
+
 .icon-link {
   padding: 12px;
   color: #cbd5e1;
@@ -583,22 +592,20 @@
   }
   
   .logo-text {
-    font-size: 20px;
+    font-size: 22px;
   }
   
   .logo-icon {
-    width: 36px;
-    height: 36px;
+    width: 42px;
+    height: 42px;
   }
   
-  .action-icons {
-    gap: 15px;
+  .desktop-only {
+    display: none;
   }
   
-  .icon-link {
-    width: 40px;
-    height: 40px;
-    padding: 10px;
+  .mobile-login-only {
+    display: block;
   }
 }
 
@@ -613,22 +620,12 @@
   }
   
   .logo-text {
-    font-size: 18px;
+    font-size: 20px;
   }
   
   .logo-icon {
-    width: 32px;
-    height: 32px;
-  }
-  
-  .action-icons {
-    gap: 12px;
-  }
-  
-  .icon-link {
-    width: 36px;
-    height: 36px;
-    padding: 8px;
+    width: 38px;
+    height: 38px;
   }
   
   .mobile-menu {
@@ -645,22 +642,12 @@
 /* Móviles muy pequeños (320px y menor) */
 @media (max-width: 320px) {
   .logo-text {
-    font-size: 16px;
+    font-size: 18px;
   }
   
   .logo-icon {
-    width: 28px;
-    height: 28px;
-  }
-  
-  .icon-link {
-    width: 32px;
-    height: 32px;
-    padding: 6px;
-  }
-  
-  .action-icons {
-    gap: 8px;
+    width: 34px;
+    height: 34px;
   }
 }
 
@@ -735,4 +722,76 @@
   25% { background-position: 100% 0%; }
   50% { background-position: 100% 100%; }
   75% { background-position: 0% 100%; }
+}
+
+/* Estilos para el botón de Iniciar Sesión en el navbar */
+.login-button-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 16px;
+  background: linear-gradient(135deg, #4DD0E1 0%, #BA68C8 100%);
+  color: white;
+  text-decoration: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: none;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(77, 208, 225, 0.3);
+}
+
+.login-button-nav::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, 
+    transparent, 
+    rgba(255, 255, 255, 0.2), 
+    transparent);
+  transition: left 0.5s ease;
+}
+
+.login-button-nav:hover::before {
+  left: 100%;
+}
+
+.login-button-nav:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(77, 208, 225, 0.4);
+  background: linear-gradient(135deg, #26C6DA 0%, #AB47BC 100%);
+}
+
+.login-button-nav:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(77, 208, 225, 0.3);
+}
+
+/* Responsive para el botón de login */
+@media (max-width: 768px) {
+  .login-button-nav {
+    padding: 8px 14px;
+    font-size: 0.85rem;
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 480px) {
+  .login-button-nav {
+    padding: 6px 12px;
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 320px) {
+  .login-button-nav {
+    padding: 5px 10px;
+    font-size: 0.75rem;
+  }
 }

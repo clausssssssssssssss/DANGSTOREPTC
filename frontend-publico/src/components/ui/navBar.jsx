@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { Search, ShoppingCart, User, X, Menu, Package, Grid3X3, MessageCircle, Info } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth.jsx';
-import { useCart } from '../cart/hook/useCart.jsx';
+import { useCart } from '../../context/CartContext.jsx';
 import '../styles/navbar.css';
 
 export default function NavBar() {
@@ -20,6 +20,8 @@ export default function NavBar() {
   const itemCount = Array.isArray(cart)
     ? cart.reduce((sum, i) => sum + i.quantity, 0)
     : 0;
+  
+
 
   // Estado para saber si hay cotizaciones "quoted"
   const [hasQuotes, setHasQuotes] = useState(false);
@@ -96,7 +98,7 @@ export default function NavBar() {
 
   // Función para manejar cliks en links del menú móvil
   const handleMobileNavClick = (e, route) => {
-    if (!user && (route === '/perfil' || route === '/carrito')) {
+    if (!user && route === '/carrito') {
       e.preventDefault();
       navigate('/perfil'); // Navegar directamente a perfil donde se mostrará la pantalla de login
     }
@@ -150,8 +152,8 @@ export default function NavBar() {
 
             {/* Contenedor derecho con iconos y hamburguesa */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-              {/* Íconos de acción */}
-              <div className="action-icons">
+              {/* Íconos de acción - Desktop */}
+              <div className="action-icons desktop-only">
                 <NavLink
                   to="/carrito"
                   className={({ isActive }) => `icon-link ${isActive ? 'active' : ''}`}
@@ -161,16 +163,47 @@ export default function NavBar() {
                   {itemCount > 0 && <span className="cart-badge">{itemCount}</span>}
                 </NavLink>
 
-                <NavLink
-                  to="/perfil"
-                  onClick={(e) => handleProtectedClick(e, '/perfil')}
-                  className={({ isActive }) => `icon-link ${isActive ? 'active' : ''}`}
-                  aria-label="Perfil de usuario"
-                >
-                  <User size={20} />
-                  {hasQuotes && <span className="notification-dot" />}
-                </NavLink>
+                {user ? (
+                  <NavLink
+                    to="/perfil"
+                    className={({ isActive }) => `icon-link ${isActive ? 'active' : ''}`}
+                    aria-label="Perfil de usuario"
+                  >
+                    <User size={20} />
+                    {hasQuotes && <span className="notification-dot" />}
+                  </NavLink>
+                ) : (
+                  <>
+                    <NavLink
+                      to="/auth"
+                      className={({ isActive }) => `icon-link ${isActive ? 'active' : ''}`}
+                      aria-label="Iniciar sesión"
+                    >
+                      <User size={20} />
+                    </NavLink>
+                    <NavLink
+                      to="/auth"
+                      className="login-button-nav"
+                      aria-label="Iniciar sesión"
+                    >
+                      Iniciar Sesión
+                    </NavLink>
+                  </>
+                )}
               </div>
+
+              {/* Botón de Iniciar Sesión - Solo móvil */}
+              {!user && (
+                <div className="mobile-login-only">
+                  <NavLink
+                    to="/auth"
+                    className="login-button-nav"
+                    aria-label="Iniciar sesión"
+                  >
+                    Iniciar Sesión
+                  </NavLink>
+                </div>
+              )}
 
               {/* Botón de menú hamburguesa - Solo móvil */}
               <button
@@ -273,28 +306,26 @@ export default function NavBar() {
             )}
           </NavLink>
 
-          <NavLink
-            to="/perfil"
-            className={({ isActive }) => `mobile-nav-link ${isActive ? 'active' : ''}`}
-            onClick={(e) => handleMobileNavClick(e, '/perfil')}
-          >
-            <User className="mobile-nav-icon" size={20} />
-            Mi Perfil
-            {hasQuotes && (
-              <span style={{ 
-                marginLeft: 'auto', 
-                width: '8px', 
-                height: '8px', 
-                background: '#ff3b30', 
-                borderRadius: '50%' 
-              }} />
-            )}
-          </NavLink>
-
-          {/* Usuario no logueado */}
-          {!user && (
+          {user ? (
+            <NavLink
+              to="/perfil"
+              className={({ isActive }) => `mobile-nav-link ${isActive ? 'active' : ''}`}
+              onClick={closeMobileMenu}
+            >
+              <User className="mobile-nav-icon" size={20} />
+              Mi Perfil
+              {hasQuotes && (
+                <span style={{ 
+                  marginLeft: 'auto', 
+                  width: '8px', 
+                  height: '8px', 
+                  background: '#ff3b30', 
+                  borderRadius: '50%' 
+                }} />
+              )}
+            </NavLink>
+          ) : (
             <>
-              <div className="mobile-separator" />
               <NavLink
                 to="/auth"
                 className="mobile-nav-link"

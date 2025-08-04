@@ -27,7 +27,6 @@ const authMiddleware = (allowedRoles = []) => {
 
       // 2️⃣ Verificar token
       const decoded = jwt.verify(token, config.jwt.secret);
-      console.log("✅ Token decoded:", decoded, "| allowedRoles:", allowedRoles);
 
       // Convertir userType a minúsculas para evitar problemas de case sensitivity
       const userType = decoded.userType.toLowerCase();
@@ -38,14 +37,12 @@ const authMiddleware = (allowedRoles = []) => {
         userData = await customersModel
           .findById(decoded.userId)
           .select("-password");
-        console.log("📄 Customer loaded from DB:", userData);
       } else if (userType === "admin") {
         userData = {
           userId: decoded.userId,
           userType: "admin",
           email: decoded.email,
         };
-        console.log("👑 Admin from token:", userData);
       } else {
         console.log("🚫 Invalid userType:", decoded.userType);
         return res
@@ -74,7 +71,6 @@ const authMiddleware = (allowedRoles = []) => {
       // 5️⃣ Inyectar datos y continuar
       req.user = userData;
       req.userType = userType;
-      console.log("✅ Usuario autenticado:", req.user);
       next();
     } catch (error) {
       console.error("🔥 authMiddleware error:", error);

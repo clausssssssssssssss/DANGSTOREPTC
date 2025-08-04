@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth.jsx';
-import { useCart } from '../components/cart/hook/useCart.jsx';
+import { useCart } from '../context/CartContext.jsx';
+import { useToast } from '../hooks/useToast.js';
+import ToastContainer from '../components/ui/ToastContainer.jsx';
 import { ShoppingBag, Trash2, Plus, Minus, ArrowLeft, CreditCard, Check } from 'lucide-react';
 import '../components/styles/CarritoDeCompras.css';
 
@@ -9,6 +11,7 @@ const CarritoDeCompras = () => {
   const { user } = useAuth();
   const userId = user?.id;
   const { cart, clearCart, updateQuantity, removeFromCart } = useCart(userId);
+  const { toasts, showSuccess, showError, showWarning, removeToast } = useToast();
 
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -25,27 +28,36 @@ const CarritoDeCompras = () => {
     try {
       await new Promise(resolve => setTimeout(resolve, 2000)); // Simular procesamiento
       setSuccess(true);
-      clearCart();
+      await clearCart();
+      showSuccess('¡Pago procesado exitosamente!');
     } catch (err) {
       console.error('Error en pago:', err);
       setError('Error al procesar el pago. Intenta de nuevo.');
+      showError('Error al procesar el pago');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleQuantityUpdate = (productId, newQuantity) => {
+  const handleQuantityUpdate = async (productId, newQuantity) => {
     if (newQuantity < 1) return;
     try {
-      updateQuantity(productId, newQuantity);
+      await updateQuantity(productId, newQuantity);
     } catch (err) {
       console.error('Error actualizando cantidad:', err);
+      showError('Error al actualizar cantidad');
     }
   };
 
-  const handleClearCart = () => {
+  const handleClearCart = async () => {
     if (window.confirm('¿Estás seguro de que deseas vaciar el carrito?')) {
-      clearCart();
+      try {
+        await clearCart();
+        showSuccess('Carrito vaciado');
+      } catch (err) {
+        console.error('Error vaciando carrito:', err);
+        showError('Error al vaciar carrito');
+      }
     }
   };
 
@@ -80,7 +92,8 @@ const CarritoDeCompras = () => {
   }
 
   return (
-    <div className="cart-container">
+    <>
+      <div className="cart-container">
       <div className="cart-content">
         {/* Header */}
         <div className="cart-header">
@@ -137,33 +150,41 @@ const CarritoDeCompras = () => {
                     </div>
                     
                     <div className="item-controls">
-                      <div className="quantity-controls">
-                        <button 
-                          onClick={() => handleQuantityUpdate(item.product?.id, item.quantity - 1)}
-                          disabled={item.quantity <= 1}
-                          className="qty-btn"
-                        >
-                          <Minus size={14} />
-                        </button>
-                        <span className="quantity">{item.quantity}</span>
-                        <button 
-                          onClick={() => handleQuantityUpdate(item.product?.id, item.quantity + 1)}
-                          className="qty-btn"
-                        >
-                          <Plus size={14} />
-                        </button>
-                      </div>
+                                             <div className="quantity-controls">
+                         <button 
+                           onClick={async () => await handleQuantityUpdate(item.product?.id, item.quantity - 1)}
+                           disabled={item.quantity <= 1}
+                           className="qty-btn"
+                         >
+                           <Minus size={14} />
+                         </button>
+                         <span className="quantity">{item.quantity}</span>
+                         <button 
+                           onClick={async () => await handleQuantityUpdate(item.product?.id, item.quantity + 1)}
+                           className="qty-btn"
+                         >
+                           <Plus size={14} />
+                         </button>
+                       </div>
                       
                       <div className="item-total">
                         ${((item.product?.price || 0) * item.quantity).toFixed(2)}
                       </div>
                       
-                      <button 
-                        onClick={() => removeFromCart(item.product?.id)}
-                        className="remove-btn"
-                      >
-                        <Trash2 size={16} />
-                      </button>
+                                             <button 
+                         onClick={async () => {
+                           try {
+                             await removeFromCart(item.product?.id);
+                             showSuccess('Producto eliminado del carrito');
+                           } catch (err) {
+                             console.error('Error eliminando producto:', err);
+                             showError('Error al eliminar producto');
+                           }
+                         }}
+                         className="remove-btn"
+                       >
+                         <Trash2 size={16} />
+                       </button>
                     </div>
                   </div>
                 ))}
@@ -216,10 +237,13 @@ const CarritoDeCompras = () => {
               </div>
             </div>
           </div>
-        )}
-      </div>
-    </div>
-  );
-};
+                 )}
+       </div>
+     </div>
+     
+     <ToastContainer toasts={toasts} removeToast={removeToast} />
+   </>
+ );
+ };
 
 export default CarritoDeCompras;  

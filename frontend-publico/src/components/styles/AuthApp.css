@@ -195,6 +195,8 @@ body {
   outline: none;
   color: var(--text-primary);
   position: relative;
+  outline: none !important;
+  box-shadow: none !important;
 }
 
 .auth-input:focus {
@@ -730,7 +732,7 @@ body {
   .decorative-ring {
     display: none;
   }
-  
+  a
   .verification-inputs {
     gap: 0.5rem;
   }

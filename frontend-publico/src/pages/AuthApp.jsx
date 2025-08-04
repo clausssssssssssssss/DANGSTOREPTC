@@ -280,13 +280,18 @@ const handleVerifyCode = async () => {
   );
 
   // Componente de Logo
-  const Logo = () => (
-    <div className="auth-logo">
-      <div className="logo-container">
-        <span className="logo-text">C</span>
-      </div>
+  // Reemplaza el componente Logo actual por este:
+const Logo = () => (
+  <div className="auth-logo">
+    <div className="logo-container">
+      <img 
+        src="https://i.ibb.co/WWx2CLJZ/DANGSTORELOGOPRUEBA-1.png" 
+        alt="DANGSTORE Logo" 
+        className="logo-image"
+      />
     </div>
-  );
+  </div>
+);
 
   // Vista de Login
   if (currentView === 'login') {

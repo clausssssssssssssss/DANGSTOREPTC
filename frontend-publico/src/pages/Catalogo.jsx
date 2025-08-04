@@ -4,13 +4,15 @@ import { useAuth } from '../hooks/useAuth.jsx';
 import { useProducts } from '../components/catalog/hook/useProducts.jsx';
 import { useCart } from '../components/cart/hook/useCart.jsx';
 import { useFavorites } from '../components/catalog/hook/useFavorites.jsx';
-import { toast } from 'react-toastify';
+import { useToast } from '../hooks/useToast';
+import ToastContainer from '../components/ui/ToastContainer';
 
 export default function Catalogo() {
   const { user } = useAuth();
   const { products, loading, error, refresh } = useProducts();
   const { addToCart } = useCart();
   const { favorites, toggleFavorite } = useFavorites(user?.id);
+  const { toasts, showSuccess, showError, showWarning, removeToast } = useToast();
 
   const [searchTerm, setSearchTerm] = useState('');
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -49,15 +51,15 @@ export default function Catalogo() {
   // Handler seguro para añadir al carrito
   const handleAddToCart = async (productId) => {
     if (!user) {
-      toast.warning("Debes iniciar sesión para agregar al carrito");
+      showWarning("debes de iniciar sesion para agregar tus productos favoritos");
       return;
     }
     try {
       await addToCart({ productId, quantity: 1 });
-      toast.success('¡Producto añadido al carrito!');
+      showSuccess('¡Producto añadido al carrito!');
     } catch (err) {
       console.error(err);
-      toast.error(err.message || 'Error al añadir producto');
+      showError(err.message || 'Error al añadir producto');
     }
   };
 
@@ -170,6 +172,7 @@ export default function Catalogo() {
                     setSearchTerm('');
                     setPriceRange([0, 25]);
                     setSelectedCategory('');
+                    showInfo('Filtros limpiados');
                   }}
                 >
                   <RefreshCw size={16} />
@@ -197,9 +200,18 @@ export default function Catalogo() {
                 />
                 <button
                   className={`favorite-btn ${favorites.includes(product._id) ? 'active' : ''}`}
-                  onClick={(e) => {
+                  onClick={async (e) => {
                     e.stopPropagation();
-                    toggleFavorite(product._id);
+                    const result = await toggleFavorite(product._id);
+                    if (result.success) {
+                      if (result.wasFavorite) {
+                        showSuccess('💔 Producto eliminado de favoritos');
+                      } else {
+                        showSuccess('❤️ Producto agregado a favoritos');
+                      }
+                    } else {
+                      showWarning('Debe de iniciar sesion para agregar productos a favoritos');
+                    }
                   }}
                 >
                   <Heart 
@@ -267,7 +279,18 @@ export default function Catalogo() {
                 </button>
                 <button 
                   className="btn btn-secondary"
-                  onClick={() => toggleFavorite(selectedProduct._id)}
+                  onClick={async () => {
+                    const result = await toggleFavorite(selectedProduct._id);
+                    if (result.success) {
+                      if (result.wasFavorite) {
+                        showSuccess('💔 Producto eliminado de favoritos');
+                      } else {
+                        showSuccess('❤️ Producto agregado a favoritos');
+                      }
+                    } else {
+                      showWarning('Error al actualizar favoritos');
+                    }
+                  }}
                 >
                   ❤️ Favoritos
                 </button>
@@ -276,6 +299,8 @@ export default function Catalogo() {
           </div>
         )}
       </div>
+      
+      <ToastContainer toasts={toasts} removeToast={removeToast} />
 
       <style jsx>{`
         /* --- Layout y Fondo --- */

@@ -4,10 +4,12 @@ import useCustomerOrders from '../components/personalizedOrder/useCustomerOrders
 import { useAuth } from '../hooks/useAuth.jsx';
 import Modal from '../components/ui/Modal';
 import '../components/styles/Encargo.css';
-import { toast } from 'react-toastify';
+import { useToast } from '../hooks/useToast';
+import ToastContainer from '../components/ui/ToastContainer';
 
 export default function Encargo() {
 const { user } = useAuth();
+const { toasts, showSuccess, showError, showWarning, removeToast } = useToast();
 
   const {
     preview,
@@ -23,25 +25,40 @@ const { user } = useAuth();
     clearImage
   } = useCustomerOrders();
 
-  const handleEncargoSubmit = () => {
+  // Función personalizada para manejar el cambio de imagen con toast
+  const handleImageChangeWithToast = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      handleImageChange(e);
+      showSuccess("Imagen subida exitosamente");
+    }
+  };
+
+  const handleEncargoSubmit = async () => {
     if (!user) {
-      toast.warning("Debes iniciar sesión para enviar un encargo");
+      showWarning("Debes iniciar sesión para enviar un encargo");
       return;
     }
 
     // Validaciones mínimas (opcional, ya están en el botón)
     if (!preview || !modelType) {
-      toast.warning("Completa todos los campos para enviar tu encargo");
+      showWarning("Completa todos los campos para enviar tu encargo");
       return;
     }
 
     // Si pasa todo, ejecuta el submit original
-    submit();
+    await submit();
+    
+    // Si el submit fue exitoso, mostrar toast
+    if (success) {
+      showSuccess("¡Encargo enviado exitosamente! Te contactaremos pronto.");
+    }
   };
 
   // Nueva función para eliminar la imagen
   const handleRemoveImage = () => {
     clearImage();
+    showInfo("Imagen eliminada");
   };
 
   return (
@@ -84,7 +101,7 @@ const { user } = useAuth();
             id="image-upload"
             type="file"
             accept="image/*"
-            onChange={handleImageChange}
+            onChange={handleImageChangeWithToast}
             className="hidden-input"
           />
         </div>
@@ -142,6 +159,8 @@ const { user } = useAuth();
           </div>
         </Modal>
       )}
+      
+      <ToastContainer toasts={toasts} removeToast={removeToast} />
     </div>
     
   );

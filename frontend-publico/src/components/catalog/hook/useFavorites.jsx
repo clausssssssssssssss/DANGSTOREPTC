@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { toast } from 'react-toastify';
 
 
 export function useFavorites(userId) {
@@ -98,17 +97,14 @@ export function useFavorites(userId) {
     const backendFavorites = await saveFavoriteToBackend(productId);
     save(backendFavorites); // Actualizar desde backend
 
-    // Mostrar toast según acción
-    if (wasFavorite) {
-      toast.success('💔 Producto eliminado de favoritos');
-    } else {
-      toast.success('❤️ Producto agregado a favoritos');
-    }
-
+    // Los toasts se manejan desde el componente padre
     console.log('✅ Favorito sincronizado correctamente');
+    
+    return { wasFavorite, success: true };
   } catch (error) {
     console.error('Error al toggle favorito:', error);
     loadFavoritesFromBackend(); // Revertir
+    return { wasFavorite: false, success: false, error };
   }
 };
 

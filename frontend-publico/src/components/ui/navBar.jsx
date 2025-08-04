@@ -82,7 +82,7 @@ export default function NavBar() {
   const handleProtectedClick = (e, route) => {
     if (!user) {
       e.preventDefault();
-      navigate('/auth');
+      navigate('/perfil'); // Navegar directamente a perfil donde se mostrará la pantalla de login
     }
   };
 
@@ -98,7 +98,7 @@ export default function NavBar() {
   const handleMobileNavClick = (e, route) => {
     if (!user && (route === '/perfil' || route === '/carrito')) {
       e.preventDefault();
-      navigate('/auth');
+      navigate('/perfil'); // Navegar directamente a perfil donde se mostrará la pantalla de login
     }
     closeMobileMenu();
   };

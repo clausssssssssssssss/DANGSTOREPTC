@@ -1077,3 +1077,65 @@
     min-width: 140px;
   }
 }
+
+/* Estilos para la pantalla de autenticación requerida con gradiente verde a morado */
+.not-authenticated-message {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 2rem;
+  background: linear-gradient(135deg, #10b981 0%, #8b5cf6 100%);
+  color: white;
+}
+
+.not-authenticated-message h2 {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+  color: white;
+}
+
+.not-authenticated-message p {
+  font-size: 1.1rem;
+  margin-bottom: 2rem;
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1.6;
+}
+
+.not-authenticated-message .login-button {
+  padding: 12px 24px;
+  background: #8b5cf6;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.not-authenticated-message .login-button:hover {
+  background: #7c3aed;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+}
+
+/* Responsive para la pantalla de autenticación */
+@media (max-width: 768px) {
+  .not-authenticated-message {
+    padding: 1rem;
+  }
+  
+  .not-authenticated-message h2 {
+    font-size: 1.5rem;
+  }
+  
+  .not-authenticated-message p {
+    font-size: 1rem;
+  }
+}

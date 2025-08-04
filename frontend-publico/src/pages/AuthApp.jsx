@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Eye, EyeOff, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -13,12 +12,8 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
 
 const AuthApp = () => {
   const navigate = useNavigate();
-<<<<<<< HEAD
   const { setUser } = useAuth();                // ← nuevo
   const { toasts, showSuccess, showError, showInfo, removeToast } = useToast();
-=======
-  const { setUser } = useAuth();
->>>>>>> 57a20b38cea1687807bfbe5a955fabc36cc06139
   const [currentView, setCurrentView] = useState('login');
   
   // Estados para Login
@@ -44,7 +39,7 @@ const AuthApp = () => {
 
   // Estados para Código de Verificación
   const [verificationCode, setVerificationCode] = useState(['', '', '', '']);
-  const lastTriedCode = useRef('');
+  const lastTriedCode = useRef(''); // ← guarda el último código verificado
 
   // Estados para Nueva Contraseña
   const [newPasswordData, setNewPasswordData] = useState({
@@ -78,6 +73,7 @@ const AuthApp = () => {
         return;
       }
       console.log('🔑 Login successful, token:', data.token);
+      // guardamos token y actualizamos contexto
       localStorage.setItem('token', data.token);
       const decoded = parseJwt(data.token);
       setUser({ id: decoded.userId ?? decoded.id, name: decoded.name });
@@ -112,12 +108,8 @@ const AuthApp = () => {
       if (!res.ok) {
         showError(data.message || 'Error en el registro');
       } else {
-<<<<<<< HEAD
         showSuccess('¡Registro exitoso!');
         // tras registrar por primera vez, vamos a “Acerca”
-=======
-        alert('Registro exitoso!');
->>>>>>> 57a20b38cea1687807bfbe5a955fabc36cc06139
         navigate('/acerca', { replace: true });
       }
     } catch (err) {
@@ -127,7 +119,6 @@ const AuthApp = () => {
   };
 
   // Funciones de recuperación de contraseña
-<<<<<<< HEAD
   // paso 1: envío del código
 const handleForgotPassword = async () => {
   if (!forgotEmail) {
@@ -151,26 +142,6 @@ const handleForgotPassword = async () => {
 
 
 
-=======
-  const handleForgotPassword = async () => {
-    if (!forgotEmail) {
-      alert("Por favor ingresa tu correo electrónico");
-      return;
-    }
-    const res = await fetch(`${API_URL}/api/password-recovery/send-code`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email: forgotEmail }),
-    });
-    const data = await res.json();
-    if (!res.ok) {
-      alert(data.message || "Error enviando código");
-      return;
-    }
-    setIsEmailSubmitted(true);
-    setTimeout(() => setCurrentView("verification"), 1500);
-  };
->>>>>>> 57a20b38cea1687807bfbe5a955fabc36cc06139
 
   // Funciones de código de verificación
   const handleCodeChange = (idx, val) => {
@@ -192,6 +163,7 @@ const handleForgotPassword = async () => {
     }
   }, [verificationCode, currentView]);
 
+
   const handleKeyDown = (index, e) => {
     if (e.key === 'Backspace' && !verificationCode[index] && index > 0) {
       const prevInput = document.getElementById(`code-${index - 1}`);
@@ -199,7 +171,7 @@ const handleForgotPassword = async () => {
     }
   };
 
-  const handleVerifyCode = async () => {
+const handleVerifyCode = async () => {
     const code = verificationCode.join("");
     if (code.length !== 4) {
       showError("Por favor ingresa el código completo");
@@ -224,11 +196,18 @@ const handleForgotPassword = async () => {
     }
   };
 
-  const handleResetPassword = async () => {
-    const code = verificationCode.join("");
-    const { password, confirmPassword } = newPasswordData;
+  const handleResendCode = () => {
+    setIsResending(true);
+    setTimeout(() => {
+      setIsResending(false);
+      console.log('Code resent');
+    }, 2000);
+  };
 
-<<<<<<< HEAD
+  const handleResetPassword = async () => {
+  const code = verificationCode.join("");
+  const { password, confirmPassword } = newPasswordData;
+
   if (!password || !confirmPassword) {
     showError("Por favor completa todos los campos");
     return;
@@ -264,43 +243,6 @@ const handleForgotPassword = async () => {
     showError("Error de conexión");
   }
 };
-=======
-    if (!password || !confirmPassword) {
-      alert("Por favor completa todos los campos");
-      return;
-    }
-    if (password !== confirmPassword) {
-      alert("Las contraseñas no coinciden");
-      return;
-    }
-    if (password.length < 6) {
-      alert("La contraseña debe tener al menos 6 caracteres");
-      return;
-    }
-
-    try {
-      const res = await fetch(`${API_URL}/api/password-recovery/reset`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email: forgotEmail,       
-          code,
-          newPassword: password,
-        }),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        alert(data.message || "Error al cambiar contraseña");
-        return;
-      }
-      alert("Contraseña restablecida exitosamente");
-      setCurrentView("login");
-    } catch (err) {
-      console.error(err);
-      alert("Error de conexión");
-    }
-  };
->>>>>>> 57a20b38cea1687807bfbe5a955fabc36cc06139
 
   // Validaciones para nueva contraseña
   const isPasswordValid = newPasswordData.password.length >= 6;
@@ -308,8 +250,12 @@ const handleForgotPassword = async () => {
 
   // Función para formatear número de teléfono
   const formatPhoneNumber = (value) => {
+    // Eliminar todos los caracteres que no sean dígitos
     const phoneNumber = value.replace(/\D/g, '');
+    
+    // Limitar a 8 dígitos máximo
     if (phoneNumber.length <= 8) {
+      // Formatear como XXXX-XXXX
       if (phoneNumber.length > 4) {
         return phoneNumber.slice(0, 4) + '-' + phoneNumber.slice(4);
       }
@@ -318,6 +264,7 @@ const handleForgotPassword = async () => {
     return phoneNumber.slice(0, 8);
   };
 
+  // Función para manejar cambio en teléfono
   const handlePhoneChange = (e) => {
     const formattedPhone = formatPhoneNumber(e.target.value);
     setRegisterData({...registerData, telefono: formattedPhone});
@@ -332,44 +279,14 @@ const handleForgotPassword = async () => {
     </div>
   );
 
-  // Componente de Logo - SOLUCIÓN MÚLTIPLE
-  const Logo = () => {
-    const [imageError, setImageError] = useState(false);
-    
-    // Lista de rutas posibles para el logo
-    const logoRoutes = [
-      '/src/assets/DANGSTORELOGOPRUEBA_1.png',  // Ruta absoluta
-      '../assets/DANGSTORELOGOPRUEBA_1.png',    // Ruta relativa
-      '../assets/DANGSTORELOGOPRUEBA.PNG',      // Alternativa
-      '../assets/react.svg'                     // Fallback
-    ];
-
-    const [currentLogoIndex, setCurrentLogoIndex] = useState(0);
-
-    const handleImageError = () => {
-      if (currentLogoIndex < logoRoutes.length - 1) {
-        setCurrentLogoIndex(currentLogoIndex + 1);
-      } else {
-        setImageError(true);
-      }
-    };
-
-    
-      return (
-  <div className="auth-logo">
-    <div className="logo-container">
-      <img 
-        src="../assets/DANGSTORELOGOPRUEBA_1.png"
-        alt="DangStore Logo" 
-        className="logo-image"
-        onError={(e) => {
-          e.target.style.display = 'none'; // Oculta la imagen si hay error
-        }}
-      />
+  // Componente de Logo
+  const Logo = () => (
+    <div className="auth-logo">
+      <div className="logo-container">
+        <span className="logo-text">C</span>
+      </div>
     </div>
-  </div>
-);
-  };
+  );
 
   // Vista de Login
   if (currentView === 'login') {
@@ -617,19 +534,11 @@ const handleForgotPassword = async () => {
 
   // Vista de Código de Verificación
   if (currentView === 'verification') {
-<<<<<<< HEAD
   return (
     <>
       <div className="auth-container">
         {/* …decoración y logo… */}
         <div className="auth-card">
-=======
-    return (
-      <div className="auth-container">
-        <DecorativeElements />
-        <div className="auth-card">
-          <Logo />
->>>>>>> 57a20b38cea1687807bfbe5a955fabc36cc06139
           <h1 className="auth-title">Código de verificación</h1>
           <div className="verification-inputs">
             {verificationCode.map((digit, idx) => (
@@ -654,15 +563,10 @@ const handleForgotPassword = async () => {
           </button>
         </div>
       </div>
-<<<<<<< HEAD
       <ToastContainer toasts={toasts} removeToast={removeToast} />
     </>
   )
 }
-=======
-    );
-  }
->>>>>>> 57a20b38cea1687807bfbe5a955fabc36cc06139
   // Vista de Nueva Contraseña
   if (currentView === 'reset-password') {
     return (

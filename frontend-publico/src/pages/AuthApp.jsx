@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { Eye, EyeOff, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -10,7 +11,7 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
 
 const AuthApp = () => {
   const navigate = useNavigate();
-  const { setUser } = useAuth();                // ← nuevo
+  const { setUser } = useAuth();
   const [currentView, setCurrentView] = useState('login');
   
   // Estados para Login
@@ -36,7 +37,7 @@ const AuthApp = () => {
 
   // Estados para Código de Verificación
   const [verificationCode, setVerificationCode] = useState(['', '', '', '']);
-  const lastTriedCode = useRef(''); // ← guarda el último código verificado
+  const lastTriedCode = useRef('');
 
   // Estados para Nueva Contraseña
   const [newPasswordData, setNewPasswordData] = useState({
@@ -70,7 +71,6 @@ const AuthApp = () => {
         return;
       }
       console.log('🔑 Login successful, token:', data.token);
-      // guardamos token y actualizamos contexto
       localStorage.setItem('token', data.token);
       const decoded = parseJwt(data.token);
       setUser({ id: decoded.userId ?? decoded.id, name: decoded.name });
@@ -105,7 +105,6 @@ const AuthApp = () => {
         alert(data.message || 'Error en el registro');
       } else {
         alert('Registro exitoso!');
-        // tras registrar por primera vez, vamos a “Acerca”
         navigate('/acerca', { replace: true });
       }
     } catch (err) {
@@ -115,28 +114,24 @@ const AuthApp = () => {
   };
 
   // Funciones de recuperación de contraseña
-  // paso 1: envío del código
-const handleForgotPassword = async () => {
-  if (!forgotEmail) {
-    alert("Por favor ingresa tu correo electrónico");
-    return;
-  }
-  const res = await fetch(`${API_URL}/api/password-recovery/send-code`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email: forgotEmail }),
-  });
-  const data = await res.json();
-  if (!res.ok) {
-    alert(data.message || "Error enviando código");
-    return;
-  }
-  setIsEmailSubmitted(true);
-  setTimeout(() => setCurrentView("verification"), 1500);
-};
-
-
-
+  const handleForgotPassword = async () => {
+    if (!forgotEmail) {
+      alert("Por favor ingresa tu correo electrónico");
+      return;
+    }
+    const res = await fetch(`${API_URL}/api/password-recovery/send-code`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: forgotEmail }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      alert(data.message || "Error enviando código");
+      return;
+    }
+    setIsEmailSubmitted(true);
+    setTimeout(() => setCurrentView("verification"), 1500);
+  };
 
   // Funciones de código de verificación
   const handleCodeChange = (idx, val) => {
@@ -158,7 +153,6 @@ const handleForgotPassword = async () => {
     }
   }, [verificationCode, currentView]);
 
-
   const handleKeyDown = (index, e) => {
     if (e.key === 'Backspace' && !verificationCode[index] && index > 0) {
       const prevInput = document.getElementById(`code-${index - 1}`);
@@ -166,7 +160,7 @@ const handleForgotPassword = async () => {
     }
   };
 
-const handleVerifyCode = async () => {
+  const handleVerifyCode = async () => {
     const code = verificationCode.join("");
     if (code.length !== 4) {
       alert("Por favor ingresa el código completo");
@@ -190,53 +184,45 @@ const handleVerifyCode = async () => {
     }
   };
 
-  const handleResendCode = () => {
-    setIsResending(true);
-    setTimeout(() => {
-      setIsResending(false);
-      console.log('Code resent');
-    }, 2000);
-  };
-
   const handleResetPassword = async () => {
-  const code = verificationCode.join("");
-  const { password, confirmPassword } = newPasswordData;
+    const code = verificationCode.join("");
+    const { password, confirmPassword } = newPasswordData;
 
-  if (!password || !confirmPassword) {
-    alert("Por favor completa todos los campos");
-    return;
-  }
-  if (password !== confirmPassword) {
-    alert("Las contraseñas no coinciden");
-    return;
-  }
-  if (password.length < 6) {
-    alert("La contraseña debe tener al menos 6 caracteres");
-    return;
-  }
-
-  try {
-    const res = await fetch(`${API_URL}/api/password-recovery/reset`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        email: forgotEmail,       
-        code,
-        newPassword: password,
-      }),
-    });
-    const data = await res.json();
-    if (!res.ok) {
-      alert(data.message || "Error al cambiar contraseña");
+    if (!password || !confirmPassword) {
+      alert("Por favor completa todos los campos");
       return;
     }
-    alert("Contraseña restablecida exitosamente");
-    setCurrentView("login");
-  } catch (err) {
-    console.error(err);
-    alert("Error de conexión");
-  }
-};
+    if (password !== confirmPassword) {
+      alert("Las contraseñas no coinciden");
+      return;
+    }
+    if (password.length < 6) {
+      alert("La contraseña debe tener al menos 6 caracteres");
+      return;
+    }
+
+    try {
+      const res = await fetch(`${API_URL}/api/password-recovery/reset`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: forgotEmail,       
+          code,
+          newPassword: password,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        alert(data.message || "Error al cambiar contraseña");
+        return;
+      }
+      alert("Contraseña restablecida exitosamente");
+      setCurrentView("login");
+    } catch (err) {
+      console.error(err);
+      alert("Error de conexión");
+    }
+  };
 
   // Validaciones para nueva contraseña
   const isPasswordValid = newPasswordData.password.length >= 6;
@@ -244,12 +230,8 @@ const handleVerifyCode = async () => {
 
   // Función para formatear número de teléfono
   const formatPhoneNumber = (value) => {
-    // Eliminar todos los caracteres que no sean dígitos
     const phoneNumber = value.replace(/\D/g, '');
-    
-    // Limitar a 8 dígitos máximo
     if (phoneNumber.length <= 8) {
-      // Formatear como XXXX-XXXX
       if (phoneNumber.length > 4) {
         return phoneNumber.slice(0, 4) + '-' + phoneNumber.slice(4);
       }
@@ -258,7 +240,6 @@ const handleVerifyCode = async () => {
     return phoneNumber.slice(0, 8);
   };
 
-  // Función para manejar cambio en teléfono
   const handlePhoneChange = (e) => {
     const formattedPhone = formatPhoneNumber(e.target.value);
     setRegisterData({...registerData, telefono: formattedPhone});
@@ -273,14 +254,44 @@ const handleVerifyCode = async () => {
     </div>
   );
 
-  // Componente de Logo
-  const Logo = () => (
-    <div className="auth-logo">
-      <div className="logo-container">
-        <span className="logo-text">C</span>
-      </div>
+  // Componente de Logo - SOLUCIÓN MÚLTIPLE
+  const Logo = () => {
+    const [imageError, setImageError] = useState(false);
+    
+    // Lista de rutas posibles para el logo
+    const logoRoutes = [
+      '/src/assets/DANGSTORELOGOPRUEBA_1.png',  // Ruta absoluta
+      '../assets/DANGSTORELOGOPRUEBA_1.png',    // Ruta relativa
+      '../assets/DANGSTORELOGOPRUEBA.PNG',      // Alternativa
+      '../assets/react.svg'                     // Fallback
+    ];
+
+    const [currentLogoIndex, setCurrentLogoIndex] = useState(0);
+
+    const handleImageError = () => {
+      if (currentLogoIndex < logoRoutes.length - 1) {
+        setCurrentLogoIndex(currentLogoIndex + 1);
+      } else {
+        setImageError(true);
+      }
+    };
+
+    
+      return (
+  <div className="auth-logo">
+    <div className="logo-container">
+      <img 
+        src="../assets/DANGSTORELOGOPRUEBA_1.png"
+        alt="DangStore Logo" 
+        className="logo-image"
+        onError={(e) => {
+          e.target.style.display = 'none'; // Oculta la imagen si hay error
+        }}
+      />
     </div>
-  );
+  </div>
+);
+  };
 
   // Vista de Login
   if (currentView === 'login') {
@@ -519,36 +530,37 @@ const handleVerifyCode = async () => {
 
   // Vista de Código de Verificación
   if (currentView === 'verification') {
-  return (
-    <div className="auth-container">
-      {/* …decoración y logo… */}
-      <div className="auth-card">
-        <h1 className="auth-title">Código de verificación</h1>
-        <div className="verification-inputs">
-          {verificationCode.map((digit, idx) => (
-            <input
-              key={idx}
-              id={`code-${idx}`}
-              type="text"
-              value={digit}
-              maxLength={1}
-              onChange={e => handleCodeChange(idx, e.target.value)}
-              onKeyDown={e => handleKeyDown(idx, e)}
-              className="verification-input"
-            />
-          ))}
+    return (
+      <div className="auth-container">
+        <DecorativeElements />
+        <div className="auth-card">
+          <Logo />
+          <h1 className="auth-title">Código de verificación</h1>
+          <div className="verification-inputs">
+            {verificationCode.map((digit, idx) => (
+              <input
+                key={idx}
+                id={`code-${idx}`}
+                type="text"
+                value={digit}
+                maxLength={1}
+                onChange={e => handleCodeChange(idx, e.target.value)}
+                onKeyDown={e => handleKeyDown(idx, e)}
+                className="verification-input"
+              />
+            ))}
+          </div>
+          <button
+            onClick={handleVerifyCode}
+            disabled={verificationCode.join('').length !== 4}
+            className="auth-button"
+          >
+            Verificar código
+          </button>
         </div>
-        <button
-          onClick={handleVerifyCode}
-          disabled={verificationCode.join('').length !== 4}
-          className="auth-button"
-        >
-          Verificar código
-        </button>
       </div>
-    </div>
-  )
-}
+    );
+  }
   // Vista de Nueva Contraseña
   if (currentView === 'reset-password') {
     return (

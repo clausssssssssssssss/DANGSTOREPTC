@@ -89,6 +89,7 @@ body {
   z-index: 10;
   opacity: 0;
   animation: fadeInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1) 0.1s forwards;
+  border: none; /* Eliminar cualquier border */
 }
 
 /* Logo */
@@ -101,26 +102,27 @@ body {
 }
 
 .logo-container {
-  width: 60px;
-  height: 60px;
-  background: linear-gradient(135deg, #22D3EE 0%, #3B82F6 100%);
-  border-radius: 12px;
+  width: 80px;
+  height: 80px;
+  border-radius: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
+  overflow: hidden;
+  border: none; /* Eliminar border */
+  box-shadow: 0 8px 25px rgba(139, 92, 246, 0.15); /* Sombra suave */
 }
 
 .logo-container::before {
-  content: '';
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  right: 2px;
-  bottom: 2px;
-  background: linear-gradient(135deg, #22D3EE 0%, #3B82F6 100%);
-  border-radius: 10px;
-  z-index: -1;
+  display: none; /* Eliminar el pseudo-elemento que creaba el recuadro */
+}
+
+.logo-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 16px;
 }
 
 .logo-text {
@@ -186,7 +188,7 @@ body {
   width: 100%;
   padding: 0.9rem 1rem;
   background-color: var(--input-bg);
-  border: none;
+  border: none; /* Eliminar border */
   border-radius: 12px;
   font-size: 1rem;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -228,7 +230,7 @@ body {
   top: 50%;
   transform: translateY(-50%);
   background: none;
-  border: none;
+  border: none; /* Eliminar border */
   color: #6b7280;
   cursor: pointer;
   padding: 0.5rem;
@@ -285,7 +287,7 @@ body {
   font-weight: 600;
   font-size: 1rem;
   padding: 1rem 1.5rem;
-  border: none;
+  border: none; /* Eliminar border */
   border-radius: 16px;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -353,6 +355,8 @@ body {
   text-decoration: none;
   cursor: pointer;
   transition: all 0.2s;
+  border: none; /* Eliminar border */
+  background: none;
 }
 
 .auth-link:hover {
@@ -391,14 +395,17 @@ body {
   border-radius: 4px;
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 2px solid #d1d5db; /* Border más suave */
 }
 
 .auth-checkbox:hover {
   transform: scale(1.1);
+  border-color: var(--primary-main);
 }
 
 .auth-checkbox:checked {
   animation: checkboxPulse 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-color: var(--primary-main);
 }
 
 @keyframes checkboxPulse {
@@ -425,6 +432,8 @@ body {
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s;
+  border: none; /* Eliminar border */
+  background: none;
 }
 
 .forgot-link:hover {
@@ -436,6 +445,7 @@ body {
 .auth-input.error {
   box-shadow: 0 0 0 2px #ef4444;
   background-color: #fef2f2;
+  border: none; /* Eliminar border */
 }
 
 .error-message {
@@ -448,6 +458,129 @@ body {
   color: #16a34a;
   font-size: 0.8rem;
   margin-top: 0.5rem;
+}
+
+/* Success state */
+.success-state {
+  text-align: center;
+  padding: 2rem 0;
+}
+
+.success-icon {
+  width: 4rem;
+  height: 4rem;
+  background: linear-gradient(135deg, #10b981, #059669);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.5rem;
+  font-size: 1.5rem;
+  color: white;
+  font-weight: bold;
+  border: none; /* Eliminar border */
+  box-shadow: 0 8px 25px rgba(16, 185, 129, 0.25);
+}
+
+/* Back button */
+.back-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--primary-main);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none; /* Eliminar border */
+  background: none;
+  padding: 0.5rem;
+  border-radius: 6px;
+}
+
+.back-button:hover {
+  color: var(--primary-dark);
+  background-color: rgba(139, 92, 246, 0.05);
+}
+
+.back-icon {
+  transition: transform 0.2s ease;
+}
+
+.back-button:hover .back-icon {
+  transform: translateX(-2px);
+}
+
+/* Verification inputs */
+.verification-inputs {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+  margin: 2rem 0;
+}
+
+.verification-input {
+  width: 3.5rem;
+  height: 3.5rem;
+  text-align: center;
+  font-size: 1.25rem;
+  font-weight: 600;
+  border: 2px solid #e5e7eb; /* Border más suave */
+  border-radius: 12px;
+  background-color: white;
+  color: var(--text-primary);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  outline: none;
+}
+
+.verification-input:focus {
+  border-color: var(--primary-main);
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+  transform: scale(1.05);
+}
+
+.verification-input:hover:not(:focus) {
+  border-color: var(--primary-light);
+}
+
+/* Password requirements */
+.password-requirements {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background-color: #f9fafb;
+  border-radius: 12px;
+  border: none; /* Eliminar border */
+}
+
+.requirements-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.75rem;
+}
+
+.requirement-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+  margin-bottom: 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.requirement-item.valid {
+  color: #16a34a;
+}
+
+.requirement-item.invalid {
+  color: #6b7280;
+}
+
+.requirement-icon {
+  font-weight: bold;
+  width: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* Loading spinner */
@@ -597,6 +730,16 @@ body {
   .decorative-ring {
     display: none;
   }
+  
+  .verification-inputs {
+    gap: 0.5rem;
+  }
+  
+  .verification-input {
+    width: 3rem;
+    height: 3rem;
+    font-size: 1.1rem;
+  }
 }
 
 @media (max-width: 480px) {
@@ -607,5 +750,27 @@ body {
   .auth-title {
     font-size: 1.5rem;
   }
+  
+  .verification-input {
+    width: 2.75rem;
+    height: 2.75rem;
+    font-size: 1rem;
+  }
+}
+.logo-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain; /* Mantiene las proporciones de la imagen */
+  border-radius: inherit; /* Hereda el border-radius del contenedor */
 }
 
+/* Si quieres que la imagen tenga un tamaño específico */
+.logo-container {
+  width: 60px; /* Ajusta según necesites */
+  height: 60px; /* Ajusta según necesites */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%; /* Si quieres que sea circular */
+  /* Mantén otros estilos existentes del logo-container */
+}

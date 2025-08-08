@@ -289,6 +289,15 @@
   background: #5b21b6;
 }
 
+.not-authenticated-message {
+  background: white;
+  z-index: 9999;
+  position: relative;
+  padding: 2rem;
+  color: black;
+  border: 2px solid red;
+}
+
 /* PASSWORD SECTION RESPONSIVE */
 .password-header {
   display: flex;

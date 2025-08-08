@@ -14,6 +14,7 @@ import productRoutes          from './src/routes/products.js';
 import profileRoutes          from './src/routes/profile.js';
 import adminAuthRoutes        from './src/routes/adminAuth.js';
 import logoutRoutes           from './src/routes/logout.js';
+import paymentRoutes          from './src/routes/paymentRoutes.js';
 
 /**
  * Aplicación principal de Express.
@@ -68,6 +69,9 @@ app.use('/api/admins', adminAuthRoutes);
 
 // Cerrar sesión (limpiar cookies/token)
 app.use('/api/logout', logoutRoutes);
+
+// Procesamiento de pagos (Wompi y pagos simulados)
+app.use('/api/payments', paymentRoutes);
 
 /**
  * Exporta la instancia de la aplicación Express

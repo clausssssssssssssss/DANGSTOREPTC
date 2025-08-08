@@ -1,9 +1,9 @@
 // src/pages/UserProfile.jsx
 import React, { useState, useEffect } from 'react';
-import {
-  Heart, ShoppingCart, User, Gift, LogOut
-} from 'lucide-react';
+import {Heart, ShoppingCart, User, Gift, LogOut, Lock}
+from 'lucide-react';
 import { useAuth } from '../hooks/useAuth.jsx';
+import { useNavigate } from 'react-router-dom';
 import '../components/styles/UserProfile.css';
 import { toast } from 'react-toastify';
 
@@ -17,11 +17,25 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
 
 const UserProfile = () => {
   const { user } = useAuth(); // 
+  const navigate = useNavigate();
 
   useEffect(() => {
   }, [user]); // 
 
-  if (!user) return null; // 
+ if (!user) {
+   return (
+     <div className="not-authenticated-message flex flex-col items-center justify-center h-full text-center p-6">
+       <h2 className="text-2xl font-bold mb-4">Necesitas iniciar sesión</h2>
+       <p className="mb-6">Debes iniciar sesión para ver tu perfil.</p>
+       <button
+         onClick={() => navigate('/auth/login')}
+         className="login-button px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition"
+       >
+         Ir a Iniciar Sesión
+       </button>
+     </div>
+   );
+ }
 
   const [activeSection, setActiveSection] = useState('personal');
 

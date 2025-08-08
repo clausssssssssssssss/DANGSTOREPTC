@@ -1,6 +1,6 @@
 import React from "react";
 import { useAuth } from "../../hooks/useAuth.jsx";
-import { useCart } from "../cart/hook/useCart.jsx";
+import { useCart } from "../context/CartContext.jsx";
 import usePaymentFakeForm from "../payment/hook/usePaymentFakeForm.jsx";
 import InputField from "../payment/InputField";
 import Button from "../payment/Button";

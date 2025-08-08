@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { toast } from 'react-toastify';
 
 
 export function useFavorites(userId) {
@@ -35,7 +34,7 @@ export function useFavorites(userId) {
         // Sincronizar con localStorage también
         localStorage.setItem(`favorites-${userId}`, JSON.stringify(favoriteIds));
         
-        console.log('✅ Favoritos cargados desde backend:', favoriteIds);
+
       }
     } catch (error) {
       console.error('Error cargando favoritos:', error);
@@ -65,7 +64,7 @@ export function useFavorites(userId) {
 
       if (response.ok) {
         const result = await response.json();
-        console.log('✅ Favorito actualizado en backend:', result);
+
         return result.favorites; // Array de IDs desde el backend
       } else {
         throw new Error(`Error ${response.status}`);
@@ -98,17 +97,13 @@ export function useFavorites(userId) {
     const backendFavorites = await saveFavoriteToBackend(productId);
     save(backendFavorites); // Actualizar desde backend
 
-    // Mostrar toast según acción
-    if (wasFavorite) {
-      toast.success('💔 Producto eliminado de favoritos');
-    } else {
-      toast.success('❤️ Producto agregado a favoritos');
-    }
-
-    console.log('✅ Favorito sincronizado correctamente');
+    // Los toasts se manejan desde el componente padre
+    
+    return { wasFavorite, success: true };
   } catch (error) {
     console.error('Error al toggle favorito:', error);
     loadFavoritesFromBackend(); // Revertir
+    return { wasFavorite: false, success: false, error };
   }
 };
 

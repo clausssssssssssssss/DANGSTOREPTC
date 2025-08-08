@@ -1,6 +1,5 @@
 // src/components/personalizedOrder/useCustomerOrders.jsx
 import { useState } from 'react';
-import { toast } from 'react-toastify';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
 
@@ -67,7 +66,7 @@ export default function useCustomerOrders() {
 
   const data = await res.json();
   setSuccess(true);
-  toast.success("Tu pedido ha sido enviado correctamente");
+  // El toast se maneja desde el componente padre
 
 } catch (err) {
   console.error('CATCH en submit:', err);

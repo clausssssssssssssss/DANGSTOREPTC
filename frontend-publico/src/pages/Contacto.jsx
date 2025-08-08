@@ -2,10 +2,12 @@ import React, { useEffect } from "react";
 import '../components/styles/Contacto.css';
 import useContactForm from '../components/contact/useContactForm';
 import { useAuth } from "../hooks/useAuth";
-import { toast } from "react-toastify";
+import { useToast } from '../hooks/useToast';
+import ToastContainer from '../components/ui/ToastContainer';
 
 const Contacto = () => {
   const { user } = useAuth();
+  const { toasts, showSuccess, showError, showWarning, removeToast } = useToast();
 
   const {
     name, setName,
@@ -21,7 +23,7 @@ const Contacto = () => {
     e.preventDefault();
 
     if (!user) {
-      toast.warning("Debes iniciar sesión para enviar un mensaje");
+      showWarning("Debes iniciar sesión para enviar un mensaje");
       return;
     }
 
@@ -29,9 +31,9 @@ const Contacto = () => {
   };
 
   useEffect(() => {
-    if (success) toast.success("Mensaje enviado con éxito 🎉");
-    if (error) toast.error(error);
-  }, [success, error]);
+    if (success) showSuccess("Mensaje enviado con éxito 🎉");
+    if (error) showError(error);
+  }, [success, error, showSuccess, showError]);
 
   return (
     <div className="contact-container">
@@ -105,6 +107,7 @@ const Contacto = () => {
           </form>
         </div>
       </div>
+      <ToastContainer toasts={toasts} removeToast={removeToast} />
     </div>
   );
 };

@@ -1,9 +1,12 @@
 import React from 'react';
-import { useCart } from './hook/useCart';
+import { useAuth } from '../../hooks/useAuth.jsx';
+import { useCart } from '../../context/CartContext.jsx';
 import './Cartitem.css';
 
 const CartItem = ({ product, quantity }) => {
-  const { updateQuantity, removeFromCart } = useCart();
+  const { user } = useAuth();
+  const userId = user?.id;
+  const { updateQuantity, removeFromCart } = useCart(userId);
 
   const handleIncrease = () => {
     updateQuantity(product.id, quantity + 1);

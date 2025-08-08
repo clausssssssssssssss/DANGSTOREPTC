@@ -41,6 +41,11 @@ export const addToCart = async (req, res) => {
     // Guardo el carrito actualizado
     await cart.save();
 
+    // Re-poblar productos antes de enviar
+    cart = await Cart.findOne({ user: userId })
+      .populate('products.product')
+      .populate('customizedProducts.item');
+
     // Respondo que todo salió bien y mando el carrito actualizado
     return res.status(200).json({ message: 'Carrito actualizado', cart });
   } catch (error) {
@@ -132,12 +137,12 @@ export const removeCartItem = async (req, res) => {
     // Guardo cambios
     await cart.save();
 
-    // REPOBLO EL CARRITO para traer datos completos de productos e ítems
+    // Re-poblar el carrito para traer datos completos de productos e ítems
     cart = await Cart.findOne({ user: userId })
       .populate('products.product')
       .populate('customizedProducts.item');
 
-    // Devuelvo carrito repoblado
+    // Devuelvo carrito actualizado tras eliminar ítem
     return res.status(200).json({ message: 'Ítem eliminado', cart });
   } catch (error) {
     console.error('❌ Error eliminando ítem:', error);

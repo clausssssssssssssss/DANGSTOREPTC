@@ -36,4 +36,12 @@ export const config = {
     pass: process.env.EMAIL_PASS,
   },
 
+  // Configuración de Wompi para procesamiento de pagos
+  wompi: {
+    appId: process.env.WOMPI_APP_ID,
+    apiSecret: process.env.WOMPI_API_SECRET,
+    grantType: process.env.WOMPI_GRANT_TYPE,
+    audience: process.env.WOMPI_AUDIENCE,
+  },
+
 };

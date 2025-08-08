@@ -6,6 +6,14 @@ export function useCart(userId) {
   const [cart, setCart] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // Si no hay userId, inicializar con carrito vacío
+  useEffect(() => {
+    if (!userId) {
+      setCart([]);
+      setLoading(false);
+    }
+  }, [userId]);
+
   async function authFetch(path, opts = {}) {
     const token = localStorage.getItem('token');
     if (!token) throw new Error('No estás autenticado');
@@ -59,7 +67,8 @@ export function useCart(userId) {
 
   // Sincroniza el estado local con la respuesta del backend
   function sync(cartDoc) {
-    setCart((cartDoc.products || []).map(p => ({
+    console.log('🔄 Sync cart data:', cartDoc);
+    const newCart = (cartDoc.products || []).map(p => ({
       product: {
         id: p.product._id,
         name: p.product.name,
@@ -68,7 +77,9 @@ export function useCart(userId) {
         description: p.product.description || ''
       },
       quantity: p.quantity
-    })));
+    }));
+    console.log('🔄 New cart state:', newCart);
+    setCart(newCart);
   }
 
   // Añadir producto al carrito
@@ -77,7 +88,9 @@ export function useCart(userId) {
       method: 'POST',
       body: JSON.stringify({ productId, quantity })
     });
-    sync(json.cart);
+    // El backend puede devolver { cart } o directamente el carrito
+    const cartData = json.cart || json;
+    sync(cartData);
   }
 
   // Actualizar cantidad
@@ -86,7 +99,8 @@ export function useCart(userId) {
       method: 'PUT',
       body: JSON.stringify({ itemId: productId, type: 'product', quantity })
     });
-    sync(json.cart);
+    const cartData = json.cart || json;
+    sync(cartData);
   }
 
   // Eliminar un producto
@@ -95,7 +109,8 @@ export function useCart(userId) {
       method: 'DELETE',
       body: JSON.stringify({ itemId: productId, type: 'product' })
     });
-    sync(json.cart);
+    const cartData = json.cart || json;
+    sync(cartData);
   }
 
   // Vaciar el carrito

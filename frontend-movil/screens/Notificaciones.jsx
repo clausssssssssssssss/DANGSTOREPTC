@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
-import { useNavigation, NavigationProp } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 
 const ordenes = [
 	{ nombre: 'Julieta', cantidad: 1, alerta: 'red' },
@@ -13,13 +13,13 @@ const ordenes = [
 ];
 
 const Notificaciones = () => {
-	const navigation = useNavigation<NavigationProp<any>>();
+    const navigation = useNavigation();
 
 	return (
 		<View style={styles.bg}>
 			{/* Header */}
 			<View style={styles.header}>
-				<TouchableOpacity onPress={() => navigation.navigate('Menu')}>
+                <TouchableOpacity onPress={() => navigation.goBack()}>
 					<Text style={styles.backBtn}>{'<'}</Text>
 				</TouchableOpacity>
 				<Text style={styles.headerTitle}>Ordenes cotizadas</Text>

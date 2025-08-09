@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { View } from 'react-native';
+import 'react-native-gesture-handler';
+import 'react-native-reanimated';
 import SplashScreen from './components/SplashScreen';
 import AppNavigator from './navigation/AppNavigator'; // Cambiado de './src/navigation/AppNavigator'
-import 'react-native-gesture-handler';
 import { enableScreens } from 'react-native-screens';
 enableScreens();
 

@@ -109,4 +109,4 @@ const styles = StyleSheet.create({
 	},
 });
 
-export default Notificaciones;
+export default Notificaciones;	

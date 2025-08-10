@@ -11,7 +11,6 @@ import {
   Dimensions,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import './AuthApp.css';
 
 const { width, height } = Dimensions.get('window');
 

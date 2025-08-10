@@ -10,7 +10,7 @@ import {
 
 const { width, height } = Dimensions.get('window');
 
-const Ventas = ({ navigation }) => {
+const Inventario = ({ navigation }) => {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
@@ -20,15 +20,15 @@ const Ventas = ({ navigation }) => {
         >
           <Text style={styles.backButtonText}>←</Text>
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Ventas</Text>
+        <Text style={styles.headerTitle}>Inventario</Text>
         <View style={styles.placeholder} />
       </View>
 
       <View style={styles.content}>
         <View style={styles.iconContainer}>
-          <Text style={styles.icon}>💰</Text>
+          <Text style={styles.icon}>📊</Text>
         </View>
-        <Text style={styles.title}>Ventas</Text>
+        <Text style={styles.title}>Inventario</Text>
         <Text style={styles.subtitle}>Pantalla en desarrollo</Text>
         <Text style={styles.description}>
           Esta funcionalidad estará disponible próximamente
@@ -111,4 +111,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Ventas;
+export default Inventario;  

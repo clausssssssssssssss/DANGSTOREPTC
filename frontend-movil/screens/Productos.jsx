@@ -10,25 +10,25 @@ import {
 
 const { width, height } = Dimensions.get('window');
 
-const Notificaciones = ({ navigation }) => {
+const Productos = ({ navigation }) => {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity 
+      <TouchableOpacity 
           onPress={() => navigation.goBack()}
           style={styles.backButton}
         >
           <Text style={styles.backButtonText}>←</Text>
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Notificaciones</Text>
+        <Text style={styles.headerTitle}>Productos</Text>
         <View style={styles.placeholder} />
       </View>
 
       <View style={styles.content}>
         <View style={styles.iconContainer}>
-          <Text style={styles.icon}>🔔</Text>
+          <Text style={styles.icon}>📦</Text>
         </View>
-        <Text style={styles.title}>Notificaciones</Text>
+        <Text style={styles.title}>Productos</Text>
         <Text style={styles.subtitle}>Pantalla en desarrollo</Text>
         <Text style={styles.description}>
           Esta funcionalidad estará disponible próximamente
@@ -111,4 +111,6 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Notificaciones;
+export default Productos;
+
+

@@ -5,7 +5,7 @@ const OrdersSection = () => {
   const token = localStorage.getItem('token');
 
   useEffect(() => {
-    fetch('/api/cart/orders', {  // Corrige la URL si es diferente
+    fetch('/api/profile/orders', {  // Corrige la URL si es diferente
       headers: { Authorization: `Bearer ${token}` }
     })
       .then(res => res.json())

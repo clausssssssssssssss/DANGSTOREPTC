@@ -1,5 +1,7 @@
 import Cart from '../models/Cart.js';
 import Order from '../models/Order.js';
+import Customer from "../models/Customers.js";
+
 
 
 // Añadir producto o ítem personalizado al carrito del usuario
@@ -150,35 +152,78 @@ export const removeCartItem = async (req, res) => {
   }
 };
 
- //---------------Crear Orden---------------------//
-
- 
- export const createOrder = async (req, res) => {
-  const { items, total, wompiOrderID, wompiStatus } = req.body;
+//---------------Crear Orden---------------------//
+export const createOrder = async (req, res) => {
+  console.log("🛒 ============= INICIO createOrder =============");
+  console.log("📅 Timestamp:", new Date().toISOString());
+  console.log("📦 Body recibido:", req.body);
+  console.log("👤 User recibido:", req.user);
+  console.log("🔍 req.user.id:", req.user?.id);
+  console.log("🔍 req.user._id:", req.user?._id);
+  
   try {
+    // Usar consistencia con otras funciones (req.user.id)
+    const userId = req.user.id;
+    
+    if (!req.user || !userId) {
+      console.error("❌ Usuario no autenticado");
+      return res.status(401).json({ 
+        success: false, 
+        message: "Usuario no autenticado" 
+      });
+    }
+
+    console.log("✅ Usuario autenticado con ID:", userId);
+
+    const { items, total, wompiOrderID, wompiStatus } = req.body;
+
+    // Validaciones
+    if (!items || !Array.isArray(items) || items.length === 0) {
+      console.error("❌ Items inválidos:", items);
+      return res.status(400).json({ 
+        success: false, 
+        message: "Items inválidos" 
+      });
+    }
+
+    console.log("✅ Items válidos, cantidad:", items.length);
+
+    // Crear la orden usando req.user.id (consistente con otras funciones)
     const order = new Order({
-      user: req.user.id,
+      user: userId, // usar req.user.id como en otras funciones
       items,
       total,
       status: wompiStatus === "COMPLETED" ? "COMPLETED" : "PENDING",
       wompi: { orderID: wompiOrderID, captureStatus: wompiStatus }
     });
 
-    await order.save();
+    console.log("🏗️ Orden creada, intentando guardar...");
+    const savedOrder = await order.save();
+    console.log("🎉 ¡ORDEN GUARDADA! ID:", savedOrder._id);
 
-    // Vaciar carrito si el pago fue exitoso
+    // Actualizar cliente
+    await Customer.findByIdAndUpdate(userId, { $push: { orders: savedOrder._id } });
+
+    // Limpiar carrito
     if (wompiStatus === "COMPLETED") {
       await Cart.findOneAndUpdate(
-        { user: req.user.id },
+        { user: userId },
         { $set: { products: [], customizedProducts: [] } }
       );
     }
 
-    // Enviar la orden creada
-    return res.status(201).json(order);
-  } catch (err) {
-    console.error("CreateOrder error:", err);
-    return res.status(400).json({ message: "No se pudo crear la orden" });
+    return res.status(201).json({
+      success: true,
+      message: "Orden creada exitosamente",
+      order: savedOrder
+    });
+  } catch (error) {
+    console.error("💥 ERROR EN createOrder:", error);
+    return res.status(500).json({ 
+      success: false,
+      message: "Error al crear orden",
+      error: error.message 
+    });
   }
 };
 
@@ -186,11 +231,15 @@ export const removeCartItem = async (req, res) => {
 
 export const getOrders = async (req, res) => {
   try {
-    const orders = await Order.find({ user: req.user.id })
+    // Usar consistencia en el ID del usuario
+    const userId = req.user.id || req.user._id;
+    
+    const orders = await Order.find({ user: userId })
       .sort({ createdAt: -1 })
       .populate("items.product", "name price");
     return res.status(200).json(orders);
   } catch (err) {
+    console.error("❌ Error obteniendo órdenes:", err);
     return res.status(500).json({ message: "Error al obtener órdenes" });
   }
 };

@@ -108,8 +108,10 @@ const profileController = {
   getOrders: async (req, res) => {
     try {
 // Después
-const orders = await Order.find({ user: req.user._id }).sort({ createdAt: -1 })
-        .sort({ createdAt: -1 });
+const orders = await Order.find({ user: req.user._id })
+  .populate('items.product', 'name price')
+  .sort({ createdAt: -1 });
+
       res.json(orders);
     } catch (err) {
       console.error("getOrders error:", err);

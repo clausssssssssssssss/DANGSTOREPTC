@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth.jsx';
 import { useCart } from '../context/CartContext.jsx';
 import { useToast } from '../hooks/useToast.js';
+import usePaymentFakeForm from '../components/payment/hook/usePaymentFakeForm.jsx';
 import ToastContainer from '../components/ui/ToastContainer.jsx';
 import { ShoppingBag, Trash2, Plus, Minus, ArrowLeft, CreditCard, Check } from 'lucide-react';
 import '../components/styles/CarritoDeCompras.css';
@@ -12,6 +13,9 @@ const CarritoDeCompras = () => {
   const userId = user?.id;
   const { cart, clearCart, updateQuantity, removeFromCart } = useCart(userId);
   const { toasts, showSuccess, showError, showWarning, removeToast } = useToast();
+  
+  // ✅ USAR EL HOOK DE PAGO
+  const { handleFakePayment } = usePaymentFakeForm();
 
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -20,20 +24,47 @@ const CarritoDeCompras = () => {
   const total = cart.reduce((acc, item) => acc + (item.product?.price || 0) * (item.quantity || 0), 0);
   const itemCount = cart.reduce((acc, item) => acc + (item.quantity || 0), 0);
   
-  const handleFakePayment = async () => {
+  // Función mejorada para procesar el pago
+  const handlePayment = async () => {
     setLoading(true);
     setError('');
     setSuccess(false);
     
     try {
-      await new Promise(resolve => setTimeout(resolve, 2000)); // Simular procesamiento
-      setSuccess(true);
-      await clearCart();
-      showSuccess('¡Pago procesado exitosamente!');
+      // Verificar que hay items en el carrito
+      if (!cart || cart.length === 0) {
+        throw new Error('El carrito está vacío');
+      }
+
+      // Verificar que todos los items tienen los datos necesarios
+      const validItems = cart.filter(item => 
+        item.product && 
+        (item.product._id || item.product.id) && 
+        item.product.price && 
+        item.quantity
+      );
+
+      if (validItems.length !== cart.length) {
+        throw new Error('Algunos productos no tienen información completa');
+      }
+
+      // Procesar pago y guardar orden
+      const result = await handleFakePayment({
+        items: cart,
+        total: total
+      });
+
+      if (result) {
+        setSuccess(true);
+        await clearCart();
+        showSuccess('¡Pago procesado exitosamente y orden guardada!');
+      } else {
+        throw new Error('Error al procesar el pago');
+      }
+
     } catch (err) {
-      console.error('Error en pago:', err);
-      setError('Error al procesar el pago. Intenta de nuevo.');
-      showError('Error al procesar el pago');
+      setError(err.message || 'Error al procesar el pago. Intenta de nuevo.');
+      showError(err.message || 'Error al procesar el pago');
     } finally {
       setLoading(false);
     }
@@ -74,7 +105,7 @@ const CarritoDeCompras = () => {
             </div>
             <h2 className="success-title">¡Pago Exitoso!</h2>
             <p className="success-message">
-              Tu pedido ha sido procesado correctamente. Recibirás un correo de confirmación pronto.
+              Tu pedido ha sido procesado correctamente y guardado en la base de datos. Recibirás un correo de confirmación pronto.
             </p>
             <div className="success-actions">
               <Link to="/catalogo" className="btn btn-primary">
@@ -150,7 +181,7 @@ const CarritoDeCompras = () => {
                     </div>
                     
                     <div className="item-controls">
-                                             <div className="quantity-controls">
+                      <div className="quantity-controls">
                          <button 
                            onClick={async () => await handleQuantityUpdate(item.product?.id, item.quantity - 1)}
                            disabled={item.quantity <= 1}
@@ -171,7 +202,7 @@ const CarritoDeCompras = () => {
                         ${((item.product?.price || 0) * item.quantity).toFixed(2)}
                       </div>
                       
-                                             <button 
+                      <button 
                          onClick={async () => {
                            try {
                              await removeFromCart(item.product?.id);
@@ -210,8 +241,9 @@ const CarritoDeCompras = () => {
                 </div>
               </div>
 
+              {/* ✅ BOTÓN CORREGIDO QUE USA LA FUNCIÓN CORRECTA */}
               <button 
-                onClick={handleFakePayment} 
+                onClick={handlePayment} 
                 disabled={loading || cart.length === 0}
                 className="checkout-btn"
               >
@@ -237,7 +269,7 @@ const CarritoDeCompras = () => {
               </div>
             </div>
           </div>
-                 )}
+        )}
        </div>
      </div>
      
@@ -246,4 +278,4 @@ const CarritoDeCompras = () => {
  );
  };
 
-export default CarritoDeCompras;  
+export default CarritoDeCompras;

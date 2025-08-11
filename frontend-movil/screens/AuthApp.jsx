@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, TextInput, Alert, ActivityIndicator, SafeAreaView, Dimensions, Image } from 'react-native';
+import { View, Text, TouchableOpacity, TextInput, Alert, ActivityIndicator, SafeAreaView, Dimensions, Image, Platform } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { api } from '../src/api/constans';
 
@@ -64,11 +64,10 @@ const AuthApp = ({ navigation }) => {
         <Image source={require('../assets/image-removebg-preview (1).png')} style={styles.cornerTopLeft} resizeMode="contain" />
         <Image source={require('../assets/image-removebg-preview (1).png')} style={styles.cornerBottomRight} resizeMode="contain" />
 
-        {/* Título */}
-        <Text style={styles.pageTitle}>¡Bienvenido!</Text>
-
-        {/* Tarjeta de login */}
+        {/* Contenido */}
         <View style={styles.content}>
+          {/* Título sobre la tarjeta */}
+          <Text style={styles.pageTitle}>¡Bienvenido!</Text>
           <View style={styles.card}>
             <Image source={require('../assets/DANGSTORELOGOPRUEBA__1.png')} style={styles.logo} resizeMode="contain" />
 
@@ -112,6 +111,12 @@ const AuthApp = ({ navigation }) => {
             </TouchableOpacity>
           </View>
         </View>
+        {/* Imagen decorativa arriba-derecha */}
+        <Image
+          source={require('../assets/image-removebg-preview.png')}
+          style={styles.cornerTopRight}
+          resizeMode="contain"
+        />
       </LinearGradient>
     </SafeAreaView>
   );
@@ -121,7 +126,18 @@ const styles = {
   safeArea: { flex: 1 },
   container: { flex: 1, position: 'relative' },
   content: { flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: Math.max(16, width * 0.05) },
-  pageTitle: { marginTop: Math.max(24, height * 0.03), color: '#FFFFFF', fontSize: Math.max(26, width * 0.065), fontWeight: '800', textAlign: 'center', textShadowColor: 'rgba(0,0,0,0.45)', textShadowOffset: { width: 0, height: 2 }, textShadowRadius: 4 },
+  pageTitle: { 
+    marginTop: 2,
+    marginBottom: 25,
+    color: '#FFFFFF', 
+    fontSize: Math.max(26, width * 0.065), 
+    fontWeight: '800', 
+    textAlign: 'center', 
+    textShadowColor: 'rgba(0,0,0,0.45)', 
+    textShadowOffset: { width: 0, height: 2 }, 
+    textShadowRadius: 4,
+    fontFamily: Platform.select({ ios: 'HelveticaNeue', android: 'sans-serif-medium' })
+  },
   cornerTopLeft: {
     position: 'absolute',
     top: -height * 0.01,
@@ -148,10 +164,10 @@ const styles = {
     opacity: 0.95,
     transform: [{ scaleX: -1 }, { rotate: '-8deg' }],
   },
-  card: { width: '90%', backgroundColor: '#FFFFFF', borderRadius: 18, paddingVertical: Math.max(58, height * 0.038), paddingHorizontal: Math.max(24, width * 0.04), shadowColor: '#000', shadowOffset: { width: 0, height: 10 }, shadowOpacity: 0.22, shadowRadius: 34, elevation: 12 },
-  logo: { alignSelf: 'center', width: 85, height: 85, marginBottom: 8 },
+  card: { width: '90%', backgroundColor: '#FFFFFF', borderRadius: 16, paddingVertical: Math.max(35, height * 0.040), paddingHorizontal: Math.max(22, width * 0.06), shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.22, shadowRadius: 34, elevation: 12 },
+  logo: { alignSelf: 'center', width: 75, height: 85, marginBottom: -2 },
   label: { color: '#5A48D8', fontSize: 12, fontWeight: '600', marginBottom: 6 },
-  field: { width: '100%', height: 40, backgroundColor: '#ECEAF5', borderRadius: 10, paddingHorizontal: 16, fontSize: 14, color: '#1F2937', borderWidth: 1, borderColor: 'transparent' },
+  field: { width: '100%', height: 50, backgroundColor: '#ECEAF5', borderRadius: 10, paddingHorizontal: 16, fontSize: 14, color: '#1F2937', borderWidth: 1, borderColor: 'transparent' },
   inputError: { borderColor: '#EF4444' },
   passwordRow: { position: 'relative' },
   passwordField: { paddingRight: 38 },

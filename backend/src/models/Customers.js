@@ -43,6 +43,15 @@ const customerSchema = new Schema({
     default: false,
   },
 
+  loginAttempts:{
+    type:Number,
+    default: 0
+  },
+  locktime:{
+    type:Date,
+    default: null
+  },
+
 
   /** Lista de productos favoritos */
   favorites: [

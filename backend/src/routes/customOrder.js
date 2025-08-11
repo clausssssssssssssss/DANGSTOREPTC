@@ -4,6 +4,7 @@ import authMiddleware from '../middleware/authMiddleware.js';
 import {
   createCustomOrder,
   getMyCustomOrders,
+  getAllPendingOrders,
   quoteCustomOrder,
   respondCustomOrder
 } from '../controllers/customizedOrdersController.js';
@@ -24,6 +25,13 @@ router.get(
   '/me',
   authMiddleware(),
   getMyCustomOrders
+);
+
+// Ver todas las órdenes pendientes (admin)
+router.get(
+  '/pending',
+  authMiddleware(['admin']),
+  getAllPendingOrders
 );
 
 // Cotizar (admin)

@@ -581,6 +581,17 @@
   color: white;
 }
 
+.history-scroll-container {
+  max-height: 409px;   /* o la altura que prefieras */
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-right: 8px; /* opcional para espacio con el scrollbar */
+}
+
+
+
 /* FAVORITES RESPONSIVE */
 .favorites-grid {
   display: grid;

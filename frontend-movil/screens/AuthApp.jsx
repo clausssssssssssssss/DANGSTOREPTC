@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, TextInput, Alert, ActivityIndicator, SafeAreaView, Dimensions, Image } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useAuth } from '../src/hooks/useAuth';
+import { api } from '../src/api/constans';
 
 const { width, height } = Dimensions.get('window');
 
 const AuthApp = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const { login, token, loading: authLoading } = useAuth();
+  const [token, setToken] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
@@ -28,13 +28,22 @@ const AuthApp = ({ navigation }) => {
     if (!validateLoginForm()) return;
     setLoading(true);
     try {
-      const ok = await login(email.trim(), password);
-      if (ok) {
+      const res = await fetch(`${api}admins/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email.trim(), password }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok) {
+        if (data?.token) {
+          // Guardar token en memoria local simple
+          setToken(data.token);
+        }
         Alert.alert('¡Bienvenido!', 'Inicio de sesión exitoso', [
           { text: 'OK', onPress: () => navigation.replace('MainApp') },
         ]);
       } else {
-        throw new Error('Credenciales incorrectas');
+        throw new Error(data?.message || 'Credenciales incorrectas');
       }
     } catch (error) {
       Alert.alert('Error', error?.message || 'Credenciales incorrectas');
@@ -45,9 +54,7 @@ const AuthApp = ({ navigation }) => {
 
   // Si ya existe un token (sesión previa), entrar directo
   useEffect(() => {
-    if (token) {
-      navigation.replace('MainApp');
-    }
+    if (token) navigation.replace('MainApp');
   }, [token]);
 
   return (

@@ -1,6 +1,7 @@
 import Cart from '../models/Cart.js';
 import Order from '../models/Order.js';
 import Customer from "../models/Customers.js";
+import SalesModel from "../models/Sale.js";
 
 
 
@@ -155,56 +156,42 @@ export const removeCartItem = async (req, res) => {
 //---------------Crear Orden---------------------//
 export const createOrder = async (req, res) => {
   console.log("🛒 ============= INICIO createOrder =============");
-  console.log("📅 Timestamp:", new Date().toISOString());
-  console.log("📦 Body recibido:", req.body);
-  console.log("👤 User recibido:", req.user);
-  console.log("🔍 req.user.id:", req.user?.id);
-  console.log("🔍 req.user._id:", req.user?._id);
-  
   try {
-    // Usar consistencia con otras funciones (req.user.id)
-    const userId = req.user.id;
-    
+    const userId = req.user?.id;
     if (!req.user || !userId) {
-      console.error("❌ Usuario no autenticado");
-      return res.status(401).json({ 
-        success: false, 
-        message: "Usuario no autenticado" 
+      return res.status(401).json({
+        success: false,
+        message: "Usuario no autenticado",
       });
     }
-
-    console.log("✅ Usuario autenticado con ID:", userId);
 
     const { items, total, wompiOrderID, wompiStatus } = req.body;
 
-    // Validaciones
     if (!items || !Array.isArray(items) || items.length === 0) {
-      console.error("❌ Items inválidos:", items);
-      return res.status(400).json({ 
-        success: false, 
-        message: "Items inválidos" 
+      return res.status(400).json({
+        success: false,
+        message: "Items inválidos",
       });
     }
 
-    console.log("✅ Items válidos, cantidad:", items.length);
-
-    // Crear la orden usando req.user.id (consistente con otras funciones)
+    // ✅ 1. Crear orden y guardarla
     const order = new Order({
-      user: userId, // usar req.user.id como en otras funciones
+      user: userId,
       items,
       total,
       status: wompiStatus === "COMPLETED" ? "COMPLETED" : "PENDING",
-      wompi: { orderID: wompiOrderID, captureStatus: wompiStatus }
+      wompi: { orderID: wompiOrderID, captureStatus: wompiStatus },
     });
 
-    console.log("🏗️ Orden creada, intentando guardar...");
     const savedOrder = await order.save();
-    console.log("🎉 ¡ORDEN GUARDADA! ID:", savedOrder._id);
+    console.log("🎉 Orden guardada. ID:", savedOrder._id);
 
-    // Actualizar cliente
-    await Customer.findByIdAndUpdate(userId, { $push: { orders: savedOrder._id } });
+    // ✅ 2. Asociar orden al cliente
+    await Customer.findByIdAndUpdate(userId, {
+      $push: { orders: savedOrder._id },
+    });
 
-    // Limpiar carrito
+    // ✅ 3. Limpiar el carrito si el pago fue exitoso
     if (wompiStatus === "COMPLETED") {
       await Cart.findOneAndUpdate(
         { user: userId },
@@ -212,21 +199,43 @@ export const createOrder = async (req, res) => {
       );
     }
 
+    // ✅ 4. Registrar la venta en SalesModel
+    try {
+      const productIds = items.map((item) => item.product).filter(Boolean); // solo productos válidos
+      const totalAmount = items.reduce(
+        (sum, item) => sum + item.price * item.quantity,
+        0
+      );
+
+      const newSale = new SalesModel({
+        products: productIds,
+        customer: userId,
+        total: totalAmount,
+        date: new Date(),
+      });
+
+      await newSale.save();
+      console.log("📝 Venta registrada en SalesModel");
+    } catch (salesError) {
+      console.warn("⚠️ Error al guardar venta:", salesError.message);
+    }
+
+    // ✅ 5. Respuesta exitosa
     return res.status(201).json({
       success: true,
-      message: "Orden creada exitosamente",
-      order: savedOrder
+      message: "Orden y venta registradas con éxito",
+      order: savedOrder,
     });
+
   } catch (error) {
     console.error("💥 ERROR EN createOrder:", error);
-    return res.status(500).json({ 
+    return res.status(500).json({
       success: false,
-      message: "Error al crear orden",
-      error: error.message 
+      message: "Error al crear la orden",
+      error: error.message,
     });
   }
 };
-
 // --------------------- OBTENER HISTORIAL DE ÓRDENES ---------------------
 
 export const getOrders = async (req, res) => {

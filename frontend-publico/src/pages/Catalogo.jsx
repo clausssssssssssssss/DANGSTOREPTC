@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Search, Filter, RefreshCw, Heart, ShoppingCart, X, Star, TrendingUp, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Search, Filter, RefreshCw, Heart, ShoppingCart, X, Star, TrendingUp } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth.jsx';
 import { useProducts } from '../components/catalog/hook/useProducts.jsx';
 import { useCart } from '../context/CartContext.jsx';
@@ -21,7 +21,7 @@ export default function Catalogo() {
   const [priceRange, setPriceRange] = useState([0, 20]);
   const [selectedCategory, setSelectedCategory] = useState('');
   const [selectedProduct, setSelectedProduct] = useState(null);
-  const [currentSlide, setCurrentSlide] = useState(0);
+  const [showFavoriteMessage, setShowFavoriteMessage] = useState(false);
 
   // Categorías disponibles
   const categories = [
@@ -41,27 +41,13 @@ export default function Catalogo() {
     });
   }, [products, searchTerm, priceRange, selectedCategory]);
 
-  // Productos populares (simulados - en producción vendrían del backend)
+  // Productos populares
   const popularProducts = useMemo(() => {
     if (!products || products.length === 0) return [];
-    // Simular productos populares basados en precio y disponibilidad
     return products
-      .filter(product => product.price > 5 && product.price < 15) // Productos en rango medio
-      .slice(0, 7); // 7 productos populares para el carrusel
+      .filter(product => product.price > 5 && product.price < 15)
+      .slice(0, 7);
   }, [products]);
-
-  // Navegación del carrusel
-  const nextSlide = () => {
-    setCurrentSlide((prev) => 
-      prev === Math.ceil(popularProducts.length / 2) - 1 ? 0 : prev + 1
-    );
-  };
-
-  const prevSlide = () => {
-    setCurrentSlide((prev) => 
-      prev === 0 ? Math.ceil(popularProducts.length / 2) - 1 : prev - 1
-    );
-  };
 
   const openDetail = (product) => {
     setSelectedProduct(product);
@@ -73,10 +59,9 @@ export default function Catalogo() {
     document.body.style.overflow = 'auto';
   };
 
-  // Handler seguro para añadir al carrito
   const handleAddToCart = async (productId) => {
     if (!user) {
-      showWarning("debes de iniciar sesion para agregar tus productos al carrito");
+      showWarning("Debes iniciar sesión para agregar productos al carrito");
       return;
     }
     try {
@@ -85,6 +70,26 @@ export default function Catalogo() {
     } catch (err) {
       console.error('Error adding to cart:', err);
       showError(err.message || 'Error al añadir producto');
+    }
+  };
+
+  const handleFavoriteClick = async (e, productId) => {
+    e.stopPropagation();
+    
+    if (!user) {
+      setShowFavoriteMessage(true);
+      return;
+    }
+
+    const result = await toggleFavorite(productId);
+    if (result.success) {
+      if (result.wasFavorite) {
+        showSuccess('💔 Producto eliminado de favoritos');
+      } else {
+        showSuccess('❤️ Producto agregado a favoritos');
+      }
+    } else {
+      showError('Error al actualizar favoritos');
     }
   };
 
@@ -118,108 +123,61 @@ export default function Catalogo() {
         {/* Banner Principal */}
         <div className="popular-banner">
           <h1 className="popular-title">Catálogo de Productos</h1>
-          <p className="popular-subtitle">Descubre nuestra increíble selección</p>
+          <p className="popular-subtitle">Descubre nuestra increíble selección de los mejores productos para ti</p>
         </div>
 
-        {/* Sección de Productos Populares - Carrusel */}
+        {/* Sección de Productos Populares - Carrusel sin flechas */}
         {popularProducts.length > 0 && (
           <div className="popular-products-section">
             <div className="popular-section-header">
               <TrendingUp className="trending-icon" size={24} />
               <h2 className="popular-section-title">Productos Populares</h2>
-              <div className="popular-badge">🔥 Más Vendidos</div>
             </div>
             
             <div className="carousel-container">
-              <button 
-                className="carousel-btn carousel-btn-prev"
-                onClick={prevSlide}
-                aria-label="Anterior"
-              >
-                <ChevronLeft size={24} />
-              </button>
-              
               <div className="carousel-track">
-                <div 
-                  className="carousel-slide"
-                  style={{
-                    transform: `translateX(-${currentSlide * 100}%)`
-                  }}
-                >
-                  {popularProducts.map(product => (
-                    <div key={product._id} className="popular-product-card" onClick={() => openDetail(product)}>
-                      <div className="popular-product-image">
-                        <img 
-                          src={product.images?.[0] || 'https://via.placeholder.com/300x300/4DD0E1/ffffff?text=Sin+Imagen'} 
-                          alt={product.name}
-                          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                {popularProducts.map(product => (
+                  <div key={product._id} className="popular-product-card" onClick={() => openDetail(product)}>
+                    <div className="popular-product-image">
+                      <img 
+                        src={product.images?.[0] || 'https://via.placeholder.com/300x300/4DD0E1/ffffff?text=Sin+Imagen'} 
+                        alt={product.name}
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      />
+                      <div className="popular-badge-overlay">
+                        <Star size={16} fill="gold" />
+                        <span>Popular</span>
+                      </div>
+                      <button
+                        className={`favorite-btn ${favorites.includes(product._id) ? 'active' : ''}`}
+                        onClick={(e) => handleFavoriteClick(e, product._id)}
+                      >
+                        <Heart 
+                          size={20} 
+                          fill={favorites.includes(product._id) ? 'currentColor' : 'none'} 
                         />
-                        <div className="popular-badge-overlay">
-                          <Star size={16} fill="gold" />
-                          <span>Popular</span>
-                        </div>
+                      </button>
+                    </div>
+                    <div className="popular-product-info">
+                      <h3 className="popular-product-title">{product.name}</h3>
+                      <p className="popular-product-subtitle">{product.category}</p>
+                      <div className="popular-product-footer">
+                        <p className="popular-product-price">${product.price.toFixed(2)}</p>
                         <button
-                          className={`favorite-btn ${favorites.includes(product._id) ? 'active' : ''}`}
-                          onClick={async (e) => {
+                          className="add-to-cart-btn"
+                          onClick={(e) => {
                             e.stopPropagation();
-                            const result = await toggleFavorite(product._id);
-                            if (result.success) {
-                              if (result.wasFavorite) {
-                                showSuccess('💔 Producto eliminado de favoritos');
-                              } else {
-                                showSuccess('❤️ Producto agregado a favoritos');
-                              }
-                            } else {
-                              showWarning('Debe de iniciar sesion para agregar productos a favoritos');
-                            }
+                            handleAddToCart(product._id);
                           }}
+                          aria-label="Añadir al carrito"
                         >
-                          <Heart 
-                            size={20} 
-                            fill={favorites.includes(product._id) ? 'currentColor' : 'none'} 
-                          />
+                          🛒
                         </button>
                       </div>
-                      <div className="popular-product-info">
-                        <h3 className="popular-product-title">{product.name}</h3>
-                        <p className="popular-product-subtitle">{product.category}</p>
-                        <div className="popular-product-footer">
-                          <p className="popular-product-price">${product.price.toFixed(2)}</p>
-                          <button
-                            className="add-to-cart-btn"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleAddToCart(product._id);
-                            }}
-                          >
-                            <ShoppingCart size={18} />
-                          </button>
-                        </div>
-                      </div>
                     </div>
-                  ))}
-                </div>
+                  </div>
+                ))}
               </div>
-              
-              <button 
-                className="carousel-btn carousel-btn-next"
-                onClick={nextSlide}
-                aria-label="Siguiente"
-              >
-                <ChevronRight size={24} />
-              </button>
-            </div>
-            
-            {/* Indicadores del carrusel */}
-            <div className="carousel-indicators">
-              {Array.from({ length: Math.ceil(popularProducts.length / 2) }).map((_, index) => (
-                <button
-                  key={index}
-                  className={`carousel-indicator ${index === currentSlide ? 'active' : ''}`}
-                  onClick={() => setCurrentSlide(index)}
-                  aria-label={`Ir a slide ${index + 1}`}
-                />
-              ))}
             </div>
           </div>
         )}
@@ -324,19 +282,7 @@ export default function Catalogo() {
                 />
                 <button
                   className={`favorite-btn ${favorites.includes(product._id) ? 'active' : ''}`}
-                  onClick={async (e) => {
-                    e.stopPropagation();
-                    const result = await toggleFavorite(product._id);
-                    if (result.success) {
-                      if (result.wasFavorite) {
-                        showSuccess('💔 Producto eliminado de favoritos');
-                      } else {
-                        showSuccess('❤️ Producto agregado a favoritos');
-                      }
-                    } else {
-                      showWarning('Debe de iniciar sesion para agregar productos a favoritos');
-                    }
-                  }}
+                  onClick={(e) => handleFavoriteClick(e, product._id)}
                 >
                   <Heart 
                     size={20} 
@@ -355,8 +301,9 @@ export default function Catalogo() {
                       e.stopPropagation();
                       handleAddToCart(product._id);
                     }}
+                    aria-label="Añadir al carrito"
                   >
-                    <ShoppingCart size={18} />
+                    🛒
                   </button>
                 </div>
               </div>
@@ -403,23 +350,24 @@ export default function Catalogo() {
                 </button>
                 <button 
                   className="btn btn-secondary"
-                  onClick={async () => {
-                    const result = await toggleFavorite(selectedProduct._id);
-                    if (result.success) {
-                      if (result.wasFavorite) {
-                        showSuccess('💔 Producto eliminado de favoritos');
-                      } else {
-                        showSuccess('❤️ Producto agregado a favoritos');
-                      }
-                    } else {
-                      showWarning('Error al actualizar favoritos');
-                    }
-                    
+                  onClick={async (e) => {
+                    e.stopPropagation();
+                    handleFavoriteClick(e, selectedProduct._id);
                   }}
                 >
                   ❤️ Favoritos
                 </button>
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* Mensaje de favoritos */}
+        {showFavoriteMessage && (
+          <div className="favorite-message" onClick={() => setShowFavoriteMessage(false)}>
+            <div onClick={(e) => e.stopPropagation()}>
+              <p>Debes iniciar sesión para marcar productos como favoritos</p>
+              <button onClick={() => setShowFavoriteMessage(false)}>Entendido</button>
             </div>
           </div>
         )}

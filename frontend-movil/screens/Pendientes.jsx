@@ -14,7 +14,7 @@ import {
   RefreshControl,
   Dimensions,
 } from 'react-native';
-import { customOrdersAPI, getImageUrl } from '../services/api';
+import { API_ORIGIN } from '../src/hooks/useAuth';
 
 const { width, height } = Dimensions.get('window');
 
@@ -35,7 +35,9 @@ const Pendientes = ({ navigation }) => {
 
   const fetchPendingOrders = async () => {
     try {
-      const data = await customOrdersAPI.getPendingOrders();
+      const response = await fetch(`${API_ORIGIN}/api/custom-orders/pending`);
+      if (!response.ok) throw new Error('HTTP ' + response.status);
+      const data = await response.json();
       setOrders(data);
     } catch (error) {
       console.error('Error fetching pending orders:', error);
@@ -84,7 +86,12 @@ const Pendientes = ({ navigation }) => {
 
     setSubmitting(true);
     try {
-      await customOrdersAPI.quoteOrder(selectedOrder._id, price, comment);
+      const response = await fetch(`${API_ORIGIN}/api/custom-orders/${selectedOrder._id}/quote`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ price: parseFloat(price), comment: comment?.trim() || '' })
+      });
+      if (!response.ok) throw new Error('HTTP ' + response.status);
       Alert.alert('Éxito', 'Cotización enviada correctamente');
       closeModal();
       fetchPendingOrders(); // Refrescar la lista
@@ -108,7 +115,12 @@ const Pendientes = ({ navigation }) => {
           onPress: async () => {
             setSubmitting(true);
             try {
-              await customOrdersAPI.rejectOrder(selectedOrder._id, comment);
+              const response = await fetch(`${API_ORIGIN}/api/custom-orders/${selectedOrder._id}/quote`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ price: 0, comment: comment?.trim() || 'Orden rechazada', status: 'rejected' })
+              });
+              if (!response.ok) throw new Error('HTTP ' + response.status);
               Alert.alert('Orden rechazada', 'La orden ha sido rechazada');
               closeModal();
               fetchPendingOrders();
@@ -162,7 +174,7 @@ const Pendientes = ({ navigation }) => {
 
       {item.imageUrl && (
         <Image 
-          source={{ uri: getImageUrl(item.imageUrl) }}
+          source={{ uri: item.imageUrl?.startsWith('http') ? item.imageUrl : `${API_ORIGIN}${item.imageUrl.startsWith('/') ? '' : '/'}${item.imageUrl}` }}
           style={styles.orderImage}
           resizeMode="cover"
         />
@@ -257,7 +269,7 @@ const Pendientes = ({ navigation }) => {
             <View style={styles.modalHeader}>
               {selectedOrder?.imageUrl && (
                 <Image 
-                  source={{ uri: getImageUrl(selectedOrder.imageUrl) }}
+                  source={{ uri: selectedOrder.imageUrl?.startsWith('http') ? selectedOrder.imageUrl : `${API_ORIGIN}${selectedOrder.imageUrl.startsWith('/') ? '' : '/'}${selectedOrder.imageUrl}` }}
                   style={styles.modalImage}
                   resizeMode="cover"
                 />

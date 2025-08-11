@@ -24,6 +24,14 @@ const adminSchema = new Schema(
       type: String,
       required: true,
     },
+     loginAttempts:{
+    type:Number,
+    default: 0
+  },
+  locktime:{
+    type:Date,
+    default: null
+  },
   },
   {
     // Agrega campos createdAt y updatedAt automáticamente

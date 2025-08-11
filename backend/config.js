@@ -15,7 +15,7 @@ export const config = {
 
   // Configuración del servidor: puerto de escucha
   server: {
-    port: process.env.PORT,
+    port: process.env.PORT || 3001,
   },
 
   // Configuración de JWT: clave secreta y tiempo de expiración

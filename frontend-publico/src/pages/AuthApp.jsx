@@ -12,7 +12,7 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
 
 const AuthApp = () => {
   const navigate = useNavigate();
-  const { setUser } = useAuth();                // ← nuevo
+  const { setUser } = useAuth();                
   const { toasts, showSuccess, showError, showInfo, removeToast } = useToast();
   const [currentView, setCurrentView] = useState('login');
   

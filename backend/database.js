@@ -1,25 +1,24 @@
 import mongoose from "mongoose";
 import { config } from "./config.js";
 
-mongoose.connect(config.db.URI);
+const uri = config.db.URI;
 
-const connection = mongoose.connection;
+if (!uri) {
+  console.warn("[DB] MONGO_URI no definido. Saltando conexión a MongoDB. (El login admin funcionará igualmente)");
+} else {
+  mongoose
+    .connect(uri)
+    .then(() => console.log("DB is connected"))
+    .catch((err) => console.error("[DB] Error de conexión:", err?.message || err));
 
-mongoose.connection.on('connected', () => {
-  console.log(' Mongoose connected to MongoDB');
-});
-
-// Veo si funciona
-connection.once("open", () => {
-  console.log("DB is connected");
-});
-
-// Veo si se desconectó
-connection.on("disconnected", () => {
-  console.log("DB is disconnected");
-});
-
-// Veo si hay un error
-connection.on("error", (error) => {
-  console.log("error found" + error);
-});
+  const connection = mongoose.connection;
+  mongoose.connection.on('connected', () => {
+    console.log('Mongoose connected to MongoDB');
+  });
+  connection.on("disconnected", () => {
+    console.log("DB is disconnected");
+  });
+  connection.on("error", (error) => {
+    console.log("error found" + error);
+  });
+}

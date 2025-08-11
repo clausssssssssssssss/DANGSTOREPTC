@@ -11,6 +11,7 @@
     "test": "jest"
   },
   "dependencies": {
+    "@react-native-async-storage/async-storage": "^2.2.0",
     "@react-navigation/bottom-tabs": "^7.4.5",
     "@react-navigation/native": "^7.1.17",
     "@react-navigation/stack": "^7.4.7",
@@ -27,8 +28,10 @@
   "devDependencies": {
     "@babel/core": "^7.26.0",
     "@types/react": "~19.0.10",
+<<<<<<< HEAD
+=======
     "@types/react-native": "^0.72.8",
-    "metro-react-native-babel-preset": "^0.77.0",
+>>>>>>> 4717ec86cbac8ecdff9e0e880c5c398021d473fa
     "typescript": "~5.8.3"
   },
   "expo": {

@@ -57,7 +57,20 @@ export const getMyCustomOrders = async (req, res) => {
   }
 };
 
-/** Admin cotiza (si lo quieres luego) */
+/** Admin obtiene todas las órdenes pendientes */
+export const getAllPendingOrders = async (req, res) => {
+  try {
+    const orders = await CustomizedOrder.find({ status: 'pending' })
+      .populate('user', 'name email phone')
+      .sort({ createdAt: -1 });
+    return res.json(orders);
+  } catch (err) {
+    console.error("Error obteniendo órdenes pendientes:", err);
+    return res.status(500).json({ message: "Error obteniendo órdenes pendientes", error: err.message });
+  }
+};
+
+/** Admin cotiza */
 export const quoteCustomOrder = async (req, res) => {
   try {
     const { price, comment } = req.body;

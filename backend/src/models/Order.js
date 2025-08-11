@@ -55,7 +55,7 @@ const orderSchema = new Schema(
       /** Identificador de la orden en wompi */
       orderID: {
         type: String,
-        required: true,
+        required: false,
       },
       /** Estado de captura del pago en wompi */
       captureStatus: {

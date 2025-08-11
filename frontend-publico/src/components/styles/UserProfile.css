@@ -935,7 +935,8 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  * {
+  /* Solo elementos específicos, no todo con * */
+  .slideInUp, .fadeIn, .bounce {
     animation: none !important;
     transition: none !important;
   }
@@ -1148,3 +1149,4 @@
     font-size: 1rem;
   }
 }
+

@@ -24,17 +24,25 @@ const FormPaymentFake = () => {
   } = usePaymentFakeForm();
 
   const onPay = async () => {
-    const success = await handleFakePayment({ 
-      userId, 
-      items: cart, 
-      total, 
-      clientData: formData 
-    });
-    if (success) {
-      clearCart();
-      limpiarFormulario();
-    }
-  };
+  // Mapear cart para enviar solo lo que espera el backend
+  const itemsParaOrden = cart.map(item => ({
+    product: item.product._id,  // solo el ID del producto
+    quantity: item.quantity,
+    price: item.product.price
+  }));
+
+  const success = await handleFakePayment({ 
+    userId, 
+    items: itemsParaOrden,  // aquí cambias cart por itemsParaOrden
+    total, 
+    clientData: formData 
+  });
+
+  if (success) {
+    clearCart();
+    limpiarFormulario();
+  }
+};
 
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4">

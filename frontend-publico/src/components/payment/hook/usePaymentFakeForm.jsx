@@ -1,14 +1,22 @@
 import { useState } from "react";
 
 const usePaymentFakeForm = () => {
-  const [formData, setFormData] = useState({
-    monto: 0,
-    emailCliente: "",
-    nombreCliente: "",
-    tokenTarjeta: "null",
+  const [datosEnviados, setDatosEnviados] = useState(null);
+  const [step, setStep] = useState(1);
+  const [accessToken, setAccessToken] = useState(null);
+
+  const [formDataTarjeta, setFormDataTarjeta] = useState({
+    numeroTarjeta: "",
+    cvv: "",
+    mesVencimiento: 0,
+    anioVencimiento: 0,
   });
 
-  const [datosEnviados, setDatosEnviados] = useState(null);
+  const [formData, setFormData] = useState({
+    nombreCliente: "",
+    emailCliente: "",
+    monto: 0.01,
+  });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -22,74 +30,69 @@ const usePaymentFakeForm = () => {
     setFormData({
       nombreCliente: "",
       emailCliente: "",
-      monto: "",
+      monto: 0.01,
     });
     setDatosEnviados(null);
+    setStep(1);
+    setAccessToken(null);
+    setFormDataTarjeta({
+      numeroTarjeta: "",
+      cvv: "",
+      mesVencimiento: 0,
+      anioVencimiento: 0,
+    });
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
     setDatosEnviados(formData);
-    console.log("Datos del formulario:", formData);
   };
 
-  const handleFakePayment = async () => {
+  // Función para procesar pago simulado y guardar orden
+  const handleFakePayment = async ({ items, total }) => {
     try {
-      alert("Generando token de acceso...");
+      // Verificar token de autenticación
+      const token = localStorage.getItem("token");
+      
+      if (!token) {
+        throw new Error("No hay token de autenticación. Por favor, inicia sesión.");
+      }
 
-      // 1. Obtener token del backend
-      const tokenResponse = await fetch("http://localhost:3001/api/token", {
+      // Formatear items correctamente
+      const formattedItems = items.map(item => ({
+        product: item.product._id || item.product.id || item.product,
+        quantity: parseInt(item.quantity) || 1,
+        price: parseFloat(item.price || item.product.price || 0),
+      }));
+
+      const orderData = {
+        items: formattedItems,
+        total: parseFloat(total),
+        wompiOrderID: `FAKE_ORDER_${Date.now()}`,
+        wompiStatus: "COMPLETED",
+      };
+
+      // Enviar orden al servidor
+      const response = await fetch("http://localhost:4000/api/cart/order", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
+        body: JSON.stringify(orderData),
       });
 
-      if (!tokenResponse.ok) {
-        const errorText = await tokenResponse.text();
-        throw new Error(`Error al obtener token: ${errorText}`);
+      const responseData = await response.json();
+
+      if (!response.ok) {
+        throw new Error(responseData.message || `Error del servidor: ${response.status}`);
       }
 
-      const tokenData = await tokenResponse.json();
-      const accessToken = tokenData.access_token;
+      return responseData;
 
-      alert("Token generado. Enviando pago...", accessToken);
-
-      const formDataPayment = {
-        ...formData,
-        tokenTarjeta: "null", // Simulando que no se envía el token de tarjeta
-      };
-
-      // 2. Enviar datos de pago al backend, que se encargará de llamar a Wompi
-      const paymentResponse = await fetch(
-        "http://localhost:3001/api/testPayment",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            token: accessToken,
-            formData: formDataPayment,
-          }),
-        }
-      );
-      console.log(formData);
-
-      if (!paymentResponse.ok) {
-        const errorText = await paymentResponse.text();
-        throw new Error(`Error al procesar pago: ${errorText}`);
-      }
-
-      const paymentData = await paymentResponse.json();
-      alert("Pago simulado correctamente");
-      console.log("Respuesta del pago:", paymentData);
     } catch (error) {
-      console.error("Error en el proceso de pago:", error);
-      alert(`Error: ${error.message}`);
+      throw error;
     }
-
-    limpiarFormulario();
   };
 
   return {
@@ -98,7 +101,14 @@ const usePaymentFakeForm = () => {
     handleChange,
     handleSubmit,
     limpiarFormulario,
-    handleFakePayment,
+    handleFakePayment, // ✅ Función que SÍ guarda la orden
+    step,
+    setStep,
+    formDataTarjeta,
+    setFormDataTarjeta,
+    accessToken,
+    setAccessToken,
   };
 };
+
 export default usePaymentFakeForm;

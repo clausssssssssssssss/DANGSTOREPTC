@@ -17,6 +17,7 @@
   overflow: hidden;
   animation: backgroundShift 15s ease-in-out infinite;
 }
+
 /* Botón de agregar al carrito */
 .boton-carrito {
   background: #4DD0E1;
@@ -42,6 +43,7 @@
 .boton-carrito .icono-carrito {
   font-size: 18px;
 }
+
 @keyframes backgroundShift {
   0%, 100% { 
     background: linear-gradient(135deg, #4DD0E1 0%, #81C784 30%, #BA68C8 70%, #9C27B0 100%);
@@ -177,7 +179,7 @@
   font-weight: 500;
 }
 
-/* ===== SECCIÓN DE PRODUCTOS POPULARES - CARRUSEL (MODIFICADO) ===== */
+/* ===== SECCIÓN DE PRODUCTOS POPULARES - CENTRADOS ===== */
 .popular-products-section {
   background: rgba(255, 255, 255, 0.98);
   border-radius: 20px;
@@ -190,6 +192,7 @@
   display: flex;
   align-items: center;
   margin-bottom: 1.5rem;
+  justify-content: center;
 }
 
 .popular-section-title {
@@ -210,29 +213,16 @@
   50% { transform: scale(1.1); }
 }
 
-.carousel-container {
-  position: relative;
-  width: 100%;
-  overflow: hidden;
-}
-
-.carousel-track {
+.popular-products-centered {
   display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
   gap: 1.5rem;
-  padding: 0.5rem;
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-
-.carousel-track::-webkit-scrollbar {
-  display: none;
 }
 
 .popular-product-card {
   flex: 0 0 calc(50% - 0.75rem);
-  scroll-snap-align: start;
+  max-width: 300px;
   background: white;
   border-radius: 16px;
   overflow: hidden;
@@ -240,24 +230,6 @@
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   cursor: pointer;
   animation: cardFloat 0.8s ease-out;
-}
-
-.popular-product-card:nth-child(1) { animation-delay: 0.1s; }
-.popular-product-card:nth-child(2) { animation-delay: 0.2s; }
-.popular-product-card:nth-child(3) { animation-delay: 0.3s; }
-.popular-product-card:nth-child(4) { animation-delay: 0.4s; }
-.popular-product-card:nth-child(5) { animation-delay: 0.5s; }
-.popular-product-card:nth-child(6) { animation-delay: 0.6s; }
-
-@keyframes cardFloat {
-  from {
-    opacity: 0;
-    transform: translateY(30px) scale(0.9);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
 }
 
 .popular-product-card:hover {
@@ -378,24 +350,40 @@
   background: linear-gradient(135deg, rgba(77, 208, 225, 0.2), rgba(186, 104, 200, 0.2));
 }
 
+/* ===== SECCIÓN DE PRODUCTOS POPULARES - CENTRADOS ===== */
+.popular-products-centered {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+}
+
+.popular-product-card {
+  flex: 0 0 calc(33.333% - 1rem); /* Ajustado para 3 productos */
+  max-width: 300px;
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
+  animation: cardFloat 0.8s ease-out;
+}
+
 /* Responsive para productos populares */
-@media (min-width: 768px) {
+@media (max-width: 768px) {
   .popular-product-card {
-    flex: 0 0 calc(33.333% - 1rem);
+    flex: 0 0 calc(50% - 0.75rem); /* En pantallas pequeñas muestra 2 productos */
   }
 }
 
-@media (min-width: 1024px) {
+@media (max-width: 480px) {
   .popular-product-card {
-    flex: 0 0 calc(25% - 1.125rem);
-  }
-  
-  .popular-product-image {
-    height: 220px;
+    flex: 0 0 100%; /* En móviles muy pequeños muestra 1 producto */
+    max-width: 100%;
   }
 }
 
-/* ===== LUPA DINÁMICA MODIFICADA ===== */
 .search-toggle-btn {
   position: relative;
   background: #FFFFFF;

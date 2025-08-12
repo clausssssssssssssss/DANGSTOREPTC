@@ -4,6 +4,7 @@ import useContactForm from '../components/contact/useContactForm';
 import { useAuth } from "../hooks/useAuth";
 import { useToast } from '../hooks/useToast';
 import ToastContainer from '../components/ui/ToastContainer';
+import { Mail, Clock, Calendar, Send } from 'lucide-react';
 
 const Contacto = () => {
   const { user } = useAuth();
@@ -27,7 +28,7 @@ const Contacto = () => {
       return;
     }
 
-    await handleSubmit(); // Llama al submit del hook
+    await handleSubmit();
   };
 
   useEffect(() => {
@@ -36,32 +37,69 @@ const Contacto = () => {
   }, [success, error, showSuccess, showError]);
 
   return (
-    <div className="contact-container">
-      <div className="contact-card">
-        {/* Lado izquierdo - Información */}
-        <div className="contact-info">
-          <h3>Información de Contacto</h3>
+    <div className="contact-page">
+      <header className="contact-header">
+        <h1>DANGSTORE</h1>
+        <p className="header-subtitle">Contáctanos para cualquier consulta</p>
+      </header>
+
+      <div className="contact-container">
+        {/* Sección de Información */}
+        <div className="contact-info-card">
+          <h2 className="section-title">
+            <span className="title-icon">📬</span>
+            Información de Contacto
+          </h2>
           
-          <div className="info-section">
-            <strong>Correo electrónico:</strong>
-            <p>dangstore2024@gmail.com</p>
+          <div className="contact-detail">
+            <div className="detail-icon">
+              <Mail size={18} />
+            </div>
+            <div>
+              <p className="detail-label">Correo electrónico:</p>
+              <p className="detail-value">dangstore2024@gmail.com</p>
+            </div>
           </div>
           
-          <div className="info-section">
-            <strong>Horarios de atención:</strong>
-            <p>Lunes a Viernes: 9:00 - 18:00</p>
-            <p>Sábados: 10:00 - 14:00</p>
-            <p>Domingos: Cerrado</p>
+          <div className="contact-detail">
+            <div className="detail-icon">
+              <Clock size={18} />
+            </div>
+            <div>
+              <p className="detail-label">Horarios de atención:</p>
+              <div className="schedule-item">
+                <Calendar size={14} />
+                <span>Lunes a Viernes: 9:00 - 18:00</span>
+              </div>
+              <div className="schedule-item">
+                <Calendar size={14} />
+                <span>Sábados: 10:00 - 14:00</span>
+              </div>
+              <div className="schedule-item">
+                <Calendar size={14} />
+                <span>Domingos: Cerrado</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="social-section">
+            <h3 className="social-title">Redes sociales:</h3>
+            <div className="social-tag">
+              <span>DANGSTORE</span>
+            </div>
           </div>
         </div>
 
-        {/* Lado derecho - Formulario */}
-        <div className="contact-form">
-          <h3>Envíanos un mensaje</h3>
+        {/* Formulario de Contacto */}
+        <div className="contact-form-card">
+          <h2 className="section-title">
+            <span className="title-icon">✉️</span>
+            Envíanos un mensaje
+          </h2>
 
           <form onSubmit={handleFormSubmit} className={loading ? 'loading' : ''}>
-            <div className="form-field">
-              <label>Nombre:</label>
+            <div className="form-group">
+              <label className="input-label">Nombre</label>
               <input
                 type="text"
                 name="name"
@@ -69,11 +107,13 @@ const Contacto = () => {
                 onChange={(e) => setName(e.target.value)}
                 required
                 disabled={loading}
+                placeholder="Ingresa tu nombre"
+                className="form-input"
               />
             </div>
 
-            <div className="form-field">
-              <label>Correo Electrónico:</label>
+            <div className="form-group">
+              <label className="input-label">Correo Electrónico</label>
               <input
                 type="email"
                 name="email"
@@ -81,11 +121,13 @@ const Contacto = () => {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 disabled={loading}
+                placeholder="Ingresa tu correo"
+                className="form-input"
               />
             </div>
 
-            <div className="form-field flex-1">
-              <label>Mensaje:</label>
+            <div className="form-group">
+              <label className="input-label">Mensaje</label>
               <textarea
                 name="message"
                 value={message}
@@ -94,6 +136,7 @@ const Contacto = () => {
                 rows={5}
                 disabled={loading}
                 placeholder="Escribe tu mensaje aquí..."
+                className="form-textarea"
               ></textarea>
             </div>
 
@@ -102,11 +145,13 @@ const Contacto = () => {
               className="submit-button"
               disabled={loading || !name || !email || !message}
             >
+              <Send size={18} className="button-icon" />
               {loading ? 'Enviando...' : 'Enviar Mensaje'}
             </button>
           </form>
         </div>
       </div>
+      
       <ToastContainer toasts={toasts} removeToast={removeToast} />
     </div>
   );

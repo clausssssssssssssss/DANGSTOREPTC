@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, TextInput, Alert, ActivityIndicator, SafeAreaView, Dimensions, Image, Platform } from 'react-native';
+import { View, Text, TouchableOpacity, TextInput, Alert, ActivityIndicator, SafeAreaView, Dimensions, Image, Platform, KeyboardAvoidingView, ScrollView } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { api } from '../src/api/constans';
 
@@ -28,12 +28,22 @@ const AuthApp = ({ navigation }) => {
     if (!validateLoginForm()) return;
     setLoading(true);
     try {
-      const res = await fetch(`${api}admins/login`, {
+      const requestUrl = `${api}admins/login`;
+      console.log('[Login] Using API base:', api);
+      console.log('[Login] Request URL:', requestUrl);
+      console.log('[Login] Payload (email only):', { email: email.trim() });
+      console.log('[Login] Platform:', Platform.OS);
+
+      const res = await fetch(requestUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: email.trim(), password }),
       });
-      const data = await res.json().catch(() => ({}));
+      console.log('[Login] Response status:', res.status, 'ok:', res.ok);
+      const raw = await res.text();
+      console.log('[Login] Raw response (first 300 chars):', raw?.slice(0, 300));
+      let data = {};
+      try { data = raw ? JSON.parse(raw) : {}; } catch { /* ignore parse error */ }
       if (res.ok) {
         if (data?.token) {
           // Guardar token en memoria local simple
@@ -46,6 +56,8 @@ const AuthApp = ({ navigation }) => {
         throw new Error(data?.message || 'Credenciales incorrectas');
       }
     } catch (error) {
+      console.log('[Login] Caught error:', error?.name, error?.message);
+      if (error?.stack) console.log('[Login] Error stack top:', String(error.stack).split('\n').slice(0,2).join('\n'));
       Alert.alert('Error', error?.message || 'Credenciales incorrectas');
     } finally {
       setLoading(false);
@@ -64,11 +76,12 @@ const AuthApp = ({ navigation }) => {
         <Image source={require('../assets/image-removebg-preview (1).png')} style={styles.cornerTopLeft} resizeMode="contain" />
         <Image source={require('../assets/image-removebg-preview (1).png')} style={styles.cornerBottomRight} resizeMode="contain" />
 
-        {/* Contenido */}
-        <View style={styles.content}>
-          {/* Título sobre la tarjeta */}
-          <Text style={styles.pageTitle}>¡Bienvenido!</Text>
-          <View style={styles.card}>
+        {/* Contenido con KeyboardAvoidingView + ScrollView para evitar que el teclado tape los campos */}
+        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }} keyboardVerticalOffset={Platform.OS === 'ios' ? 60 : 0}>
+          <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+            {/* Título sobre la tarjeta */}
+            <Text style={styles.pageTitle}>¡Bienvenido!</Text>
+            <View style={styles.card}>
             <Image source={require('../assets/icon.png')} style={styles.logo} resizeMode="contain" />
 
             <Text style={styles.label}>Correo Electronico</Text>
@@ -109,8 +122,9 @@ const AuthApp = ({ navigation }) => {
                 )}
               </LinearGradient>
             </TouchableOpacity>
-          </View>
-        </View>
+            </View>
+          </ScrollView>
+        </KeyboardAvoidingView>
         {/* Imagen decorativa arriba-derecha */}
         <Image
           source={require('../assets/image-removebg-preview.png')}

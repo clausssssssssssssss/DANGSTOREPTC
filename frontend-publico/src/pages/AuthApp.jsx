@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Eye, EyeOff, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import '../components/styles/AuthApp.css';
+import "../components/styles/AuthApp.css";  
 
 // ——— imports para el login y contexto ———
 import { useAuth, parseJwt } from '../hooks/useAuth.jsx';
@@ -39,7 +39,7 @@ const AuthApp = () => {
 
   // Estados para Código de Verificación
   const [verificationCode, setVerificationCode] = useState(['', '', '', '']);
-  const lastTriedCode = useRef(''); // ← guarda el último código verificado
+  const lastTriedCode = useRef('');
 
   // Estados para Nueva Contraseña
   const [newPasswordData, setNewPasswordData] = useState({
@@ -73,7 +73,6 @@ const AuthApp = () => {
         return;
       }
       console.log('🔑 Login successful, token:', data.token);
-      // guardamos token y actualizamos contexto
       localStorage.setItem('token', data.token);
       const decoded = parseJwt(data.token);
       setUser({ id: decoded.userId ?? decoded.id, name: decoded.name });
@@ -109,7 +108,6 @@ const AuthApp = () => {
         showError(data.message || 'Error en el registro');
       } else {
         showSuccess('¡Registro exitoso!');
-        // tras registrar por primera vez, vamos a “Acerca”
         navigate('/acerca', { replace: true });
       }
     } catch (err) {
@@ -119,29 +117,25 @@ const AuthApp = () => {
   };
 
   // Funciones de recuperación de contraseña
-  // paso 1: envío del código
-const handleForgotPassword = async () => {
-  if (!forgotEmail) {
-    showError("Por favor ingresa tu correo electrónico");
-    return;
-  }
-  const res = await fetch(`${API_URL}/api/password-recovery/send-code`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email: forgotEmail }),
-  });
-  const data = await res.json();
-  if (!res.ok) {
-    showError(data.message || "Error enviando código");
-    return;
-  }
-  showSuccess("Código enviado exitosamente a tu correo");
-  setIsEmailSubmitted(true);
-  setTimeout(() => setCurrentView("verification"), 1500);
-};
-
-
-
+  const handleForgotPassword = async () => {
+    if (!forgotEmail) {
+      showError("Por favor ingresa tu correo electrónico");
+      return;
+    }
+    const res = await fetch(`${API_URL}/api/password-recovery/send-code`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: forgotEmail }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      showError(data.message || "Error enviando código");
+      return;
+    }
+    showSuccess("Código enviado exitosamente a tu correo");
+    setIsEmailSubmitted(true);
+    setTimeout(() => setCurrentView("verification"), 1500);
+  };
 
   // Funciones de código de verificación
   const handleCodeChange = (idx, val) => {
@@ -163,7 +157,6 @@ const handleForgotPassword = async () => {
     }
   }, [verificationCode, currentView]);
 
-
   const handleKeyDown = (index, e) => {
     if (e.key === 'Backspace' && !verificationCode[index] && index > 0) {
       const prevInput = document.getElementById(`code-${index - 1}`);
@@ -171,7 +164,7 @@ const handleForgotPassword = async () => {
     }
   };
 
-const handleVerifyCode = async () => {
+  const handleVerifyCode = async () => {
     const code = verificationCode.join("");
     if (code.length !== 4) {
       showError("Por favor ingresa el código completo");
@@ -205,44 +198,44 @@ const handleVerifyCode = async () => {
   };
 
   const handleResetPassword = async () => {
-  const code = verificationCode.join("");
-  const { password, confirmPassword } = newPasswordData;
+    const code = verificationCode.join("");
+    const { password, confirmPassword } = newPasswordData;
 
-  if (!password || !confirmPassword) {
-    showError("Por favor completa todos los campos");
-    return;
-  }
-  if (password !== confirmPassword) {
-    showError("Las contraseñas no coinciden");
-    return;
-  }
-  if (password.length < 6) {
-    showError("La contraseña debe tener al menos 6 caracteres");
-    return;
-  }
-
-  try {
-    const res = await fetch(`${API_URL}/api/password-recovery/reset`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        email: forgotEmail,       
-        code,
-        newPassword: password,
-      }),
-    });
-    const data = await res.json();
-    if (!res.ok) {
-      showError(data.message || "Error al cambiar contraseña");
+    if (!password || !confirmPassword) {
+      showError("Por favor completa todos los campos");
       return;
     }
-    showSuccess("Contraseña restablecida exitosamente");
-    setCurrentView("login");
-  } catch (err) {
-    console.error(err);
-    showError("Error de conexión");
-  }
-};
+    if (password !== confirmPassword) {
+      showError("Las contraseñas no coinciden");
+      return;
+    }
+    if (password.length < 6) {
+      showError("La contraseña debe tener al menos 6 caracteres");
+      return;
+    }
+
+    try {
+      const res = await fetch(`${API_URL}/api/password-recovery/reset`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: forgotEmail,       
+          code,
+          newPassword: password,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        showError(data.message || "Error al cambiar contraseña");
+        return;
+      }
+      showSuccess("Contraseña restablecida exitosamente");
+      setCurrentView("login");
+    } catch (err) {
+      console.error(err);
+      showError("Error de conexión");
+    }
+  };
 
   // Validaciones para nueva contraseña
   const isPasswordValid = newPasswordData.password.length >= 6;
@@ -250,12 +243,8 @@ const handleVerifyCode = async () => {
 
   // Función para formatear número de teléfono
   const formatPhoneNumber = (value) => {
-    // Eliminar todos los caracteres que no sean dígitos
     const phoneNumber = value.replace(/\D/g, '');
-    
-    // Limitar a 8 dígitos máximo
     if (phoneNumber.length <= 8) {
-      // Formatear como XXXX-XXXX
       if (phoneNumber.length > 4) {
         return phoneNumber.slice(0, 4) + '-' + phoneNumber.slice(4);
       }
@@ -273,25 +262,23 @@ const handleVerifyCode = async () => {
   // Componente de elementos decorativos
   const DecorativeElements = () => (
     <div className="decorative-elements">
-      <div className="decorative-circle"></div>
-      <div className="decorative-circle"></div>
-      <div className="decorative-circle"></div>
+      <div className="decorative-ring"></div>
+      <div className="decorative-ring"></div>
     </div>
   );
 
   // Componente de Logo
-  // Reemplaza el componente Logo actual por este:
-const Logo = () => (
-  <div className="auth-logo">
-    <div className="logo-container">
-      <img 
-        src="https://i.ibb.co/WWx2CLJZ/DANGSTORELOGOPRUEBA-1.png" 
-        alt="DANGSTORE Logo" 
-        className="logo-image"
-      />
+  const Logo = () => (
+    <div className="auth-logo">
+      <div className="logo-container">
+        <img 
+          src="https://i.ibb.co/WWx2CLJZ/DANGSTORELOGOPRUEBA-1.png" 
+          alt="DANGSTORE Logo" 
+          className="logo-image"
+        />
+      </div>
     </div>
-  </div>
-);
+  );
 
   // Vista de Login
   if (currentView === 'login') {
@@ -306,7 +293,7 @@ const Logo = () => (
             <h1 className="auth-title">Iniciar sesión</h1>
             <p className="auth-subtitle">Ingresa tus credenciales para acceder a tu cuenta</p>
             
-            <div className="auth-form">
+            <form className="auth-form" onSubmit={(e) => e.preventDefault()}>
               <div className="input-group">
                 <label className="input-label">Correo electrónico</label>
                 <input
@@ -358,12 +345,13 @@ const Logo = () => (
               </div>
               
               <button
+                type="button"
                 onClick={handleLogin}
                 className="auth-button"
               >
                 Iniciar Sesión
               </button>
-            </div>
+            </form>
             
             <div className="auth-link-section">
               <span>¿No tienes una cuenta? </span>
@@ -394,7 +382,7 @@ const Logo = () => (
             <h1 className="auth-title">REGISTRO</h1>
             <p className="auth-subtitle">Regístrate para comenzar a utilizar nuestra plataforma</p>
             
-            <div className="auth-form">
+            <form className="auth-form" onSubmit={(e) => e.preventDefault()}>
               <div className="input-group">
                 <label className="input-label">Nombre</label>
                 <input
@@ -450,12 +438,13 @@ const Logo = () => (
               </div>
               
               <button
+                type="button"
                 onClick={handleRegister}
                 className="auth-button"
               >
                 Registrarse
               </button>
-            </div>
+            </form>
             
             <div className="auth-link-section">
               <span>¿Ya tienes una cuenta? </span>
@@ -486,7 +475,7 @@ const Logo = () => (
             <h1 className="auth-title">Recuperar Contraseña</h1>
             
             {!isEmailSubmitted ? (
-              <div className="auth-form">
+              <form className="auth-form" onSubmit={(e) => e.preventDefault()}>
                 <div className="input-group">
                   <label className="input-label">Correo electrónico:</label>
                   <div className="input-with-icon">
@@ -502,12 +491,13 @@ const Logo = () => (
                 </div>
                 
                 <button
+                  type="button"
                   onClick={handleForgotPassword}
                   className="auth-button"
                 >
                   Enviar código
                 </button>
-              </div>
+              </form>
             ) : (
               <div className="success-state">
                 <div className="success-icon">
@@ -539,39 +529,41 @@ const Logo = () => (
 
   // Vista de Código de Verificación
   if (currentView === 'verification') {
-  return (
-    <>
-      <div className="auth-container">
-        {/* …decoración y logo… */}
-        <div className="auth-card">
-          <h1 className="auth-title">Código de verificación</h1>
-          <div className="verification-inputs">
-            {verificationCode.map((digit, idx) => (
-              <input
-                key={idx}
-                id={`code-${idx}`}
-                type="text"
-                value={digit}
-                maxLength={1}
-                onChange={e => handleCodeChange(idx, e.target.value)}
-                onKeyDown={e => handleKeyDown(idx, e)}
-                className="verification-input"
-              />
-            ))}
+    return (
+      <>
+        <div className="auth-container">
+          <DecorativeElements />
+          <div className="auth-card">
+            <Logo />
+            <h1 className="auth-title">Código de verificación</h1>
+            <div className="verification-inputs">
+              {verificationCode.map((digit, idx) => (
+                <input
+                  key={idx}
+                  id={`code-${idx}`}
+                  type="text"
+                  value={digit}
+                  maxLength={1}
+                  onChange={e => handleCodeChange(idx, e.target.value)}
+                  onKeyDown={e => handleKeyDown(idx, e)}
+                  className="verification-input"
+                />
+              ))}
+            </div>
+            <button
+              onClick={handleVerifyCode}
+              disabled={verificationCode.join('').length !== 4}
+              className="auth-button"
+            >
+              Verificar código
+            </button>
           </div>
-          <button
-            onClick={handleVerifyCode}
-            disabled={verificationCode.join('').length !== 4}
-            className="auth-button"
-          >
-            Verificar código
-          </button>
         </div>
-      </div>
-      <ToastContainer toasts={toasts} removeToast={removeToast} />
-    </>
-  )
-}
+        <ToastContainer toasts={toasts} removeToast={removeToast} />
+      </>
+    );
+  }
+
   // Vista de Nueva Contraseña
   if (currentView === 'reset-password') {
     return (
@@ -585,7 +577,7 @@ const Logo = () => (
             <h1 className="auth-title">Nueva Contraseña</h1>
             <p className="auth-subtitle">Por favor ingresa y confirma tu nueva contraseña</p>
             
-            <div className="auth-form">
+            <form className="auth-form" onSubmit={(e) => e.preventDefault()}>
               <div className="input-group">
                 <label className="input-label">Nueva contraseña</label>
                 <div className="password-input">
@@ -636,13 +628,14 @@ const Logo = () => (
               </div>
               
               <button
+                type="button"
                 onClick={handleResetPassword}
                 disabled={!isPasswordValid || !doPasswordsMatch}
                 className="auth-button"
               >
                 Restaurar contraseña
               </button>
-            </div>
+            </form>
             
             {/* Indicadores de seguridad de contraseña */}
             <div className="password-requirements">

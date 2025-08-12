@@ -14,7 +14,7 @@ import {
   RefreshControl,
   Dimensions,
 } from 'react-native';
-import { API_ORIGIN } from '../src/hooks/useAuth';
+import { apiOrigin } from '../src/api/constans';
 
 const { width, height } = Dimensions.get('window');
 
@@ -35,7 +35,7 @@ const Pendientes = ({ navigation }) => {
 
   const fetchPendingOrders = async () => {
     try {
-      const response = await fetch(`${API_ORIGIN}/api/custom-orders/pending`);
+      const response = await fetch(`${apiOrigin}/api/custom-orders/pending`);
       if (!response.ok) throw new Error('HTTP ' + response.status);
       const data = await response.json();
       setOrders(data);
@@ -86,7 +86,7 @@ const Pendientes = ({ navigation }) => {
 
     setSubmitting(true);
     try {
-      const response = await fetch(`${API_ORIGIN}/api/custom-orders/${selectedOrder._id}/quote`, {
+      const response = await fetch(`${apiOrigin}/api/custom-orders/${selectedOrder._id}/quote`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ price: parseFloat(price), comment: comment?.trim() || '' })
@@ -115,7 +115,7 @@ const Pendientes = ({ navigation }) => {
           onPress: async () => {
             setSubmitting(true);
             try {
-              const response = await fetch(`${API_ORIGIN}/api/custom-orders/${selectedOrder._id}/quote`, {
+              const response = await fetch(`${apiOrigin}/api/custom-orders/${selectedOrder._id}/quote`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ price: 0, comment: comment?.trim() || 'Orden rechazada', status: 'rejected' })
@@ -174,7 +174,7 @@ const Pendientes = ({ navigation }) => {
 
       {item.imageUrl && (
         <Image 
-          source={{ uri: item.imageUrl?.startsWith('http') ? item.imageUrl : `${API_ORIGIN}${item.imageUrl.startsWith('/') ? '' : '/'}${item.imageUrl}` }}
+          source={{ uri: item.imageUrl?.startsWith('http') ? item.imageUrl : `${apiOrigin}${item.imageUrl.startsWith('/') ? '' : '/'}${item.imageUrl}` }}
           style={styles.orderImage}
           resizeMode="cover"
         />
@@ -269,7 +269,7 @@ const Pendientes = ({ navigation }) => {
             <View style={styles.modalHeader}>
               {selectedOrder?.imageUrl && (
                 <Image 
-                  source={{ uri: selectedOrder.imageUrl?.startsWith('http') ? selectedOrder.imageUrl : `${API_ORIGIN}${selectedOrder.imageUrl.startsWith('/') ? '' : '/'}${selectedOrder.imageUrl}` }}
+                  source={{ uri: selectedOrder.imageUrl?.startsWith('http') ? selectedOrder.imageUrl : `${apiOrigin}${selectedOrder.imageUrl.startsWith('/') ? '' : '/'}${selectedOrder.imageUrl}` }}
                   style={styles.modalImage}
                   resizeMode="cover"
                 />

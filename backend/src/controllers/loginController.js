@@ -81,7 +81,7 @@ export const loginClient = async (req, res) => {
       userId:   customer._id,
       userType: "customer"
     };
-    const token = jwt.sign(payload, config.jwt.secret, { expiresIn: '1h' });
+    const token = jwt.sign(payload, config.jwt.secret, { expiresIn: config.jwt.expiresIn });
 
     // 6) Responder con token y datos (sin password)
     return res.status(200).json({

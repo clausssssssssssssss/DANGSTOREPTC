@@ -69,7 +69,7 @@ const AuthApp = ({ navigation }) => {
           {/* Título sobre la tarjeta */}
           <Text style={styles.pageTitle}>¡Bienvenido!</Text>
           <View style={styles.card}>
-            <Image source={require('../assets/DANGSTORELOGOPRUEBA__1.png')} style={styles.logo} resizeMode="contain" />
+            <Image source={require('../assets/icon.png')} style={styles.logo} resizeMode="contain" />
 
             <Text style={styles.label}>Correo Electronico</Text>
             <TextInput
@@ -164,14 +164,26 @@ const styles = {
     opacity: 0.95,
     transform: [{ scaleX: -1 }, { rotate: '-8deg' }],
   },
-  card: { width: '90%', backgroundColor: '#FFFFFF', borderRadius: 16, paddingVertical: Math.max(35, height * 0.040), paddingHorizontal: Math.max(22, width * 0.06), shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.22, shadowRadius: 34, elevation: 12 },
-  logo: { alignSelf: 'center', width: 75, height: 85, marginBottom: -2 },
+  card: { 
+    width: '95%', 
+    backgroundColor: '#FFFFFF', 
+    borderRadius: 16, 
+    paddingTop: Math.max(23, height * 0.02),
+    paddingBottom: Math.max(46, height * 0.03),
+    paddingHorizontal: Math.max(2, width * 0.06), 
+    shadowColor: '#000', 
+    shadowOffset: { width: 0, height: 1 }, 
+    shadowOpacity: 0.22, 
+    shadowRadius: 34, 
+    elevation: 12 
+  },
+  logo: { alignSelf: 'center', width: 75, height: 85, marginBottom: 6, marginTop: -6 },
   label: { color: '#5A48D8', fontSize: 12, fontWeight: '600', marginBottom: 6 },
   field: { width: '100%', height: 50, backgroundColor: '#ECEAF5', borderRadius: 10, paddingHorizontal: 16, fontSize: 14, color: '#1F2937', borderWidth: 1, borderColor: 'transparent' },
   inputError: { borderColor: '#EF4444' },
   passwordRow: { position: 'relative' },
   passwordField: { paddingRight: 38 },
-  eyeButton: { position: 'absolute', right: 8, top: 3, width: 32, height: 28, alignItems: 'center', justifyContent: 'center' },
+  eyeButton: { position: 'absolute', right: 7, top: 10, width: 30, height: 28, alignItems: 'center', justifyContent: 'center' },
   eyeText: { fontSize: 16, color: '#6B7280' },
   cta: { marginTop: 16 },
   ctaBg: { height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center', shadowColor: '#8A79FF', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.3, shadowRadius: 12, elevation: 6 },

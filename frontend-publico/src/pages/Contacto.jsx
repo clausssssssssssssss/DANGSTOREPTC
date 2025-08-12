@@ -4,7 +4,7 @@ import useContactForm from '../components/contact/useContactForm';
 import { useAuth } from "../hooks/useAuth";
 import { useToast } from '../hooks/useToast';
 import ToastContainer from '../components/ui/ToastContainer';
-import { Mail, Clock, Calendar, Send } from 'lucide-react';
+import { Mail, Clock, Calendar, Send, Instagram } from 'lucide-react';
 
 const Contacto = () => {
   const { user } = useAuth();
@@ -47,7 +47,7 @@ const Contacto = () => {
         {/* Sección de Información */}
         <div className="contact-info-card">
           <h2 className="section-title">
-            <span className="title-icon">📬</span>
+            <span className="title-icon" role="img" aria-label="Correo">📬</span>
             Información de Contacto
           </h2>
           
@@ -57,7 +57,7 @@ const Contacto = () => {
             </div>
             <div>
               <p className="detail-label">Correo electrónico:</p>
-              <p className="detail-value">dangstore2024@gmail.com</p>
+              <p className="detail-value">soportedangstore@gmail.com</p>
             </div>
           </div>
           
@@ -84,16 +84,22 @@ const Contacto = () => {
 
           <div className="social-section">
             <h3 className="social-title">Redes sociales:</h3>
-            <div className="social-tag">
+            <a 
+              href="https://www.instagram.com/dangstore.sv" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="social-tag"
+            >
+              <Instagram size={16} className="social-icon" />
               <span>DANGSTORE</span>
-            </div>
+            </a>
           </div>
         </div>
 
         {/* Formulario de Contacto */}
         <div className="contact-form-card">
           <h2 className="section-title">
-            <span className="title-icon">✉️</span>
+            <span className="title-icon" role="img" aria-label="Mensaje">✉️</span>
             Envíanos un mensaje
           </h2>
 

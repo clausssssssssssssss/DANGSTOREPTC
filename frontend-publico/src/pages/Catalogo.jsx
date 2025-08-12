@@ -18,7 +18,7 @@ export default function Catalogo() {
 
   const [searchTerm, setSearchTerm] = useState('');
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [priceRange, setPriceRange] = useState([0, 10]); // Cambiado de 20 a 10
+  const [priceRange, setPriceRange] = useState([0, 10]);
   const [selectedCategory, setSelectedCategory] = useState('');
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [showFavoriteMessage, setShowFavoriteMessage] = useState(false);
@@ -41,8 +41,7 @@ export default function Catalogo() {
     });
   }, [products, searchTerm, priceRange, selectedCategory]);
 
-
-  //Productos populares
+  // Productos populares
   const popularProducts = useMemo(() => {
     if (!products || products.length === 0) return [];
     return products.filter(product => 
@@ -129,7 +128,7 @@ export default function Catalogo() {
           <p className="popular-subtitle">Descubre nuestra increíble selección de los mejores productos para ti</p>
         </div>
 
-        {/* Sección de Productos Populares - Centrados */}
+        {/* Sección de Productos Populares */}
         {popularProducts.length > 0 && (
           <div className="popular-products-section">
             <div className="popular-section-header">
@@ -142,7 +141,7 @@ export default function Catalogo() {
                 <div key={product._id} className="popular-product-card" onClick={() => openDetail(product)}>
                   <div className="popular-product-image">
                     <img 
-                      src={product.images?.[0] || 'https://via.placeholder.com/300x300/4DD0E1/ffffff?text=Sin+Imagen'} 
+                      src={product.images?.[0] || 'https://via.placeholder.com/300x300/f5f5f5/333333?text=Sin+Imagen'} 
                       alt={product.name}
                       style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                     />
@@ -185,23 +184,17 @@ export default function Catalogo() {
 
         {/* Barra de Búsqueda y Filtros */}
         <div className="search-filter-section">
-          {/* Botón de búsqueda con animación dinámica */}
-          <div className="search-container">
-            <button 
-              className={`search-toggle-btn ${isSearchOpen ? 'active' : ''}`}
-              onClick={() => setIsSearchOpen(!isSearchOpen)}
-            >
-              <Search className="search-icon-dynamic" size={24} />
-              <span className="search-text">Buscar productos</span>
-              <div className="search-pulse"></div>
-            </button>
-          </div>
+          <button 
+            className={`search-toggle-btn ${isSearchOpen ? 'active' : ''}`}
+            onClick={() => setIsSearchOpen(!isSearchOpen)}
+          >
+            <Search className="search-icon-dynamic" size={24} />
+            <span className="search-text">Buscar productos</span>
+          </button>
 
-          {/* Panel de búsqueda expandible */}
           {isSearchOpen && (
             <div className="search-panel">
               <div className="search-inputs">
-                {/* Campo de búsqueda */}
                 <div className="search-input-group">
                   <Search className="search-icon" size={20} />
                   <input
@@ -213,7 +206,6 @@ export default function Catalogo() {
                   />
                 </div>
 
-                {/* Filtro por categoría */}
                 <div className="filter-group">
                   <Filter size={18} />
                   <select
@@ -230,14 +222,13 @@ export default function Catalogo() {
                   </select>
                 </div>
 
-                {/* Filtro por precio */}
                 <div className="price-filter">
                   <label>Precio: ${priceRange[0]} - ${priceRange[1]}</label>
                   <div className="price-range-container">
                     <input
                       type="range"
                       min="0"
-                      max="10" // Cambiado de 20 a 10
+                      max="10"
                       value={priceRange[0]}
                       onChange={(e) => setPriceRange([Number(e.target.value), priceRange[1]])}
                       className="price-slider"
@@ -245,7 +236,7 @@ export default function Catalogo() {
                     <input
                       type="range"  
                       min="0"
-                      max="10" // Cambiado de 20 a 10
+                      max="10"
                       value={priceRange[1]}
                       onChange={(e) => setPriceRange([priceRange[0], Number(e.target.value)])}
                       className="price-slider"
@@ -253,12 +244,11 @@ export default function Catalogo() {
                   </div>
                 </div>
 
-                {/* Botón limpiar filtros */}
                 <button 
                   className="clear-filters-btn"
                   onClick={() => {
                     setSearchTerm('');
-                    setPriceRange([0, 10]); // Cambiado de 25 a 10
+                    setPriceRange([0, 10]);
                     setSelectedCategory('');
                     showInfo('Filtros limpiados');
                   }}
@@ -277,7 +267,7 @@ export default function Catalogo() {
             <div key={product._id} className="product-card" onClick={() => openDetail(product)}>
               <div className="product-image">
                 <img 
-                  src={product.images?.[0] || 'https://via.placeholder.com/300x300/4DD0E1/ffffff?text=Sin+Imagen'} 
+                  src={product.images?.[0] || 'https://via.placeholder.com/300x300/f5f5f5/333333?text=Sin+Imagen'} 
                   alt={product.name}
                   style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                 />
@@ -327,7 +317,7 @@ export default function Catalogo() {
               </button>
               <div className="detail-image">
                 <img 
-                  src={selectedProduct.images?.[0] || 'https://via.placeholder.com/400x400/4DD0E1/ffffff?text=Sin+Imagen'} 
+                  src={selectedProduct.images?.[0] || 'https://via.placeholder.com/400x400/f5f5f5/333333?text=Sin+Imagen'} 
                   alt={selectedProduct.name}
                   style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '1rem' }}
                 />

@@ -22,23 +22,15 @@ import paymentRoutes          from './src/routes/paymentRoutes.js';
  */
 const app = express();
 
-/**
- * Habilita CORS para entornos de desarrollo y peticiones nativas (sin origin)
- * - Permite localhost en cualquier puerto (Vite/Expo web/Metro)
- * - Permite 10.0.2.2 (emulador Android)
- * - Permite orígenes adicionales desde ALLOWED_ORIGINS (separados por coma)
- */
-const allowedOriginsEnv = process.env.ALLOWED_ORIGINS?.split(',').map(o => o.trim()).filter(Boolean) || [];
-app.use(cors({
-  origin: (origin, callback) => {
-    if (!origin) return callback(null, true); // React Native (no origin)
-    const isLocalhost = /^http:\/\/localhost(:\d+)?$/.test(origin);
-    const isAndroidEmu = origin.startsWith('http://10.0.2.2');
-    const isAllowedEnv = allowedOriginsEnv.includes(origin);
-    if (isLocalhost || isAndroidEmu || isAllowedEnv) return callback(null, true);
-    return callback(null, true); // En desarrollo, permitir por defecto
-  },
-}));
+// Middlewares
+const allowedOrigins = ["http://localhost:5174", "http://localhost:5173"];
+
+app.use(
+  cors({
+    origin: allowedOrigins, // Dominio del cliente
+    credentials: true, // Permitir envío de cookies y credenciales
+  })
+);
 
 /** Habilita el parseo de JSON en el cuerpo de las solicitudes */
 app.use(express.json());

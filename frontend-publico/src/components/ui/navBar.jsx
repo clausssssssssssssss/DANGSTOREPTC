@@ -173,22 +173,13 @@ export default function NavBar() {
                     {hasQuotes && <span className="notification-dot" />}
                   </NavLink>
                 ) : (
-                  <>
-                    <NavLink
-                      to="/auth"
-                      className={({ isActive }) => `icon-link ${isActive ? 'active' : ''}`}
-                      aria-label="Iniciar sesión"
-                    >
-                      <User size={20} />
-                    </NavLink>
-                    <NavLink
-                      to="/auth"
-                      className="login-button-nav"
-                      aria-label="Iniciar sesión"
-                    >
-                      Iniciar Sesión
-                    </NavLink>
-                  </>
+                  <NavLink
+                    to="/auth"
+                    className="login-button-nav"
+                    aria-label="Iniciar sesión"
+                  >
+                    Iniciar Sesión
+                  </NavLink>
                 )}
               </div>
 

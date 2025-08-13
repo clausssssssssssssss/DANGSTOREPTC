@@ -2,6 +2,7 @@ import Cart from '../models/Cart.js';
 import Order from '../models/Order.js';
 import Customer from "../models/Customers.js";
 import SalesModel from "../models/Sale.js";
+import { sendEmail } from "../utils/mailService.js";
 
 
 
@@ -174,11 +175,17 @@ export const createOrder = async (req, res) => {
       });
     }
 
+    // Calcular total real basado en items
+    const totalAmount = (items || []).reduce(
+      (sum, item) => sum + (item.price || 0) * (item.quantity || 0),
+      0
+    );
+
     // ✅ 1. Crear orden y guardarla
     const order = new Order({
       user: userId,
       items,
-      total,
+      total: totalAmount, // usar el total calculado en servidor
       status: wompiStatus === "COMPLETED" ? "COMPLETED" : "PENDING",
       wompi: { orderID: wompiOrderID, captureStatus: wompiStatus },
     });
@@ -201,11 +208,7 @@ export const createOrder = async (req, res) => {
 
     // ✅ 4. Registrar la venta en SalesModel
     try {
-      const productIds = items.map((item) => item.product).filter(Boolean); // solo productos válidos
-      const totalAmount = items.reduce(
-        (sum, item) => sum + item.price * item.quantity,
-        0
-      );
+      const productIds = (items || []).map((item) => item.product).filter(Boolean); // solo productos válidos
 
       const newSale = new SalesModel({
         products: productIds,
@@ -220,7 +223,28 @@ export const createOrder = async (req, res) => {
       console.warn("⚠️ Error al guardar venta:", salesError.message);
     }
 
-    // ✅ 5. Respuesta exitosa
+    // ✅ 5. Enviar correo de confirmación (si el cliente tiene email)
+    try {
+      const customer = await Customer.findById(userId).select('email name');
+      if (customer?.email) {
+        const subject = 'Confirmación de pedido - DANGSTORE';
+        const html = `
+          <div style="font-family: Arial, sans-serif;">
+            <h2>¡Gracias por tu compra, ${customer.name || ''}!</h2>
+            <p>Tu pedido fue registrado correctamente.</p>
+            <p><strong>Número de orden:</strong> ${savedOrder._id}</p>
+            <p><strong>Total:</strong> $${totalAmount.toFixed(2)}</p>
+            <p>Estado: ${savedOrder.status}</p>
+            <hr/>
+            <p>Si no reconoces esta operación, contáctanos.</p>
+          </div>`;
+        await sendEmail({ to: customer.email, subject, html, text: `Orden ${savedOrder._id} por $${totalAmount.toFixed(2)}` });
+      }
+    } catch (mailErr) {
+      console.warn('⚠️ No se pudo enviar correo de confirmación:', mailErr.message);
+    }
+
+    // ✅ 6. Respuesta exitosa
     return res.status(201).json({
       success: true,
       message: "Orden y venta registradas con éxito",

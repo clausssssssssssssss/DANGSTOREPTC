@@ -2,13 +2,14 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Eye, EyeOff, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import "../components/styles/AuthApp.css";  
+import logoIcon from "../assets/DANGSTORELOGOPRUEBA.png";
 
 // ——— imports para el login y contexto ———
 import { useAuth, parseJwt } from '../hooks/useAuth.jsx';
 import { useToast } from '../hooks/useToast';
 import ToastContainer from '../components/ui/ToastContainer';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
+const API_URL = import.meta.env.VITE_API_URL || '';
 
 const AuthApp = () => {
   const navigate = useNavigate();
@@ -108,7 +109,7 @@ const AuthApp = () => {
         showError(data.message || 'Error en el registro');
       } else {
         showSuccess('¡Registro exitoso!');
-        navigate('/acerca', { replace: true });
+        setCurrentView('login');
       }
     } catch (err) {
       console.error(err);
@@ -271,11 +272,7 @@ const AuthApp = () => {
   const Logo = () => (
     <div className="auth-logo">
       <div className="logo-container">
-        <img 
-          src="https://i.ibb.co/WWx2CLJZ/DANGSTORELOGOPRUEBA-1.png" 
-          alt="DANGSTORE Logo" 
-          className="logo-image"
-        />
+        <img src={logoIcon} alt="DANGSTORE Logo" className="logo-image" />
       </div>
     </div>
   );

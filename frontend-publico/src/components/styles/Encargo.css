@@ -1,6 +1,6 @@
-/* Encargo.css - Versión Aqua/Morado con Animaciones y Título */
+/* Encargo.css - Aqua/Purple Theme with Animations */
 
-/* Reset y configuración base */
+/* ===== BASE STYLES ===== */
 * {
   margin: 0;
   padding: 0;
@@ -12,37 +12,21 @@ body {
   line-height: 1.6;
 }
 
-/* Contenedor principal con gradiente aqua/morado */
+/* ===== MAIN CONTAINER ===== */
 .encargo-container {
   min-height: 100vh;
   padding: 2rem 1rem;
   padding-top: 6rem;
-  background: linear-gradient(135deg, #4DD0E1 0%, #81C784 30%, #BA68C8 70%, #9C27B0 100%);
+  background: white; /* Fondo blanco sólido */
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   position: relative;
   overflow: hidden;
-  animation: backgroundShift 15s ease-in-out infinite;
 }
 
-@keyframes backgroundShift {
-  0%, 100% { 
-    background: linear-gradient(135deg, #4DD0E1 0%, #81C784 30%, #BA68C8 70%, #9C27B0 100%);
-  }
-  25% { 
-    background: linear-gradient(135deg, #26C6DA 0%, #66BB6A 30%, #AB47BC 70%, #8E24AA 100%);
-  }
-  50% { 
-    background: linear-gradient(135deg, #00BCD4 0%, #4CAF50 30%, #9C27B0 70%, #7B1FA2 100%);
-  }
-  75% { 
-    background: linear-gradient(135deg, #4DD0E1 0%, #81C784 30%, #BA68C8 70%, #9C27B0 100%);
-  }
-}
-
-/* Elementos decorativos flotantes */
+/* Decorative elements */
 .encargo-container::before {
   content: '';
   position: absolute;
@@ -79,7 +63,7 @@ body {
   }
 }
 
-/* Título principal espectacular */
+/* ===== HEADER STYLES ===== */
 .encargo-header {
   text-align: center;
   margin-bottom: 2rem;
@@ -102,69 +86,27 @@ body {
 .encargo-title {
   font-size: 3rem;
   font-weight: 800;
-  background: linear-gradient(135deg, #FFFFFF 0%, #E0F7FA 50%, #FFFFFF 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  text-shadow: 0 0 30px rgba(255, 255, 255, 0.5);
+  color: #333; /* Texto oscuro para mejor contraste */
   margin-bottom: 0.5rem;
   position: relative;
-  animation: titleGlow 3s ease-in-out infinite;
-}
-
-@keyframes titleGlow {
-  0%, 100% { 
-    text-shadow: 0 0 30px rgba(255, 255, 255, 0.5);
-    transform: scale(1);
-  }
-  50% { 
-    text-shadow: 0 0 40px rgba(255, 255, 255, 0.8);
-    transform: scale(1.02);
-  }
 }
 
 .encargo-subtitle {
   font-size: 1.25rem;
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.9);
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  color: #555; /* Texto gris oscuro */
   margin-bottom: 1rem;
-  animation: subtitleFloat 4s ease-in-out infinite;
-}
-
-@keyframes subtitleFloat {
-  0%, 100% { 
-    transform: translateY(0);
-    opacity: 0.9;
-  }
-  50% { 
-    transform: translateY(-3px);
-    opacity: 1;
-  }
 }
 
 .encargo-description {
   font-size: 1rem;
-  color: rgba(255, 255, 255, 0.8);
-  text-shadow: 0 1px 5px rgba(0, 0, 0, 0.2);
+  color: #666; /* Texto gris */
   max-width: 500px;
   margin: 0 auto;
   line-height: 1.6;
-  animation: descriptionFade 1.5s ease-out 0.5s both;
 }
 
-@keyframes descriptionFade {
-  0% {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  100% {
-    opacity: 0.8;
-    transform: translateY(0);
-  }
-}
-
-/* Decoración del título */
+/* Header decorations */
 .encargo-header::before {
   content: '✨';
   position: absolute;
@@ -183,7 +125,7 @@ body {
   transform: translateX(-50%);
   width: 0;
   height: 3px;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.8), transparent);
+  background: linear-gradient(90deg, transparent, #BA68C8, transparent);
   border-radius: 2px;
   animation: lineExpand 2s ease-out 1s both;
 }
@@ -204,7 +146,7 @@ body {
   100% { width: 150px; }
 }
 
-/* Tarjeta principal con fondo blanco sólido */
+/* ===== MAIN CARD ===== */
 .encargo-card {
   width: 100%;
   max-width: 1200px;
@@ -236,7 +178,7 @@ body {
   }
 }
 
-/* Zona de subida con fondo blanco */
+/* ===== UPLOAD ZONE ===== */
 .upload-zone {
   border: 3px dashed #BA68C8;
   border-radius: 1.5rem;
@@ -274,7 +216,7 @@ body {
   left: 100%;
 }
 
-/* Preview de imagen con efectos */
+/* Image preview */
 .image-preview {
   position: relative;
   width: 100%;
@@ -298,7 +240,7 @@ body {
   }
 }
 
-/* NUEVO: Botón para eliminar imagen */
+/* Remove image button */
 .remove-image-btn {
   position: absolute;
   top: 1rem;
@@ -345,7 +287,6 @@ body {
 
 .remove-image-btn:active {
   transform: scale(1.05) rotate(2deg);
-  transition: transform 0.1s ease;
 }
 
 .remove-image-btn svg {
@@ -359,7 +300,6 @@ body {
   transform: scale(1.1);
 }
 
-/* Animación de pulso sutil para el botón */
 .remove-image-btn::before {
   content: '';
   position: absolute;
@@ -421,7 +361,7 @@ body {
   border-radius: 0.75rem;
 }
 
-/* Etiqueta de subida animada */
+/* Upload label */
 .upload-label {
   width: 100%;
   height: 100%;
@@ -459,12 +399,11 @@ body {
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-/* Input oculto */
 .hidden-input {
   display: none;
 }
 
-/* Panel de formulario con animaciones */
+/* ===== FORM PANEL ===== */
 .form-panel {
   display: flex;
   flex-direction: column;
@@ -485,7 +424,6 @@ body {
   }
 }
 
-/* Grupo de campo */
 .field-group {
   display: flex;
   flex-direction: column;
@@ -511,7 +449,6 @@ body {
   flex: 1;
 }
 
-/* Etiquetas con efectos */
 .field-label {
   display: block;
   font-size: 1rem;
@@ -524,7 +461,7 @@ body {
   position: relative;
 }
 
-/* Select con gradiente */
+/* Form select */
 .field-select {
   width: 100%;
   border: 2px solid transparent;
@@ -552,7 +489,7 @@ body {
               linear-gradient(135deg, #9C27B0, #4DD0E1) border-box;
 }
 
-/* Textarea con efectos */
+/* Textarea */
 .field-textarea {
   width: 100%;
   border: 2px solid transparent;
@@ -580,7 +517,6 @@ body {
   opacity: 0.7;
 }
 
-/* Mensaje de error animado */
 .error-message {
   color: #FF6B6B;
   font-size: 0.8rem;
@@ -595,7 +531,7 @@ body {
   75% { transform: translateX(5px); }
 }
 
-/* Botón de envío con efectos espectaculares */
+/* Submit button */
 .submit-button {
   background: linear-gradient(135deg, #4DD0E1 0%, #81C784 50%, #BA68C8 100%);
   color: white;
@@ -667,7 +603,7 @@ body {
   transform: none;
 }
 
-/* Modal con efectos glassmorphism */
+/* ===== MODAL STYLES ===== */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -762,8 +698,7 @@ body {
   box-shadow: 0 10px 25px rgba(186, 104, 200, 0.4);
 }
 
-/* RESPONSIVE MEJORADO */
-
+/* ===== RESPONSIVE STYLES ===== */
 /* Tablets */
 @media (max-width: 1024px) {
   .encargo-container {
@@ -797,7 +732,7 @@ body {
   }
 }
 
-/* Tablets pequeñas */
+/* Small tablets */
 @media (max-width: 768px) {
   .encargo-container {
     padding: 1rem 0.5rem;
@@ -857,7 +792,7 @@ body {
   }
 }
 
-/* Móviles */
+/* Mobile */
 @media (max-width: 480px) {
   .encargo-container {
     padding: 0.5rem;
@@ -944,7 +879,7 @@ body {
   }
 }
 
-/* Móviles muy pequeños */
+/* Very small mobile */
 @media (max-width: 320px) {
   .encargo-card {
     padding: 0.75rem;
@@ -983,34 +918,15 @@ body {
   }
 }
 
-/* Mejoras de accesibilidad */
+/* Accessibility improvements */
 @media (prefers-reduced-motion: reduce) {
-  .encargo-container,
-  .encargo-container::before,
-  .encargo-container::after,
-  .encargo-header,
-  .encargo-title,
-  .encargo-subtitle,
-  .encargo-description,
-  .upload-zone,
-  .upload-icon,
-  .thumbnail-preview,
-  .submit-button,
-  .modal-overlay,
-  .modal-content,
-  .remove-image-btn,
-  .remove-image-btn::before {
+  * {
     animation: none !important;
-  }
-  
-  .upload-zone:hover,
-  .submit-button:hover:not(:disabled),
-  .remove-image-btn:hover {
-    transform: none !important;
+    transition: none !important;
   }
 }
 
-/* Compatibilidad con navegadores antiguos */
+/* Fallback for older browsers */
 @supports not (backdrop-filter: blur(10px)) {
   .encargo-card {
     background: rgba(255, 255, 255, 0.98);
@@ -1029,7 +945,7 @@ body {
   }
 }
 
-/* Estados de validación con colores aqua/morado */
+/* Validation states */
 .field-select:invalid,
 .field-textarea:invalid {
   background: linear-gradient(white, white) padding-box,

@@ -13,7 +13,7 @@ import { config } from '../../config.js';
 
 //Declarar dos constatnes Una que guarde el maximo de intentos posibleas y otra que guarde el tiempo de bloqueo
 
-const maxAttempts = 3;
+const maxAttempts = 5;
 const locktime = 16 * 60 * 1000;
 
 export const loginClient = async (req, res) => {
@@ -54,6 +54,7 @@ export const loginClient = async (req, res) => {
 
         if (customer.loginAttempts > maxAttempts) {
           customer.locktime = Date.now() + locktime;
+          customer.loginAttempts = 0;
           await customer.save();
           return res.status(403).json({ message: "Usuario bloqueado" });
         }
@@ -81,7 +82,7 @@ export const loginClient = async (req, res) => {
       userId:   customer._id,
       userType: "customer"
     };
-    const token = jwt.sign(payload, config.jwt.secret, { expiresIn: '1h' });
+    const token = jwt.sign(payload, config.jwt.secret, { expiresIn: config.jwt.expiresIn });
 
     // 6) Responder con token y datos (sin password)
     return res.status(200).json({

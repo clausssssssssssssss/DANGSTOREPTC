@@ -9,9 +9,12 @@
 
 .about-page {
   min-height: 100vh;
-  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  background: #ffffff; /* fondo blanco como en figma */
   margin-top: 64px; /* Espacio para el navbar fijo */
 }
+
+/* fuerza blanco en temas oscuros */
+html, body { background: #ffffff; }
 
 .container {
   max-width: 1200px;
@@ -19,74 +22,52 @@
   padding: 0 1rem;
 }
 
-/* Hero Video Section */
-.hero-video-section {
+/* Hero con olas y espacio para video */
+.hero-olas-section {
   position: relative;
-  height: 70vh;
-  min-height: 500px;
   overflow: hidden;
-  border-radius: 0 0 2rem 2rem;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+  padding-top: 0; /* sin espacio blanco arriba */
 }
 
-.video-container {
+.hero-inner {
+  position: relative;
+  z-index: 2;
+  padding: 3rem 1rem 2rem;
+  text-align: center;
+}
+
+.olas {
   position: relative;
   width: 100%;
-  height: 100%;
 }
 
-.hero-video {
+.olas-top { margin-top: 0; background-color: #8f6fc2; }
+
+.ola {
+  display: block;
+  width: 100%;
+  height: 140px;
+}
+
+/* Una sola ola blanca sobre fondo morado */
+.ola path { fill: #ffffff; }
+
+.video-placeholder {
+  margin: 1.5rem auto 0;
+  width: 100%;
+  max-width: 1080px;
+  aspect-ratio: 16 / 9;
+  border-radius: 16px;
+  border: none;
+  background: transparent;
+  overflow: hidden;
+}
+
+.video-placeholder > video,
+.video-placeholder > iframe { 
   width: 100%;
   height: 100%;
-  object-fit: cover;
-  filter: brightness(0.7);
-}
-
-.video-fallback {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(135deg, #4DD0E1 0%, #BA68C8 50%, #9C27B0 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.fallback-content h1 {
-  font-size: 4rem;
-  color: white;
-  font-weight: 800;
-  margin-bottom: 1rem;
-  text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-}
-
-.fallback-content p {
-  font-size: 1.5rem;
-  color: rgba(255, 255, 255, 0.9);
-  text-align: center;
-}
-
-.video-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(135deg, 
-    rgba(77, 208, 225, 0.3) 0%, 
-    rgba(186, 104, 200, 0.4) 50%, 
-    rgba(156, 39, 176, 0.3) 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.hero-content {
-  text-align: center;
-  color: white;
-  animation: heroContentFadeIn 2s ease-out;
+  display: block;
 }
 
 @keyframes heroContentFadeIn {
@@ -101,12 +82,10 @@
 }
 
 .hero-title {
-  font-size: 4.5rem;
+  font-size: 3rem;
   font-weight: 900;
-  margin-bottom: 1rem;
-  text-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-  letter-spacing: 3px;
-  animation: titlePulse 3s ease-in-out infinite;
+  margin-bottom: 0.5rem;
+  color: #1f2937;
 }
 
 @keyframes titlePulse {
@@ -115,11 +94,11 @@
 }
 
 .hero-subtitle {
-  font-size: 1.5rem;
+  font-size: 1.125rem;
   font-weight: 400;
+  color: #374151;
   opacity: 0.95;
-  margin-bottom: 2rem;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  margin-bottom: 1rem;
 }
 
 .hero-decoration {
@@ -303,9 +282,7 @@
 /* MVV Section */
 .mvv-section {
   padding: 6rem 0;
-  background: linear-gradient(135deg, 
-    rgba(77, 208, 225, 0.05) 0%, 
-    rgba(186, 104, 200, 0.05) 100%);
+  background: linear-gradient(135deg, rgba(126,205,238,0.08) 0%, rgba(180,148,214,0.08) 100%);
 }
 
 .mvv-grid {
@@ -567,10 +544,8 @@
     margin-top: 56px; /* Navbar más pequeño en móvil */
   }
   
-  .hero-video-section {
-    height: 60vh;
-    min-height: 400px;
-  }
+  .ola { height: 110px; }
+  .hero-title { font-size: 2.25rem; }
   
   .hero-title {
     font-size: 2.5rem;
@@ -632,9 +607,8 @@
     border-radius: 0 0 1rem 1rem;
   }
   
-  .hero-title {
-    font-size: 2rem;
-  }
+  .ola { height: 90px; }
+  .hero-title { font-size: 2rem; }
   
   .hero-subtitle {
     font-size: 1rem;
@@ -742,33 +716,14 @@
 
 /* Modo oscuro */
 @media (prefers-color-scheme: dark) {
-  .about-page {
-    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
-  }
-  
-  .store-description {
-    background: #2d3748;
-  }
-  
-  .section-title {
-    color: white;
-  }
-  
-  .description-text {
-    color: #e2e8f0;
-  }
-  
-  .mvv-card {
-    background: #374151;
-  }
-  
-  .mvv-card h3 {
-    color: white;
-  }
-  
-  .mvv-card p {
-    color: #d1d5db;
-  }
+  /* Mantener el diseño en claro aun si el sistema está en modo oscuro */
+  .about-page { background: #ffffff !important; }
+  .store-description { background: #ffffff !important; }
+  .section-title { color: #1a1a1a !important; }
+  .description-text { color: #4a5568 !important; }
+  .mvv-card { background: #ffffff !important; }
+  .mvv-card h3 { color: #1a1a1a !important; }
+  .mvv-card p { color: #4a5568 !important; }
 }
 
 /* Estados de carga */

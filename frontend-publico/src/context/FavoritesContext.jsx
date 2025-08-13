@@ -2,94 +2,77 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { toast } from "react-toastify";
 
 const FavoritesContext = createContext();
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
+const API_URL = import.meta.env.VITE_API_URL || '';
 
 export const FavoritesProvider = ({ children }) => {
-  const [favoritesList, setFavoritesList] = useState([]);
+  const [favorites, setFavorites] = useState([]);
 
-  const fetchFavorites = async () => {
-    const token = localStorage.getItem("authToken");
-    if (!token) {
-      console.warn("⚠️ No hay token de autenticación para obtener favoritos");
-      return;
-    }
-
+  async function fetchFavorites() {
+    const token = localStorage.getItem("token");
+    if (!token) return;
     try {
       const res = await fetch(`${API_URL}/api/profile/favorites`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` }
       });
-
       const data = await res.json();
-
       if (!res.ok) {
-        console.error("❌ Error al obtener favoritos:", data);
+        console.error("Error al obtener favoritos:", data);
         return;
       }
-
       if (Array.isArray(data)) {
-        setFavoritesList(data.map((id) => id));
+        setFavorites(data.map((id) => id));
       } else {
-        console.warn("❗ Respuesta inesperada del backend (favoritos):", data);
-        setFavoritesList([]);
+        console.warn("Respuesta inesperada al obtener favoritos:", data);
+        setFavorites([]);
+      }
+    } catch (err) {
+      console.error("Error de red al obtener favoritos:", err);
+    }
+  }
+
+  async function toggleFavorite(productId) {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      toast.warn('Debes iniciar sesión para usar favoritos');
+      return;
+    }
+    try {
+      const exists = favorites.includes(productId);
+      const updated = exists
+        ? favorites.filter((id) => id !== productId)
+        : [...favorites, productId];
+
+      setFavorites(updated);
+
+      const res = await fetch(`${API_URL}/api/profile/favorites`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ favorites: updated }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.message || 'No se pudo actualizar favoritos');
       }
 
-    } catch (err) {
-      console.error("❌ Error de red al obtener favoritos:", err);
+      toast.success(exists ? 'Producto eliminado de favoritos' : 'Producto agregado a favoritos');
+    } catch (error) {
+      console.error('Error al actualizar favoritos:', error);
+      toast.error('No se pudo actualizar tus favoritos. Intenta de nuevo.');
+      // Revertir en caso de error
+      fetchFavorites();
     }
-  };
-
-const toggleFavorite = async (productId) => {
-  if (!user) {
-    console.warn('Usuario no autenticado, no se puede modificar favoritos');
-    return;
   }
-
-  try {
-    const alreadyFavorite = favorites.includes(productId);
-    let updatedFavorites;
-
-    if (alreadyFavorite) {
-      // quitar de favoritos
-      updatedFavorites = favorites.filter((id) => id !== productId);
-      toast.info('Producto eliminado de favoritos 🗑️');
-    } else {
-      // agregar a favoritos
-      updatedFavorites = [...favorites, productId];
-      toast.success('Producto agregado a favoritos ❤️');
-    }
-
-    setFavorites(updatedFavorites);
-
-    const res = await fetch(`${API_URL}/api/profile/favorites`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${user.token}`,
-      },
-      body: JSON.stringify({ favorites: updatedFavorites }),
-    });
-
-    const data = await res.json();
-
-    if (!res.ok) {
-      throw new Error(data.message || 'Error al actualizar favoritos');
-    }
-
-  } catch (error) {
-    console.error('Error al actualizar favoritos:', error);
-    toast.error('No se pudo actualizar tus favoritos. Intenta de nuevo.');
-  }
-};
-
 
   useEffect(() => {
     fetchFavorites();
   }, []);
 
   return (
-    <FavoritesContext.Provider value={{ favoritesList, toggleFavorite }}>
+    <FavoritesContext.Provider value={{ favorites, toggleFavorite }}>
       {children}
     </FavoritesContext.Provider>
   );

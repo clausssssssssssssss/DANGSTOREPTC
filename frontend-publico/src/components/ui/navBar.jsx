@@ -4,7 +4,8 @@ import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { Search, ShoppingCart, User, X, Menu, Package, Grid3X3, MessageCircle, Info } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth.jsx';
 import { useCart } from '../../context/CartContext.jsx';
-import '../styles/navbar.css';
+import '../styles/navBar.css';
+import logo from '../../assets/DANGSTORELOGOPRUEBA__1.png';
 
 export default function NavBar() {
   const location = useLocation();
@@ -31,10 +32,10 @@ export default function NavBar() {
       const token = localStorage.getItem('token');
       if (!token) return;
       try {
-        const res = await fetch(
-          `${import.meta.env.VITE_API_URL || 'http://localhost:4000'}/api/custom-orders/me`,
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
+        const base = import.meta.env.VITE_API_URL || '';
+        const res = await fetch(`${base}/api/custom-orders/me`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
         if (!res.ok) return;
         const orders = await res.json();
         if (orders.some(o => o.status === 'quoted')) {
@@ -114,7 +115,7 @@ export default function NavBar() {
             <NavLink to="/acerca" className="logo-link">
               <div className="logo-icon">
                 <img
-                  src="src/assets/DANGSTORELOGOPRUEBA__1.png"
+                  src={logo}
                   alt="Logo"
                   className="logo-image"
                 />
@@ -173,22 +174,13 @@ export default function NavBar() {
                     {hasQuotes && <span className="notification-dot" />}
                   </NavLink>
                 ) : (
-                  <>
-                    <NavLink
-                      to="/auth"
-                      className={({ isActive }) => `icon-link ${isActive ? 'active' : ''}`}
-                      aria-label="Iniciar sesión"
-                    >
-                      <User size={20} />
-                    </NavLink>
-                    <NavLink
-                      to="/auth"
-                      className="login-button-nav"
-                      aria-label="Iniciar sesión"
-                    >
-                      Iniciar Sesión
-                    </NavLink>
-                  </>
+                  <NavLink
+                    to="/auth"
+                    className="login-button-nav"
+                    aria-label="Iniciar sesión"
+                  >
+                    Iniciar Sesión
+                  </NavLink>
                 )}
               </div>
 

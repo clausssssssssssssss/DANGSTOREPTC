@@ -3,8 +3,9 @@
   import 'react-native-gesture-handler';
   import 'react-native-reanimated';
   import SplashScreen from './components/SplashScreen';
-  import AppNavigator from './navigation/AppNavigator'; // Cambiado de './src/navigation/AppNavigator'
+  import AppNavigator from './navigation/AppNavigator';
   import { enableScreens } from 'react-native-screens';
+  import { AuthProvider } from './src/context/AuthContext.js';
   enableScreens();
 
   export default function App() {
@@ -15,8 +16,10 @@
     }
 
     return (
-      <View style={{ flex: 1 }}>
-        <AppNavigator />
-      </View>
+      <AuthProvider>
+        <View style={{ flex: 1 }}>
+          <AppNavigator />
+        </View>
+      </AuthProvider>
     );
   }

@@ -13,7 +13,7 @@ import FavoritesSection    from '../components/profile/FavoritesSection';
 import PasswordSection     from '../components/profile/PasswordSection';
 import UserSection         from '../components/profile/UserSection';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
+const API_URL = import.meta.env.VITE_API_URL || '';
 
 const UserProfile = () => {
   const { user } = useAuth(); // 

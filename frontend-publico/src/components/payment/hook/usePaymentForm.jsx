@@ -1,6 +1,9 @@
 import { useState } from "react";
+import { useLocation, useNavigate } from 'react-router-dom';
 
-const usePaymentFakeForm = () => {
+const usePaymentForm = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
   const [datosEnviados, setDatosEnviados] = useState(null);
   const [step, setStep] = useState(1);
   const [accessToken, setAccessToken] = useState(null);
@@ -13,17 +16,26 @@ const usePaymentFakeForm = () => {
   });
 
   const [formData, setFormData] = useState({
-    nombreCliente: "",
-    emailCliente: "",
+    nombre: "",
+    apellido: "",
+    email: "",
+    direccion: "",
+    ciudad: "",
+    telefono: "",
     monto: 0.01,
   });
 
-  const handleChange = (e) => {
+  const handleChangeData = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
       [name]: value,
     }));
+  };
+
+  const handleChangeTarjeta = (e) => {
+    const { name, value } = e.target;
+    setFormDataTarjeta((prev) => ({ ...prev, [name]: value }));
   };
 
   const limpiarFormulario = () => {
@@ -50,7 +62,7 @@ const usePaymentFakeForm = () => {
 
   
 
-  const handleFakePayment = async ({ items, total }) => {
+  const handleFinishPayment = async () => {
     try {
       // Verificar que tenemos token
       const token = localStorage.getItem("token");
@@ -58,16 +70,17 @@ const usePaymentFakeForm = () => {
         throw new Error("No hay token de autenticación");
       }
 
-      // Formatear items correctamente
-      const formattedItems = items.map(item => {
-        console.log("Procesando item:", item);
-        
-        return {
-          product: item.product._id || item.product.id || item.product,
-          quantity: parseInt(item.quantity) || 1,
-          price: parseFloat(item.price || item.product.price || 0),
-        };
-      });
+      // Tomar items y total provistos desde navigate state
+      const { items = [], total = 0 } = location.state || {};
+      if (!items.length) {
+        throw new Error('No hay productos para pagar');
+      }
+
+      const formattedItems = items.map(item => ({
+        product: item.product._id || item.product.id || item.product,
+        quantity: parseInt(item.quantity) || 1,
+        price: parseFloat(item.product?.price ?? item.price ?? 0),
+      }));
 
       const orderData = {
         items: formattedItems,
@@ -78,7 +91,8 @@ const usePaymentFakeForm = () => {
 
       console.log("📦 Enviando orden al backend:", orderData);
 
-      const response = await fetch("http://localhost:4000/api/cart/order", {
+      const base = import.meta.env.VITE_API_URL || '';
+      const response = await fetch(`${base}/api/cart/order`, {
   method: "POST",
   headers: {
     "Content-Type": "application/json",
@@ -97,8 +111,9 @@ console.log("📨 Haciendo petición...");
         throw new Error(responseData.message || `Error del servidor: ${response.status}`);
       }
 
-      alert("✅ Pago simulado y orden guardada con éxito");
-      return responseData; // Retornar la orden creada
+      // Volver al carrito con estado de éxito
+      navigate('/carrito', { replace: true, state: { paid: true, total } });
+      return responseData;
     } catch (error) {
       console.error("❌ Error en pago simulado:", error);
       alert(`Error: ${error.message}`);
@@ -108,14 +123,16 @@ console.log("📨 Haciendo petición...");
 
   return {
     formData,
-    datosEnviados,
-    handleChange,
+    formDataTarjeta,
+    handleChangeData,
+    handleChangeTarjeta,
     handleSubmit,
     limpiarFormulario,
-    handleFakePayment,
+    handleFirstStep: () => setStep(2),
+    handleFinishPayment,
     step,
     setStep,
   };
 };
 
-export default usePaymentFakeForm;
+export default usePaymentForm;

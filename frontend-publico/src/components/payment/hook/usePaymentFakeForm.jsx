@@ -59,10 +59,12 @@ const usePaymentFakeForm = () => {
       }
 
       // Formatear items correctamente
-      const formattedItems = items.map(item => ({
-        product: item.product._id || item.product.id || item.product,
-        quantity: parseInt(item.quantity) || 1,
-        price: parseFloat(item.price || item.product.price || 0),
+      const formattedItems = (items || []).map((item) => ({
+        product: item?.product?._id || item?.product?.id || item?.product,
+        quantity: parseInt(item?.quantity) || 1,
+        price: parseFloat(
+          item?.price ?? (item?.product && item?.product.price) ?? 0
+        ),
       }));
 
       const orderData = {
@@ -73,7 +75,8 @@ const usePaymentFakeForm = () => {
       };
 
       // Enviar orden al servidor
-      const response = await fetch("http://localhost:4000/api/cart/order", {
+      const base = import.meta.env.VITE_API_URL || '';
+      const response = await fetch(`${base}/api/cart/order`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -88,10 +91,10 @@ const usePaymentFakeForm = () => {
         throw new Error(responseData.message || `Error del servidor: ${response.status}`);
       }
 
-      return responseData;
+      return { success: true, data: responseData };
 
     } catch (error) {
-      throw error;
+      return { success: false, error };
     }
   };
 

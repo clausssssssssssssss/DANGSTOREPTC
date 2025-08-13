@@ -16,36 +16,50 @@ import UserSection         from '../components/profile/UserSection';
 const API_URL = import.meta.env.VITE_API_URL || '';
 
 const UserProfile = () => {
-  const { user } = useAuth(); // 
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-  }, [user]); // 
+  }, [user]);
 
- if (!user) {
-   return (
-     <div className="not-authenticated-message flex flex-col items-center justify-center h-full text-center p-6">
-       <h2 className="text-2xl font-bold mb-4">Necesitas iniciar sesión</h2>
-       <p className="mb-6">Debes iniciar sesión para ver tu perfil.</p>
-       <button
-         onClick={() => navigate('/auth/login')}
-         className="login-button px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition"
-       >
-         Ir a Iniciar Sesión
-       </button>
-     </div>
-   );
- }
+  if (!user) {
+    return (
+      <div className="not-authenticated-message">
+        <div className="auth-container">
+          <User className="auth-icon" size={80} />
+          <h2>Necesitas iniciar sesión</h2>
+          <p>Debes iniciar sesión para acceder a tu perfil y ver toda tu información personal.</p>
+          <div className="auth-buttons">
+            <button
+              onClick={() => navigate('/auth/login')}
+              className="login-button primary"
+            >
+              Iniciar Sesión
+            </button>
+            <button
+              onClick={() => navigate('/')}
+              className="login-button secondary"
+            >
+              Volver al Inicio
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const [activeSection, setActiveSection] = useState('personal');
 
   // --- Estado para cotizaciones ---
-  const [quotes, setQuotes]             = useState([]);
+  const [quotes, setQuotes] = useState([]);
   const [loadingQuotes, setLoadingQuotes] = useState(false);
-  const [errorQuotes, setErrorQuotes]     = useState('');
+  const [errorQuotes, setErrorQuotes] = useState('');
 
   // --- Bandera para mostrar puntito rojo ---
   const [hasQuotesFlag, setHasQuotesFlag] = useState(false);
+
+  // --- Estado para mostrar modal de confirmación de logout ---
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   // Carga inicial: revisa si hay cotizaciones con status "quoted"
   useEffect(() => {
@@ -112,8 +126,18 @@ const UserProfile = () => {
           if (remaining.length === 0) setHasQuotesFlag(false);
           return remaining;
         });
+        toast.success(decision === 'accept' ? 'Cotización aceptada' : 'Cotización rechazada');
       })
-      .catch(err => alert('Error: ' + err.message));
+      .catch(err => {
+        console.error('Error:', err);
+        toast.error('Error al procesar la decisión');
+      });
+  };
+
+  const handleLogout = () => {
+    logout();
+    navigate('/');
+    toast.success('Sesión cerrada correctamente');
   };
 
   const renderSection = () => {
@@ -131,38 +155,76 @@ const UserProfile = () => {
           <div className="content-card">
             <div className="card-header">
               <div className="card-title">
-                <Gift />
-                <h3>Cotizaciones</h3>
+                <Gift className="section-icon" />
+                <h3>Mis cotizaciones</h3>
+              </div>
+              <div className="header-actions">
+                <div className="quotes-filter">
+                  <button className="filter-btn active">Completadas</button>
+                  <button className="filter-btn">Pendientes</button>
+                </div>
               </div>
             </div>
 
-            {loadingQuotes && <p>Cargando cotizaciones…</p>}
-            {errorQuotes  && <p className="error-message">{errorQuotes}</p>}
+            {loadingQuotes && (
+              <div className="loading-state">
+                <p>Cargando cotizaciones...</p>
+              </div>
+            )}
+            
+            {errorQuotes && (
+              <div className="error-state">
+                <p className="error-message">{errorQuotes}</p>
+              </div>
+            )}
+            
             {!loadingQuotes && quotes.length === 0 && (
-              <p>No tienes cotizaciones nuevas.</p>
+              <div className="empty-state">
+                <Gift size={48} className="empty-icon" />
+                <p>No tienes cotizaciones nuevas.</p>
+              </div>
             )}
 
-            {quotes.map(o => (
-              <div key={o._id} className="quote-item">
-                <p><strong>Encargo:</strong> {o.modelType}</p>
-                <p><strong>Detalles:</strong> {o.description}</p>
-                <p><strong>Precio cotizado:</strong> ${o.price.toFixed(2)}</p>
-                <div className="quote-actions">
-                  <button
-                    className="btn btn-accept"
-                    onClick={() => handleDecision(o._id, 'accept')}
-                  >
-                    Aceptar
-                  </button>
-                  <button
-                    className="btn btn-reject"
-                    onClick={() => handleDecision(o._id, 'reject')}
-                  >
-                    Rechazar
-                  </button>
+            <div className="quotes-list">
+              {quotes.map(quote => (
+                <div key={quote._id} className="quote-card">
+                  <div className="quote-image">
+                    <img 
+                      src={quote.imageUrl || '/api/placeholder/80/80'} 
+                      alt={quote.modelType}
+                      onError={(e) => {
+                        e.target.style.display = 'none';
+                        e.target.nextSibling.style.display = 'flex';
+                      }}
+                    />
+                    <div className="quote-placeholder" style={{display: 'none'}}>
+                      <Gift size={24} />
+                    </div>
+                  </div>
+                  <div className="quote-details">
+                    <h4 className="quote-title">{quote.modelType}</h4>
+                    <p className="quote-description">{quote.description}</p>
+                    <div className="quote-price-row">
+                      <span className="quote-price">${quote.price?.toFixed(2) || '0.00'}</span>
+                      <div className="quote-actions">
+                        <button
+                          className="btn-quote accept"
+                          onClick={() => handleDecision(quote._id, 'accept')}
+                        >
+                          VER DETALLES
+                        </button>
+                        <button
+                          className="btn-quote reject"
+                          onClick={() => handleDecision(quote._id, 'reject')}
+                        >
+                          YA ORDENAR
+                        </button>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         );
       case 'customOrders':
@@ -170,32 +232,13 @@ const UserProfile = () => {
           <div className="content-card">
             <div className="card-header">
               <div className="card-title">
-                <ShoppingCart />
+                <ShoppingCart className="section-icon" />
                 <h3>Encargos Personalizados</h3>
               </div>
             </div>
-            <p>Gestiona tus encargos personalizados. Aquí aparecerán cuando los realices.</p>
-          </div>
-        );
-      case 'logout':
-        return (
-          <div className="logout-content">
-            <LogOut className="logout-icon" />
-            <h2 className="logout-title">¿Seguro que deseas cerrar sesión?</h2>
-            <p className="logout-subtitle">Perderás el acceso a tu cuenta en este dispositivo.</p>
-            <div className="logout-actions">
-              <button className="logout-button cancel" onClick={() => setActiveSection('personal')}>
-                Cancelar
-              </button>
-              <button
-                className="logout-button confirm"
-                onClick={() => {
-                  localStorage.removeItem('token');
-                  window.location.reload();
-                }}
-              >
-                Cerrar sesión
-              </button>
+            <div className="empty-state">
+              <ShoppingCart size={48} className="empty-icon" />
+              <p>Gestiona tus encargos personalizados. Aquí aparecerán cuando los realices.</p>
             </div>
           </div>
         );
@@ -206,62 +249,104 @@ const UserProfile = () => {
 
   return (
     <div className="user-profile-container">
-      <div className="content-layout">
-        <aside className="sidebar">
-          <div className="sidebar-card">
+      <div className="profile-layout">
+        {/* Sidebar */}
+        <aside className="profile-sidebar">
+          <div className="sidebar-content">
             <UserSection />
-            <nav className="nav-buttons">
+            <nav className="profile-navigation">
               <button
                 onClick={() => setActiveSection('personal')}
-                className={`nav-button ${activeSection === 'personal' ? 'active' : ''}`}
+                className={`nav-btn ${activeSection === 'personal' ? 'active' : ''}`}
               >
-                <User className="nav-button-icon" /> Datos Personales
+                <User className="nav-icon" />
+                <span>Mis datos</span>
               </button>
+              
               <button
                 onClick={() => setActiveSection('orders')}
-                className={`nav-button ${activeSection === 'orders' ? 'active' : ''}`}
+                className={`nav-btn ${activeSection === 'orders' ? 'active' : ''}`}
               >
-                <ShoppingCart className="nav-button-icon" /> Pedidos
+                <ShoppingCart className="nav-icon" />
+                <span>Mis pedidos</span>
               </button>
+              
               <button
                 onClick={() => setActiveSection('favorites')}
-                className={`nav-button ${activeSection === 'favorites' ? 'active' : ''}`}
+                className={`nav-btn ${activeSection === 'favorites' ? 'active' : ''}`}
               >
-                <Heart className="nav-button-icon" /> Favoritos
+                <Heart className="nav-icon" />
+                <span>Favoritos</span>
               </button>
+              
               <button
                 onClick={() => setActiveSection('password')}
-                className={`nav-button ${activeSection === 'password' ? 'active' : ''}`}
+                className={`nav-btn ${activeSection === 'password' ? 'active' : ''}`}
               >
-                🔒 Cambiar Contraseña
+                <Lock className="nav-icon" />
+                <span>Contraseña</span>
               </button>
+              
               <button
                 onClick={() => setActiveSection('quotes')}
-                className={`nav-button ${activeSection === 'quotes' ? 'active' : ''}`}
+                className={`nav-btn ${activeSection === 'quotes' ? 'active' : ''}`}
               >
-                <Gift className="nav-button-icon" /> Cotizaciones
-                {hasQuotesFlag && <span className="notification-dot-sidebar" />}
+                <Gift className="nav-icon" />
+                <span>Cotizaciones</span>
+                {hasQuotesFlag && <span className="notification-dot" />}
               </button>
+              
               <button
                 onClick={() => setActiveSection('customOrders')}
-                className={`nav-button ${activeSection === 'customOrders' ? 'active' : ''}`}
+                className={`nav-btn ${activeSection === 'customOrders' ? 'active' : ''}`}
               >
-                📦 Encargos Personalizados
+                <ShoppingCart className="nav-icon" />
+                <span>Cerrar Sesión</span>
               </button>
+              
               <button
-                onClick={() => setActiveSection('logout')}
-                className={`nav-button logout ${activeSection === 'logout' ? 'active' : ''}`}
+                onClick={() => setShowLogoutModal(true)}
+                className={`nav-btn logout-btn`}
               >
-                <LogOut className="nav-button-icon" /> Cerrar Sesión
+                <LogOut className="nav-icon" />
+                <span>Cerrar Sesión</span>
               </button>
             </nav>
           </div>
         </aside>
 
-        <main className="content-area">
-          <div className="section-content">{renderSection()}</div>
+        {/* Main Content */}
+        <main className="profile-content">
+          <div className="content-wrapper">
+            {renderSection()}
+          </div>
         </main>
       </div>
+
+      {/* Modal de confirmación de logout */}
+      {showLogoutModal && (
+        <div className="modal-overlay" onClick={() => setShowLogoutModal(false)}>
+          <div className="logout-modal" onClick={e => e.stopPropagation()}>
+            <div className="modal-content">
+              <h3>¿Quieres salir de tu cuenta?</h3>
+              <div className="modal-actions">
+                <button 
+                  className="btn-modal cancel"
+                  onClick={() => setShowLogoutModal(false)}
+                >
+                  Cancelar
+                </button>
+                <button 
+                  className="btn-modal confirm"
+                  onClick={handleLogout}
+                >
+                  Salir
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

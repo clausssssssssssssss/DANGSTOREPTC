@@ -14,7 +14,7 @@ import {
   RefreshControl,
   Dimensions,
 } from 'react-native';
-import { apiOrigin } from '../src/api/constans';
+const apiOrigin = 'http://192.168.56.1:3001';
 
 const { width, height } = Dimensions.get('window');
 

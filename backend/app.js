@@ -22,15 +22,6 @@ import paymentRoutes          from './src/routes/paymentRoutes.js';
  */
 const app = express();
 
-// Middlewares
-const allowedOrigins = ["http://localhost:5174", "http://localhost:5173"];
-
-app.use(
-  cors({
-    origin: allowedOrigins, // Dominio del cliente
-    credentials: true, // Permitir envío de cookies y credenciales
-  })
-);
 
 /** Habilita el parseo de JSON en el cuerpo de las solicitudes */
 app.use(express.json());

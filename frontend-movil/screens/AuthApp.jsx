@@ -1,17 +1,17 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { View, Text, TouchableOpacity, TextInput, Alert, ActivityIndicator, SafeAreaView, Dimensions, Image, Platform, KeyboardAvoidingView, ScrollView } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { api } from '../src/api/constans';
+import { AuthContext } from '../src/context/AuthContext.js';
 
 const { width, height } = Dimensions.get('window');
 
 const AuthApp = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [token, setToken] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
+  const { user, login } = useContext(AuthContext);
 
   const validateEmail = (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 
@@ -27,47 +27,19 @@ const AuthApp = ({ navigation }) => {
   const handleLogin = async () => {
     if (!validateLoginForm()) return;
     setLoading(true);
-    try {
-      const requestUrl = `${api}admins/login`;
-      console.log('[Login] Using API base:', api);
-      console.log('[Login] Request URL:', requestUrl);
-      console.log('[Login] Payload (email only):', { email: email.trim() });
-      console.log('[Login] Platform:', Platform.OS);
-
-      const res = await fetch(requestUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: email.trim(), password }),
-      });
-      console.log('[Login] Response status:', res.status, 'ok:', res.ok);
-      const raw = await res.text();
-      console.log('[Login] Raw response (first 300 chars):', raw?.slice(0, 300));
-      let data = {};
-      try { data = raw ? JSON.parse(raw) : {}; } catch { /* ignore parse error */ }
-      if (res.ok) {
-        if (data?.token) {
-          // Guardar token en memoria local simple
-          setToken(data.token);
-        }
-        Alert.alert('¡Bienvenido!', 'Inicio de sesión exitoso', [
-          { text: 'OK', onPress: () => navigation.replace('MainApp') },
-        ]);
-      } else {
-        throw new Error(data?.message || 'Credenciales incorrectas');
-      }
-    } catch (error) {
-      console.log('[Login] Caught error:', error?.name, error?.message);
-      if (error?.stack) console.log('[Login] Error stack top:', String(error.stack).split('\n').slice(0,2).join('\n'));
-      Alert.alert('Error', error?.message || 'Credenciales incorrectas');
-    } finally {
-      setLoading(false);
+    const success = await login(email, password);
+    setLoading(false);
+    if (success) {
+      Alert.alert('¡Bienvenido!', 'Inicio de sesión exitoso', [
+        { text: 'OK', onPress: () => navigation.replace('MainApp') },
+      ]);
     }
   };
 
-  // Si ya existe un token (sesión previa), entrar directo
+  // Si ya existe sesión en contexto, entrar directo
   useEffect(() => {
-    if (token) navigation.replace('MainApp');
-  }, [token]);
+    if (user?.token) navigation.replace('MainApp');
+  }, [user?.token]);
 
   return (
     <SafeAreaView style={styles.safeArea}>

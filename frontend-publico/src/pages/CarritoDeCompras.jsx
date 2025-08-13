@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth.jsx';
 import { useCart } from '../context/CartContext.jsx';
 import { useToast } from '../hooks/useToast.js';
@@ -13,19 +13,22 @@ const CarritoDeCompras = () => {
   const userId = user?.id;
   const { cart, clearCart, updateQuantity, removeFromCart } = useCart(userId);
   const { toasts, showSuccess, showError, showWarning, removeToast } = useToast();
+  const navigate = useNavigate();
+  const location = useLocation();
   
   const { handleFakePayment } = usePaymentFakeForm();
 
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
+  const [paidTotal, setPaidTotal] = useState(null);
 
   const total = cart.reduce((acc, item) => acc + (item.product?.price || 0) * (item.quantity || 0), 0);
   const itemCount = cart.reduce((acc, item) => acc + (item.quantity || 0), 0);
   
   const handlePayment = async () => {
     setLoading(true);
-    setError('');hgv
+    setError('');
     setSuccess(false);
     
     try {
@@ -44,18 +47,12 @@ const CarritoDeCompras = () => {
         throw new Error('Algunos productos no tienen información completa');
       }
 
-      const result = await handleFakePayment({
-        items: cart,
-        total: total
-      });
+      // Redirigir primero al formulario de pago para capturar datos
+      navigate('/form-payment', { state: { items: cart, total } });
+      setLoading(false);
+      return;
 
-      if (result) {
-        setSuccess(true);
-        await clearCart();
-        showSuccess('¡Pago procesado exitosamente y orden guardada!');
-      } else {
-        throw new Error('Error al procesar el pago');
-      }
+      // Nota: el flujo de éxito ahora vive en formPayment.jsx
 
     } catch (err) {
       setError(err.message || 'Error al procesar el pago. Intenta de nuevo.');
@@ -87,6 +84,15 @@ const CarritoDeCompras = () => {
     }
   };
 
+  useEffect(() => {
+    if (location.state?.paid) {
+      setSuccess(true);
+      setPaidTotal(location.state.total || null);
+      // limpiar state para que no reaparezca al recargar
+      navigate(location.pathname, { replace: true, state: {} });
+    }
+  }, [location.state]);
+
   if (success) {
     return (
       <div className="cart-container">
@@ -117,7 +123,7 @@ const CarritoDeCompras = () => {
                 </div>
                 <div className="detail-row">
                   <span>Total:</span>
-                  <strong>${total.toFixed(2)}</strong>
+                  <strong>${(paidTotal ?? total).toFixed(2)}</strong>
                 </div>
                 <div className="detail-row">
                   <span>Fecha:</span>

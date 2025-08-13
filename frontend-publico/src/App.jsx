@@ -8,6 +8,7 @@ import Catalogo from './pages/Catalogo'
 import Contacto from './pages/Contacto'
 import Acerca from './pages/Acerca'
 import UserProfile from './pages/UserProfile'
+import FormPaymentFake from './pages/formPaymentFake'
 import { AuthProvider } from './hooks/useAuth'
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
@@ -106,6 +107,7 @@ const App = () => {
               <Route path="/encargo" element={<Encargo />} />
               <Route path="/catalogo" element={<Catalogo />} />
               <Route path="/carrito" element={<CarritoDeCompras />} />
+              <Route path="/form-payment" element={<FormPaymentFake />} />
               <Route path="/contacto" element={<Contacto />} />
               <Route path="/acerca" element={<Acerca />} />
               <Route path="/perfil" element={<UserProfile />} />

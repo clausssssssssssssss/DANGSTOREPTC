@@ -2,10 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import './ProductCard.css';
 import { toast } from 'react-toastify';
-import React from 'react';
-import PropTypes from 'prop-types';
-import './ProductCard.css';
-import { toast } from 'react-toastify';
 
 export default function ProductCard({ product, onAddToCart, onClick, isFavorite, onToggleFavorite }) {
   // Elegir la primera imagen o un placeholder

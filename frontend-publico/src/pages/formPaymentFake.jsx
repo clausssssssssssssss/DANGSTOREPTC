@@ -1,18 +1,21 @@
 import React from "react";
-import { useAuth } from "../../hooks/useAuth.jsx";
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from "../hooks/useAuth.jsx";
 import { useCart } from "../context/CartContext.jsx";
-import usePaymentFakeForm from "../payment/hook/usePaymentFakeForm.jsx";
-import InputField from "../payment/InputField";
-import Button from "../payment/Button";
+import usePaymentFakeForm from "../components/payment/hook/usePaymentFakeForm.jsx";
+import InputField from "../components/payment/InputField";
+import Button from "../components/payment/Button";
+import "../components/styles/formPayment.css";
 
 
 const FormPaymentFake = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const userId = user?.id;
   const { cart, clearCart } = useCart(userId);
 
   // calcula total y cantidad
-  const total = cart.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
+  const total = cart.reduce((sum, item) => sum + (item.product?.price || 0) * (item.quantity || 0), 0);
 
   const {
     formData,
@@ -24,104 +27,66 @@ const FormPaymentFake = () => {
   } = usePaymentFakeForm();
 
   const onPay = async () => {
-  // Mapear cart para enviar solo lo que espera el backend
-  const itemsParaOrden = cart.map(item => ({
-    product: item.product._id,  // solo el ID del producto
-    quantity: item.quantity,
-    price: item.product.price
-  }));
+    const itemsParaOrden = cart.map(item => ({
+      product: item.product?._id || item.product?.id,
+      quantity: item.quantity || 1,
+      price: item.product?.price || 0,
+    }));
 
-  const success = await handleFakePayment({ 
-    userId, 
-    items: itemsParaOrden,  // aquí cambias cart por itemsParaOrden
-    total, 
-    clientData: formData 
-  });
+    const result = await handleFakePayment({ 
+      userId, 
+      items: itemsParaOrden,
+      total, 
+      clientData: formData 
+    });
 
-  if (success) {
-    clearCart();
-    limpiarFormulario();
-  }
-};
+    if (result?.success) {
+      clearCart();
+      limpiarFormulario();
+      navigate('/carrito', { replace: true, state: { paid: true, total } });
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4">
-      <div className="max-w-md mx-auto">
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">
-            Fake Payment Example
-          </h2>
+    <div className="payment-page">
+      <div className="payment-wrapper">
+        <div className="payment-card">
+          <div className="section-header">
+            <h2 className="section-title">Pago Simulado</h2>
+            <p className="section-subtitle">Completa los datos para generar una orden de prueba.</p>
+          </div>
+          <div className="form-grid">
+            <InputField id="nombreCliente" name="nombreCliente" value={formData.nombreCliente} onChange={handleChange} type="text" label="Nombre del Cliente" placeholder="Ingresa el nombre completo" required />
+            <InputField id="emailCliente" name="emailCliente" value={formData.emailCliente} onChange={handleChange} type="email" label="Email del Cliente" placeholder="cliente@ejemplo.com" required />
+            <InputField id="monto" name="monto" value={Math.max(Number(formData.monto || 0), Number(total || 0))} onChange={handleChange} type="number" label="Monto" placeholder="0.00" min={Number(total || 0)} step="0.01" required />
 
-          <div className="space-y-4">
-            <InputField
-              id="nombreCliente"
-              name="nombreCliente"
-              value={formData.nombreCliente}
-              onChange={handleChange}
-              type="text"
-              label="Nombre del Cliente"
-              placeholder="Ingresa el nombre completo"
-              required
-            />
-
-            <InputField
-              id="emailCliente"
-              name="emailCliente"
-              value={formData.emailCliente}
-              onChange={handleChange}
-              type="email"
-              label="Email del Cliente"
-              placeholder="cliente@ejemplo.com"
-              required
-            />
-
-            <InputField
-              id="monto"
-              name="monto"
-              value={formData.monto}
-              onChange={handleChange}
-              type="number"
-              label="Monto"
-              placeholder="0.00"
-              min="0"
-              step="0.01"
-              required
-            />
-
-            <Button
-              onClick={handleSubmit}
-              type="button"
-              variant="primary"
-              className="w-full"
-              text="Enviar Datos"
-            />
+            <div className="actions">
+              <Button onClick={handleSubmit} type="button" variant="primary" className="btn-primary" text="Enviar Datos" />
+            </div>
           </div>
         </div>
 
         {datosEnviados && (
-          <div className="mt-6 bg-green-50 border border-green-200 rounded-lg p-4">
-            <h3 className="text-lg font-semibold text-green-800 mb-3">
-              ✅ Datos Recibidos:
-            </h3>
-            <div className="space-y-2 text-sm">
-              <p>
-                <span className="font-medium">Nombre:</span>{" "}
-                {datosEnviados.nombreCliente}
-              </p>
-              <p>
-                <span className="font-medium">Email:</span>{" "}
-                {datosEnviados.emailCliente}
-              </p>
-              <p>
-                <span className="font-medium">Monto:</span> $
-                {parseFloat(datosEnviados.monto).toFixed(2)}
-              </p>
+          <div className="payment-card" style={{ marginTop: 16 }}>
+            <div className="section-header">
+              <h3 className="section-title">✅ Datos Recibidos</h3>
+              <p className="section-subtitle">Revisa y confirma el pago de prueba.</p>
             </div>
-              <Button 
-          onClick={onPay} 
-          text={`Pagar $${total.toFixed(2)}`} 
-          variant="secondary" 
-        />
+            <div className="form-grid">
+              <div>
+                <strong>Nombre:</strong> {datosEnviados.nombreCliente}
+              </div>
+              <div>
+                <strong>Email:</strong> {datosEnviados.emailCliente}
+              </div>
+              <div>
+                <strong>Monto:</strong> ${Math.max(Number(datosEnviados.monto || 0), Number(total || 0)).toFixed(2)}
+              </div>
+              <div className="actions actions-duo">
+                <Button onClick={onPay} text={`Pagar $${total.toFixed(2)}`} variant="secondary" className="btn-primary" />
+                <Button onClick={limpiarFormulario} text="Editar" variant="secondary" className="btn-secondary" />
+              </div>
+            </div>
           </div>
         )}
       </div>

@@ -21,6 +21,7 @@ import paymentRoutes          from './src/routes/paymentRoutes.js';
  * Configura middlewares globales y monta los routers de la API.
  */
 const app = express();
+app.use(cors());
 
 
 /** Habilita el parseo de JSON en el cuerpo de las solicitudes */

@@ -1,11 +1,11 @@
 // src/services/productService.js
 
-const API_BASE_URL = 'http://localhost:4000/api/productsi'; // Ajusta esta URL
+const API_BASE_URL = import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/api` : '/api';
 
 export const productService = {
   async getProducts() {
     try {
-      const response = await fetch(`${API_BASE_URL}/products`);
+    const response = await fetch(`${API_BASE_URL}/products`);
       
       if (!response.ok) {
         throw new Error(`Error: ${response.status}`);

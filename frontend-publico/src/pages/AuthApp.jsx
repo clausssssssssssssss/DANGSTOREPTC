@@ -8,7 +8,7 @@ import { useAuth, parseJwt } from '../hooks/useAuth.jsx';
 import { useToast } from '../hooks/useToast';
 import ToastContainer from '../components/ui/ToastContainer';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
+const API_URL = import.meta.env.VITE_API_URL || '';
 
 const AuthApp = () => {
   const navigate = useNavigate();

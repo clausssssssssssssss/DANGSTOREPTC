@@ -12,7 +12,7 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(false);
 
   // Ajusta aquí tu IP y puerto del backend
-  const API_URL = 'http://192.168.56.1:3001/api';
+  const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://192.168.0.8:4000';
 
   useEffect(() => {
     const loadToken = async () => {
@@ -32,9 +32,9 @@ export const AuthProvider = ({ children }) => {
 
   const logout = useCallback(async () => {
     try {
-      await fetch(`${API_URL}/logout`, {
+      await fetch(`${API_URL}/api/logout`, {
         method: 'POST',
-        credentials: 'include',
+        headers: authToken ? { Authorization: `Bearer ${authToken}` } : undefined,
       });
     } catch (error) {
       console.error('Error during logout:', error);
@@ -46,13 +46,21 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
-      const response = await fetch(`${API_URL}/admins/login`, {
+      const response = await fetch(`${API_URL}/api/admins/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
-        credentials: 'include',
       });
 
+      const contentType = response.headers.get('content-type') || '';
+      if (!response.ok) {
+        const errText = await response.text();
+        throw new Error(`HTTP ${response.status} ${response.statusText} - ${errText}`);
+      }
+      if (!contentType.includes('application/json')) {
+        const txt = await response.text();
+        throw new Error(`Respuesta no JSON: ${txt.slice(0, 200)}`);
+      }
       const data = await response.json();
 
       if (response.ok) {
@@ -74,7 +82,7 @@ export const AuthProvider = ({ children }) => {
 
   const register = async (userData) => {
     try {
-      const response = await fetch(`${API_URL}/customers`, {
+      const response = await fetch(`${API_URL}/api/customers`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(userData),

@@ -81,7 +81,7 @@ function MainLayout() {
   return (
     <div className="flex flex-col min-h-screen">
       <NavBar />
-      <main className="flex-grow p-4 md:p-6 bg-gray-50">
+      <main className="flex-grow p-4 md:p-6 bg-white">
         <Outlet />
       </main>
     </div>

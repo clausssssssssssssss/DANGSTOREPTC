@@ -54,6 +54,7 @@ export const loginClient = async (req, res) => {
 
         if (customer.loginAttempts > maxAttempts) {
           customer.locktime = Date.now() + locktime;
+          customer.loginAttempts = 0;
           await customer.save();
           return res.status(403).json({ message: "Usuario bloqueado" });
         }

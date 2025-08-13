@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect } from 'react';
 import '../components/styles/Footer.css';
 import '../components/styles/Acerca.css';
 import { Instagram } from 'lucide-react';
@@ -6,7 +6,6 @@ import { Instagram } from 'lucide-react';
 
 
 const About = () => {
-  const videoRef = useRef(null);
 
   useEffect(() => {
     // Animación de entrada para elementos
@@ -31,42 +30,26 @@ const About = () => {
 
   return (
     <div className="about-page">
-      {/* Video Hero Section */}
-      <section className="hero-video-section">
-        <div className="video-container">
-          <video
-            ref={videoRef}
-            className="hero-video"
-            autoPlay
-            muted
-            loop
-            playsInline
-          >
-            <source src="/videos/dangstore-intro.mp4" type="video/mp4" />
-            {/* Fallback para navegadores que no soporten video */}
-            <div className="video-fallback">
-              <div className="fallback-content">
-                <h1>DANGSTORE</h1>
-                <p>Tu recorrido en plantas, tu estilo en lavero</p>
-              </div>
-            </div>
-          </video>
-          <div className="video-overlay">
-            <div className="hero-content">
-              <h1 className="hero-title">DANGSTORE</h1>
-              <p className="hero-subtitle">Tus recuerdos en pixeles, tu estilo en llavero.</p>
-              <div className="hero-decoration">
-                <div className="decoration-line"></div>
-                <div className="decoration-dots">
-                  <span></span>
-                  <span></span>
-                  <span></span>
-                </div>
-                <div className="decoration-line"></div>
-              </div>
-            </div>
-          </div>
+      {/* Hero con fondo blanco, olas y espacio para video */}
+      <section className="hero-olas-section">
+        {/* Ola superior única */}
+        <div className="olas olas-top" aria-hidden="true">
+          <svg viewBox="0 0 1440 140" preserveAspectRatio="none" className="ola">
+            <path d="M0,80 C240,120 480,20 720,50 C960,80 1200,60 1440,90 L1440,0 L0,0 Z"></path>
+          </svg>
         </div>
+
+        <div className="hero-inner container animate-on-scroll">
+          <h1 className="hero-title centered">DANGSTORE</h1>
+          <p className="hero-subtitle centered">
+            Convertimos pequeños píxeles en grandes ideas. Cada llavero es elaborado a mano con precisión y dedicación.
+          </p>
+
+          {/* Espacio reservado para video (inserta aquí tu <video> o <iframe>) */}
+          <div className="video-placeholder" role="region" aria-label="Espacio para video"></div>
+        </div>
+
+        {/* Sin olas inferiores para mantener el diseño limpio */}
       </section>
 
       {/* Descripción de la Tienda */}

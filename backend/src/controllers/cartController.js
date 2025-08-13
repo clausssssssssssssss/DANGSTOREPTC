@@ -175,11 +175,17 @@ export const createOrder = async (req, res) => {
       });
     }
 
+    // Calcular total real basado en items
+    const totalAmount = (items || []).reduce(
+      (sum, item) => sum + (item.price || 0) * (item.quantity || 0),
+      0
+    );
+
     // ✅ 1. Crear orden y guardarla
     const order = new Order({
       user: userId,
       items,
-      total,
+      total: totalAmount, // usar el total calculado en servidor
       status: wompiStatus === "COMPLETED" ? "COMPLETED" : "PENDING",
       wompi: { orderID: wompiOrderID, captureStatus: wompiStatus },
     });
@@ -202,11 +208,7 @@ export const createOrder = async (req, res) => {
 
     // ✅ 4. Registrar la venta en SalesModel
     try {
-      const productIds = items.map((item) => item.product).filter(Boolean); // solo productos válidos
-      const totalAmount = items.reduce(
-        (sum, item) => sum + item.price * item.quantity,
-        0
-      );
+      const productIds = (items || []).map((item) => item.product).filter(Boolean); // solo productos válidos
 
       const newSale = new SalesModel({
         products: productIds,

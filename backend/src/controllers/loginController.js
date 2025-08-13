@@ -13,7 +13,7 @@ import { config } from '../../config.js';
 
 //Declarar dos constatnes Una que guarde el maximo de intentos posibleas y otra que guarde el tiempo de bloqueo
 
-const maxAttempts = 3;
+const maxAttempts = 5;
 const locktime = 16 * 60 * 1000;
 
 export const loginClient = async (req, res) => {

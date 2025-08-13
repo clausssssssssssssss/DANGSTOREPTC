@@ -2,7 +2,6 @@
 import React, { createContext, useState, useCallback, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ToastAndroid } from 'react-native';
-import { API_BASE_URL } from '../../services/api';
 
 const AuthContext = createContext(null);
 export { AuthContext };
@@ -12,12 +11,12 @@ export const AuthProvider = ({ children }) => {
   const [authToken, setAuthToken] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  // Usar la misma URL base que el resto de servicios móviles
-  const API_URL = API_BASE_URL; // p.ej. http://10.0.2.2:3001/api (o override vía EXPO_PUBLIC_API_ORIGIN)
+  // URL base unificada con el servicio API del móvil
+  const API_URL = "http://10.10.0.253:4000/api"
 
   useEffect(() => {
     const loadToken = async () => {
-      const token = await AsyncStorage.getItem('authToken');
+      const token = await getAuthToken();
       if (token) {
         setAuthToken(token);
       }
@@ -26,14 +25,14 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const clearSession = async () => {
-    await AsyncStorage.removeItem('authToken');
+    await removeAuthToken();
     setUser(null);
     setAuthToken(null);
   };
 
   const logout = useCallback(async () => {
     try {
-      await fetch(`${API_URL}/logout`, {
+      await fetch(`${API_URL}/api/logout`, {
         method: 'POST',
         headers: authToken ? { Authorization: `Bearer ${authToken}` } : undefined,
       });
@@ -43,7 +42,7 @@ export const AuthProvider = ({ children }) => {
       await clearSession();
       ToastAndroid.show('Sesión cerrada correctamente', ToastAndroid.SHORT);
     }
-  }, [API_URL]);
+  }, [API_URL, authToken]);
 
   const login = async (email, password) => {
     try {
@@ -51,6 +50,7 @@ export const AuthProvider = ({ children }) => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
+        credentials:  "include",
       });
 
       const contentType = response.headers.get('content-type') || '';
@@ -65,7 +65,7 @@ export const AuthProvider = ({ children }) => {
       const data = await response.json();
 
       if (response.ok) {
-        await AsyncStorage.setItem('authToken', data.token);
+       // await saveAuthToken(data.token);
         setAuthToken(data.token);
         setUser(data.user);
         ToastAndroid.show('Inicio de sesión exitoso', ToastAndroid.SHORT);
@@ -83,7 +83,7 @@ export const AuthProvider = ({ children }) => {
 
   const register = async (userData) => {
     try {
-      const response = await fetch(`${API_URL}/customers`, {
+      const response = await fetch(`${API_URL}/api/customers`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(userData),

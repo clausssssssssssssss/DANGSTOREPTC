@@ -165,10 +165,16 @@ body {
 .password-input {
   position: relative;
   width: 100%;
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
 }
 
 .password-input .auth-input {
-  padding-right: 3rem;
+  padding-right: 2.5rem; /* espacio para el icono */
+  width: 100%;
+  display: block;
 }
 
 .password-toggle {
@@ -176,12 +182,23 @@ body {
   right: 0.75rem;
   top: 50%;
   transform: translateY(-50%);
-  background: none;
-  border: none;
-  cursor: pointer;
+  background: transparent;
+  border: 0;
+  padding: 0;
   color: var(--text-secondary);
-  padding: 0.25rem;
+  line-height: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
+
+.password-input:focus-within .auth-input {
+  border-color: var(--primary-main);
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+}
+
+
+
 
 /* ===== BOTONES PRINCIPALES ===== */
 .auth-button {

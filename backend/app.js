@@ -11,6 +11,7 @@ import customOrderRoutes      from './src/routes/customOrder.js';
 import contactRoutes          from './src/routes/contact.js';
 import catalogRoutes          from './src/routes/catalogo.js';
 import productRoutes          from './src/routes/products.js';
+import materialRoutes         from './src/routes/material.js';
 import profileRoutes          from './src/routes/profile.js';
 import adminAuthRoutes        from './src/routes/adminAuth.js';
 import logoutRoutes           from './src/routes/logout.js';
@@ -59,6 +60,9 @@ app.use('/api/catalog', catalogRoutes);
 
 // Gestión de productos (CRUD, imágenes, stock)
 app.use('/api/products', productRoutes);
+
+// Gestión de materiales (inventario)
+app.use('/api/material', materialRoutes);
 
 // Perfil de usuario (lectura y actualización de datos del cliente autenticado)
 app.use('/api/profile', profileRoutes);

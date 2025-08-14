@@ -12,7 +12,7 @@ import Inventario from '../screens/Inventario';
 import Ventas from '../screens/Ventas';
 import Notificaciones from '../screens/Notificaciones';
 import Pendientes from '../screens/Pendientes';
-import Perfil from '../screens/Perfil';
+import { TuPerfil as Perfil, Configuracion, DatosDangStore } from '../screens/Perfil';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -30,6 +30,15 @@ const InicioStack = () => (
 const VentasStack = () => (
   <Stack.Navigator screenOptions={{ headerShown: false }}>
     <Stack.Screen name="VentasMain" component={Ventas} />
+  </Stack.Navigator>
+);
+
+// Stack para perfil (permite navegar a configuración y datos)
+const PerfilStack = () => (
+  <Stack.Navigator initialRouteName="PerfilMain" screenOptions={{ headerShown: false }}>
+    <Stack.Screen name="PerfilMain" component={Perfil} />
+    <Stack.Screen name="Configuracion" component={Configuracion} />
+    <Stack.Screen name="DatosDangStore" component={DatosDangStore} />
   </Stack.Navigator>
 );
 
@@ -109,9 +118,10 @@ const MainTabNavigator = () => (
     />
     <Tab.Screen 
       name="Perfil" 
-      component={Perfil}
+      component={PerfilStack}
       options={{
         tabBarLabel: 'Perfil',
+        unmountOnBlur: true,
       }}
     />
   </Tab.Navigator>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext, useRef } from 'react';
 import {
   View,
   Text,
@@ -11,29 +11,44 @@ import {
   StatusBar,
   Animated,
   LinearGradient,
+  TextInput,
+  Alert,
 } from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
+import { AuthContext } from '../src/context/AuthContext.js';
+import { useFocusEffect } from '@react-navigation/native';
 
 const { width, height } = Dimensions.get('window');
 
 // Componente principal del perfil
 const TuPerfil = ({ navigation, userData }) => {
-  const fadeAnim = new Animated.Value(0);
-  const slideAnim = new Animated.Value(50);
+  const { user } = useContext(AuthContext);
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const slideAnim = useRef(new Animated.Value(50)).current;
 
-  useEffect(() => {
-    Animated.parallel([
-      Animated.timing(fadeAnim, {
-        toValue: 1,
-        duration: 800,
-        useNativeDriver: true,
-      }),
-      Animated.timing(slideAnim, {
-        toValue: 0,
-        duration: 600,
-        useNativeDriver: true,
-      }),
-    ]).start();
-  }, []);
+  useFocusEffect(
+    React.useCallback(() => {
+      // Reinicia valores y anima cada vez que la pantalla gana foco
+      fadeAnim.setValue(0);
+      slideAnim.setValue(50);
+      const anim = Animated.parallel([
+        Animated.timing(fadeAnim, {
+          toValue: 1,
+          duration: 800,
+          useNativeDriver: true,
+        }),
+        Animated.timing(slideAnim, {
+          toValue: 0,
+          duration: 600,
+          useNativeDriver: true,
+        }),
+      ]);
+      anim.start();
+      return () => {
+        anim.stop();
+      };
+    }, [fadeAnim, slideAnim])
+  );
 
   return (
     <SafeAreaView style={styles.container}>
@@ -68,7 +83,7 @@ const TuPerfil = ({ navigation, userData }) => {
           <View style={styles.profileImageContainer}>
             <View style={styles.imageGlow} />
             <Image 
-              source={{ uri: userData?.profileImage || 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=200&h=200&fit=crop&crop=face' }}
+              source={{ uri: (user?.profileImage || userData?.profileImage) || 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=200&h=200&fit=crop&crop=face' }}
               style={styles.profileImage}
             />
             <View style={styles.profileBadge}>
@@ -95,71 +110,71 @@ const TuPerfil = ({ navigation, userData }) => {
             </View>
             <View style={styles.cardContent}>
               <Text style={styles.cardLabel}>Nombre</Text>
-              <Text style={styles.cardValue}>{userData?.nombre || 'Angie'}</Text>
+              <Text style={styles.cardValue}>{user?.name || userData?.nombre || 'Admin'}</Text>
             </View>
             <View style={styles.cardAccent} />
           </View>
           
-          <View style={styles.infoCard}>
-            <View style={styles.cardIcon}>
-              <Text style={styles.cardIconText}>✍️</Text>
-            </View>
-            <View style={styles.cardContent}>
-              <Text style={styles.cardLabel}>Apellido</Text>
-              <Text style={styles.cardValue}>{userData?.apellido || 'Ramos'}</Text>
-            </View>
-            <View style={styles.cardAccent} />
-          </View>
-          
+          {/* Eliminado: sección Apellido */}
+
           <View style={styles.infoCard}>
             <View style={styles.cardIcon}>
               <Text style={styles.cardIconText}>📧</Text>
             </View>
             <View style={styles.cardContent}>
               <Text style={styles.cardLabel}>Email</Text>
-              <Text style={styles.cardValue}>{userData?.email || 'angie@email.com'}</Text>
+              <Text style={styles.cardValue}>{user?.email || userData?.email || 'admin@email.com'}</Text>
             </View>
             <View style={styles.cardAccent} />
           </View>
         </View>
+
+        {/* Accesos rápidos: Políticas y DangStore */}
+        <View style={styles.tabsContainer}>
+          <TouchableOpacity 
+            style={styles.tab}
+            onPress={() => navigation.navigate('Configuracion')}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.tabText}>📋 Políticas</Text>
+          </TouchableOpacity>
+          <TouchableOpacity 
+            style={[styles.tab, styles.activeTab]}
+            onPress={() => navigation.navigate('DatosDangStore')}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.activeTabText}>🏪 DangStore</Text>
+          </TouchableOpacity>
+        </View>
       </Animated.View>
       
-      {/* Bottom Navigation Premium */}
-      <View style={styles.bottomNavContainer}>
-        <View style={styles.bottomNav}>
-          {[
-            { icon: '🏠', active: false },
-            { icon: '📊', active: false },
-            { icon: '🚀', active: false },
-            { icon: '📋', active: false },
-            { icon: '👤', active: true },
-            { icon: '💬', active: false },
-          ].map((item, index) => (
-            <TouchableOpacity key={index} style={[styles.navItem, item.active && styles.navItemActive]}>
-              <Text style={[styles.navIcon, item.active && styles.navIconActive]}>{item.icon}</Text>
-              {item.active && <View style={styles.navIndicator} />}
-            </TouchableOpacity>
-          ))}
-        </View>
-      </View>
+      {/* Eliminado: navegación inferior duplicada. Se usa la barra global de pestañas. */}
     </SafeAreaView>
   );
 };
 
-// Pantalla de Configuración Premium
+// Pantalla de Configuración: permite editar foto, nombre y email del admin
 const Configuracion = ({ navigation }) => {
-  const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const { user, updateAdminProfile } = useContext(AuthContext);
+  const [name, setName] = useState(user?.name || '');
+  const [email, setEmail] = useState(user?.email || '');
+  const [profileImage, setProfileImage] = useState(user?.profileImage || '');
+  const [saving, setSaving] = useState(false);
   const [activeTab, setActiveTab] = useState(0);
-  const slideAnim = new Animated.Value(0);
+  const slideAnim = useRef(new Animated.Value(0)).current;
 
-  useEffect(() => {
-    Animated.spring(slideAnim, {
-      toValue: 1,
-      useNativeDriver: true,
-      tension: 100,
-      friction: 8,
-    }).start();
-  }, []);
+  useFocusEffect(
+    React.useCallback(() => {
+      slideAnim.setValue(0);
+      Animated.spring(slideAnim, {
+        toValue: 1,
+        useNativeDriver: true,
+        tension: 100,
+        friction: 8,
+      }).start();
+      return () => {};
+    }, [slideAnim])
+  );
 
   return (
     <SafeAreaView style={styles.container}>
@@ -200,111 +215,83 @@ const Configuracion = ({ navigation }) => {
         
         <Text style={styles.mainTitle}>Configuración</Text>
         
-        {/* Tabs Premium con animación */}
-        <View style={styles.tabsContainer}>
-          <TouchableOpacity 
-            style={[styles.tab, activeTab === 0 && styles.activeTab]}
-            onPress={() => setActiveTab(0)}
-            activeOpacity={0.8}
-          >
-            <Text style={[styles.tabText, activeTab === 0 && styles.activeTabText]}>
-              📋 Políticas
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity 
-            style={[styles.tab, activeTab === 1 && styles.activeTab]}
-            onPress={() => {
-              setActiveTab(1);
-              navigation.navigate('DatosDangStore');
-            }}
-            activeOpacity={0.8}
-          >
-            <Text style={[styles.tabText, activeTab === 1 && styles.activeTabText]}>
-              🏪 DangStore
-            </Text>
-          </TouchableOpacity>
-        </View>
-        
-        {/* Container de términos con glassmorphism */}
-        <View style={styles.termsContainer}>
-          <View style={styles.termsHeader}>
-            <Text style={styles.termsHeaderText}>📜 Términos y Condiciones</Text>
+        {/* Formulario simple de perfil */}
+        <View style={{ marginBottom: 20 }}>
+          <View style={{ alignItems: 'center', marginBottom: 16 }}>
+            <TouchableOpacity
+              activeOpacity={0.8}
+              onPress={async () => {
+                const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+                if (status !== 'granted') {
+                  Alert.alert('Permisos requeridos', 'Se requiere acceso a la galería para elegir la foto.');
+                  return;
+                }
+                const result = await ImagePicker.launchImageLibraryAsync({
+                  mediaTypes: ImagePicker.MediaTypeOptions.Images,
+                  allowsEditing: true,
+                  aspect: [1, 1],
+                  quality: 0.7,
+                  base64: true,
+                });
+                if (!result.canceled && result.assets?.[0]?.base64) {
+                  const dataUri = `data:image/jpeg;base64,${result.assets[0].base64}`;
+                  setProfileImage(dataUri);
+                }
+              }}
+            >
+              <Image
+                source={{ uri: profileImage || 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=200&h=200&fit=crop&crop=face' }}
+                style={{ width: 110, height: 110, borderRadius: 55, borderWidth: 3, borderColor: '#fff' }}
+              />
+            </TouchableOpacity>
+            <Text style={{ color: 'white', marginTop: 8 }}>Toca para cambiar foto</Text>
           </View>
-          
-          <ScrollView 
-            style={styles.termsScroll} 
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={styles.termsContent}
-          >
-            <View style={styles.termSection}>
-              <Text style={styles.termsTitle}>🔐 1. Acceso y Uso de la Aplicación</Text>
-              <Text style={styles.termsText}>
-                • DangStore es una aplicación de uso personal y los usuarios no lo administran{'\n'}
-                • En caso del administrador tenga alguna pregunta, aclaración o necesidad de acceso con terceros sin autorización.{'\n'}
-                • Cualquier actividad fraudulenta dentro de la aplicación será sancionada y eliminada por el propietario DangStore.
-              </Text>
-            </View>
-            
-            <View style={styles.termSection}>
-              <Text style={styles.termsTitle}>📦 2. Gestión de Productos</Text>
-              <Text style={styles.termsText}>
-                • Solo el administrador puede añadir, editar o eliminar productos del inventario para mantener actualización, correcto descontinuar, precio, disponibilidad y una imagen única.{'\n'}
-                • Los usuarios pueden visualizar únicamente.
-              </Text>
-            </View>
-            
-            <View style={styles.termSection}>
-              <Text style={styles.termsTitle}>📋 3. Política de Pedidos</Text>
-              <Text style={styles.termsText}>
-                • Los pedidos registrados deberán incluir fecha, nombre, descripción, cantidad, precio total, disponibilidad y la verificación de disponibilidad antes de confirmar la compra.{'\n'}
-                • Los usuarios podrán acceder únicamente a sus propios pedidos registrados, manteniendo la privacidad y otra contra entregas.
-              </Text>
-            </View>
-          </ScrollView>
+
+          <View style={{ backgroundColor: 'rgba(255,255,255,0.95)', borderRadius: 14, padding: 14, marginBottom: 10 }}>
+            <Text style={{ color: '#374151', marginBottom: 6, fontWeight: '700' }}>Nombre</Text>
+            <TextInput
+              value={name}
+              onChangeText={setName}
+              placeholder="Tu nombre"
+              placeholderTextColor="#9CA3AF"
+              style={{ backgroundColor: '#F3F4F6', borderRadius: 10, paddingHorizontal: 12, height: 44, color: '#111827' }}
+            />
+          </View>
+
+          <View style={{ backgroundColor: 'rgba(255,255,255,0.95)', borderRadius: 14, padding: 14 }}>
+            <Text style={{ color: '#374151', marginBottom: 6, fontWeight: '700' }}>Correo</Text>
+            <TextInput
+              value={email}
+              onChangeText={setEmail}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              placeholder="correo@ejemplo.com"
+              placeholderTextColor="#9CA3AF"
+              style={{ backgroundColor: '#F3F4F6', borderRadius: 10, paddingHorizontal: 12, height: 44, color: '#111827' }}
+            />
+          </View>
         </View>
-        
-        {/* Checkbox Premium */}
-        <View style={styles.checkboxContainer}>
-          <TouchableOpacity 
-            style={[styles.checkbox, acceptedTerms && styles.checkboxActive]}
-            onPress={() => setAcceptedTerms(!acceptedTerms)}
-            activeOpacity={0.8}
-          >
-            {acceptedTerms && <Text style={styles.checkmark}>✓</Text>}
-          </TouchableOpacity>
-          <Text style={styles.checkboxText}>He leído y acepto los términos</Text>
-        </View>
-        
-        {/* Botón Premium */}
-        <TouchableOpacity 
-          style={[styles.acceptButton, acceptedTerms && styles.acceptButtonActive]}
-          disabled={!acceptedTerms}
-          activeOpacity={0.8}
+
+        <TouchableOpacity
+          activeOpacity={0.85}
+          onPress={async () => {
+            if (!name.trim() || !email.trim()) {
+              Alert.alert('Campos requeridos', 'Nombre y correo son obligatorios.');
+              return;
+            }
+            setSaving(true);
+            await updateAdminProfile({ name, email, profileImage });
+            setSaving(false);
+          }}
+          style={[styles.acceptButton, { backgroundColor: 'white' }]}
         >
-          <Text style={styles.acceptButtonText}>
-            {acceptedTerms ? '✅ Aceptar' : '⏳ Aceptar'}
-          </Text>
+          <Text style={[styles.acceptButtonText, { color: '#8B5CF6' }]}>{saving ? 'Guardando…' : 'Guardar cambios'}</Text>
         </TouchableOpacity>
+
+        {/* Eliminados términos y condiciones */}
       </Animated.View>
       
-      {/* Bottom Navigation */}
-      <View style={styles.bottomNavContainer}>
-        <View style={styles.bottomNav}>
-          {[
-            { icon: '🏠', active: false },
-            { icon: '📊', active: false },
-            { icon: '🚀', active: false },
-            { icon: '📋', active: false },
-            { icon: '👤', active: true },
-            { icon: '💬', active: false },
-          ].map((item, index) => (
-            <TouchableOpacity key={index} style={[styles.navItem, item.active && styles.navItemActive]}>
-              <Text style={[styles.navIcon, item.active && styles.navIconActive]}>{item.icon}</Text>
-              {item.active && <View style={styles.navIndicator} />}
-            </TouchableOpacity>
-          ))}
-        </View>
-      </View>
+      {/* Eliminado: navegación inferior duplicada. */}
     </SafeAreaView>
   );
 };
@@ -422,24 +409,7 @@ const DatosDangStore = ({ navigation }) => {
         </TouchableOpacity>
       </Animated.View>
       
-      {/* Bottom Navigation */}
-      <View style={styles.bottomNavContainer}>
-        <View style={styles.bottomNav}>
-          {[
-            { icon: '🏠', active: false },
-            { icon: '📊', active: false },
-            { icon: '🚀', active: false },
-            { icon: '📋', active: false },
-            { icon: '👤', active: true },
-            { icon: '💬', active: false },
-          ].map((item, index) => (
-            <TouchableOpacity key={index} style={[styles.navItem, item.active && styles.navItemActive]}>
-              <Text style={[styles.navIcon, item.active && styles.navIconActive]}>{item.icon}</Text>
-              {item.active && <View style={styles.navIndicator} />}
-            </TouchableOpacity>
-          ))}
-        </View>
-      </View>
+      {/* Eliminado: navegación inferior duplicada. */}
     </SafeAreaView>
   );
 };

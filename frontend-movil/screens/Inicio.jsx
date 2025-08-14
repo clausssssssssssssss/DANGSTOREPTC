@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext, useMemo } from 'react';
 import {
   View,
   Text,
@@ -10,10 +10,23 @@ import {
   Dimensions,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { AuthContext } from '../src/context/AuthContext.js';
 
 const { width, height } = Dimensions.get('window');
 
 const Inicio = ({ navigation }) => {
+  const { user } = useContext(AuthContext);
+
+  const greetingTime = useMemo(() => {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Buenos días';
+    if (hour < 18) return 'Buenas tardes';
+    return 'Buenas noches';
+  }, []);
+
+  const displayName = user?.name || 'Admin';
+  const avatar = user?.profileImage || 'https://via.placeholder.com/50';
+
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView style={styles.scrollView}>
@@ -21,12 +34,12 @@ const Inicio = ({ navigation }) => {
         <View style={styles.header}>
           <View style={styles.profileSection}>
             <Image
-              source={{ uri: 'https://via.placeholder.com/50' }}
+              source={{ uri: avatar }}
               style={styles.profileImage}
             />
             <View style={styles.profileText}>
-              <Text style={styles.greeting}>Hola Angie</Text>
-              <Text style={styles.subGreeting}>Buenos días</Text>
+              <Text style={styles.greeting}>Hola {displayName}</Text>
+              <Text style={styles.subGreeting}>{greetingTime}</Text>
             </View>
           </View>
           <TouchableOpacity

@@ -16,6 +16,10 @@ import adminAuthRoutes        from './src/routes/adminAuth.js';
 import logoutRoutes           from './src/routes/logout.js';
 import paymentRoutes          from './src/routes/paymentRoutes.js';
 
+import swaggerUi from "swagger-ui-express";
+import fs from "fs";
+import path from "path";
+
 /**
  * Aplicación principal de Express.
  * Configura middlewares globales y monta los routers de la API.
@@ -30,12 +34,19 @@ app.use(express.json());
 /** Habilita el parseo de cookies en las solicitudes */
 app.use(cookieParser());
 
+//Traemos el archivo json
+const swaggerDocument = JSON.parse(
+  fs.readFileSync(path.resolve("./DangStore.json"), "utf-8")
+);
+
 /** Sirve archivos estáticos desde la carpeta "uploads" bajo la ruta /uploads */
 app.use('/uploads', express.static('uploads'));
 
 /**
  * Rutas de la API montadas en diferentes endpoints:
  */
+
+app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // CRUD de clientes
 app.use('/api/customers', customerRoutes);

@@ -297,14 +297,6 @@ const UserProfile = () => {
               </button>
               
               <button
-                onClick={() => setActiveSection('customOrders')}
-                className={`nav-btn ${activeSection === 'customOrders' ? 'active' : ''}`}
-              >
-                <ShoppingCart className="nav-icon" />
-                <span>Cerrar Sesión</span>
-              </button>
-              
-              <button
                 onClick={() => setShowLogoutModal(true)}
                 className={`nav-btn logout-btn`}
               >

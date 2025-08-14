@@ -99,7 +99,12 @@ const FavoritesSection = ({ userId }) => {
   if (loading) {
     return (
       <div className="content-card">
-        <h3 className="history-title">Favoritos</h3>
+        <div className="card-header">
+          <div className="card-title">
+            <Heart className="section-icon" />
+            <h3>Favoritos</h3>
+          </div>
+        </div>
         <div className="loading-message">Cargando favoritos...</div>
       </div>
     );
@@ -108,7 +113,12 @@ const FavoritesSection = ({ userId }) => {
   if (error) {
     return (
       <div className="content-card">
-        <h3 className="history-title">Favoritos</h3>
+        <div className="card-header">
+          <div className="card-title">
+            <Heart className="section-icon" />
+            <h3>Favoritos</h3>
+          </div>
+        </div>
         <div className="error-message">
           <p>Error: {error}</p>
           <button onClick={fetchFavorites} className="retry-button">
@@ -121,8 +131,13 @@ const FavoritesSection = ({ userId }) => {
 
   return (
     <div className="content-card">
-      <h3 className="history-title">Favoritos ({favorites.length})</h3>
-      
+      <div className="card-header">
+        <div className="card-title">
+          <Heart className="section-icon" />
+          <h3>Favoritos ({favorites.length})</h3>
+        </div>
+      </div>
+
       {favorites.length === 0 ? (
         <div className="empty-message">
           <p>No tienes favoritos aún</p>
@@ -146,17 +161,20 @@ const FavoritesSection = ({ userId }) => {
                   />
                 ) : null}
                 <div 
-                  className="favorite-image-placeholder"
+                  className="favorite-image"
                   style={{display: product.images && product.images.length > 0 ? 'none' : 'flex'}}
                 >
                   {product.name}
                 </div>
               </div>
-              
+
               <div className="favorite-info">
-                <h4>{product.name}</h4>
+                <h4 className="favorite-name">{product.name}</h4>
+                {product.description && (
+                  <p className="favorite-subtitle">{product.description}</p>
+                )}
               </div>
-              
+
               <button 
                 className="favorite-button" 
                 onClick={() => removeFavorite(product._id)}

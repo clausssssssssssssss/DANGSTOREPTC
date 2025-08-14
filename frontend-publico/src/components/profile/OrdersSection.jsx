@@ -15,24 +15,35 @@ const OrdersSection = () => {
 
   return (
     <div className="content-card">
-      <h3 className="history-title">Historial de Pedidos</h3>
-      <div className="history-list">
-        {orders.length === 0 && <p>No hay órdenes registradas.</p>}
+      <div className="card-header">
+        <div className="card-title"><h3>Mis pedidos</h3></div>
+      </div>
+      <div className="orders-grid">
+        {orders.length === 0 && (
+          <div className="empty-state"><p>No hay órdenes registradas.</p></div>
+        )}
         {orders.map(order => (
-          <div className="history-item" key={order._id}>
-            <div className="history-header purple">
-              <span className="history-date purple">{new Date(order.createdAt).toLocaleDateString()}</span>
-              <span className={`history-status ${order.status.toLowerCase()}`}>{order.status}</span>
+          <div className="order-card" key={order._id}>
+            <div className="order-card-header">
+              <span className="order-id">#{order._id.slice(-6)}</span>
+              <span className={`order-status ${order.status.toLowerCase()}`}>{order.status}</span>
             </div>
-            <div className="history-content">
-              <ul>
+            <div className="order-card-body">
+              <div className="order-items">
                 {order.items.map((item, i) => (
-                  <li key={i}>
-                    <strong>{item.product?.name || 'Producto eliminado'}</strong> — Cantidad: {item.quantity} — Precio unitario: ${item.product?.price?.toFixed(2) || '0.00'}
-                  </li>
+                  <div className="order-item-row" key={i}>
+                    <div className="order-item-info">
+                      <div className="order-item-name">{item.product?.name || 'Producto eliminado'}</div>
+                      <div className="order-item-meta">Cant. {item.quantity} · ${item.product?.price?.toFixed(2) || '0.00'}</div>
+                    </div>
+                    <div className="order-item-subtotal">${((item.product?.price || 0) * item.quantity).toFixed(2)}</div>
+                  </div>
                 ))}
-              </ul>
-              <p><strong>Total:</strong> ${order.total.toFixed(2)}</p>
+              </div>
+              <div className="order-total-row">
+                <span>Fecha: {new Date(order.createdAt).toLocaleDateString()}</span>
+                <span className="order-total">Total: ${order.total.toFixed(2)}</span>
+              </div>
             </div>
           </div>
         ))}

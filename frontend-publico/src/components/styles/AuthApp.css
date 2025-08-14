@@ -37,11 +37,13 @@ body {
 /* ===== ESTRUCTURA PRINCIPAL ===== */
 .auth-container {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 100vh;
+  align-items: center; /* centra vertical */
+  justify-content: center; /* centra horizontal */
+  min-height: 100dvh; /* evita desproporción en móviles */
   padding: 2rem;
   width: 100%;
+  margin: 0 auto; /* asegura centrado en contenedores con padding */
+  position: relative;
 }
 
 .auth-card {
@@ -343,7 +345,7 @@ input[type="password"]::-webkit-contacts-auto-fill-button {
 @media (max-width: 640px) {
   .auth-container {
     padding: 1.5rem;
-    align-items: flex-start;
+    align-items: center; /* volver a centrar en móviles */
   }
   
   .auth-card {

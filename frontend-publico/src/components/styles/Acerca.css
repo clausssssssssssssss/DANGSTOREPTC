@@ -22,12 +22,18 @@ html, body { background: #ffffff; }
   padding: 0 1rem;
 }
 
-/* Hero con olas y espacio para video */
+/* Hero sin olas, solo espacio para video */
 .hero-olas-section {
   position: relative;
   overflow: hidden;
   padding-top: 0; /* sin espacio blanco arriba */
 }
+
+.olas-top-images { display: none; }
+
+.ola-img { display: none; }
+
+.ola-1, .ola-2 { display: none; }
 
 .hero-inner {
   position: relative;
@@ -36,32 +42,113 @@ html, body { background: #ffffff; }
   text-align: center;
 }
 
-.olas {
-  position: relative;
+/* Nueva disposición: texto izquierda, video derecha */
+.hero-content-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 1.4fr;
+  align-items: center;
+  gap: 3rem;
+  padding: 3rem 0;
+}
+
+.hero-text { text-align: left; }
+.hero-text .hero-title { margin-bottom: 0.5rem; }
+.hero-text .hero-subtitle { margin-bottom: 0; }
+
+.hero-video-wrapper {
   width: 100%;
 }
 
-.olas-top { margin-top: 0; background-color: #8f6fc2; }
+.olas { display: none; }
 
-.ola {
-  display: block;
-  width: 100%;
-  height: 140px;
-}
 
-/* Una sola ola blanca sobre fondo morado */
-.ola path { fill: #ffffff; }
+/* Sin olas */
+.ola { display: none; }
 
 .video-placeholder {
   margin: 1.5rem auto 0;
   width: 100%;
-  max-width: 1080px;
+  max-width: none;
   aspect-ratio: 16 / 9;
   border-radius: 16px;
   border: none;
   background: transparent;
   overflow: hidden;
 }
+
+/* Diseño temporal: Beads hero */
+.beads-hero {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 16px;
+  overflow: hidden;
+  background: radial-gradient(circle at 20% 20%, #f3e8ff 0 25%, transparent 26%),
+              radial-gradient(circle at 30% 70%, #e0f2fe 0 25%, transparent 26%),
+              radial-gradient(circle at 75% 35%, #e9d5ff 0 25%, transparent 26%),
+              linear-gradient(135deg, #fafafa, #eef2ff);
+}
+
+.badge-hero {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background: linear-gradient(135deg, #9C27B0, #4DD0E1);
+  color: #fff;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  box-shadow: 0 6px 20px rgba(156, 39, 176, 0.25);
+}
+
+.bead-float {
+  position: absolute;
+  width: 140px;
+  height: auto;
+  filter: drop-shadow(0 10px 25px rgba(0,0,0,.15));
+  transform-origin: center;
+  animation: floatY 6s ease-in-out infinite;
+}
+
+.bead-llavero { bottom: 10%; left: 10%; animation-delay: 0s; }
+.bead-cuadro { top: 8%; right: 8%; width: 180px; animation-delay: 1.2s; }
+
+@keyframes floatY {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-10px) rotate(1deg); }
+}
+
+/* Placeholder especial del hero (arriba) */
+.video-placeholder.hero {
+  background: linear-gradient(135deg, #eceaff 0%, #e0f7ff 50%, #f5e7ff 100%);
+  position: relative;
+}
+
+.video-placeholder.hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(rgba(156, 39, 176, 0.12) 1px, transparent 1px),
+    radial-gradient(rgba(77, 208, 225, 0.12) 1px, transparent 1px);
+  background-size: 16px 16px, 20px 20px;
+  background-position: 0 0, 10px 10px;
+  pointer-events: none;
+}
+
+.vp-content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  color: #1f2937;
+}
+
+.vp-icon { font-size: 2.25rem; margin-bottom: 0.5rem; }
+.vp-title { font-size: 1.5rem; font-weight: 800; letter-spacing: .5px; }
+.vp-subtitle { font-size: 0.95rem; opacity: .8; }
 
 .video-placeholder > video,
 .video-placeholder > iframe { 
@@ -82,7 +169,7 @@ html, body { background: #ffffff; }
 }
 
 .hero-title {
-  font-size: 3rem;
+  font-size: 3.25rem;
   font-weight: 900;
   margin-bottom: 0.5rem;
   color: #1f2937;
@@ -94,7 +181,7 @@ html, body { background: #ffffff; }
 }
 
 .hero-subtitle {
-  font-size: 1.125rem;
+  font-size: 1.25rem;
   font-weight: 400;
   color: #374151;
   opacity: 0.95;
@@ -144,10 +231,86 @@ html, body { background: #ffffff; }
 }
 
 /* Store Description Section */
+.company-description {
+  padding: 4rem 0 2rem;
+  background: white;
+}
+
+.gradient-panel {
+  background: linear-gradient(180deg, rgba(156, 39, 176, 0.05) 0%, rgba(77, 208, 225, 0.05) 100%);
+  border-radius: 24px;
+  padding: 2.25rem 2rem 2.5rem;
+  box-shadow: 0 10px 30px rgba(0,0,0,.04);
+  max-width: 1000px;
+  margin: 0 auto 1.5rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Asegura que los títulos queden centrados dentro del panel */
+.gradient-panel .section-title {
+  margin: 0 auto 1.5rem;
+}
+
+/* usamos section-title centered para unificar estilo con "¿Qué hacemos?" */
+
+.company-separator {
+  width: 140px;
+  height: 6px;
+  border-radius: 999px;
+  margin: 0.5rem auto 1.25rem;
+  background: linear-gradient(90deg, #9C27B0, #4DD0E1);
+  box-shadow: 0 4px 14px rgba(156, 39, 176, 0.25), 0 2px 8px rgba(77, 208, 225, 0.25);
+}
+
+.company-text {
+  max-width: 920px;
+  margin: 0 auto;
+  text-align: center;
+  color: #4a5568;
+  line-height: 1.9;
+  font-size: 1.125rem;
+}
+
+.what-cards {
+  padding: 2rem 0 1rem;
+  background: linear-gradient(180deg, #ffffff 0%, #fafafa 100%);
+}
+
+.cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; }
+
+.action-card {
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 8px 30px rgba(0,0,0,.06);
+  overflow: hidden;
+  transition: transform .25s ease, box-shadow .25s ease;
+}
+
+.action-card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,.08); }
+
+.card-media { height: 200px; display: flex; align-items: center; justify-content: center; background: #f7f7fb; }
+.card-media img { max-height: 160px; width: auto; object-fit: contain; filter: drop-shadow(0 6px 12px rgba(0,0,0,.15)); }
+
+.card-body { padding: 1.25rem 1.25rem 1.5rem; text-align: center; }
+.card-body h3 { font-size: 1.25rem; font-weight: 800; color: #1f2937; margin-bottom: .6rem; }
+.card-body p { color: #4a5568; font-size: 1.05rem; line-height: 1.7; }
 .store-description {
   padding: 6rem 0;
   background: white;
 }
+
+/* Separadores de olas para secciones intermedias */
+.olas-separator {
+  position: relative;
+  width: 100%;
+  height: 140px;
+}
+
+.olas-sep-top .ola-img { transform: rotate(180deg); }
+.olas-sep-bottom .ola-img { transform: none; }
 
 .section-title {
   font-size: 2.5rem;
@@ -161,8 +324,12 @@ html, body { background: #ffffff; }
   -webkit-text-fill-color: transparent;
 }
 
+.section-title.large { font-size: 2.75rem; }
+
 .section-title.centered {
   text-align: center;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .section-title::after {
@@ -205,9 +372,9 @@ html, body { background: #ffffff; }
 
 .description-images {
   display: grid;
-  grid-template-columns: 2fr 1fr;
+  grid-template-columns: repeat(2, 1fr);
   gap: 1rem;
-  height: 400px;
+  height: auto;
 }
 
 .image-card {
@@ -215,6 +382,7 @@ html, body { background: #ffffff; }
   overflow: hidden;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
   transition: transform 0.3s ease;
+  background: transparent;
 }
 
 .image-card:hover {
@@ -222,61 +390,71 @@ html, body { background: #ffffff; }
 }
 
 .main-image {
-  grid-row: 1 / -1;
+  grid-column: 1 / -1; /* video arriba ocupando el ancho */
 }
 
 .image-grid {
   display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr)); /* dos cuadros lado a lado */
   gap: 1rem;
+  grid-column: 1 / -1;
 }
 
-.image-placeholder {
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(135deg, #4DD0E1 0%, #BA68C8 100%);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  text-align: center;
-  position: relative;
-  overflow: hidden;
+/* El video dentro de la tarjeta grande sin márgenes extra */
+.main-image .video-placeholder {
+  margin: 0;
+  height: 360px; /* altura fija para que se vea siempre */
+  background: rgba(0,0,0,0.02);
+  border-radius: 16px;
 }
 
-.image-placeholder::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-  animation: shimmer 3s ease-in-out infinite;
-}
+.image-placeholder { display: none; }
+
+.image-placeholder::before { display: none; }
 
 @keyframes shimmer {
   0% { left: -100%; }
   100% { left: 100%; }
 }
 
-.placeholder-icon {
-  font-size: 3rem;
-  margin-bottom: 1rem;
+.placeholder-icon { display: none; }
+
+.image-placeholder.small .placeholder-icon { display: none; }
+
+.image-placeholder span { display: none; }
+
+.image-placeholder.small span { display: none; }
+
+/* Tarjetas "bare" solo imagen */
+.image-card.bare {
+  box-shadow: none;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: auto; /* que el caption no estire la imagen */
 }
 
-.image-placeholder.small .placeholder-icon {
-  font-size: 2rem;
-  margin-bottom: 0.5rem;
+.feature-image-only {
+  width: auto !important;
+  height: 220px !important; /* más grandes */
+  max-width: 100% !important;
+  object-fit: contain !important; /* no recorta */
+  display: block !important;
+  margin: 0 auto !important; /* centrada */
+  border-radius: 12px !important;
+  padding: 4px 0; /* respiro visual */
 }
 
-.image-placeholder span {
+/* Asegura que en el grid de imágenes respeten el alto reducido */
+.image-grid .image-card.bare .feature-image-only { height: 220px !important; }
+
+.image-caption {
+  display: block;
+  margin-top: 0.5rem;
+  text-align: center;
   font-weight: 600;
-  font-size: 1.1rem;
-}
-
-.image-placeholder.small span {
-  font-size: 0.9rem;
+  color: #4a4a4a;
 }
 
 /* MVV Section */
@@ -543,8 +721,11 @@ html, body { background: #ffffff; }
   .about-page {
     margin-top: 56px; /* Navbar más pequeño en móvil */
   }
-  
-  .ola { height: 110px; }
+  .hero-content-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  .hero-text { text-align: center; }
   .hero-title { font-size: 2.25rem; }
   
   .hero-title {
@@ -607,7 +788,7 @@ html, body { background: #ffffff; }
     border-radius: 0 0 1rem 1rem;
   }
   
-  .ola { height: 90px; }
+  .olas-separator { height: 100px; }
   .hero-title { font-size: 2rem; }
   
   .hero-subtitle {
@@ -719,7 +900,6 @@ html, body { background: #ffffff; }
   /* Mantener el diseño en claro aun si el sistema está en modo oscuro */
   .about-page { background: #ffffff !important; }
   .store-description { background: #ffffff !important; }
-  .section-title { color: #1a1a1a !important; }
   .description-text { color: #4a5568 !important; }
   .mvv-card { background: #ffffff !important; }
   .mvv-card h3 { color: #1a1a1a !important; }

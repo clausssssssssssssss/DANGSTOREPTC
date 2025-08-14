@@ -16,8 +16,17 @@ export function AuthProvider({ children }) {
     return { id: decoded.userId ?? decoded.id, name: decoded.name };
   });
 
+  const logout = () => {
+    try {
+      localStorage.removeItem('token');
+      setUser(null);
+    } catch {
+      // ignore
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, setUser }}>
+    <AuthContext.Provider value={{ user, setUser, logout }}>
       {children}
     </AuthContext.Provider>
   );

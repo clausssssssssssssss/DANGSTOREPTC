@@ -2,6 +2,8 @@ import React, { useEffect } from 'react';
 import '../components/styles/Footer.css';
 import '../components/styles/Acerca.css';
 import { Instagram } from 'lucide-react';
+import llaveroImg from '../assets/llavero.png';
+import cuadroImg from '../assets/cuadro.png';
 
 
 
@@ -32,78 +34,87 @@ const About = () => {
     <div className="about-page">
       {/* Hero con fondo blanco, olas y espacio para video */}
       <section className="hero-olas-section">
-        {/* Ola superior única */}
-        <div className="olas olas-top" aria-hidden="true">
-          <svg viewBox="0 0 1440 140" preserveAspectRatio="none" className="ola">
-            <path d="M0,80 C240,120 480,20 720,50 C960,80 1200,60 1440,90 L1440,0 L0,0 Z"></path>
-          </svg>
-        </div>
-
-        <div className="hero-inner container animate-on-scroll">
-          <h1 className="hero-title centered">DANGSTORE</h1>
-          <p className="hero-subtitle centered">
-            Convertimos pequeños píxeles en grandes ideas. Cada llavero es elaborado a mano con precisión y dedicación.
-          </p>
-
-          {/* Espacio reservado para video (inserta aquí tu <video> o <iframe>) */}
-          <div className="video-placeholder" role="region" aria-label="Espacio para video"></div>
-        </div>
-
-        {/* Sin olas inferiores para mantener el diseño limpio */}
-      </section>
-
-      {/* Descripción de la Tienda */}
-      <section className="store-description animate-on-scroll">
-        <div className="container">
-          <div className="description-grid">
-            <div className="description-content">
-              <h2 className="section-title">¿Qué hacemos?</h2>
-              <div className="description-text">
-                <p>
-                  Convertimos pequeños píxeles en grandes ideas. Cada llavero es elaborado a
-                   mano con  <strong>precisión y dedicación</strong>, dando vida a personajes, íconos y figuras
-                   que marcan tu estilo único.
-                </p>
-                <p>
-                 En DangStore creamos <strong>llaveros</strong> con Hama Beads, ¡listos o personalizados! Elegí 
-                 tu personaje favorito o pedí uno a tu estilo.
-                </p>
-                <p>
-                 En DangStore diseñamos <strong>cuadros</strong> con Hama Beads. Podés elegir un diseño ya hecho o pedir uno único
-                  hecho a tu medida.
-                </p>
-              </div>
-            </div>
-            <div className="description-images">
-              <div className="image-card main-image">
-                <div className="image-placeholder">
-                  <div className="placeholder-icon">🎨</div>
-                  <span>Proceso Creativo</span>
-                </div>
-              </div>
-              <div className="image-grid">
-                <div className="image-card">
-                  <div className="image-placeholder small">
-                    <div className="placeholder-icon">🔑</div>
-                    <span>Llaveros</span>
-                  </div>
-                </div>
-                <div className="image-card">
-                  <div className="image-placeholder small">
-                    <div className="placeholder-icon">🖼️</div>
-                    <span>Cuadros</span>
-                  </div>
-                </div>
-              </div>
+        <div className="hero-content-grid container animate-on-scroll">
+          <div className="hero-text">
+            <h1 className="hero-title">DANGSTORE</h1>
+            <p className="hero-subtitle">Tus recuerdos en pixeles, tu estilo en llavero.</p>
+          </div>
+          <div className="hero-video-wrapper">
+            {/* Video ahora en el hero */}
+            <div className="video-placeholder" role="region" aria-label="Video presentación Dangstore">
+              <video
+                src={(import.meta && import.meta.env && import.meta.env.BASE_URL ? import.meta.env.BASE_URL : '/') + 'videos/Dangstoreprocesocreativo.mp4'}
+                autoPlay
+                muted
+                loop
+                playsInline
+                controls
+                style={{ width: '100%', height: '100%', display: 'block' }}
+              />
             </div>
           </div>
         </div>
       </section>
 
+      {/* Descripción breve de la empresa */}
+      <section className="company-description animate-on-scroll">
+        <div className="container">
+          <div className="gradient-panel">
+            <h2 className="section-title centered large">¿Quienes somos?</h2>
+            <div className="company-separator" aria-hidden="true"></div>
+            <p className="company-text">
+              Convertimos pequeños píxeles en grandes ideas. Cada llavero es elaborado a mano con
+              precisión y dedicación, dando vida a personajes, íconos y figuras que marcan tu estilo único.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* ¿Qué hacemos? - Cards */}
+      <section className="what-cards animate-on-scroll">
+        <div className="container">
+          <div className="gradient-panel">
+            <h2 className="section-title centered large">¿Qué hacemos?</h2>
+            <div className="company-separator" aria-hidden="true"></div>
+            <div className="cards-grid">
+            <div className="action-card">
+              <div className="card-media">
+                <img src={llaveroImg} alt="Llaveros" />
+              </div>
+              <div className="card-body">
+                <h3>Llaveros</h3>
+                <p>
+                  En DangStore creamos llaveros con Hama Beads, ¡listos o personalizados! Elegí tu
+                  personaje favorito o pedí uno a tu estilo.
+                </p>
+              </div>
+            </div>
+            <div className="action-card">
+              <div className="card-media">
+                <img src={cuadroImg} alt="Cuadros" />
+              </div>
+              <div className="card-body">
+                <h3>Cuadros</h3>
+                <p>
+                  Diseñamos cuadros con Hama Beads. Podés elegir un diseño ya hecho o pedir uno único
+                  hecho a tu medida.
+                </p>
+              </div>
+            </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Sección antigua removida por solicitud */}
+
       {/* Misión, Visión y Valores */}
       <section className="mvv-section animate-on-scroll">
         <div className="container">
-          <h2 className="section-title centered">Nosotros</h2>
+          <div className="gradient-panel">
+            <h2 className="section-title centered large">Nosotros</h2>
+            <div className="company-separator" aria-hidden="true"></div>
+          </div>
           <div className="mvv-grid">
             {/* Misión */}
             <div className="mvv-card">
@@ -174,7 +185,7 @@ const About = () => {
         <p className="footer-text">Creado por estudiantes del Instituto Técnico Ricaldone</p>
 
         <a
-          href="https://www.instagram.com/dangstore.sv?igsh=Nm1rdGF0cG9jMXgz" // cambia si tu cuenta es diferente
+          href="https://www.instagram.com/dangstore.sv?igsh=Nm1rdGF0cG9jMXgz"
           target="_blank"
           rel="noopener noreferrer"
           className="footer-link"

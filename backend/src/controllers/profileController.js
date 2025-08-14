@@ -2,6 +2,16 @@ import bcrypt from "bcryptjs";
 import Customer from "../models/Customers.js";
 import Order from "../models/Order.js";
 import Product from "../models/Product.js";
+import AdminProfile from "../models/AdminProfile.js";
+import { v2 as cloudinary } from 'cloudinary';
+import { config } from '../../config.js';
+
+// Inicializar cloudinary si hay variables
+cloudinary.config({
+  cloud_name: config.cloudinary.cloudinary_name,
+  api_key: config.cloudinary.cloudinary_api_key,
+  api_secret: config.cloudinary.cloudinary_api_secret,
+});
 
 /**
  * Controlador para gestionar las acciones del perfil de usuario.
@@ -13,26 +23,38 @@ const profileController = {
    * Obtiene los datos del usuario autenticado.
    */
   getProfile: async (req, res) => {
-  console.log('Usuario en req.user:', req.user);
+    console.log('Usuario en req.user:', req.user);
+    try {
+      if (!req.user) {
+        return res.status(401).json({ message: "Usuario no autenticado" });
+      }
 
-  try {
-    if (!req.user) {
-      return res.status(401).json({ message: "Usuario no autenticado" });
+      if (req.userType === 'admin') {
+        const emailKey = (req.user.email || '').toLowerCase();
+        const profile = await AdminProfile.findOne({ email: emailKey });
+        if (profile) {
+          return res.json({
+            name: profile.name || '',
+            email: profile.email || emailKey,
+            contactEmail: profile.contactEmail || profile.email || emailKey,
+            profileImage: profile.profileImage || '',
+          });
+        }
+        return res.json({ name: '', email: emailKey, contactEmail: emailKey, profileImage: '' });
+      }
+
+      // Customer por defecto
+      const userData = {
+        name: req.user.name || "",
+        email: req.user.email || "",
+        telephone: req.user.telephone || ""
+      };
+      res.json(userData);
+    } catch (error) {
+      console.error("getProfile error:", error);
+      res.status(500).json({ message: "Error al obtener perfil" });
     }
-
-    // Envía solo los campos que usas en el frontend
-    const userData = {
-      name: req.user.name || "",
-      email: req.user.email || "",
-      telephone: req.user.telephone || ""
-    };
-
-    res.json(userData);
-  } catch (error) {
-    console.error("getProfile error:", error);
-    res.status(500).json({ message: "Error al obtener perfil" });
-  }
-},
+  },
 
   /**
    * PUT /api/profile
@@ -40,9 +62,43 @@ const profileController = {
    */
   updateProfile: async (req, res) => {
     try {
-      const { name, telephone, email } = req.body;
+      const userType = req.userType;
+      // Si es admin, actualiza AdminProfile, sino mantiene el comportamiento previo (customer)
+      if (userType === 'admin') {
+        const { name, email, profileImage, contactEmail } = req.body;
+        const emailKey = (req.user?.email || email || '').toLowerCase();
+        if (!emailKey) {
+          return res.status(400).json({ message: 'Email del admin requerido' });
+        }
+        const update = {
+          ...(name ? { name } : {}),
+          ...(email ? { email: email.toLowerCase() } : {}),
+          ...(contactEmail ? { contactEmail: contactEmail.toLowerCase() } : {}),
+        };
 
-      // Validar email si se proporciona
+        // Si viene imagen como data URI/base64, súbela a Cloudinary
+        if (profileImage && typeof profileImage === 'string' && profileImage.startsWith('data:image')) {
+          try {
+            const uploadResult = await cloudinary.uploader.upload(profileImage, {
+              folder: 'dangstore/admin_profiles',
+              overwrite: true,
+              invalidate: true,
+            });
+            update.profileImage = uploadResult.secure_url;
+          } catch (e) {
+            console.error('Error subiendo imagen de admin a Cloudinary:', e);
+          }
+        }
+        const doc = await AdminProfile.findOneAndUpdate(
+          { email: emailKey },
+          { $set: update, $setOnInsert: { email: emailKey } },
+          { new: true, upsert: true }
+        );
+        return res.json({ message: 'Perfil admin actualizado', profile: doc });
+      }
+
+      // Customer existente
+      const { name, telephone, email } = req.body;
       if (email) {
         const exists = await Customer.findOne({ email: email.toLowerCase() });
         if (exists && exists._id.toString() !== req.user._id.toString()) {
@@ -50,14 +106,10 @@ const profileController = {
         }
         req.user.email = email.toLowerCase();
       }
-
-      // Actualizar nombre y teléfono
       req.user.name      = name      || req.user.name;
       req.user.telephone = telephone || req.user.telephone;
-
       await req.user.save();
       res.json({ message: "Perfil actualizado", user: req.user });
-
     } catch (err) {
       console.error("updateProfile error:", err);
       res.status(500).json({ message: "Error al actualizar perfil" });

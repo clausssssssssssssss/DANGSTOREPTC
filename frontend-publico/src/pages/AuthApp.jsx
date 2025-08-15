@@ -70,7 +70,18 @@ const AuthApp = () => {
       });
       const data = await res.json();
       if (!res.ok) {
-        showError(data.message || 'Error en el login');
+        // Personalizar mensajes de error para mejor UX
+        let errorMessage = 'Credenciales incorrectas';
+        if (data.message === 'Email no registrado') {
+          errorMessage = 'Credenciales incorrectas';
+        } else if (data.message === 'Invalid password' || data.message === 'Contraseña incorrecta') {
+          errorMessage = 'Credenciales incorrectas';
+        } else if (data.message.includes('bloqueada')) {
+          errorMessage = data.message; // Mantener mensaje de cuenta bloqueada
+        } else if (data.message.includes('bloqueado')) {
+          errorMessage = data.message; // Mantener mensaje de usuario bloqueado
+        }
+        showError(errorMessage);
         return;
       }
       console.log('🔑 Login successful, token:', data.token);

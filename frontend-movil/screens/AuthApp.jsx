@@ -1,9 +1,23 @@
-import React, { useEffect, useState, useContext } from 'react';
-import { View, Text, TouchableOpacity, TextInput, Alert, ActivityIndicator, SafeAreaView, Dimensions, Image, Platform, KeyboardAvoidingView, ScrollView } from 'react-native';
+import React, { useEffect, useState, useContext, useRef } from 'react';
+import { 
+  View, 
+  Text, 
+  TouchableOpacity, 
+  TextInput, 
+  Alert, 
+  ActivityIndicator, 
+  SafeAreaView, 
+  Dimensions, 
+  Image, 
+  Platform, 
+  KeyboardAvoidingView, 
+  ScrollView 
+} from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { AuthContext } from '../src/context/AuthContext.js';
 
 const { width, height } = Dimensions.get('window');
+const API_URL = 'https://tu-api.com'; // Reemplaza con tu URL de API
 
 const AuthApp = ({ navigation }) => {
   const [email, setEmail] = useState('');
@@ -11,98 +25,211 @@ const AuthApp = ({ navigation }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
-  const { user, login } = useContext(AuthContext);
+  const [rememberMe, setRememberMe] = useState(false);
+  const passwordInputRef = useRef(null);
+  const { user, login, parseJwt, setUser } = useContext(AuthContext);
 
+  // Validaciones
   const validateEmail = (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+  const validatePassword = (value) => value.length >= 6;
 
   const validateLoginForm = () => {
     const newErrors = {};
-    if (!email.trim()) newErrors.email = 'El email es requerido';
-    else if (!validateEmail(email)) newErrors.email = 'El email no es válido';
-    if (!password) newErrors.password = 'La contraseña es requerida';
+    if (!email.trim()) {
+      newErrors.email = 'El email es requerido';
+    } else if (!validateEmail(email)) {
+      newErrors.email = 'El email no es válido';
+    }
+    if (!password) {
+      newErrors.password = 'La contraseña es requerida';
+    } else if (!validatePassword(password)) {
+      newErrors.password = 'Mínimo 6 caracteres';
+    }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleLogin = async () => {
     if (!validateLoginForm()) return;
+    
     setLoading(true);
-    const success = await login(email, password);
-    setLoading(false);
-    if (success) {
-      Alert.alert('¡Bienvenido!', 'Inicio de sesión exitoso', [
-        { text: 'OK', onPress: () => navigation.replace('MainApp') },
-      ]);
+    try {
+      const response = await fetch(`${API_URL}/api/customers/login`, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        // Manejo de errores específicos
+        let errorMessage = 'Credenciales incorrectas';
+        if (data.message === 'Email no registrado') {
+          errorMessage = 'Este correo no está registrado';
+        } else if (data.message === 'Invalid password' || data.message === 'Contraseña incorrecta') {
+          errorMessage = 'Contraseña incorrecta';
+        } else if (data.message.includes('bloqueada')) {
+          errorMessage = data.message;
+        } else if (data.message.includes('bloqueado')) {
+          errorMessage = data.message;
+        }
+        
+        Alert.alert('Error', errorMessage);
+        setErrors({ password: errorMessage });
+        return;
+      }
+
+      // Login exitoso
+      console.log('🔑 Login successful, token:', data.token);
+      await AsyncStorage.setItem('token', data.token);
+      const decoded = parseJwt(data.token);
+      setUser({ id: decoded.userId ?? decoded.id, name: decoded.name });
+      
+      Alert.alert('Éxito', '¡Inicio de sesión exitoso!');
+      navigation.replace('MainApp');
+    } catch (error) {
+      console.error('Login error:', error);
+      Alert.alert('Error', 'Ocurrió un problema al iniciar sesión. Por favor intenta nuevamente.');
+    } finally {
+      setLoading(false);
     }
   };
 
   // Si ya existe sesión en contexto, entrar directo
   useEffect(() => {
-    if (user?.token) navigation.replace('MainApp');
+    if (user?.token) {
+      navigation.replace('MainApp');
+    }
   }, [user?.token]);
 
   return (
     <SafeAreaView style={styles.safeArea}>
       <LinearGradient colors={["#6E59A4", "#3B3B3B"]} style={styles.container}>
-        {/* Imágenes decorativas (arriba-izquierda y abajo-derecha) */}
-        <Image source={require('../assets/image-removebg-preview (1).png')} style={styles.cornerTopLeft} resizeMode="contain" />
-        <Image source={require('../assets/image-removebg-preview (1).png')} style={styles.cornerBottomRight} resizeMode="contain" />
-
-        {/* Contenido con KeyboardAvoidingView + ScrollView para evitar que el teclado tape los campos */}
-        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }} keyboardVerticalOffset={Platform.OS === 'ios' ? 60 : 0}>
-          <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-            {/* Título sobre la tarjeta */}
-            <Text style={styles.pageTitle}>¡Bienvenido!</Text>
-            <View style={styles.card}>
-            <Image source={require('../assets/icon.png')} style={styles.logo} resizeMode="contain" />
-
-            <Text style={styles.label}>Correo Electronico</Text>
-            <TextInput
-              style={[styles.field, errors.email && styles.inputError]}
-              value={email}
-              onChangeText={setEmail}
-              placeholder="correo@ejemplo.com"
-              placeholderTextColor="#B7B9C9"
-              keyboardType="email-address"
-              autoCapitalize="none"
-            />
-
-            <Text style={[styles.label, { marginTop: 14 }]}>Contraseña</Text>
-            <View style={styles.passwordRow}>
-              <TextInput
-                style={[styles.field, styles.passwordField, errors.password && styles.inputError]}
-                value={password}
-                onChangeText={setPassword}
-                placeholder="••••••••"
-                placeholderTextColor="#B7B9C9"
-                secureTextEntry={!showPassword}
-              />
-              <TouchableOpacity style={styles.eyeButton} onPress={() => setShowPassword(!showPassword)}>
-                <Text style={styles.eyeText}>👁️</Text>
-              </TouchableOpacity>
-            </View>
-            {(errors.email || errors.password) && (
-              <Text style={styles.errorMessage}>⚠️ {errors.email || errors.password}</Text>
-            )}
-
-            <TouchableOpacity style={styles.cta} activeOpacity={0.9} onPress={handleLogin} disabled={loading}>
-              <LinearGradient colors={["#8A79FF", "#B6A6FF"]} start={{x:0,y:0}} end={{x:1,y:0}} style={[styles.ctaBg, loading && { opacity: 0.8 }] }>
-                {loading ? (
-                  <ActivityIndicator color="#FFFFFF" size="small" />
-                ) : (
-                  <Text style={styles.ctaText}>Iniciar sesión</Text>
-                )}
-              </LinearGradient>
-            </TouchableOpacity>
-            </View>
-          </ScrollView>
-        </KeyboardAvoidingView>
-        {/* Imagen decorativa arriba-derecha */}
+        {/* Imágenes decorativas */}
+        <Image 
+          source={require('../assets/image-removebg-preview (1).png')} 
+          style={styles.cornerTopLeft} 
+          resizeMode="contain" 
+        />
+        <Image 
+          source={require('../assets/image-removebg-preview (1).png')} 
+          style={styles.cornerBottomRight} 
+          resizeMode="contain" 
+        />
         <Image
           source={require('../assets/image-removebg-preview.png')}
           style={styles.cornerTopRight}
           resizeMode="contain"
         />
+
+        {/* Contenido principal */}
+        <KeyboardAvoidingView 
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'} 
+          style={{ flex: 1 }} 
+          keyboardVerticalOffset={Platform.OS === 'ios' ? 60 : 0}
+        >
+          <ScrollView 
+            contentContainerStyle={styles.content} 
+            keyboardShouldPersistTaps="handled"
+          >
+            <Text style={styles.pageTitle}>¡Bienvenido!</Text>
+            
+            <View style={styles.card}>
+              <Image 
+                source={require('../assets/icon.png')} 
+                style={styles.logo} 
+                resizeMode="contain" 
+              />
+
+              {/* Campo Email */}
+              <Text style={styles.label}>Correo Electrónico</Text>
+              <TextInput
+                style={[styles.field, errors.email && styles.inputError]}
+                value={email}
+                onChangeText={setEmail}
+                placeholder="correo@ejemplo.com"
+                placeholderTextColor="#B7B9C9"
+                keyboardType="email-address"
+                autoCapitalize="none"
+                autoCorrect={false}
+                autoFocus={true}
+                returnKeyType="next"
+                onSubmitEditing={() => passwordInputRef.current.focus()}
+              />
+              {errors.email && (
+                <Text style={styles.errorMessage}>{errors.email}</Text>
+              )}
+
+              {/* Campo Contraseña */}
+              <Text style={[styles.label, { marginTop: 14 }]}>Contraseña</Text>
+              <View style={styles.passwordRow}>
+                <TextInput
+                  ref={passwordInputRef}
+                  style={[styles.field, styles.passwordField, errors.password && styles.inputError]}
+                  value={password}
+                  onChangeText={setPassword}
+                  placeholder="••••••••"
+                  placeholderTextColor="#B7B9C9"
+                  secureTextEntry={!showPassword}
+                  returnKeyType="go"
+                  onSubmitEditing={handleLogin}
+                />
+                <TouchableOpacity 
+                  style={styles.eyeButton} 
+                  onPress={() => setShowPassword(!showPassword)}
+                >
+                  <Text style={styles.eyeText}>{showPassword ? '👁️' : '👁️‍🗨️'}</Text>
+                </TouchableOpacity>
+              </View>
+              {errors.password && (
+                <Text style={styles.errorMessage}>{errors.password}</Text>
+              )}
+
+              {/* Recordar usuario y olvidé contraseña */}
+              <View style={styles.rememberRow}>
+                <TouchableOpacity 
+                  style={styles.rememberContainer}
+                  onPress={() => setRememberMe(!rememberMe)}
+                >
+                  <View style={[styles.checkbox, rememberMe && styles.checked]}>
+                    {rememberMe && <Text style={styles.checkmark}>✓</Text>}
+                  </View>
+                  <Text style={styles.rememberText}>Recordar mi usuario</Text>
+                </TouchableOpacity>
+                
+                <TouchableOpacity 
+                  onPress={() => navigation.navigate('ForgotPassword')}
+                >
+                  <Text style={styles.forgotText}>¿Olvidaste tu contraseña?</Text>
+                </TouchableOpacity>
+              </View>
+
+              {/* Botón de Login */}
+              <TouchableOpacity 
+                style={styles.cta} 
+                activeOpacity={0.9} 
+                onPress={handleLogin}
+                disabled={loading}
+              >
+                <LinearGradient 
+                  colors={["#8A79FF", "#B6A6FF"]} 
+                  start={{x:0,y:0}} 
+                  end={{x:1,y:0}} 
+                  style={[styles.ctaBg, loading && { opacity: 0.8 }]}
+                >
+                  {loading ? (
+                    <ActivityIndicator color="#FFFFFF" size="small" />
+                  ) : (
+                    <Text style={styles.ctaText}>Iniciar sesión</Text>
+                  )}
+                </LinearGradient>
+              </TouchableOpacity>
+            </View>
+          </ScrollView>
+        </KeyboardAvoidingView>
       </LinearGradient>
     </SafeAreaView>
   );
@@ -110,8 +237,18 @@ const AuthApp = ({ navigation }) => {
 
 const styles = {
   safeArea: { flex: 1 },
-  container: { flex: 1, position: 'relative' },
-  content: { flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: Math.max(16, width * 0.05) },
+  container: { 
+    flex: 1, 
+    position: 'relative',
+    paddingBottom: Platform.OS === 'android' ? 20 : 0
+  },
+  content: { 
+    flexGrow: 1, 
+    justifyContent: 'center', 
+    alignItems: 'center', 
+    paddingHorizontal: Math.max(16, width * 0.05),
+    paddingVertical: 20
+  },
   pageTitle: { 
     marginTop: 2,
     marginBottom: 25,
@@ -137,7 +274,8 @@ const styles = {
     position: 'absolute',
     top: -height * 0.16,
     right: -width * 0.16,
-    width: Math.max(50, width * 0.88),    height: Math.max(300, width * 0.78),
+    width: Math.max(50, width * 0.88),
+    height: Math.max(300, width * 0.78),
     opacity: 1,
     transform: [{ rotate: '1deg' }],
   },
@@ -155,26 +293,125 @@ const styles = {
     backgroundColor: '#FFFFFF', 
     borderRadius: 16, 
     paddingTop: Math.max(23, height * 0.02),
-    paddingBottom: Math.max(46, height * 0.03),
-    paddingHorizontal: Math.max(2, width * 0.06), 
+    paddingBottom: Math.max(36, height * 0.03),
+    paddingHorizontal: Math.max(20, width * 0.06), 
     shadowColor: '#000', 
     shadowOffset: { width: 0, height: 1 }, 
     shadowOpacity: 0.22, 
     shadowRadius: 34, 
     elevation: 12 
   },
-  logo: { alignSelf: 'center', width: 75, height: 85, marginBottom: 6, marginTop: -6 },
-  label: { color: '#5A48D8', fontSize: 12, fontWeight: '600', marginBottom: 6 },
-  field: { width: '100%', height: 50, backgroundColor: '#ECEAF5', borderRadius: 10, paddingHorizontal: 16, fontSize: 14, color: '#1F2937', borderWidth: 1, borderColor: 'transparent' },
-  inputError: { borderColor: '#EF4444' },
-  passwordRow: { position: 'relative' },
-  passwordField: { paddingRight: 38 },
-  eyeButton: { position: 'absolute', right: 7, top: 10, width: 30, height: 28, alignItems: 'center', justifyContent: 'center' },
-  eyeText: { fontSize: 16, color: '#6B7280' },
-  cta: { marginTop: 16 },
-  ctaBg: { height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center', shadowColor: '#8A79FF', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.3, shadowRadius: 12, elevation: 6 },
-  ctaText: { color: '#FFFFFF', fontSize: 14, fontWeight: '700' },
-  errorMessage: { color: '#EF4444', fontSize: 12, marginTop: 6 },
+  logo: { 
+    alignSelf: 'center', 
+    width: 75, 
+    height: 85, 
+    marginBottom: 6, 
+    marginTop: -6 
+  },
+  label: { 
+    color: '#5A48D8', 
+    fontSize: 12, 
+    fontWeight: '600', 
+    marginBottom: 6 
+  },
+  field: { 
+    width: '100%', 
+    height: 50, 
+    backgroundColor: '#ECEAF5', 
+    borderRadius: 10, 
+    paddingHorizontal: 16, 
+    fontSize: 14, 
+    color: '#1F2937', 
+    borderWidth: 1, 
+    borderColor: 'transparent' 
+  },
+  inputError: { 
+    borderColor: '#EF4444',
+    backgroundColor: '#FEE2E2' 
+  },
+  passwordRow: { 
+    position: 'relative' 
+  },
+  passwordField: { 
+    paddingRight: 38 
+  },
+  eyeButton: { 
+    position: 'absolute', 
+    right: 7, 
+    top: 10, 
+    width: 30, 
+    height: 28, 
+    alignItems: 'center', 
+    justifyContent: 'center' 
+  },
+  eyeText: { 
+    fontSize: 16, 
+    color: '#6B7280' 
+  },
+  rememberRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 12,
+    marginBottom: 16
+  },
+  rememberContainer: {
+    flexDirection: 'row',
+    alignItems: 'center'
+  },
+  checkbox: {
+    width: 18,
+    height: 18,
+    borderRadius: 4,
+    borderWidth: 1,
+    borderColor: '#D1D5DB',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 8
+  },
+  checked: {
+    backgroundColor: '#5A48D8',
+    borderColor: '#5A48D8'
+  },
+  checkmark: {
+    color: 'white',
+    fontSize: 12,
+    fontWeight: 'bold'
+  },
+  rememberText: {
+    color: '#6B7280',
+    fontSize: 13
+  },
+  forgotText: {
+    color: '#5A48D8',
+    fontSize: 12,
+    fontWeight: '500'
+  },
+  cta: { 
+    marginTop: 8 
+  },
+  ctaBg: { 
+    height: 50, 
+    borderRadius: 10, 
+    alignItems: 'center', 
+    justifyContent: 'center', 
+    shadowColor: '#8A79FF', 
+    shadowOffset: { width: 0, height: 8 }, 
+    shadowOpacity: 0.3, 
+    shadowRadius: 12, 
+    elevation: 6 
+  },
+  ctaText: { 
+    color: '#FFFFFF', 
+    fontSize: 16, 
+    fontWeight: '700' 
+  },
+  errorMessage: { 
+    color: '#EF4444', 
+    fontSize: 12, 
+    marginTop: 6,
+    fontWeight: '500' 
+  },
 };
 
 export default AuthApp;

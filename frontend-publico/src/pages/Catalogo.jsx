@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Search, Filter, RefreshCw, Heart, ShoppingCart, X, Star, TrendingUp } from 'lucide-react';
+import { Search, RefreshCw, Heart, ShoppingCart, X, Star, TrendingUp } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth.jsx';
 import { useProducts } from '../components/catalog/hook/useProducts.jsx';
 import { useCart } from '../context/CartContext.jsx';
@@ -19,16 +19,8 @@ export default function Catalogo() {
   const [searchTerm, setSearchTerm] = useState('');
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [priceRange, setPriceRange] = useState([0, 10]);
-  const [selectedCategory, setSelectedCategory] = useState('');
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [showFavoriteMessage, setShowFavoriteMessage] = useState(false);
-
-  // Categorías disponibles
-  const categories = [
-    { id: 'llaveros', name: 'Llaveros', icon: '🔑' },
-    { id: 'piñatas', name: 'Piñatas', icon: '🎉' },
-    { id: 'cuadros', name: 'Cuadros', icon: '🖼️' }
-  ];
 
   // Filtrar productos
   const filteredProducts = useMemo(() => {
@@ -36,10 +28,9 @@ export default function Catalogo() {
     return products.filter(product => {
       const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesPrice = product.price >= priceRange[0] && product.price <= priceRange[1];
-      const matchesCategory = !selectedCategory || product.category === selectedCategory;
-      return matchesSearch && matchesPrice && matchesCategory;
+      return matchesSearch && matchesPrice;
     });
-  }, [products, searchTerm, priceRange, selectedCategory]);
+  }, [products, searchTerm, priceRange]);
 
   // Productos populares
   const popularProducts = useMemo(() => {
@@ -182,7 +173,7 @@ export default function Catalogo() {
           </div>
         )}
 
-        {/* Barra de Búsqueda y Filtros */}
+        {/* Barra de Búsqueda y Filtros Simplificada */}
         <div className="search-filter-section">
           <button 
             className={`search-toggle-btn ${isSearchOpen ? 'active' : ''}`}
@@ -194,69 +185,52 @@ export default function Catalogo() {
 
           {isSearchOpen && (
             <div className="search-panel">
-              <div className="search-inputs">
-                <div className="search-input-group">
-                  <Search className="search-icon" size={20} />
+              <div className="search-input-group">
+                <Search className="search-icon" size={20} />
+                <input
+                  type="text"
+                  placeholder="Buscar productos..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="search-input"
+                />
+              </div>
+
+              <div className="price-filter">
+                <label>Precio: ${priceRange[0]} - ${priceRange[1]}</label>
+                <div className="price-slider-container">
                   <input
-                    type="text"
-                    placeholder="Buscar productos..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="search-input"
+                    type="range"
+                    min="0"
+                    max="10"
+                    step="0.5"
+                    value={priceRange[0]}
+                    onChange={(e) => setPriceRange([Number(e.target.value), priceRange[1]])}
+                    className="price-slider"
+                  />
+                  <input
+                    type="range"
+                    min="0"
+                    max="10"
+                    step="0.5"
+                    value={priceRange[1]}
+                    onChange={(e) => setPriceRange([priceRange[0], Number(e.target.value)])}
+                    className="price-slider"
                   />
                 </div>
-
-                <div className="filter-group">
-                  <Filter size={18} />
-                  <select
-                    value={selectedCategory}
-                    onChange={(e) => setSelectedCategory(e.target.value)}
-                    className="category-select"
-                  >
-                    <option value="">Todas las categorías</option>
-                    {categories.map(category => (
-                      <option key={category.id} value={category.id}>
-                        {category.icon} {category.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="price-filter">
-                  <label>Precio: ${priceRange[0]} - ${priceRange[1]}</label>
-                  <div className="price-range-container">
-                    <input
-                      type="range"
-                      min="0"
-                      max="10"
-                      value={priceRange[0]}
-                      onChange={(e) => setPriceRange([Number(e.target.value), priceRange[1]])}
-                      className="price-slider"
-                    />
-                    <input
-                      type="range"  
-                      min="0"
-                      max="10"
-                      value={priceRange[1]}
-                      onChange={(e) => setPriceRange([priceRange[0], Number(e.target.value)])}
-                      className="price-slider"
-                    />
-                  </div>
-                </div>
-
-                <button 
-                  className="clear-filters-btn"
-                  onClick={() => {
-                    setSearchTerm('');
-                    setPriceRange([0, 10]);
-                    setSelectedCategory('');
-                    showInfo('Filtros limpiados');
-                  }}
-                >
-                  <RefreshCw size={16} />
-                  Limpiar
-                </button>
               </div>
+
+              <button 
+                className="clear-filters-btn"
+                onClick={() => {
+                  setSearchTerm('');
+                  setPriceRange([0, 10]);
+                  showInfo('Filtros limpiados');
+                }}
+              >
+                <RefreshCw size={16} />
+                Limpiar
+              </button>
             </div>
           )}
         </div>

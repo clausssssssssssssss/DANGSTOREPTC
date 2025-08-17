@@ -6,9 +6,16 @@ import { useCallback, useState } from 'react';
 export const useToast = () => {
   const [toasts, setToasts] = useState([]);
 
-  const addToast = useCallback((message, type = 'info', duration = 5000) => {
+  const addToast = useCallback((message, type = 'info', duration = 4000, options = {}) => {
     const id = Date.now() + Math.random();
-    const newToast = { id, message, type, duration };
+    const newToast = { 
+      id, 
+      message, 
+      type, 
+      duration,
+      showConfirmButton: options.showConfirmButton || false,
+      onConfirm: options.onConfirm || null
+    };
     
     setToasts(prev => [...prev, newToast]);
     
@@ -19,23 +26,23 @@ export const useToast = () => {
     setToasts(prev => prev.filter(toast => toast.id !== id));
   }, []);
 
-  const showToast = useCallback((message, type = 'info', duration = 5000) => {
-    return addToast(message, type, duration);
+  const showToast = useCallback((message, type = 'info', duration = 4000, options = {}) => {
+    return addToast(message, type, duration, options);
   }, [addToast]);
 
-  const showSuccess = useCallback((message, duration = 5000) => {
+  const showSuccess = useCallback((message, duration = 4000) => {
     return addToast(message, 'success', duration);
   }, [addToast]);
 
-  const showError = useCallback((message, duration = 5000) => {
+  const showError = useCallback((message, duration = 4000) => {
     return addToast(message, 'error', duration);
   }, [addToast]);
 
-  const showWarning = useCallback((message, duration = 5000) => {
-    return addToast(message, 'warning', duration);
+  const showWarning = useCallback((message, duration = 4000, options = {}) => {
+    return addToast(message, 'warning', duration, options);
   }, [addToast]);
 
-  const showInfo = useCallback((message, duration = 5000) => {
+  const showInfo = useCallback((message, duration = 4000) => {
     return addToast(message, 'info', duration);
   }, [addToast]);
 

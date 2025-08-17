@@ -2,10 +2,11 @@
 import React, { useState, useEffect } from 'react';
 import {Heart, ShoppingCart, User, Gift, LogOut, Lock}
 from 'lucide-react';
-import { useAuth } from '../hooks/useAuth.jsx';
-import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../hooks/useAuth';
+import { useNavigate, useLocation } from 'react-router-dom';
 import '../components/styles/UserProfile.css';
-import { toast } from 'react-toastify';
+import { useToast } from '../hooks/useToast';
+import ToastContainer from '../components/ui/ToastContainer';
 
 import PersonalDataSection from '../components/profile/PersonalDataSection';
 import OrdersSection       from '../components/profile/OrdersSection';
@@ -18,6 +19,8 @@ const API_URL = import.meta.env.VITE_API_URL || '';
 const UserProfile = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const { toasts, showSuccess, showError, removeToast } = useToast();
 
   useEffect(() => {
   }, [user]);
@@ -49,6 +52,15 @@ const UserProfile = () => {
   }
 
   const [activeSection, setActiveSection] = useState('personal');
+
+  // Detectar si viene de otra página con una sección específica
+  useEffect(() => {
+    if (location.state?.activeSection) {
+      setActiveSection(location.state.activeSection);
+      // Limpiar el estado para que no persista en futuras navegaciones
+      navigate(location.pathname, { replace: true, state: {} });
+    }
+  }, [location.state, navigate, location.pathname]);
 
   // --- Estado para cotizaciones ---
   const [quotes, setQuotes] = useState([]);
@@ -126,18 +138,18 @@ const UserProfile = () => {
           if (remaining.length === 0) setHasQuotesFlag(false);
           return remaining;
         });
-        toast.success(decision === 'accept' ? 'Cotización aceptada' : 'Cotización rechazada');
+        showSuccess(decision === 'accept' ? 'Cotización aceptada' : 'Cotización rechazada');
       })
       .catch(err => {
         console.error('Error:', err);
-        toast.error('Error al procesar la decisión');
+                  showError('Error al procesar la decisión');
       });
   };
 
   const handleLogout = () => {
     logout();
     navigate('/');
-    toast.success('Sesión cerrada correctamente');
+            showSuccess('Sesión cerrada correctamente');
   };
 
   const renderSection = () => {
@@ -339,6 +351,8 @@ const UserProfile = () => {
           </div>
         </div>
       )}
+      
+      <ToastContainer toasts={toasts} removeToast={removeToast} />
     </div>
   );
 };

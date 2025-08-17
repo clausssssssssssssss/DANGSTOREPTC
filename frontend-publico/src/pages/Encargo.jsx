@@ -1,7 +1,8 @@
 // src/pages/Encargo.jsx
+import React, { useEffect } from 'react';
 import { CloudUpload, X } from 'lucide-react';
-import useCustomerOrders from '../components/personalizedOrder/useCustomerOrders.jsx';
-import { useAuth } from '../hooks/useAuth.jsx';
+import useCustomerOrders from '../components/personalizedOrder/useCustomerOrders';
+import { useAuth } from '../hooks/useAuth';
 import Modal from '../components/ui/Modal';
 import '../components/styles/Encargo.css';
 import { useToast } from '../hooks/useToast';
@@ -25,8 +26,28 @@ const { toasts, showSuccess, showError, showWarning, removeToast } = useToast();
     clearImage
   } = useCustomerOrders();
 
+  // Efecto para manejar el éxito del encargo
+  useEffect(() => {
+    if (success) {
+      showSuccess('¡Tu pedido ha sido enviado exitosamente! Te contactaremos pronto.');
+      const timer = setTimeout(() => {
+        window.location.reload();
+      }, 2000);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [success, showSuccess]);
+
   // Función personalizada para manejar el cambio de imagen con toast
   const handleImageChangeWithToast = (e) => {
+    // Verificar si el usuario está registrado antes de permitir subir imágenes
+    if (!user) {
+      showWarning("Debes registrarte para poder hacer un encargo personalizado");
+      // Limpiar el input para evitar que se procese la imagen
+      e.target.value = '';
+      return;
+    }
+
     const file = e.target.files[0];
     if (file) {
       handleImageChange(e);
@@ -58,7 +79,7 @@ const { toasts, showSuccess, showError, showWarning, removeToast } = useToast();
   // Nueva función para eliminar la imagen
   const handleRemoveImage = () => {
     clearImage();
-    showInfo("Imagen eliminada");
+    showSuccess("Imagen eliminada");
   };
 
   return (
@@ -94,7 +115,14 @@ const { toasts, showSuccess, showError, showWarning, removeToast } = useToast();
           ) : (
             <label htmlFor="image-upload" className="upload-label">
               <CloudUpload size={48} className="upload-icon" />
-              <span className="upload-text">Haz click para subir</span>
+              <span className="upload-text">
+                {!user ? 'Regístrate para subir imagen' : 'Haz click para subir'}
+              </span>
+              {!user && (
+                <span className="upload-hint">
+                  Necesitas una cuenta para hacer encargos personalizados
+                </span>
+              )}
             </label>
           )}
           <input
@@ -139,26 +167,12 @@ const { toasts, showSuccess, showError, showWarning, removeToast } = useToast();
             disabled={loading || !preview || !modelType}
             className="submit-button"
           >
-            {loading ? 'Enviando...' : 'Enviar'}
+            {!user ? 'Regístrate para enviar' : (loading ? 'Enviando...' : 'Enviar')}
           </button>
         </div>
       </div>
 
-      {/* Modal de éxito cuando success === true */}
-      {success && (
-        <Modal onClose={() => window.location.reload()}>
-          <div className="modal-body">
-            <h2 className="modal-title">Tu pedido ha sido enviado</h2>
-            <p className="modal-text">Te caerá una notificación de tu cotización.</p>
-            <button
-              onClick={() => window.location.reload()}
-              className="modal-button"
-            >
-              Aceptar
-            </button>
-          </div>
-        </Modal>
-      )}
+
       
       <ToastContainer toasts={toasts} removeToast={removeToast} />
     </div>

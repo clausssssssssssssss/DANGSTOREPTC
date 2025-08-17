@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { X, CheckCircle, AlertCircle, Info } from 'lucide-react';
+import { CheckCircle, AlertCircle, Info, AlertTriangle } from 'lucide-react';
 import './Toast.css';
 
-const Toast = ({ message, type = 'info', duration = 5000, onClose }) => {
+const Toast = ({ message, type = 'info', duration = 4000, onClose, onConfirm, showConfirmButton = false }) => {
   const [isVisible, setIsVisible] = useState(true);
 
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsVisible(false);
-      setTimeout(onClose, 300); // Esperar a que termine la animación
+      setTimeout(onClose, 400); // Esperar a que termine la animación
     }, duration);
 
     return () => clearTimeout(timer);
@@ -17,19 +17,22 @@ const Toast = ({ message, type = 'info', duration = 5000, onClose }) => {
   const getIcon = () => {
     switch (type) {
       case 'success':
-        return <CheckCircle size={20} />;
+        return <CheckCircle size={18} color="#10b981" />;
       case 'error':
-        return <AlertCircle size={20} />;
+        return <AlertCircle size={18} color="#ef4444" />;
       case 'warning':
-        return <AlertCircle size={20} />;
+        return <AlertTriangle size={18} color="#fbbf24" />;
       default:
-        return <Info size={20} />;
+        return <Info size={18} color="#3b82f6" />;
     }
   };
 
-  const handleClose = () => {
+  const handleConfirm = () => {
+    if (onConfirm) {
+      onConfirm();
+    }
     setIsVisible(false);
-    setTimeout(onClose, 300);
+    setTimeout(onClose, 400);
   };
 
   return (
@@ -39,10 +42,12 @@ const Toast = ({ message, type = 'info', duration = 5000, onClose }) => {
       </div>
       <div className="toast-content">
         <p className="toast-message">{message}</p>
+        {showConfirmButton && (
+          <button className="toast-confirm-btn" onClick={handleConfirm}>
+            Confirmar
+          </button>
+        )}
       </div>
-      <button className="toast-close" onClick={handleClose}>
-        <X size={16} />
-      </button>
     </div>
   );
 };

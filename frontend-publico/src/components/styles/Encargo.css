@@ -86,7 +86,7 @@ body {
 .encargo-title {
   font-size: 3rem;
   font-weight: 800;
-  color: #333; /* Texto oscuro para mejor contraste */
+  color: #6c5ce7; /* Color morado para coherencia con el resto del sitio */
   margin-bottom: 0.5rem;
   position: relative;
 }
@@ -397,6 +397,16 @@ body {
   font-weight: 600;
   color: #4DD0E1;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.upload-hint {
+  font-size: 0.9rem;
+  font-weight: 400;
+  color: #e74c3c;
+  margin-top: 0.5rem;
+  text-align: center;
+  opacity: 0.8;
+  text-shadow: none;
 }
 
 .hidden-input {
@@ -770,6 +780,11 @@ body {
     font-size: 1rem;
   }
   
+  .upload-hint {
+    font-size: 0.8rem;
+    margin-top: 0.4rem;
+  }
+  
   .field-textarea {
     min-height: 100px;
   }
@@ -832,6 +847,11 @@ body {
   
   .upload-text {
     font-size: 0.9rem;
+  }
+  
+  .upload-hint {
+    font-size: 0.75rem;
+    margin-top: 0.3rem;
   }
   
   .field-label {

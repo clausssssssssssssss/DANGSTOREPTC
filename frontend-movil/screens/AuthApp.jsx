@@ -17,7 +17,6 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { AuthContext } from '../src/context/AuthContext.js';
 
 const { width, height } = Dimensions.get('window');
-const API_URL = 'https://tu-api.com'; // Reemplaza con tu URL de API
 
 const AuthApp = ({ navigation }) => {
   const [email, setEmail] = useState('');
@@ -54,42 +53,10 @@ const AuthApp = ({ navigation }) => {
     
     setLoading(true);
     try {
-      const response = await fetch(`${API_URL}/api/customers/login`, {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password })
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        // Manejo de errores específicos
-        let errorMessage = 'Credenciales incorrectas';
-        if (data.message === 'Email no registrado') {
-          errorMessage = 'Este correo no está registrado';
-        } else if (data.message === 'Invalid password' || data.message === 'Contraseña incorrecta') {
-          errorMessage = 'Contraseña incorrecta';
-        } else if (data.message.includes('bloqueada')) {
-          errorMessage = data.message;
-        } else if (data.message.includes('bloqueado')) {
-          errorMessage = data.message;
-        }
-        
-        Alert.alert('Error', errorMessage);
-        setErrors({ password: errorMessage });
-        return;
+      const success = await login(email, password);
+      if (success) {
+        navigation.replace('MainApp');
       }
-
-      // Login exitoso
-      console.log('🔑 Login successful, token:', data.token);
-      await AsyncStorage.setItem('token', data.token);
-      const decoded = parseJwt(data.token);
-      setUser({ id: decoded.userId ?? decoded.id, name: decoded.name });
-      
-      Alert.alert('Éxito', '¡Inicio de sesión exitoso!');
-      navigation.replace('MainApp');
     } catch (error) {
       console.error('Login error:', error);
       Alert.alert('Error', 'Ocurrió un problema al iniciar sesión. Por favor intenta nuevamente.');
@@ -188,7 +155,7 @@ const AuthApp = ({ navigation }) => {
                 <Text style={styles.errorMessage}>{errors.password}</Text>
               )}
 
-              {/* Recordar usuario y olvidé contraseña */}
+              {/* Recordar usuario */}
               <View style={styles.rememberRow}>
                 <TouchableOpacity 
                   style={styles.rememberContainer}
@@ -198,12 +165,6 @@ const AuthApp = ({ navigation }) => {
                     {rememberMe && <Text style={styles.checkmark}>✓</Text>}
                   </View>
                   <Text style={styles.rememberText}>Recordar mi usuario</Text>
-                </TouchableOpacity>
-                
-                <TouchableOpacity 
-                  onPress={() => navigation.navigate('ForgotPassword')}
-                >
-                  <Text style={styles.forgotText}>¿Olvidaste tu contraseña?</Text>
                 </TouchableOpacity>
               </View>
 

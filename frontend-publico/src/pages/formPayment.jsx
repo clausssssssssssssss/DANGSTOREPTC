@@ -1,13 +1,9 @@
 import React from "react";
+import { CreditCard, User, Mail, DollarSign, HelpCircle, ArrowLeft, RotateCw } from 'react-feather';
 import InputField from "../components/payment/InputField";
 import Button from "../components/payment/Button";
 import usePaymentForm from "../components/payment/hook/usePaymentForm";
 import { formatCardNumber } from "../utils/validator";
-import TitleH2 from "../components/payment/TitleH2";
-import SpanText from "../components/payment/SpanText";
-import CardResumen from "../components/payment/CardResumen";
-import TitleH1 from "../components/payment/TitleH1";
-import ProgressBar from "../components/payment/ProgressBar";
 import "../components/styles/formPayment.css";
 
 const FormPayment = () => {
@@ -24,75 +20,272 @@ const FormPayment = () => {
   } = usePaymentForm();
 
   return (
-    <div className="payment-page">
-      <div className="payment-wrapper">
-        <div className="page-header">
-          <TitleH1 text="Formulario de Pago" />
-          <div className="progress-wrapper">
-            <ProgressBar step={step} />
-          </div>
+    <div className="payment-container">
+      <div className="payment-card">
+        <div className="payment-header">
+          <h1 className="payment-title">
+            <CreditCard size={24} className="icon-title" />
+            Pago Simulado
+          </h1>
+          <p className="payment-subtitle">
+            Completa los datos para generar una orden de prueba
+          </p>
         </div>
 
         {step === 1 && (
-          <div className="payment-card">
-            <div className="section-header">
-              <h2 className="section-title">Información del cliente</h2>
-              <p className="section-subtitle">
-                Este formulario realiza un cobro real a través de una API. Tener cuidado con los datos ingresados,
-                de preferencia hacer pruebas enviando $0.01
-              </p>
+          <div className="payment-form">
+            <div className="form-section">
+              <div className="input-group">
+                <label htmlFor="nombre" className="input-label">
+                  <User size={18} className="input-icon" />
+                  Nombre del Cliente *
+                </label>
+                <InputField
+                  id="nombre"
+                  name="nombre"
+                  value={formData.nombre}
+                  onChange={handleChangeData}
+                  type="text"
+                  placeholder="Ej: Gabriel Alexander"
+                  required
+                />
+              </div>
+
+              <div className="input-group">
+                <label htmlFor="email" className="input-label">
+                  <Mail size={18} className="input-icon" />
+                  Email del Cliente *
+                </label>
+                <InputField
+                  id="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChangeData}
+                  type="email"
+                  placeholder="Ej: gaboquintana10@gmail.com"
+                  required
+                />
+              </div>
+
+              <div className="input-group">
+                <label htmlFor="monto" className="input-label">
+                  <DollarSign size={18} className="input-icon" />
+                  Monto *
+                </label>
+                <InputField
+                  id="monto"
+                  name="monto"
+                  value={formData.monto}
+                  onChange={handleChangeData}
+                  type="number"
+                  placeholder="0.01"
+                  min="0"
+                  step="0.01"
+                  required
+                />
+              </div>
             </div>
 
-            <div className="form-grid">
-              <InputField id="nombre" name="nombre" value={formData.nombre} onChange={handleChangeData} type="text" label="Nombres" placeholder="Daniel Wilfredo" required />
-              <InputField id="apellido" name="apellido" value={formData.apellido} onChange={handleChangeData} type="text" label="Apellidos" placeholder="Granados Hernández" required />
-              <InputField id="email" name="email" value={formData.email} onChange={handleChangeData} type="email" label="Correo Electrónico" placeholder="juan@ejemplo.com" required />
-              <InputField id="direccion" name="direccion" value={formData.direccion} onChange={handleChangeData} type="text" label="Dirección" placeholder="Av. Aguilares 201" required />
-              <InputField id="ciudad" name="ciudad" value={formData.ciudad} onChange={handleChangeData} type="text" label="Ciudad" placeholder="San Salvador" required />
-              <InputField id="telefono" name="telefono" value={formData.telefono} onChange={handleChangeData} type="text" label="Teléfono" placeholder="7777-7777" required />
-              <InputField id="monto" name="monto" value={formData.monto} onChange={handleChangeData} type="number" label="Monto a Pagar" placeholder="0.00" min="0" step="0.01" required />
-
-              <div className="actions">
-                <Button onClick={handleFirstStep} variant="primary" className="btn-primary" text="Continuar con el Pago →" />
-              </div>
+            <div className="form-footer">
+              <Button
+                onClick={handleFirstStep}
+                variant="primary"
+                className="btn-primary"
+                text="Continuar al Pago"
+                icon="arrow-right"
+              />
             </div>
           </div>
         )}
 
         {step === 2 && (
-          <div className="payment-steps">
-            <CardResumen formData={formData} />
-
-            <div className="payment-card">
-              <div className="section-header">
-                <h2 className="section-title">Información de pago</h2>
+          <div className="payment-process">
+            <div className="summary-card">
+              <h3 className="summary-title">
+                <User size={18} className="summary-icon" />
+                Datos Recibidos
+              </h3>
+              <div className="summary-details">
+                <div className="detail-item">
+                  <span className="detail-label">Nombre:</span>
+                  <span className="detail-value">{formData.nombre}</span>
+                </div>
+                <div className="detail-item">
+                  <span className="detail-label">Email:</span>
+                  <span className="detail-value">{formData.email}</span>
+                </div>
+                <div className="detail-item">
+                  <span className="detail-label">Monto:</span>
+                  <span className="detail-value">${parseFloat(formData.monto || 0).toFixed(2)}</span>
+                </div>
               </div>
-              <div className="form-grid">
-                <InputField id="numeroTarjeta" name="numeroTarjeta" value={formatCardNumber(formDataTarjeta.numeroTarjeta)} onChange={handleChangeTarjeta} type="text" label="Número de Tarjeta" placeholder="1234 5678 9012 3456" required />
+            </div>
 
-                <div className="triple-grid">
-                  <InputField id="mesVencimiento" name="mesVencimiento" value={formDataTarjeta.mesVencimiento} onChange={handleChangeTarjeta} type="number" label="Mes" placeholder="MM" min="1" max="12" required />
-                  <InputField id="anioVencimiento" name="anioVencimiento" value={formDataTarjeta.anioVencimiento} onChange={handleChangeTarjeta} type="number" label="Año" placeholder="YYYY" min={new Date().getFullYear()} required />
-                  <InputField id="cvv" name="cvv" value={formDataTarjeta.cvv} onChange={handleChangeTarjeta} type="text" label="CVV" placeholder="123" required />
+            <div className="payment-details">
+              <h3 className="payment-details-title">
+                <CreditCard size={18} className="details-icon" />
+                Información de Pago
+              </h3>
+
+              <div className="card-form">
+                <div className="input-group">
+                  <label htmlFor="numeroTarjeta" className="input-label">
+                    Número de tarjeta *
+                  </label>
+                  <div className="card-input">
+                    <CreditCard size={18} className="card-icon" />
+                    <InputField
+                      id="numeroTarjeta"
+                      name="numeroTarjeta"
+                      value={formatCardNumber(formDataTarjeta.numeroTarjeta)}
+                      onChange={handleChangeTarjeta}
+                      type="text"
+                      placeholder="4242 4242 4242 4242"
+                      required
+                    />
+                  </div>
                 </div>
 
-                <div className="actions actions-duo">
-                  <Button onClick={() => setStep(1)} variant="danger" className="btn-secondary" text="← Volver" />
-                  <Button onClick={handleFinishPayment} variant="secondary" className="btn-primary" text="💰 Procesar Pago" />
+                <div className="input-group">
+                  <label htmlFor="nombreTarjeta" className="input-label">
+                    Nombre en la tarjeta *
+                  </label>
+                  <InputField
+                    id="nombreTarjeta"
+                    name="nombreTarjeta"
+                    value={formDataTarjeta.nombreTarjeta}
+                    onChange={handleChangeTarjeta}
+                    type="text"
+                    placeholder="Como aparece en la tarjeta"
+                    required
+                  />
                 </div>
+
+                <div className="double-grid">
+                  <div className="input-group">
+                    <label className="input-label">Fecha de vencimiento *</label>
+                    <div className="expiry-fields">
+                      <select
+                        name="mesVencimiento"
+                        value={formDataTarjeta.mesVencimiento}
+                        onChange={handleChangeTarjeta}
+                        className="expiry-select"
+                        required
+                      >
+                        <option value="">Mes</option>
+                        {Array.from({length: 12}, (_, i) => (
+                          <option key={i+1} value={String(i+1).padStart(2, '0')}>
+                            {String(i+1).padStart(2, '0')}
+                          </option>
+                        ))}
+                      </select>
+                      <select
+                        name="anioVencimiento"
+                        value={formDataTarjeta.anioVencimiento}
+                        onChange={handleChangeTarjeta}
+                        className="expiry-select"
+                        required
+                      >
+                        <option value="">Año</option>
+                        {Array.from({length: 10}, (_, i) => (
+                          <option key={i} value={new Date().getFullYear() + i}>
+                            {new Date().getFullYear() + i}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="input-group">
+                    <label htmlFor="cvv" className="input-label">
+                      CVV *
+                      <span className="help-tooltip">
+                        <HelpCircle size={16} />
+                        <span className="tooltip-text">
+                          El CVV son los 3 dígitos en el reverso de tu tarjeta
+                        </span>
+                      </span>
+                    </label>
+                    <InputField
+                      id="cvv"
+                      name="cvv"
+                      value={formDataTarjeta.cvv}
+                      onChange={handleChangeTarjeta}
+                      type="text"
+                      placeholder="123"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="accepted-cards">
+                  <span>Tarjetas aceptadas:</span>
+                  <div className="card-brands">
+                    <div className="card-brand visa">VISA</div>
+                    <div className="card-brand mastercard">Mastercard</div>
+                    <div className="card-brand amex">AMEX</div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="payment-actions">
+                <Button
+                  onClick={() => setStep(1)}
+                  variant="secondary"
+                  className="btn-secondary"
+                  text="Volver"
+                  icon="arrow-left"
+                />
+                <Button
+                  onClick={handleFinishPayment}
+                  variant="primary"
+                  className="btn-primary"
+                  text="Confirmar Pago"
+                  icon="credit-card"
+                />
               </div>
             </div>
           </div>
         )}
 
         {step === 3 && (
-          <div className="payment-card success-card">
-            <h2 className="success-title">¡Pago Exitoso!</h2>
-            <p className="success-text">Tu transacción ha sido procesada correctamente</p>
-            <div className="success-box">
-              <p>Monto procesado: ${parseFloat(formData?.monto || 0).toFixed(2)}</p>
+          <div className="payment-success">
+            <div className="success-icon">
+              <svg viewBox="0 0 24 24">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+              </svg>
             </div>
-            <Button onClick={limpiarFormulario} variant="primary" className="btn-primary w-full" text="🔄 Nueva Transacción" />
+            <h2 className="success-title">¡Pago Simulado Exitoso!</h2>
+            <p className="success-message">
+              Esta es una simulación, no se ha realizado ningún cargo real
+            </p>
+
+            <div className="success-details">
+              <div className="detail-item">
+                <span className="detail-label">Nombre:</span>
+                <span className="detail-value">{formData.nombre}</span>
+              </div>
+              <div className="detail-item">
+                <span className="detail-label">Email:</span>
+                <span className="detail-value">{formData.email}</span>
+              </div>
+              <div className="detail-item">
+                <span className="detail-label">Monto:</span>
+                <span className="detail-value">${parseFloat(formData.monto || 0).toFixed(2)}</span>
+              </div>
+              <div className="detail-item">
+                <span className="detail-label">Tarjeta:</span>
+                <span className="detail-value">•••• •••• •••• {formDataTarjeta.numeroTarjeta.slice(-4)}</span>
+              </div>
+            </div>
+
+            <Button
+              onClick={limpiarFormulario}
+              variant="primary"
+              className="btn-primary"
+              text="Nueva Transacción"
+              icon="rotate-cw"
+            />
           </div>
         )}
       </div>

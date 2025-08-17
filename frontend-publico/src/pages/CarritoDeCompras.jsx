@@ -47,12 +47,14 @@ const CarritoDeCompras = () => {
         throw new Error('Algunos productos no tienen información completa');
       }
 
-      // Redirigir primero al formulario de pago para capturar datos
-      navigate('/form-payment', { state: { items: cart, total } });
+      navigate('/form-payment', { 
+        state: { 
+          items: cart, 
+          total: total
+        } 
+      });
       setLoading(false);
       return;
-
-      // Nota: el flujo de éxito ahora vive en formPayment.jsx
 
     } catch (err) {
       setError(err.message || 'Error al procesar el pago. Intenta de nuevo.');
@@ -88,7 +90,6 @@ const CarritoDeCompras = () => {
     if (location.state?.paid) {
       setSuccess(true);
       setPaidTotal(location.state.total || null);
-      // limpiar state para que no reaparezca al recargar
       navigate(location.pathname, { replace: true, state: {} });
     }
   }, [location.state]);
@@ -98,7 +99,6 @@ const CarritoDeCompras = () => {
       <div className="cart-container">
         <div className="cart-content">
           <div className="payment-success">
-            {/* Animación de checkmark */}
             <div className="success-icon-container">
               <div className="success-icon-circle">
                 <Check size={60} className="success-icon" />
@@ -106,7 +106,6 @@ const CarritoDeCompras = () => {
               <div className="success-pulse"></div>
             </div>
   
-            {/* Contenido principal */}
             <div className="success-content">
               <h2 className="success-heading">¡Pago Exitoso!</h2>
               <p className="success-message">
@@ -115,7 +114,6 @@ const CarritoDeCompras = () => {
                 Recibirás un correo de confirmación con los detalles de tu compra.
               </p>
   
-              {/* Detalles del pedido */}
               <div className="order-details">
                 <div className="detail-row">
                   <span>Número de orden:</span>
@@ -131,7 +129,6 @@ const CarritoDeCompras = () => {
                 </div>
               </div>
   
-              {/* Botones de acción */}
               <div className="success-actions">
                 <Link to="/catalogo" className="continue-shopping-btn">
                   <ShoppingBag size={18} />
@@ -143,7 +140,6 @@ const CarritoDeCompras = () => {
               </div>
             </div>
   
-            {/* Efectos decorativos */}
             <div className="confetti-effect"></div>
           </div>
         </div>
@@ -155,7 +151,6 @@ const CarritoDeCompras = () => {
     <>
       <div className="cart-container">
         <div className="cart-content">
-          {/* Header */}
           <div className="cart-header">
             <Link to="/catalogo" className="back-link">
               <ArrowLeft size={20} />
@@ -184,7 +179,6 @@ const CarritoDeCompras = () => {
             </div>
           ) : (
             <div className="cart-layout">
-              {/* Items */}
               <div className="cart-items">
                 <div className="items-header">
                   <h3>Productos ({itemCount})</h3>
@@ -258,7 +252,6 @@ const CarritoDeCompras = () => {
                 </div>
               </div>
 
-              {/* Resumen */}
               <div className="cart-summary">
                 <h3>Resumen de compra</h3>
                 

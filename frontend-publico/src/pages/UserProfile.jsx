@@ -1,26 +1,49 @@
 // src/pages/UserProfile.jsx
 import React, { useState, useEffect } from 'react';
-import {Heart, ShoppingCart, User, Gift, LogOut, Lock}
-from 'lucide-react';
+import { Heart, ShoppingCart, User, Gift, LogOut, Lock } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth.jsx';
 import { useNavigate } from 'react-router-dom';
 import '../components/styles/UserProfile.css';
 import { toast } from 'react-toastify';
 
 import PersonalDataSection from '../components/profile/PersonalDataSection';
-import OrdersSection       from '../components/profile/OrdersSection';
-import FavoritesSection    from '../components/profile/FavoritesSection';
-import PasswordSection     from '../components/profile/PasswordSection';
-import UserSection         from '../components/profile/UserSection';
-
-const API_URL = import.meta.env.VITE_API_URL || '';
+import OrdersSection from '../components/profile/OrdersSection';
+import FavoritesSection from '../components/profile/FavoritesSection';
+import PasswordSection from '../components/profile/PasswordSection';
+import UserSection from '../components/profile/UserSection';
+import QuotesSection from '../components/profile/QuotesSection';
 
 const UserProfile = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
-  useEffect(() => {
-  }, [user]);
+  const [activeSection, setActiveSection] = useState('personal');
+  const [hasQuotesFlag, setHasQuotesFlag] = useState(false);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
+
+  // Verifica si hay cotizaciones nuevas al cargar el perfil
+useEffect(() => {
+  const checkQuotes = async () => {
+    try {
+      const res = await fetch(`${API_URL}/api/custom-orders/me`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+      });
+      if (!res.ok) return;
+      const data = await res.json();
+      const hasNewQuotes = data.some(o => o.status === 'quoted');
+      setHasQuotesFlag(hasNewQuotes);
+    } catch (err) {
+      console.error("Error verificando cotizaciones:", err);
+    }
+  };
+
+  checkQuotes();
+
+  // Opcional: actualizar cada X segundos
+  const interval = setInterval(checkQuotes, 15000); // cada 15 segundos
+  return () => clearInterval(interval);
+}, []);
+
 
   if (!user) {
     return (
@@ -30,16 +53,10 @@ const UserProfile = () => {
           <h2>Necesitas iniciar sesión</h2>
           <p>Debes iniciar sesión para acceder a tu perfil y ver toda tu información personal.</p>
           <div className="auth-buttons">
-            <button
-              onClick={() => navigate('/auth/login')}
-              className="login-button primary"
-            >
+            <button onClick={() => navigate('/auth/login')} className="login-button primary">
               Iniciar Sesión
             </button>
-            <button
-              onClick={() => navigate('/')}
-              className="login-button secondary"
-            >
+            <button onClick={() => navigate('/')} className="login-button secondary">
               Volver al Inicio
             </button>
           </div>
@@ -47,92 +64,6 @@ const UserProfile = () => {
       </div>
     );
   }
-
-  const [activeSection, setActiveSection] = useState('personal');
-
-  // --- Estado para cotizaciones ---
-  const [quotes, setQuotes] = useState([]);
-  const [loadingQuotes, setLoadingQuotes] = useState(false);
-  const [errorQuotes, setErrorQuotes] = useState('');
-
-  // --- Bandera para mostrar puntito rojo ---
-  const [hasQuotesFlag, setHasQuotesFlag] = useState(false);
-
-  // --- Estado para mostrar modal de confirmación de logout ---
-  const [showLogoutModal, setShowLogoutModal] = useState(false);
-
-  // Carga inicial: revisa si hay cotizaciones con status "quoted"
-  useEffect(() => {
-    const fetchAll = async () => {
-      try {
-        const res = await fetch(`${API_URL}/api/custom-orders/me`, {
-          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-        });
-        if (!res.ok) return;
-        const data = await res.json();
-        if (data.some(o => o.status === 'quoted')) {
-          setHasQuotesFlag(true);
-        }
-      } catch (err) {
-        console.error(err);
-      }
-    };
-    fetchAll();
-  }, []);
-
-  // Carga las cotizaciones cuando el usuario entra en esa sección
-  useEffect(() => {
-    if (activeSection === 'quotes') {
-      setLoadingQuotes(true);
-      setErrorQuotes('');
-      fetch(`${API_URL}/api/custom-orders/me`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-      })
-        .then(res => {
-          if (!res.ok) throw new Error(`Status ${res.status}`);
-          return res.json();
-        })
-        .then(data => {
-          // solo las cotizadas
-          const quoted = data.filter(o => o.status === 'quoted');
-          setQuotes(quoted);
-          // si ya no quedan nuevas, quita el puntito
-          if (quoted.length === 0) {
-            setHasQuotesFlag(false);
-          }
-        })
-        .catch(err => setErrorQuotes(err.message))
-        .finally(() => setLoadingQuotes(false));
-    }
-  }, [activeSection]);
-
-  const handleDecision = (orderId, decision) => {
-    fetch(`${API_URL}/api/custom-orders/${orderId}/respond`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${localStorage.getItem('token')}`
-      },
-      body: JSON.stringify({ decision })
-    })
-      .then(res => {
-        if (!res.ok) throw new Error(`Status ${res.status}`);
-        return res.json();
-      })
-      .then(() => {
-        // refresca la lista y quita el puntito si ya no quedan
-        setQuotes(q => {
-          const remaining = q.filter(o => o._id !== orderId);
-          if (remaining.length === 0) setHasQuotesFlag(false);
-          return remaining;
-        });
-        toast.success(decision === 'accept' ? 'Cotización aceptada' : 'Cotización rechazada');
-      })
-      .catch(err => {
-        console.error('Error:', err);
-        toast.error('Error al procesar la decisión');
-      });
-  };
 
   const handleLogout = () => {
     logout();
@@ -151,82 +82,7 @@ const UserProfile = () => {
       case 'password':
         return <PasswordSection />;
       case 'quotes':
-        return (
-          <div className="content-card">
-            <div className="card-header">
-              <div className="card-title">
-                <Gift className="section-icon" />
-                <h3>Mis cotizaciones</h3>
-              </div>
-              <div className="header-actions">
-                <div className="quotes-filter">
-                  <button className="filter-btn active">Completadas</button>
-                  <button className="filter-btn">Pendientes</button>
-                </div>
-              </div>
-            </div>
-
-            {loadingQuotes && (
-              <div className="loading-state">
-                <p>Cargando cotizaciones...</p>
-              </div>
-            )}
-            
-            {errorQuotes && (
-              <div className="error-state">
-                <p className="error-message">{errorQuotes}</p>
-              </div>
-            )}
-            
-            {!loadingQuotes && quotes.length === 0 && (
-              <div className="empty-state">
-                <Gift size={48} className="empty-icon" />
-                <p>No tienes cotizaciones nuevas.</p>
-              </div>
-            )}
-
-            <div className="quotes-list">
-              {quotes.map(quote => (
-                <div key={quote._id} className="quote-card">
-                  <div className="quote-image">
-                    <img 
-                      src={quote.imageUrl || '/api/placeholder/80/80'} 
-                      alt={quote.modelType}
-                      onError={(e) => {
-                        e.target.style.display = 'none';
-                        e.target.nextSibling.style.display = 'flex';
-                      }}
-                    />
-                    <div className="quote-placeholder" style={{display: 'none'}}>
-                      <Gift size={24} />
-                    </div>
-                  </div>
-                  <div className="quote-details">
-                    <h4 className="quote-title">{quote.modelType}</h4>
-                    <p className="quote-description">{quote.description}</p>
-                    <div className="quote-price-row">
-                      <span className="quote-price">${quote.price?.toFixed(2) || '0.00'}</span>
-                      <div className="quote-actions">
-                        <button
-                          className="btn-quote accept"
-                          onClick={() => handleDecision(quote._id, 'accept')}
-                        >
-                          VER DETALLES
-                        </button>
-                        <button
-                          className="btn-quote reject"
-                          onClick={() => handleDecision(quote._id, 'reject')}
-                        >
-                          YA ORDENAR
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        );
+        return <QuotesSection setHasQuotesFlag={setHasQuotesFlag} />;
       case 'customOrders':
         return (
           <div className="content-card">
@@ -262,7 +118,7 @@ const UserProfile = () => {
                 <User className="nav-icon" />
                 <span>Mis datos</span>
               </button>
-              
+
               <button
                 onClick={() => setActiveSection('orders')}
                 className={`nav-btn ${activeSection === 'orders' ? 'active' : ''}`}
@@ -270,7 +126,7 @@ const UserProfile = () => {
                 <ShoppingCart className="nav-icon" />
                 <span>Mis pedidos</span>
               </button>
-              
+
               <button
                 onClick={() => setActiveSection('favorites')}
                 className={`nav-btn ${activeSection === 'favorites' ? 'active' : ''}`}
@@ -278,7 +134,7 @@ const UserProfile = () => {
                 <Heart className="nav-icon" />
                 <span>Favoritos</span>
               </button>
-              
+
               <button
                 onClick={() => setActiveSection('password')}
                 className={`nav-btn ${activeSection === 'password' ? 'active' : ''}`}
@@ -286,7 +142,7 @@ const UserProfile = () => {
                 <Lock className="nav-icon" />
                 <span>Contraseña</span>
               </button>
-              
+
               <button
                 onClick={() => setActiveSection('quotes')}
                 className={`nav-btn ${activeSection === 'quotes' ? 'active' : ''}`}
@@ -295,11 +151,8 @@ const UserProfile = () => {
                 <span>Cotizaciones</span>
                 {hasQuotesFlag && <span className="notification-dot" />}
               </button>
-              
-              <button
-                onClick={() => setShowLogoutModal(true)}
-                className={`nav-btn logout-btn`}
-              >
+
+              <button onClick={() => setShowLogoutModal(true)} className={`nav-btn logout-btn`}>
                 <LogOut className="nav-icon" />
                 <span>Cerrar Sesión</span>
               </button>
@@ -309,9 +162,7 @@ const UserProfile = () => {
 
         {/* Main Content */}
         <main className="profile-content">
-          <div className="content-wrapper">
-            {renderSection()}
-          </div>
+          <div className="content-wrapper">{renderSection()}</div>
         </main>
       </div>
 
@@ -322,16 +173,10 @@ const UserProfile = () => {
             <div className="modal-content">
               <h3>¿Quieres salir de tu cuenta?</h3>
               <div className="modal-actions">
-                <button 
-                  className="btn-modal cancel"
-                  onClick={() => setShowLogoutModal(false)}
-                >
+                <button className="btn-modal cancel" onClick={() => setShowLogoutModal(false)}>
                   Cancelar
                 </button>
-                <button 
-                  className="btn-modal confirm"
-                  onClick={handleLogout}
-                >
+                <button className="btn-modal confirm" onClick={handleLogout}>
                   Salir
                 </button>
               </div>

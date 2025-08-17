@@ -52,18 +52,21 @@ const RatingForm = ({ onSubmit, onDelete, userRating, loading, productName, canR
   };
 
   const handleDelete = async () => {
-    if (window.confirm('¿Estás seguro de que quieres eliminar tu reseña?')) {
-          try {
-      await onDelete();
-      setIsEditing(true);
-      setRating(0);
-      setComment('');
-      showSuccess('Reseña eliminada exitosamente');
-    } catch (error) {
-      console.error('Error eliminando reseña:', error);
-      showError(error.message);
-    }
-    }
+    showWarning('¿Estás seguro de que quieres eliminar tu reseña?', 4000, {
+      showConfirmButton: true,
+      onConfirm: async () => {
+        try {
+          await onDelete();
+          setIsEditing(true);
+          setRating(0);
+          setComment('');
+          showSuccess('Reseña eliminada exitosamente');
+        } catch (error) {
+          console.error('Error eliminando reseña:', error);
+          showError(error.message);
+        }
+      }
+    });
   };
 
   const handleEdit = () => {

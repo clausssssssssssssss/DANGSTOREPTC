@@ -532,36 +532,7 @@
   color: white;
 }
 
-/* Mensaje de favoritos */
-.favorite-message {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: white;
-  border-radius: 16px;
-  padding: 1.5rem;
-  text-align: center;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-  z-index: 1001;
-  max-width: 90%;
-  width: 300px;
-}
 
-.favorite-message p {
-  margin-bottom: 1.5rem;
-}
-
-.favorite-message button {
-  background: #6c5ce7;
-  color: white;
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 0.5rem;
-  font-size: 0.9rem;
-  font-weight: 500;
-  cursor: pointer;
-}
 
 /* Mensaje sin resultados */
 .no-results {
@@ -631,5 +602,373 @@
   
   .search-panel {
     padding: 1rem;
+  }
+}
+
+/* ===== DISEÑO RESPONSIVO PARA CATÁLOGO ===== */
+
+/* Pantallas grandes (desktop) */
+@media (min-width: 1200px) {
+  .catalog-container {
+    padding: 40px 20px;
+  }
+  
+  .products-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+  }
+  
+  .product-card {
+    min-height: 400px;
+  }
+  
+  .product-image {
+    height: 250px;
+  }
+  
+  .product-title {
+    font-size: 18px;
+  }
+  
+  .product-price {
+    font-size: 20px;
+  }
+}
+
+/* Pantallas medianas (tablets) */
+@media (max-width: 1199px) and (min-width: 768px) {
+  .catalog-container {
+    padding: 30px 16px;
+  }
+  
+  .products-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+  
+  .product-card {
+    min-height: 380px;
+  }
+  
+  .product-image {
+    height: 220px;
+  }
+  
+  .product-title {
+    font-size: 16px;
+  }
+  
+  .product-price {
+    font-size: 18px;
+  }
+  
+  .filters-section {
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  .search-bar {
+    width: 100%;
+  }
+  
+  .filter-buttons {
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+}
+
+/* Pantallas pequeñas (móviles grandes) */
+@media (max-width: 767px) and (min-width: 480px) {
+  .catalog-container {
+    padding: 20px 12px;
+  }
+  
+  .products-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+  
+  .product-card {
+    min-height: 350px;
+  }
+  
+  .product-image {
+    height: 180px;
+  }
+  
+  .product-title {
+    font-size: 14px;
+    line-height: 1.3;
+  }
+  
+  .product-price {
+    font-size: 16px;
+  }
+  
+  .product-description {
+    font-size: 12px;
+    line-height: 1.4;
+  }
+  
+  .filters-section {
+    flex-direction: column;
+    gap: 12px;
+    padding: 16px;
+  }
+  
+  .search-bar {
+    width: 100%;
+    padding: 10px 12px;
+    font-size: 14px;
+  }
+  
+  .filter-buttons {
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  
+  .filter-btn {
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+  
+  .page-title {
+    font-size: 24px;
+    text-align: center;
+  }
+  
+  .page-subtitle {
+    font-size: 14px;
+    text-align: center;
+  }
+}
+
+/* Pantallas muy pequeñas (móviles) */
+@media (max-width: 479px) {
+  .catalog-container {
+    padding: 16px 8px;
+  }
+  
+  .products-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  .product-card {
+    min-height: 320px;
+    margin: 0 8px;
+  }
+  
+  .product-image {
+    height: 160px;
+  }
+  
+  .product-title {
+    font-size: 13px;
+    line-height: 1.3;
+    margin-bottom: 6px;
+  }
+  
+  .product-price {
+    font-size: 15px;
+    margin-bottom: 8px;
+  }
+  
+  .product-description {
+    font-size: 11px;
+    line-height: 1.4;
+    margin-bottom: 12px;
+  }
+  
+  .product-actions {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .add-to-cart-btn,
+  .view-details-btn {
+    width: 100%;
+    padding: 10px 12px;
+    font-size: 12px;
+  }
+  
+  .filters-section {
+    flex-direction: column;
+    gap: 12px;
+    padding: 12px;
+    margin-bottom: 20px;
+  }
+  
+  .search-bar {
+    width: 100%;
+    padding: 8px 10px;
+    font-size: 13px;
+  }
+  
+  .filter-buttons {
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  
+  .filter-btn {
+    padding: 6px 10px;
+    font-size: 11px;
+    border-radius: 6px;
+  }
+  
+  .page-title {
+    font-size: 20px;
+    text-align: center;
+    line-height: 1.3;
+    margin-bottom: 8px;
+  }
+  
+  .page-subtitle {
+    font-size: 13px;
+    text-align: center;
+    line-height: 1.4;
+  }
+  
+  .loading-spinner {
+    margin: 40px auto;
+  }
+  
+  .no-products {
+    text-align: center;
+    padding: 40px 20px;
+  }
+  
+  .no-products h3 {
+    font-size: 18px;
+    margin-bottom: 8px;
+  }
+  
+  .no-products p {
+    font-size: 14px;
+  }
+}
+
+/* Ajustes para orientación landscape en móviles */
+@media (max-width: 767px) and (orientation: landscape) {
+  .catalog-container {
+    padding: 16px 12px;
+  }
+  
+  .products-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+  
+  .product-card {
+    min-height: 280px;
+  }
+  
+  .product-image {
+    height: 140px;
+  }
+  
+  .filters-section {
+    flex-direction: row;
+    gap: 12px;
+    padding: 12px;
+  }
+  
+  .search-bar {
+    flex: 1;
+  }
+  
+  .filter-buttons {
+    flex-shrink: 0;
+  }
+}
+
+/* Ajustes para pantallas táctiles */
+@media (hover: none) and (pointer: coarse) {
+  .product-card {
+    min-height: 360px;
+  }
+  
+  .add-to-cart-btn,
+  .view-details-btn {
+    min-height: 44px;
+  }
+  
+  .filter-btn {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  .search-bar {
+    min-height: 44px;
+  }
+}
+
+/* Ajustes para modo oscuro del sistema - ELIMINADOS PARA EVITAR FONDOS OSCUROS */
+
+/* Ajustes para usuarios con preferencias de movimiento reducido */
+@media (prefers-reduced-motion: reduce) {
+  .product-card {
+    transition: none;
+  }
+  
+  .product-card:hover {
+    transform: none;
+  }
+  
+  .add-to-cart-btn,
+  .view-details-btn,
+  .filter-btn {
+    transition: none;
+  }
+}
+
+/* Ajustes para pantallas de alta densidad (retina) */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .product-image {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+  }
+}
+
+/* Ajustes para pantallas de muy alta resolución */
+@media (min-width: 2000px) {
+  .catalog-container {
+    padding: 60px 40px;
+  }
+  
+  .products-grid {
+    grid-template-columns: repeat(5, 1fr);
+    gap: 32px;
+  }
+  
+  .product-card {
+    min-height: 500px;
+  }
+  
+  .product-image {
+    height: 300px;
+  }
+  
+  .product-title {
+    font-size: 22px;
+  }
+  
+  .product-price {
+    font-size: 24px;
+  }
+  
+  .product-description {
+    font-size: 16px;
+  }
+  
+  .page-title {
+    font-size: 48px;
+  }
+  
+  .page-subtitle {
+    font-size: 20px;
   }
 }

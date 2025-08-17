@@ -1,5 +1,4 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { toast } from "react-toastify";
 
 const FavoritesContext = createContext();
 const API_URL = import.meta.env.VITE_API_URL || '';
@@ -33,8 +32,7 @@ export const FavoritesProvider = ({ children }) => {
   async function toggleFavorite(productId) {
     const token = localStorage.getItem("token");
     if (!token) {
-      toast.warn('Debes iniciar sesión para usar favoritos');
-      return;
+      return { success: false, message: 'Debes iniciar sesión para usar favoritos' };
     }
     try {
       const exists = favorites.includes(productId);
@@ -58,12 +56,12 @@ export const FavoritesProvider = ({ children }) => {
         throw new Error(data.message || 'No se pudo actualizar favoritos');
       }
 
-      toast.success(exists ? 'Producto eliminado de favoritos' : 'Producto agregado a favoritos');
+      return { success: true, wasFavorite: exists };
     } catch (error) {
       console.error('Error al actualizar favoritos:', error);
-      toast.error('No se pudo actualizar tus favoritos. Intenta de nuevo.');
       // Revertir en caso de error
       fetchFavorites();
+      return { success: false, message: 'No se pudo actualizar tus favoritos. Intenta de nuevo.' };
     }
   }
 

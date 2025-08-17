@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import './ProductCard.css';
-import { toast } from 'react-toastify';
+
 
 export default function ProductCard({ product, onAddToCart, onClick, isFavorite, onToggleFavorite }) {
   // Elegir la primera imagen o un placeholder
@@ -39,13 +39,6 @@ export default function ProductCard({ product, onAddToCart, onClick, isFavorite,
           onClick={e => {
             e.stopPropagation();
             onToggleFavorite();
-            toast.success(`${product.name} se ha agregado a tus favoritos ❤️`, {
-              position: 'top-right',
-              autoClose: 2000,
-              hideProgressBar: false,
-              pauseOnHover: true,
-              theme: 'colored',
-            });
           }}
           aria-label={isFavorite ? "Quitar de favoritos" : "Agregar a favoritos"}
         >

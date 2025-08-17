@@ -1,0 +1,132 @@
+[33mcd9a2d5[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mClaudia[m[33m, [m[1;31morigin/Carlos[m[33m, [m[1;32mCarlos[m[33m)[m Agrege diseño para el paymentfake que ya se habai hecho pero no lo pude obserbar, coloque diseños igual para todos los toast/alertas, valide campos, y hize responsive todas las paginas
+[33mcf11b2f[m arregle login movil
+[33m7b12cec[m Funciona completamente la logica de raitign
+[33m59a000d[m Agrege la logica de raitings y la implemente al backend y frontend
+[33m68e700e[m Merge branch 'Claudia'
+[33m060f89d[m Solucione error del recuperar contra
+[33m8dc14cc[m Solucione error del recuperar contra
+[33mece90ad[m[33m ([m[1;31morigin/Samuel[m[33m)[m Actualizando mi rama
+[33mdebb151[m Arregle filtro
+[33m64b885e[m Merge branch 'master' of https://github.com/clausssssssssssssss/DANGSTOREPTC
+[33m6f4ef1b[m toaste de credenciales incorrectas
+[33me609a2a[m Agregue documentacion de swagger
+[33m099d20d[m Actualizando mi rama con un pequeño cambio.01
+[33m13af1d7[m Actualizando mi rama con un pequeño cambio
+[33m186b1b7[m Conecte el perfil de la admin y cree el nuevo endpoint para que ella actualize su nombre y correo
+[33m7425644[m[33m ([m[1;32mSamuel[m[33m)[m arregle errores del perfil y authapp en la publica
+[33m9128e78[m Termine diseño de acercade
+[33m264bd78[m actualizandod mi rama
+[33md2b4544[m perfiles de mobil y web modificados
+[33m65e6250[m Ya funciona el login pero hay que cmabiar la APIURL en auth.app por la del dispositivo actual
+[33medebde4[m Login en emulador de android
+[33m0a8b820[m Ya funciona el login del administrador recorda que solo se puede ingresar con datos del .env
+[33m4901b74[m arregle funciones del registrar
+[33mbea3935[m agrege icon a la autenticacion y arregle el campo de contraseña y verificacion de codigo
+[33mf3282d5[m Ya muestra el metodo de pago exitosamente y arrelge fetch del frontend, tambien agrege diseño par alos formularios de pago
+[33maee3929[m Merge branch 'master' of https://github.com/clausssssssssssssss/DANGSTOREPTC
+[33m982b450[m Quite logo de el navbar y lo del jwt
+[33mb78b6cb[m Merge branch 'master' into Claudia
+[33m09e851f[m Termine contactanos
+[33m7e9dff7[m Todavia no conecta el login, se quito el icon de perfil cuando el usuario no esta autenticado
+[33mcce3d89[m Termine carrito
+[33m7aeebc3[m Merge branch 'master' of https://github.com/clausssssssssssssss/DANGSTOREPTC
+[33m8d4d65d[m termine diseño y falta funcionalidad tambien agrege lo de la expiracion de token que expire en 30 dias segun el .env
+[33mdc68d34[m Merge branch 'master' into Samuel
+[33m525ba2a[m prueba
+[33m07bc481[m cambio.01
+[33mf3f039e[m modificacion en css de login
+[33m54fe859[m alinee login
+[33mc8e2336[m alinee login
+[33md35534b[m cambios
+[33m9c6833c[m Merge branch 'master' of https://github.com/clausssssssssssssss/DANGSTOREPTC
+[33m33bea76[m Actualizando mi rama
+[33mf184407[m dependencias
+[33ma65995d[m Merge pull request #60 from clausssssssssssssss/Carlos
+[33mea14cb3[m pantalla errores
+[33mc3ca9eb[m complete disñeo de login
+[33mab2e7b3[m logica de login
+[33m7ec56a7[m Cambie la logica del login
+[33m0e6dd3c[m arregle merge
+[33mbbbc002[m Arregle liberias
+[33m43e3d2a[m Actuzalizacion de catalogo
+[33mcada743[m Modificacion en parte de perfil
+[33me96c049[m cambios
+[33m260090b[m Cambios en cartController
+[33mb42afff[m Merge branch 'master' of https://github.com/clausssssssssssssss/DANGSTOREPTC
+[33m949cc3e[m agrege login
+[33m2b55a11[m agrege login
+[33m24d7620[m añadi las librerias se me borraron lo hice de nuevo
+[33mbd586b6[m Solucionando conflictos
+[33m34ec56b[m trabajada la parte de ventas (movil)
+[33m4717ec8[m Menu de notificaciones
+[33m3258445[m Merge branch 'Samuel' of https://github.com/clausssssssssssssss/DANGSTOREPTC into Samuel
+[33m4c3d65d[m Conecte la parte de mostrar los pedidos ya es funcional
+[33m057ed16[m Arregle unas cosas
+[33m7f9bb27[m Pantalla de notificaciones y su menu
+[33m05a045c[m Una pequeña modificacion
+[33m77d6fa3[m Resuelto conflicto en removeCartItem
+[33me20837c[m Migramos exitosamente al meotod de pago wompi
+[33mc7d64af[m Agrege boton en el navbar par usuario no logeados arregle bug del carrito y agrege mas toast
+[33m937609b[m logo agregado a auth
+[33mc408a46[m Agrege pantalla para que el usuari se logee
+[33m557994c[m arregle authapp
+[33mc35c5e6[m resolver merging
+[33me31755f[m Cambie todos los toast a nivel global y cree el login y registro en la movil
+[33m57a20b3[m logo añadido a autentificacion
+[33mdf5c381[m configurando el metodo de pago
+[33m634da2c[m Termine la navegacion
+[33mb0827f5[m Cree archivos para el frontend-movil
+[33m36a6e19[m Merge branch 'Claudia' of https://github.com/clausssssssssssssss/DANGSTOREPTC into Claudia
+[33m8f7abd1[m ya muestra el perfil
+[33m47974b6[m Splash screen movil e icono
+[33m3199abb[m Arregle pequeños detalles
+[33m171c119[m Ya se añade bien el carrtio
+[33mf8f12a4[m Carrito ya añade bien
+[33mb75f091[m Merge branch 'Ruth'
+[33mf9b0519[m Agrege el boton de eliminar al encargo personalizado
+[33md0ae2b5[m Subiendo mis cambios de middleware, models, controller, y routes
+[33m37d1885[m Subiendo los cambios del middleware a la rama
+[33m7b48c55[m cree carpetas dentro del frontend-movil
+[33m4627d88[m ya muestra cuando se agrega y quita un fav
+[33mf1773f1[m todas las paginas tienen alertas de toast y cree un menu hamburguesa
+[33m23e7a41[m Ya funciona el enviar un correo en la pagina de contacto
+[33mec79a7e[m Modifique el diseño de contacto
+[33m78b92b3[m Agreg un footer
+[33m08fccd7[m Agrege los handle a la pagina de encargo y contacto
+[33m6cdf506[m quite el icono de buscar del navbar
+[33m3ce1ac7[m Arregle muchas cosas
+[33m59bba3b[m Fusion de los archivos de cartController y orderController y eliminacion del orderController
+[33mae85e0f[m Modificación de unos archivos
+[33m89eaccb[m Diseño de carrito
+[33m2deef84[m Diseño del carrito diferente
+[33mf5e233f[m Arregle boton de sumar
+[33m92290a3[m configure la carpeta para la parte movil
+[33mc341b51[m Agrege de nuevo el carrito y documente los models, utils, app.js, config.js, database.js y index.js
+[33m33c5d96[m Comente los archivos faltantes y realice cambio de middleware
+[33mca3c5f9[m Migre de paypal a wompi, funciona en postman
+[33m63e92d3[m Correciones: Quite completamente el cart en los archivos de controller, model y route, modifique el modelo de customers quitando el reset, modifique el modelo de customizedOrders.js en el campo de modeltype cambie enum por objectID, Quite el campo category de el model sale
+[33m58c4904[m solucion de conflictos
+[33m2b76d61[m Solucion de problemas
+[33ma1adfca[m Parte de contacto y catalogo
+[33mce94799[m ya navega al acerca
+[33mfb9b758[m Merge branch 'master' into Samuel
+[33mbbc00c5[m Merge branch 'Claudia'
+[33mbca51e8[m Merge branch 'master' of https://github.com/clausssssssssssssss/DANGSTOREPTC
+[33mea2b96d[m Terminé la aplicación de navegación
+[33m610608d[m Merge branch 'master' into Claudia
+[33m7c9c2f5[m arregle la navegacion
+[33m58d930e[m Las imagene en perfil seccion de favorites ya tienene control de su tamaño
+[33m66a47e1[m modifique el logoutcontroller y el fakepaymentcontroller
+[33mbad6a09[m Ya funciona lo del encargo cotiza el admin contesta en postman y aparece la alerta en el perfil para aceptar o rechazar el producto en el frontend
+[33m41fc097[m Merge branch 'Ruth' of https://github.com/clausssssssssssssss/DANGSTOREPTC into Ruth
+[33mf441eab[m pantallas
+[33m83c736d[m Merge branch 'master' into Samuel
+[33m18c0cf0[m catalogo con favorite funcional
+[33m08d3f97[m Casi termine lo de encargo personalizado
+[33mc5acde1[m Agrupe archivos en carpetas
+[33m34017f9[m Merge branch 'master' of https://github.com/clausssssssssssssss/DANGSTOREPTC
+[33m5efbd3e[m Mejore estilos nada mas
+[33mad923b4[m Merge branch 'master' into Samuel
+[33m5059fc5[m Realice conexion del perfil de usuario y comente unos controladores
+[33m439ad26[m Ya muestra las ordenes en la bd y hace el pago simulado
+[33macd5665[m ya se ve el c

@@ -26,7 +26,7 @@ export default function Catalogo() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [priceRange, setPriceRange] = useState([0, 10]);
   const [selectedProduct, setSelectedProduct] = useState(null);
-  const [showFavoriteMessage, setShowFavoriteMessage] = useState(false);
+
   
   // Hook para manejar reseñas del producto seleccionado
   const { 
@@ -96,7 +96,7 @@ export default function Catalogo() {
     e.stopPropagation();
     
     if (!user) {
-      setShowFavoriteMessage(true);
+      showWarning('Debes iniciar sesión para marcar productos como favoritos');
       return;
     }
 
@@ -393,15 +393,7 @@ export default function Catalogo() {
           </div>
         )}
 
-        {/* Mensaje de favoritos */}
-        {showFavoriteMessage && (
-          <div className="favorite-message" onClick={() => setShowFavoriteMessage(false)}>
-            <div onClick={(e) => e.stopPropagation()}>
-              <p>Debes iniciar sesión para marcar productos como favoritos</p>
-              <button onClick={() => setShowFavoriteMessage(false)}>Entendido</button>
-            </div>
-          </div>
-        )}
+
       </div>
       
       <ToastContainer toasts={toasts} removeToast={removeToast} />

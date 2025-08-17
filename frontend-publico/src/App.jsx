@@ -10,8 +10,8 @@ import Acerca from './pages/Acerca'
 import UserProfile from './pages/UserProfile'
 import FormPaymentFake from './pages/formPaymentFake'
 import { AuthProvider } from './hooks/useAuth'
-import { ToastContainer } from 'react-toastify'
-import 'react-toastify/dist/ReactToastify.css'
+
+
 import './App.css'
 import { FavoritesProvider } from './context/FavoritesContext.jsx'
 // Spinner para carga inicial
@@ -98,8 +98,6 @@ const App = () => {
       <FavoritesProvider>
       <AppErrorBoundary>
         <Suspense fallback={<LoadingSpinner />}>
-          <ToastContainer position="top-right" autoClose={3000} />
-
           <Routes>
             <Route element={<MainLayout />}>
               <Route path="/" element={<Acerca />} />

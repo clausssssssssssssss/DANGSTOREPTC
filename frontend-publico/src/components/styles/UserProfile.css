@@ -1280,3 +1280,597 @@
     grid-template-columns: repeat(4, 1fr);
   }
 }
+
+/* ===== DISEÑO RESPONSIVO PARA PERFIL DE USUARIO ===== */
+
+/* Pantallas grandes (desktop) */
+@media (min-width: 1200px) {
+  .profile-container {
+    padding: 40px 20px;
+  }
+  
+  .profile-content {
+    max-width: 1200px;
+  }
+  
+  .profile-sections {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 32px;
+  }
+  
+  .profile-section {
+    padding: 32px;
+  }
+  
+  .profile-header {
+    padding: 32px;
+  }
+}
+
+/* Pantallas medianas (tablets) */
+@media (max-width: 1199px) and (min-width: 768px) {
+  .profile-container {
+    padding: 30px 16px;
+  }
+  
+  .profile-content {
+    max-width: 900px;
+  }
+  
+  .profile-sections {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+  }
+  
+  .profile-section {
+    padding: 24px;
+  }
+  
+  .profile-header {
+    padding: 24px;
+  }
+  
+  .profile-avatar {
+    width: 120px;
+    height: 120px;
+  }
+  
+  .profile-name {
+    font-size: 24px;
+  }
+  
+  .profile-email {
+    font-size: 16px;
+  }
+}
+
+/* Pantallas pequeñas (móviles grandes) */
+@media (max-width: 767px) and (min-width: 480px) {
+  .profile-container {
+    padding: 20px 12px;
+  }
+  
+  .profile-content {
+    max-width: 100%;
+  }
+  
+  .profile-sections {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  
+  .profile-section {
+    padding: 20px;
+  }
+  
+  .profile-header {
+    padding: 20px;
+    text-align: center;
+  }
+  
+  .profile-avatar {
+    width: 100px;
+    height: 100px;
+    margin: 0 auto 16px;
+  }
+  
+  .profile-name {
+    font-size: 20px;
+    margin-bottom: 8px;
+  }
+  
+  .profile-email {
+    font-size: 14px;
+    margin-bottom: 16px;
+  }
+  
+  .section-title {
+    font-size: 18px;
+    margin-bottom: 16px;
+  }
+  
+  .form-group {
+    margin-bottom: 16px;
+  }
+  
+  .form-label {
+    font-size: 14px;
+    margin-bottom: 6px;
+  }
+  
+  .form-input {
+    padding: 10px 12px;
+    font-size: 14px;
+  }
+  
+  .btn {
+    padding: 10px 20px;
+    font-size: 14px;
+  }
+  
+  .orders-list {
+    gap: 16px;
+  }
+  
+  .order-item {
+    padding: 16px;
+  }
+  
+  .order-header {
+    flex-direction: column;
+    gap: 8px;
+    text-align: center;
+  }
+  
+  .order-products {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  
+  .product-item {
+    flex-direction: column;
+    text-align: center;
+    gap: 8px;
+  }
+  
+  .product-image {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto;
+  }
+}
+
+/* Pantallas muy pequeñas (móviles) */
+@media (max-width: 479px) {
+  .profile-container {
+    padding: 16px 8px;
+  }
+  
+  .profile-content {
+    max-width: 100%;
+  }
+  
+  .profile-sections {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  .profile-section {
+    padding: 16px;
+    margin: 0 4px;
+  }
+  
+  .profile-header {
+    padding: 16px;
+    text-align: center;
+    margin: 0 4px 16px;
+  }
+  
+  .profile-avatar {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 12px;
+  }
+  
+  .profile-name {
+    font-size: 18px;
+    margin-bottom: 6px;
+    line-height: 1.3;
+  }
+  
+  .profile-email {
+    font-size: 13px;
+    margin-bottom: 12px;
+    line-height: 1.4;
+  }
+  
+  .section-title {
+    font-size: 16px;
+    margin-bottom: 12px;
+    text-align: center;
+  }
+  
+  .form-group {
+    margin-bottom: 12px;
+  }
+  
+  .form-label {
+    font-size: 13px;
+    margin-bottom: 4px;
+  }
+  
+  .form-input {
+    padding: 8px 10px;
+    font-size: 13px;
+  }
+  
+  .btn {
+    padding: 8px 16px;
+    font-size: 13px;
+    width: 100%;
+    max-width: 200px;
+  }
+  
+  .btn-group {
+    flex-direction: column;
+    gap: 8px;
+    align-items: center;
+  }
+  
+  .orders-list {
+    gap: 12px;
+  }
+  
+  .order-item {
+    padding: 12px;
+    margin: 0 4px;
+  }
+  
+  .order-header {
+    flex-direction: column;
+    gap: 6px;
+    text-align: center;
+    margin-bottom: 12px;
+  }
+  
+  .order-id {
+    font-size: 14px;
+    font-weight: bold;
+  }
+  
+  .order-date {
+    font-size: 12px;
+  }
+  
+  .order-status {
+    font-size: 12px;
+    padding: 4px 8px;
+  }
+  
+  .order-total {
+    font-size: 16px;
+    font-weight: bold;
+  }
+  
+  .order-products {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  
+  .product-item {
+    flex-direction: column;
+    text-align: center;
+    gap: 6px;
+    padding: 8px;
+  }
+  
+  .product-image {
+    width: 60px;
+    height: 60px;
+    margin: 0 auto;
+  }
+  
+  .product-name {
+    font-size: 12px;
+    line-height: 1.3;
+  }
+  
+  .product-price {
+    font-size: 12px;
+  }
+  
+  .product-quantity {
+    font-size: 11px;
+  }
+  
+  .favorites-list {
+    gap: 12px;
+  }
+  
+  .favorite-item {
+    padding: 12px;
+    margin: 0 4px;
+  }
+  
+  .favorite-content {
+    flex-direction: column;
+    gap: 8px;
+    text-align: center;
+  }
+  
+  .favorite-image {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto;
+  }
+  
+  .favorite-name {
+    font-size: 14px;
+    line-height: 1.3;
+  }
+  
+  .favorite-price {
+    font-size: 14px;
+  }
+  
+  .favorite-actions {
+    flex-direction: column;
+    gap: 6px;
+    align-items: center;
+  }
+  
+  .remove-favorite-btn {
+    padding: 6px 12px;
+    font-size: 11px;
+    width: 100%;
+    max-width: 120px;
+  }
+  
+  .view-product-btn {
+    padding: 6px 12px;
+    font-size: 11px;
+    width: 100%;
+    max-width: 120px;
+  }
+}
+
+/* Ajustes para orientación landscape en móviles */
+@media (max-width: 767px) and (orientation: landscape) {
+  .profile-container {
+    padding: 16px 12px;
+  }
+  
+  .profile-header {
+    flex-direction: row;
+    text-align: left;
+    gap: 16px;
+    align-items: center;
+  }
+  
+  .profile-avatar {
+    margin: 0;
+  }
+  
+  .profile-info {
+    text-align: left;
+  }
+  
+  .order-header {
+    flex-direction: row;
+    text-align: left;
+    gap: 12px;
+    align-items: center;
+  }
+  
+  .product-item {
+    flex-direction: row;
+    text-align: left;
+    gap: 12px;
+    align-items: center;
+  }
+  
+  .product-image {
+    margin: 0;
+  }
+  
+  .favorite-content {
+    flex-direction: row;
+    text-align: left;
+    gap: 12px;
+    align-items: center;
+  }
+  
+  .favorite-image {
+    margin: 0;
+  }
+}
+
+/* Ajustes para pantallas táctiles */
+@media (hover: none) and (pointer: coarse) {
+  .profile-avatar {
+    min-width: 80px;
+    min-height: 80px;
+  }
+  
+  .form-input {
+    min-height: 44px;
+  }
+  
+  .btn {
+    min-height: 44px;
+  }
+  
+  .order-item {
+    min-height: 120px;
+  }
+  
+  .favorite-item {
+    min-height: 120px;
+  }
+}
+
+/* Ajustes para modo oscuro del sistema */
+@media (prefers-color-scheme: dark) {
+  .profile-container {
+    background-color: #1a1a1a;
+    color: #ffffff;
+  }
+  
+  .profile-section {
+    background-color: #2d2d2d;
+    border-color: #404040;
+  }
+  
+  .profile-header {
+    background-color: #2d2d2d;
+    border-color: #404040;
+  }
+  
+  .form-input {
+    background-color: #404040;
+    border-color: #555555;
+    color: #ffffff;
+  }
+  
+  .form-input::placeholder {
+    color: #888888;
+  }
+  
+  .order-item {
+    background-color: #2d2d2d;
+    border-color: #404040;
+  }
+  
+  .favorite-item {
+    background-color: #2d2d2d;
+    border-color: #404040;
+  }
+  
+  .btn {
+    background-color: #404040;
+    border-color: #555555;
+    color: #ffffff;
+  }
+  
+  .btn:hover {
+    background-color: #555555;
+  }
+  
+  .btn-primary {
+    background-color: #6c5ce7;
+    border-color: #6c5ce7;
+  }
+  
+  .btn-primary:hover {
+    background-color: #a29bfe;
+  }
+  
+  .btn-danger {
+    background-color: #e17055;
+    border-color: #e17055;
+  }
+  
+  .btn-danger:hover {
+    background-color: #d63031;
+  }
+}
+
+/* Ajustes para usuarios con preferencias de movimiento reducido */
+@media (prefers-reduced-motion: reduce) {
+  .profile-section {
+    transition: none;
+  }
+  
+  .profile-section:hover {
+    transform: none;
+  }
+  
+  .btn {
+    transition: none;
+  }
+  
+  .order-item {
+    transition: none;
+  }
+  
+  .favorite-item {
+    transition: none;
+  }
+}
+
+/* Ajustes para pantallas de alta densidad (retina) */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .profile-avatar {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+  }
+  
+  .product-image {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+  }
+  
+  .favorite-image {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+  }
+}
+
+/* Ajustes para pantallas de muy alta resolución */
+@media (min-width: 2000px) {
+  .profile-container {
+    padding: 60px 40px;
+  }
+  
+  .profile-content {
+    max-width: 1600px;
+  }
+  
+  .profile-sections {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 40px;
+  }
+  
+  .profile-section {
+    padding: 40px;
+  }
+  
+  .profile-header {
+    padding: 40px;
+  }
+  
+  .profile-avatar {
+    width: 160px;
+    height: 160px;
+  }
+  
+  .profile-name {
+    font-size: 32px;
+  }
+  
+  .profile-email {
+    font-size: 20px;
+  }
+  
+  .section-title {
+    font-size: 24px;
+  }
+  
+  .form-input {
+    padding: 16px 20px;
+    font-size: 18px;
+  }
+  
+  .btn {
+    padding: 16px 32px;
+    font-size: 18px;
+  }
+  
+  .order-item {
+    padding: 24px;
+  }
+  
+  .favorite-item {
+    padding: 24px;
+  }
+}

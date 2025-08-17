@@ -1,17 +1,19 @@
 // src/controllers/customizedOrdersController.js
 import CustomizedOrder from '../models/customizedOrders.js';
 import Order from '../models/Order.js';
+import Cart from '../models/Cart.js';
 
 /** Usuario sube imagen y crea la orden pendiente */
 
 export const createCustomOrder = async (req, res) => {
-  if (!req.user || !req.user.id) {
+  if (!req.user || (!req.user.id && !req.user.userId)) {
     return res.status(401).json({ message: 'No estás autenticado.' });
   }
 
   const { modelType, description } = req.body;
+  const userId = req.user.id || req.user.userId;
 
-  console.log("🧪 REQ.user.id:", req.user.id);
+  console.log("🧪 REQ.user.id:", userId);
   console.log("🧪 REQ.body:", req.body);
   console.log("🧪 REQ.file:", req.file);
 
@@ -28,7 +30,7 @@ export const createCustomOrder = async (req, res) => {
   try {
     const imageUrl = `/uploads/${req.file.filename}`;
     const order = new CustomizedOrder({
-      user:        req.user.id,
+      user: userId,
       imageUrl,
       modelType,
       description,
@@ -48,7 +50,8 @@ export const createCustomOrder = async (req, res) => {
 /** Usuario ve sus encargos personalizados */
 export const getMyCustomOrders = async (req, res) => {
   try {
-    const orders = await CustomizedOrder.find({ user: req.user.id })
+    const userId = req.user.id || req.user.userId;
+    const orders = await CustomizedOrder.find({ user: userId })
       .sort({ createdAt: -1 });
     return res.json(orders);
   } catch (err) {
@@ -95,14 +98,29 @@ export const respondCustomOrder = async (req, res) => {
     const { decision } = req.body;
     const { id } = req.params;
 
+    console.log(' respondCustomOrder llamado con:', { decision, id });
+    console.log(' Usuario autenticado:', req.user);
+    console.log(' ID del usuario:', req.user.id || req.user.userId);
+
+    // Obtener el ID del usuario del objeto req.user
+    const userId = req.user.id || req.user.userId;
+    if (!userId) {
+      console.log('❌ No se pudo obtener el ID del usuario');
+      return res.status(400).json({ message: 'ID de usuario no válido' });
+    }
+
     // 1) Buscamos la orden
     const order = await CustomizedOrder.findById(id);
     if (!order) {
+      console.log('❌ Orden no encontrada:', id);
       return res.status(404).json({ message: 'Encargo personalizado no encontrado.' });
     }
 
+    console.log('✅ Orden encontrada:', order._id, 'Status actual:', order.status);
+
     // 2) Validamos la decisión
     if (decision !== 'accept' && decision !== 'reject') {
+      console.log('❌ Decisión inválida:', decision);
       return res
         .status(400)
         .json({ message: 'El campo decision debe ser "accept" o "reject".' });
@@ -110,27 +128,84 @@ export const respondCustomOrder = async (req, res) => {
 
     // 3) Procesamos el rechazo
     if (decision === 'reject') {
-      order.status = 'pending';
+      console.log('🔄 Procesando rechazo...');
+      order.status = 'rejected';
+      order.decisionDate = new Date();
+      order.decision = 'reject';
       await order.save();
-      return res.json(order);
+      
+      console.log('✅ Rechazo procesado correctamente');
+      return res.json({
+        message: 'Encargo rechazado correctamente',
+        order
+      });
     }
 
     // 4) Procesamos la aceptación
+    console.log('🔄 Procesando aceptación...');
     order.status = 'accepted';
+    order.decisionDate = new Date();
+    order.decision = 'accept';
     await order.save();
 
-    // 5) Lo metemos al carrito sólo si existe usuario
-    let cart = await Cart.findOne({ user: req.user.id });
-    if (!cart) cart = new Cart({ user: req.user.id });
-    cart.customizedProducts.push({ item: order._id, quantity: 1 });
-    await cart.save();
+    // 5) Lo metemos al carrito
+    try {
+      let cart = await Cart.findOne({ user: userId });
+      if (!cart) {
+        console.log('🛒 Creando nuevo carrito para usuario:', userId);
+        cart = new Cart({ 
+          user: userId,
+          products: [],
+          customizedProducts: []
+        });
+      }
 
-    // 6) Respuesta combinada
-    return res.json({ order, cart });
+      // Verificar si ya existe en el carrito
+      const existingProduct = cart.customizedProducts.find(
+        item => item.item.toString() === order._id.toString()
+      );
+
+      if (existingProduct) {
+        console.log('🔄 Producto ya existe en carrito, actualizando cantidad');
+        existingProduct.quantity += 1;
+      } else {
+        console.log('🆕 Agregando nuevo producto personalizado al carrito');
+        cart.customizedProducts.push({ 
+          item: order._id, 
+          quantity: 1 
+        });
+      }
+
+      await cart.save();
+      console.log('✅ Carrito actualizado correctamente');
+
+      // 6) Respuesta combinada
+      return res.json({ 
+        message: 'Encargo aceptado y agregado al carrito',
+        order,
+        cart: {
+          id: cart._id,
+          customizedProductsCount: cart.customizedProducts.length
+        }
+      });
+
+    } catch (cartError) {
+      console.error('❌ Error con el carrito:', cartError);
+      // Si falla el carrito, al menos guardamos la decisión
+      return res.json({ 
+        message: 'Encargo aceptado pero hubo un problema con el carrito',
+        order,
+        cartError: cartError.message
+      });
+    }
+
   } catch (err) {
-    console.error('Error en respondCustomOrder:', err);
+    console.error('❌ Error en respondCustomOrder:', err);
     return res
       .status(500)
-      .json({ message: 'Error procesando respuesta de encargo', error: err.message });
+      .json({ 
+        message: 'Error procesando respuesta de encargo', 
+        error: err.message 
+      });
   }
 };

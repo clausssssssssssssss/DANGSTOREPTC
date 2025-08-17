@@ -713,9 +713,9 @@
   
   .actions-duo {
     flex-direction: row;
-    gap: 16px;
-  }
-  
+  gap: 16px;
+}
+
   .actions-duo .btn {
     flex: 1;
     min-width: 0;
@@ -763,7 +763,7 @@
   }
   
   .actions-duo .btn {
-    width: 100%;
+  width: 100%;
   }
   
   .page-title {

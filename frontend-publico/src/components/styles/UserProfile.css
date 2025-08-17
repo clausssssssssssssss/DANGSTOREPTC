@@ -367,6 +367,70 @@
   transform: translateY(-1px);
 }
 
+/* Estilos para las decisiones en cotizaciones */
+.quote-decision {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 8px 0;
+  padding: 8px 12px;
+  background: #f8f9fa;
+  border-radius: 6px;
+  border: 1px solid #e9ecef;
+}
+
+.decision-badge {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.decision-badge.accept {
+  background: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.decision-badge.reject {
+  background: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.decision-badge.pending {
+  background: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffeaa7;
+}
+
+.decision-date {
+  font-size: 0.8rem;
+  color: #6c757d;
+  font-style: italic;
+}
+
+/* Estilos para los botones de cotización actualizados */
+.btn-quote.details {
+  background: linear-gradient(135deg, #6c5ce7 0%, #a29bfe 100%);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 100px;
+}
+
+.btn-quote.details:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(108, 92, 231, 0.3);
+}
+
 /* ===== EMPTY STATES ===== */
 .empty-state, .loading-state, .error-state {
   padding: 60px 30px;
@@ -1114,6 +1178,34 @@
 
 .retry-button:hover {
   background: #5a67d8;
+}
+
+/* Responsive para las decisiones */
+@media (max-width: 768px) {
+  .quote-decision {
+    flex-direction: column;
+    gap: 8px;
+    align-items: flex-start;
+  }
+  
+  .decision-badge {
+    font-size: 0.7rem;
+  }
+  
+  .decision-date {
+    font-size: 0.7rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .quote-decision {
+    padding: 6px 8px;
+  }
+  
+  .decision-badge {
+    padding: 3px 6px;
+    font-size: 0.7rem;
+  }
 }
 
 /* ===== RESPONSIVE IMPROVEMENTS ===== */

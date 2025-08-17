@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { useAuth } from '../hooks/useAuth.jsx';
-import { useCart } from '../context/CartContext.jsx';
-import { useToast } from '../hooks/useToast.js';
-import usePaymentFakeForm from '../components/payment/hook/usePaymentFakeForm.jsx';
-import ToastContainer from '../components/ui/ToastContainer.jsx';
+import { useAuth } from '../hooks/useAuth';
+import { useCart } from '../context/CartContext';
+import { useToast } from '../hooks/useToast';
+import usePaymentFakeForm from '../components/payment/hook/usePaymentFakeForm';
+import ToastContainer from '../components/ui/ToastContainer';
 import { ShoppingBag, Trash2, Plus, Minus, ArrowLeft, CreditCard, Check, Shield, Truck, RefreshCw } from 'lucide-react';
 import '../components/styles/CarritoDeCompras.css';
 
@@ -73,15 +73,18 @@ const CarritoDeCompras = () => {
   };
 
   const handleClearCart = async () => {
-    if (window.confirm('¿Estás seguro de que deseas vaciar el carrito?')) {
-      try {
-        await clearCart();
-        showSuccess('Carrito vaciado');
-      } catch (err) {
-        console.error('Error vaciando carrito:', err);
-        showError('Error al vaciar carrito');
+    showWarning('¿Estás seguro de que deseas vaciar el carrito?', 4000, {
+      showConfirmButton: true,
+      onConfirm: async () => {
+        try {
+          await clearCart();
+          showSuccess('Carrito vaciado');
+        } catch (err) {
+          console.error('Error vaciando carrito:', err);
+          showError('Error al vaciar carrito');
+        }
       }
-    }
+    });
   };
 
   useEffect(() => {
@@ -137,7 +140,7 @@ const CarritoDeCompras = () => {
                   <ShoppingBag size={18} />
                   Seguir comprando
                 </Link>
-                <Link to="/perfil" className="view-orders-btn">
+                <Link to="/perfil" state={{ activeSection: 'orders' }} className="view-orders-btn">
                   Ver mis pedidos
                 </Link>
               </div>

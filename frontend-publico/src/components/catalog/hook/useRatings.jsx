@@ -141,6 +141,10 @@ export const useRatings = (productId) => {
         const newAverage = newRatings.reduce((sum, r) => sum + r.rating, 0) / newRatings.length;
         setAverageRating(newAverage);
         
+        // Recargar ratings y estadísticas para asegurar sincronización
+        await loadRatings();
+        await checkCanRate();
+        
         return { success: true, rating: newRating };
       } else {
         const errorData = await response.json();
@@ -181,6 +185,10 @@ export const useRatings = (productId) => {
           ? newRatings.reduce((sum, r) => sum + r.rating, 0) / newRatings.length
           : 0;
         setAverageRating(newAverage);
+        
+        // Recargar ratings y estadísticas para asegurar sincronización
+        await loadRatings();
+        await checkCanRate();
         
         return { success: true };
       } else {

@@ -11,8 +11,20 @@ const usePaymentForm = () => {
   const [formDataTarjeta, setFormDataTarjeta] = useState({
     numeroTarjeta: "",
     cvv: "",
-    mesVencimiento: 0,
-    anioVencimiento: 0,
+    mesVencimiento: "",
+    anioVencimiento: "",
+    nombreTitular: "",
+    tipoTarjeta: "visa", // visa, mastercard, amex
+    // Nuevos campos de facturación
+    nombreFacturacion: "",
+    emailFacturacion: "",
+    direccionFacturacion: "",
+    ciudadFacturacion: "",
+    estadoFacturacion: "",
+    codigoPostal: "",
+    paisFacturacion: "",
+    telefonoFacturacion: "",
+    empresaFacturacion: "",
   });
 
   const [formData, setFormData] = useState({
@@ -35,13 +47,54 @@ const usePaymentForm = () => {
 
   const handleChangeTarjeta = (e) => {
     const { name, value } = e.target;
-    setFormDataTarjeta((prev) => ({ ...prev, [name]: value }));
+    let processedValue = value;
+
+    // Validaciones específicas para cada campo
+    if (name === 'numeroTarjeta') {
+      // Solo permitir números y espacios
+      processedValue = value.replace(/\D/g, '').replace(/(\d{4})/g, '$1 ').trim();
+      if (processedValue.length > 19) return; // Máximo 16 dígitos + 3 espacios
+    }
+    
+    if (name === 'cvv') {
+      // Solo permitir números, máximo 4 dígitos
+      processedValue = value.replace(/\D/g, '');
+      if (processedValue.length > 4) return;
+    }
+    
+    if (name === 'mesVencimiento') {
+      // Solo permitir números del 1 al 12
+      processedValue = value.replace(/\D/g, '');
+      if (processedValue > 12) processedValue = 12;
+      if (processedValue < 1) processedValue = 1;
+    }
+    
+    if (name === 'anioVencimiento') {
+      // Solo permitir números, mínimo año actual
+      processedValue = value.replace(/\D/g, '');
+      const currentYear = new Date().getFullYear();
+      if (processedValue < currentYear) processedValue = currentYear;
+    }
+
+    setFormDataTarjeta((prev) => ({ ...prev, [name]: processedValue }));
+  };
+
+  const detectCardType = (cardNumber) => {
+    const cleanNumber = cardNumber.replace(/\s/g, '');
+    if (/^4/.test(cleanNumber)) return 'visa';
+    if (/^5[1-5]/.test(cleanNumber)) return 'mastercard';
+    if (/^3[47]/.test(cleanNumber)) return 'amex';
+    return 'unknown';
   };
 
   const limpiarFormulario = () => {
     setFormData({
-      nombreCliente: "",
-      emailCliente: "",
+      nombre: "",
+      apellido: "",
+      email: "",
+      direccion: "",
+      ciudad: "",
+      telefono: "",
       monto: 0.01,
     });
     setDatosEnviados(null);
@@ -50,8 +103,20 @@ const usePaymentForm = () => {
     setFormDataTarjeta({
       numeroTarjeta: "",
       cvv: "",
-      mesVencimiento: 0,
-      anioVencimiento: 0,
+      mesVencimiento: "",
+      anioVencimiento: "",
+      nombreTitular: "",
+      tipoTarjeta: "visa",
+      // Limpiar campos de facturación
+      nombreFacturacion: "",
+      emailFacturacion: "",
+      direccionFacturacion: "",
+      ciudadFacturacion: "",
+      estadoFacturacion: "",
+      codigoPostal: "",
+      paisFacturacion: "",
+      telefonoFacturacion: "",
+      empresaFacturacion: "",
     });
   };
 
@@ -60,10 +125,33 @@ const usePaymentForm = () => {
     setDatosEnviados(formData);
   };
 
-  
+  const validateCardForm = () => {
+    const { numeroTarjeta, cvv, mesVencimiento, anioVencimiento, nombreTitular } = formDataTarjeta;
+    
+    if (!numeroTarjeta.replace(/\s/g, '').match(/^\d{16}$/)) {
+      throw new Error('Número de tarjeta inválido');
+    }
+    
+    if (!cvv.match(/^\d{3,4}$/)) {
+      throw new Error('CVV inválido');
+    }
+    
+    if (!mesVencimiento || !anioVencimiento) {
+      throw new Error('Fecha de vencimiento incompleta');
+    }
+    
+    if (!nombreTitular.trim()) {
+      throw new Error('Nombre del titular es requerido');
+    }
+
+    return true;
+  };
 
   const handleFinishPayment = async () => {
     try {
+      // Validar formulario de tarjeta
+      validateCardForm();
+
       // Verificar que tenemos token
       const token = localStorage.getItem("token");
       if (!token) {
@@ -87,22 +175,25 @@ const usePaymentForm = () => {
         total: parseFloat(total),
         wompiOrderID: `FAKE_ORDER_${Date.now()}`, // ID único
         wompiStatus: "COMPLETED",
+        paymentMethod: "Tarjeta de Crédito/Débito (Simulado)",
+        cardLast4: formDataTarjeta.numeroTarjeta.replace(/\s/g, '').slice(-4),
+        cardType: detectCardType(formDataTarjeta.numeroTarjeta),
       };
 
       console.log("📦 Enviando orden al backend:", orderData);
 
       const base = import.meta.env.VITE_API_URL || '';
       const response = await fetch(`${base}/api/cart/order`, {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-    Authorization: `Bearer ${token}`,
-  },
-  body: JSON.stringify(orderData),
-});
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(orderData),
+      });
 
-console.log("🌐 URL completa:", "http://localhost:4000/api/cart/order");
-console.log("📨 Haciendo petición...");
+      console.log("🌐 URL completa:", "http://localhost:4000/api/cart/order");
+      console.log("📨 Haciendo petición...");
 
       const responseData = await response.json();
       console.log("📨 Datos de respuesta:", responseData);
@@ -116,8 +207,8 @@ console.log("📨 Haciendo petición...");
       return responseData;
     } catch (error) {
       console.error("❌ Error en pago simulado:", error);
-      alert(`Error: ${error.message}`);
-      return false;
+      // El error será manejado por el componente que use este hook
+      throw error;
     }
   };
 
@@ -132,6 +223,7 @@ console.log("📨 Haciendo petición...");
     handleFinishPayment,
     step,
     setStep,
+    detectCardType,
   };
 };
 

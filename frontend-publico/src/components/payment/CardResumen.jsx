@@ -1,26 +1,35 @@
 const CardResumen = ({ formData }) => {
   return (
-    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-6 border border-blue-200">
-      <h3 className="text-lg font-bold text-blue-800 mb-3 flex items-center">
-        <span className="mr-2">📋</span> Resumen del Pedido
+    <div className="summary-card">
+      <h3 className="summary-title">
+        📋 Resumen del Pedido
       </h3>
-      <div className="space-y-2 text-sm">
-        <div className="flex justify-between">
-          <span className="text-blue-700">Cliente:</span>
-          <span className="font-medium">{formData?.nombre}</span>
+      <div className="summary-items">
+        <div className="summary-item">
+          <span>Cliente:</span>
+          <span className="font-medium">{formData?.nombre} {formData?.apellido}</span>
         </div>
-        <div className="flex justify-between">
-          <span className="text-blue-700">Email:</span>
+        <div className="summary-item">
+          <span>Email:</span>
           <span className="font-medium">{formData?.email}</span>
         </div>
-        <div className="flex justify-between text-lg font-bold">
-          <span className="text-blue-800">Total:</span>
-          <span className="text-green-600">
-            ${parseFloat(formData?.monto || 0).toFixed(2)}
-          </span>
+        <div className="summary-item">
+          <span>Dirección:</span>
+          <span className="font-medium">{formData?.direccion}, {formData?.ciudad}</span>
         </div>
+        <div className="summary-item">
+          <span>Teléfono:</span>
+          <span className="font-medium">{formData?.telefono}</span>
+        </div>
+      </div>
+      <div className="summary-total">
+        <span>Total a Pagar:</span>
+        <span className="text-green-600">
+          ${parseFloat(formData?.monto || 0).toFixed(2)}
+        </span>
       </div>
     </div>
   );
 };
+
 export default CardResumen;

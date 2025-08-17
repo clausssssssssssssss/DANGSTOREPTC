@@ -795,3 +795,391 @@
     font-size: 0.75rem;
   }
 }
+
+/* ===== DISEÑO RESPONSIVO PARA NAVBAR ===== */
+
+/* Pantallas medianas (tablets) */
+@media (max-width: 1199px) and (min-width: 768px) {
+  .navbar {
+    padding: 0 16px;
+  }
+  
+  .nav-container {
+    max-width: 900px;
+  }
+  
+  .nav-logo {
+    font-size: 20px;
+  }
+  
+  .nav-logo img {
+    width: 32px;
+    height: 32px;
+  }
+  
+  .nav-menu {
+    gap: 20px;
+  }
+  
+  .nav-link {
+    font-size: 14px;
+    padding: 8px 12px;
+  }
+  
+  .nav-actions {
+    gap: 12px;
+  }
+  
+  .cart-icon {
+    width: 20px;
+    height: 20px;
+  }
+  
+  .cart-count {
+    font-size: 10px;
+    padding: 2px 4px;
+    min-width: 16px;
+    height: 16px;
+  }
+  
+  .user-menu {
+    right: 16px;
+  }
+}
+
+/* Pantallas pequeñas (móviles grandes) */
+@media (max-width: 767px) and (min-width: 480px) {
+  .navbar {
+    padding: 0 12px;
+  }
+  
+  .nav-container {
+    max-width: 100%;
+  }
+  
+  .nav-logo {
+    font-size: 18px;
+  }
+  
+  .nav-logo img {
+    width: 28px;
+    height: 28px;
+  }
+  
+  .nav-menu {
+    gap: 16px;
+  }
+  
+  .nav-link {
+    font-size: 13px;
+    padding: 6px 10px;
+  }
+  
+  .nav-actions {
+    gap: 10px;
+  }
+  
+  .cart-icon {
+    width: 18px;
+    height: 18px;
+  }
+  
+  .cart-count {
+    font-size: 9px;
+    padding: 1px 3px;
+    min-width: 14px;
+    height: 14px;
+  }
+  
+  .user-menu {
+    right: 12px;
+    min-width: 180px;
+  }
+  
+  .user-menu-item {
+    padding: 10px 12px;
+    font-size: 13px;
+  }
+}
+
+/* Pantallas muy pequeñas (móviles) */
+@media (max-width: 479px) {
+  .navbar {
+    padding: 0 8px;
+  }
+  
+  .nav-container {
+    max-width: 100%;
+  }
+  
+  .nav-logo {
+    font-size: 16px;
+  }
+  
+  .nav-logo img {
+    width: 24px;
+    height: 24px;
+  }
+  
+  .nav-menu {
+    gap: 12px;
+  }
+  
+  .nav-link {
+    font-size: 12px;
+    padding: 5px 8px;
+  }
+  
+  .nav-actions {
+    gap: 8px;
+  }
+  
+  .cart-icon {
+    width: 16px;
+    height: 16px;
+  }
+  
+  .cart-count {
+    font-size: 8px;
+    padding: 1px 2px;
+    min-width: 12px;
+    height: 12px;
+  }
+  
+  .user-menu {
+    right: 8px;
+    min-width: 160px;
+  }
+  
+  .user-menu-item {
+    padding: 8px 10px;
+    font-size: 12px;
+  }
+  
+  .user-avatar {
+    width: 28px;
+    height: 28px;
+  }
+  
+  .user-name {
+    font-size: 12px;
+  }
+}
+
+/* Ajustes para orientación landscape en móviles */
+@media (max-width: 767px) and (orientation: landscape) {
+  .navbar {
+    padding: 0 12px;
+  }
+  
+  .nav-menu {
+    gap: 14px;
+  }
+  
+  .nav-link {
+    font-size: 13px;
+    padding: 6px 10px;
+  }
+}
+
+/* Ajustes para pantallas táctiles */
+@media (hover: none) and (pointer: coarse) {
+  .nav-link {
+    min-height: 44px;
+    min-width: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .cart-icon {
+    min-height: 44px;
+    min-width: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .user-avatar {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  .user-menu-item {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+  }
+}
+
+/* Ajustes para modo oscuro del sistema */
+@media (prefers-color-scheme: dark) {
+  .navbar {
+    background-color: #1a1a1a;
+    border-bottom-color: #404040;
+  }
+  
+  .nav-link {
+    color: #ffffff;
+  }
+  
+  .nav-link:hover {
+    background-color: #333333;
+  }
+  
+  .nav-link.active {
+    background-color: #6c5ce7;
+    color: #ffffff;
+  }
+  
+  .user-menu {
+    background-color: #2d2d2d;
+    border-color: #404040;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+  }
+  
+  .user-menu-item {
+    color: #ffffff;
+  }
+  
+  .user-menu-item:hover {
+    background-color: #404040;
+  }
+  
+  .user-menu-item.danger {
+    color: #e17055;
+  }
+  
+  .user-menu-item.danger:hover {
+    background-color: #e17055;
+    color: #ffffff;
+  }
+  
+  .cart-count {
+    background-color: #e17055;
+    color: #ffffff;
+  }
+}
+
+/* Ajustes para usuarios con preferencias de movimiento reducido */
+@media (prefers-reduced-motion: reduce) {
+  .navbar {
+    transition: none;
+  }
+  
+  .nav-link {
+    transition: none;
+  }
+  
+  .user-menu {
+    transition: none;
+  }
+  
+  .user-menu-item {
+    transition: none;
+  }
+  
+  .cart-count {
+    transition: none;
+  }
+}
+
+/* Ajustes para pantallas de alta densidad (retina) */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .nav-logo img {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+  }
+  
+  .cart-icon {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+  }
+}
+
+/* Ajustes para pantallas de muy alta resolución */
+@media (min-width: 2000px) {
+  .navbar {
+    padding: 0 40px;
+  }
+  
+  .nav-container {
+    max-width: 1600px;
+  }
+  
+  .nav-logo {
+    font-size: 28px;
+  }
+  
+  .nav-logo img {
+    width: 48px;
+    height: 48px;
+  }
+  
+  .nav-menu {
+    gap: 32px;
+  }
+  
+  .nav-link {
+    font-size: 18px;
+    padding: 12px 20px;
+  }
+  
+  .nav-actions {
+    gap: 20px;
+  }
+  
+  .cart-icon {
+    width: 28px;
+    height: 28px;
+  }
+  
+  .cart-count {
+    font-size: 14px;
+    padding: 4px 6px;
+    min-width: 20px;
+    height: 20px;
+  }
+  
+  .user-menu {
+    right: 40px;
+    min-width: 240px;
+  }
+  
+  .user-menu-item {
+    padding: 16px 20px;
+    font-size: 16px;
+  }
+  
+  .user-avatar {
+    width: 48px;
+    height: 48px;
+  }
+  
+  .user-name {
+    font-size: 16px;
+  }
+}
+
+/* Ajustes específicos para dispositivos móviles con notch */
+@media (max-width: 767px) and (min-height: 800px) {
+  .navbar {
+    padding-top: env(safe-area-inset-top);
+  }
+}
+
+/* Ajustes para dispositivos con pantalla dividida */
+@media (max-width: 767px) and (min-height: 600px) and (max-height: 800px) {
+  .navbar {
+    padding: 0 8px;
+  }
+  
+  .nav-menu {
+    gap: 8px;
+  }
+  
+  .nav-link {
+    font-size: 11px;
+    padding: 4px 6px;
+  }
+}

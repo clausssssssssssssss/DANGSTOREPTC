@@ -7,6 +7,7 @@ const ratingsController = {};
 
 // Obtener todas las reseñas de un producto
 ratingsController.getProductRatings = async (req, res) => {
+  console.log('🔍 🔥 GETPRODUCTRATINGS EJECUTÁNDOSE para producto:', req.params.productId);
   try {
     const { productId } = req.params;
     
@@ -15,10 +16,15 @@ ratingsController.getProductRatings = async (req, res) => {
       return res.status(400).json({ message: "ID de producto requerido" });
     }
 
+    console.log('🔍 Buscando reseñas para producto:', productId);
+    
     // Buscar todas las reseñas del producto con información del cliente
     const ratings = await Rating.find({ id_product: productId })
       .populate('id_customer', 'name')
       .sort({ createdAt: -1 });
+    
+    console.log('🔍 Reseñas encontradas:', ratings.length);
+    console.log('🔍 Reseñas:', ratings);
 
     // Calcular promedio y total
     const totalRatings = ratings.length;
@@ -36,6 +42,12 @@ ratingsController.getProductRatings = async (req, res) => {
       updatedAt: rating.updatedAt
     }));
 
+    console.log('🔍 Enviando respuesta:', {
+      ratings: formattedRatings.length,
+      totalRatings,
+      averageRating: Math.round(averageRating * 10) / 10
+    });
+    
     res.json({
       ratings: formattedRatings,
       totalRatings,
@@ -144,7 +156,7 @@ ratingsController.createRating = async (req, res) => {
     try {
       const { ratingId } = req.params;
       const { rating, comment } = req.body;
-      const customerId = req.user?.userId; // El middleware inyecta req.user.userId
+      const customerId = req.user?._id || req.user?.userId; // El middleware inyecta req.user._id
 
     // Validar datos requeridos
     if (!rating || !comment) {
@@ -222,7 +234,7 @@ ratingsController.createRating = async (req, res) => {
   ratingsController.deleteRating = async (req, res) => {
     try {
       const { ratingId } = req.params;
-      const customerId = req.user?.userId; // El middleware inyecta req.user.userId
+      const customerId = req.user?._id || req.user?.userId; // El middleware inyecta req.user._id
 
     // Buscar la reseña
     const rating = await Rating.findById(ratingId);
@@ -263,9 +275,10 @@ ratingsController.createRating = async (req, res) => {
 
 // Verificar si un usuario puede dejar reseña para un producto
 ratingsController.canUserRate = async (req, res) => {
+  console.log('🔍 🔥 CANUSERRATE EJECUTÁNDOSE para producto:', req.params.productId);
   try {
     const { productId } = req.params;
-    const customerId = req.user?.userId;
+    const customerId = req.user?._id || req.user?.userId;
     
     // Debug: mostrar qué se está recibiendo
     console.log('🔍 canUserRate recibiendo:', {

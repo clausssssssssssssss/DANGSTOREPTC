@@ -82,31 +82,39 @@ const AuthApp = () => {
         body: JSON.stringify({ email, password })
       });
       const data = await res.json();
-      if (!res.ok) {
-        // Personalizar mensajes de error para mejor UX
-        let errorMessage = 'Credenciales incorrectas';
-        if (data.message === 'Email no registrado') {
-          errorMessage = 'Credenciales incorrectas';
-        } else if (data.message === 'Invalid password' || data.message === 'Contraseña incorrecta') {
-          errorMessage = 'Credenciales incorrectas';
-        } else if (data.message.includes('bloqueada')) {
-          errorMessage = data.message; // Mantener mensaje de cuenta bloqueada
-        } else if (data.message.includes('bloqueado')) {
-          errorMessage = data.message; // Mantener mensaje de usuario bloqueado
-        }
-        showError(errorMessage);
+      
+      // Verificar si hay un token (login exitoso)
+      if (data.token) {
+        console.log('🔑 Login successful, token:', data.token);
+        localStorage.setItem('token', data.token);
+        const decoded = parseJwt(data.token);
+        setUser({ id: decoded.userId ?? decoded.id, name: decoded.name });
+        console.log('👤 User set in context:', { id: decoded.userId ?? decoded.id, name: decoded.name });
+        showSuccess('¡Inicio de sesión exitoso!');
+        navigate('/catalogo', { replace: true });
         return;
       }
-      console.log('🔑 Login successful, token:', data.token);
-      localStorage.setItem('token', data.token);
-      const decoded = parseJwt(data.token);
-      setUser({ id: decoded.userId ?? decoded.id, name: decoded.name });
-      console.log('👤 User set in context:', { id: decoded.userId ?? decoded.id, name: decoded.name });
-      showSuccess('¡Inicio de sesión exitoso!');
-      navigate('/catalogo', { replace: true });
+      
+             // Si no hay token, es un error de credenciales
+       let errorMessage = 'Credenciales incorrectas';
+       if (data.message === 'Email no registrado') {
+         errorMessage = 'Esta cuenta no está registrada';
+       } else if (data.message === 'Invalid password' || data.message === 'Contraseña incorrecta') {
+         errorMessage = 'Contraseña incorrecta';
+       } else if (data.message && data.message.includes('bloqueada')) {
+         errorMessage = data.message; // Mantener mensaje de cuenta bloqueada
+       } else if (data.message && data.message.includes('bloqueado')) {
+         errorMessage = data.message; // Mantener mensaje de usuario bloqueado
+       } else if (data.message) {
+         // Si hay un mensaje del servidor, usarlo
+         errorMessage = data.message;
+       }
+      
+      showError(errorMessage);
+      return;
     } catch (err) {
-      console.error(err);
-      showError('Error de conexión');
+      console.error('Error de red:', err);
+      showError('Error de conexión. Verifica tu conexión a internet.');
     }
   };
 
@@ -136,8 +144,8 @@ const AuthApp = () => {
         setCurrentView('login');
       }
     } catch (err) {
-      console.error(err);
-      showError('Error de conexión');
+      console.error('Error de red:', err);
+      showError('Error de conexión. Verifica tu conexión a internet.');
     }
   };
 

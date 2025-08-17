@@ -314,7 +314,13 @@ const FormPaymentFake = () => {
             padding: '16px', 
             borderRadius: '8px', 
             marginBottom: '20px',
-            border: '1px solid #e9ecef'
+            border: '1px solid #e9ecef',
+            position: 'static',
+            top: 'auto',
+            left: 'auto',
+            right: 'auto',
+            bottom: 'auto',
+            zIndex: 'auto'
           }}>
             <h3 style={{ margin: '0 0 12px 0', color: '#6c5ce7', fontSize: '18px' }}>
               📋 Resumen del Carrito

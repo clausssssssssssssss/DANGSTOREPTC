@@ -5,6 +5,7 @@ import { useProducts } from '../components/catalog/hook/useProducts.jsx';
 import { useCart } from '../context/CartContext.jsx';
 import { useFavorites } from '../components/catalog/hook/useFavorites.jsx';
 import { useRatings } from '../components/catalog/hook/useRatings.jsx';
+import { useAllProductsRatings } from '../components/catalog/hook/useAllProductsRatings.jsx';
 import { useToast } from '../hooks/useToast';
 import ToastContainer from '../components/ui/ToastContainer';
 import RatingForm from '../components/catalog/RatingForm.jsx';
@@ -39,6 +40,13 @@ export default function Catalogo() {
     submitRating, 
     deleteRating 
   } = useRatings(selectedProduct?._id);
+
+  // Hook para ratings de todos los productos
+  const { 
+    getProductRatings, 
+    updateProductRatings, 
+    loading: allRatingsLoading 
+  } = useAllProductsRatings(products);
 
   // Filtrar productos
   const filteredProducts = useMemo(() => {
@@ -280,10 +288,10 @@ export default function Catalogo() {
                 {/* Rating en la tarjeta */}
                 <div className="product-rating">
                   <div className="rating-stars-small">
-                    <RatingStars rating={product.averageRating || 0} size={16} />
+                    <RatingStars rating={getProductRatings(product._id).averageRating} size={16} />
                   </div>
                   <span className="rating-count">
-                    {product.totalRatings > 0 ? `(${product.totalRatings})` : '(Sin reseñas)'}
+                    {getProductRatings(product._id).totalRatings > 0 ? `(${getProductRatings(product._id).totalRatings})` : '(Sin reseñas)'}
                   </span>
                 </div>
                 

@@ -10,16 +10,11 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [authToken, setAuthToken] = useState(null);
   const [loading, setLoading] = useState(false);
-
-  // URL base unificada con el servicio API del móvil
-  const API_URL = "http://192.168.0.12:4000/api"
-
-  // Clave de almacenamiento local para datos del perfil del admin
-  const ADMIN_PROFILE_KEY = '@admin_profile';
+  const API_URL = "http://192.168.0.8:4000/api";
 
   useEffect(() => {
     const loadToken = async () => {
-      const token = await getAuthToken();
+      const token = await AsyncStorage.getItem('authToken');
       if (token) {
         setAuthToken(token);
       }
@@ -27,51 +22,15 @@ export const AuthProvider = ({ children }) => {
     loadToken();
   }, []);
 
-  // Utilidades de token en almacenamiento local
-  const AUTH_TOKEN_KEY = '@auth_token';
-  const saveAuthToken = async (token) => {
-    try {
-      await AsyncStorage.setItem(AUTH_TOKEN_KEY, token);
-    } catch (err) {
-      console.error('saveAuthToken error:', err);
-    }
-  };
-  const getAuthToken = async () => {
-    try {
-      return await AsyncStorage.getItem(AUTH_TOKEN_KEY);
-    } catch (err) {
-      console.error('getAuthToken error:', err);
-      return null;
-    }
-  };
-  const removeAuthToken = async () => {
-    try {
-      await AsyncStorage.removeItem(AUTH_TOKEN_KEY);
-    } catch (err) {
-      console.error('removeAuthToken error:', err);
-    }
-  };
-
-  // Carga el perfil del admin guardado localmente
-  const loadAdminProfile = useCallback(async () => {
-    try {
-      const raw = await AsyncStorage.getItem(ADMIN_PROFILE_KEY);
-      return raw ? JSON.parse(raw) : null;
-    } catch (err) {
-      console.error('Error loading admin profile from storage:', err);
-      return null;
-    }
-  }, []);
-
   const clearSession = async () => {
-    await removeAuthToken();
+    await AsyncStorage.removeItem('authToken');
     setUser(null);
     setAuthToken(null);
   };
 
   const logout = useCallback(async () => {
     try {
-      await fetch(`${API_URL}/logout`, {
+      await fetch(`${API_URL}/api/logout`, {
         method: 'POST',
         headers: authToken ? { Authorization: `Bearer ${authToken}` } : undefined,
       });
@@ -83,13 +42,27 @@ export const AuthProvider = ({ children }) => {
     }
   }, [API_URL, authToken]);
 
+  // Función para decodificar JWT
+  const parseJwt = (token) => {
+    try {
+      const base64Url = token.split('.')[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+      }).join(''));
+      return JSON.parse(jsonPayload);
+    } catch (error) {
+      console.error('Error parsing JWT:', error);
+      return {};
+    }
+  };
+
   const login = async (email, password) => {
     try {
       const response = await fetch(`${API_URL}/admins/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
-        credentials:  "include",
       });
 
       const contentType = response.headers.get('content-type') || '';
@@ -104,24 +77,9 @@ export const AuthProvider = ({ children }) => {
       const data = await response.json();
 
       if (response.ok) {
-        await saveAuthToken(data.token);
+        await AsyncStorage.setItem('authToken', data.token);
         setAuthToken(data.token);
-
-        // mezclar datos locales del perfil (si existen)
-        const localProfile = await loadAdminProfile();
-        setUser({ ...data.user, ...(localProfile || {}) });
-        // Obtiene el perfil del backend (si existiera) y sincroniza
-        try {
-          const profRes = await fetch(`${API_URL}/profile`, {
-            headers: { Authorization: `Bearer ${data.token}` },
-          });
-          if (profRes.ok) {
-            const prof = await profRes.json();
-            setUser((prev) => ({ ...(prev || {}), ...prof }));
-          }
-        } catch (e) {
-          // ignora fallo de perfil
-        }
+        setUser(data.user || { email: data.email, userType: data.userType });
         ToastAndroid.show('Inicio de sesión exitoso', ToastAndroid.SHORT);
         return true;
       } else {
@@ -137,7 +95,7 @@ export const AuthProvider = ({ children }) => {
 
   const register = async (userData) => {
     try {
-      const response = await fetch(`${API_URL}/customers`, {
+      const response = await fetch(`${API_URL}/api/customers`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(userData),
@@ -158,49 +116,6 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Actualiza y persiste localmente el perfil del admin (nombre, email, foto)
-  const updateAdminProfile = useCallback(async (partialProfile) => {
-    try {
-      // Normaliza email si viene en el payload
-      const normalized = {
-        ...partialProfile,
-        ...(partialProfile?.email ? { email: String(partialProfile.email).toLowerCase() } : {}),
-      };
-
-      const nextUser = { ...(user || {}), ...normalized };
-      setUser(nextUser);
-      await AsyncStorage.setItem(ADMIN_PROFILE_KEY, JSON.stringify({
-        name: nextUser.name || '',
-        email: nextUser.email || '',
-        profileImage: nextUser.profileImage || '',
-      }));
-      // Intenta persistir en backend
-      try {
-        await fetch(`${API_URL}/profile`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-            ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
-          },
-          body: JSON.stringify({
-            name: nextUser.name,
-            email: nextUser.email,
-            profileImage: nextUser.profileImage,
-            contactEmail: nextUser.email,
-          }),
-        });
-      } catch (e) {
-        // si falla, queda guardado localmente
-      }
-      ToastAndroid.show('Perfil actualizado', ToastAndroid.SHORT);
-      return true;
-    } catch (err) {
-      console.error('Error saving admin profile:', err);
-      ToastAndroid.show('No se pudo guardar el perfil', ToastAndroid.SHORT);
-      return false;
-    }
-  }, [user]);
-
   return (
     <AuthContext.Provider
       value={{
@@ -210,7 +125,7 @@ export const AuthProvider = ({ children }) => {
         login,
         logout,
         register,
-        updateAdminProfile,
+        parseJwt,
         API: API_URL,
       }}
     >

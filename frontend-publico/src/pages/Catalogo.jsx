@@ -4,9 +4,14 @@ import { useAuth } from '../hooks/useAuth.jsx';
 import { useProducts } from '../components/catalog/hook/useProducts.jsx';
 import { useCart } from '../context/CartContext.jsx';
 import { useFavorites } from '../components/catalog/hook/useFavorites.jsx';
+import { useRatings } from '../components/catalog/hook/useRatings.jsx';
 import { useToast } from '../hooks/useToast';
 import ToastContainer from '../components/ui/ToastContainer';
+import RatingForm from '../components/catalog/RatingForm.jsx';
+import RatingsList from '../components/catalog/RatingsList.jsx';
+import RatingStars from '../components/catalog/RatingStars.jsx';
 import '../components/styles/Catalogo.css';
+import '../components/styles/Ratings.css';
 
 export default function Catalogo() {
   const { user } = useAuth();
@@ -15,12 +20,25 @@ export default function Catalogo() {
   const { addToCart } = useCart(userId);
   const { favorites, toggleFavorite } = useFavorites(userId);
   const { toasts, showSuccess, showError, showWarning, showInfo, removeToast } = useToast();
-
+  
   const [searchTerm, setSearchTerm] = useState('');
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [priceRange, setPriceRange] = useState([0, 10]);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [showFavoriteMessage, setShowFavoriteMessage] = useState(false);
+  
+  // Hook para manejar reseñas del producto seleccionado
+  const { 
+    ratings, 
+    averageRating, 
+    totalRatings, 
+    userRating, 
+    canRate,
+    canRateMessage,
+    loading: ratingsLoading, 
+    submitRating, 
+    deleteRating 
+  } = useRatings(selectedProduct?._id);
 
   // Filtrar productos
   const filteredProducts = useMemo(() => {
@@ -258,6 +276,17 @@ export default function Catalogo() {
               <div className="product-info">
                 <h3 className="product-title">{product.name}</h3>
                 <p className="product-subtitle">{product.category}</p>
+                
+                {/* Rating en la tarjeta */}
+                <div className="product-rating">
+                  <div className="rating-stars-small">
+                    <RatingStars rating={product.averageRating || 0} size={16} />
+                  </div>
+                  <span className="rating-count">
+                    {product.totalRatings > 0 ? `(${product.totalRatings})` : '(Sin reseñas)'}
+                  </span>
+                </div>
+                
                 <div className="product-footer">
                   <p className="product-price">${product.price.toFixed(2)}</p>
                   <button
@@ -299,10 +328,39 @@ export default function Catalogo() {
               <h2 className="detail-title">{selectedProduct.name}</h2>
               <p className="detail-subtitle">{selectedProduct.category}</p>
               <p className="detail-price">${selectedProduct.price.toFixed(2)}</p>
-              <div className="rating">
-                <div className="stars">★★★★☆</div>
-                <span className="rating-text">4.5 (127 reseñas)</span>
+              
+              {/* Rating y Reseñas */}
+              <div className="product-ratings-section">
+                <div className="rating-summary">
+                  <div className="rating-stars">
+                    <RatingStars rating={averageRating} size={24} showNumber={true} />
+                  </div>
+                  <span className="rating-text">
+                    {totalRatings > 0 ? `${totalRatings} reseña${totalRatings !== 1 ? 's' : ''}` : 'Sin reseñas'}
+                  </span>
+                </div>
+                
+                {/* Formulario de Reseña */}
+                <RatingForm
+                  onSubmit={submitRating}
+                  onDelete={deleteRating}
+                  userRating={userRating}
+                  loading={ratingsLoading}
+                  productName={selectedProduct.name}
+                  canRate={canRate}
+                  canRateMessage={canRateMessage}
+                  showSuccess={showSuccess}
+                  showError={showError}
+                  showWarning={showWarning}
+                />
+                
+                {/* Lista de Reseñas */}
+                <RatingsList
+                  ratings={ratings}
+                  loading={ratingsLoading}
+                />
               </div>
+              
               <div className="action-buttons">
                 <button 
                   className="btn btn-primary"

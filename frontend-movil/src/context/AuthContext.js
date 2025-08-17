@@ -12,7 +12,7 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(false);
 
   // URL base unificada con el servicio API del móvil
-  const API_URL = "http://192.168.0.8:4000/api"
+  const API_URL = "http://192.168.0.12:4000/api"
 
   // Clave de almacenamiento local para datos del perfil del admin
   const ADMIN_PROFILE_KEY = '@admin_profile';

@@ -52,6 +52,17 @@ const customerSchema = new Schema({
     default: null
   },
 
+  /** Código de recuperación de contraseña */
+  resetCode: {
+    code: {
+      type: String,
+      select: false, // No incluir por defecto en consultas
+    },
+    expires: {
+      type: Date,
+      select: false, // No incluir por defecto en consultas
+    }
+  },
 
   /** Lista de productos favoritos */
   favorites: [

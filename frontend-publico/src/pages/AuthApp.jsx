@@ -50,9 +50,22 @@ const AuthApp = () => {
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
+  // Estado para reenvío de código
+  const [isResending, setIsResending] = useState(false);
+
   // Funciones de navegación
   const handleNavigate = (view) => {
     setCurrentView(view);
+    
+    // Limpiar código de verificación cuando se navega a otra vista
+    if (view !== 'verification' && view !== 'reset-password') {
+      setVerificationCode(['', '', '', '']);
+    }
+    
+    // Limpiar datos de nueva contraseña cuando se sale de reset-password
+    if (view !== 'reset-password') {
+      setNewPasswordData({ password: '', confirmPassword: '' });
+    }
   };
 
   // Funciones de manejo de Login
@@ -70,7 +83,18 @@ const AuthApp = () => {
       });
       const data = await res.json();
       if (!res.ok) {
-        showError(data.message || 'Error en el login');
+        // Personalizar mensajes de error para mejor UX
+        let errorMessage = 'Credenciales incorrectas';
+        if (data.message === 'Email no registrado') {
+          errorMessage = 'Credenciales incorrectas';
+        } else if (data.message === 'Invalid password' || data.message === 'Contraseña incorrecta') {
+          errorMessage = 'Credenciales incorrectas';
+        } else if (data.message.includes('bloqueada')) {
+          errorMessage = data.message; // Mantener mensaje de cuenta bloqueada
+        } else if (data.message.includes('bloqueado')) {
+          errorMessage = data.message; // Mantener mensaje de usuario bloqueado
+        }
+        showError(errorMessage);
         return;
       }
       console.log('🔑 Login successful, token:', data.token);
@@ -123,19 +147,35 @@ const AuthApp = () => {
       showError("Por favor ingresa tu correo electrónico");
       return;
     }
+    
+    console.log('📧 Enviando código de recuperación para:', forgotEmail);
+    
+    try {
     const res = await fetch(`${API_URL}/api/password-recovery/send-code`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email: forgotEmail }),
     });
+      
+      console.log('📥 Respuesta del servidor:', { status: res.status, statusText: res.statusText });
+      
     const data = await res.json();
+      console.log('📄 Datos de respuesta:', data);
+      
     if (!res.ok) {
+        console.error('❌ Error enviando código:', { status: res.status, message: data.message });
       showError(data.message || "Error enviando código");
       return;
     }
+      
+      console.log('✅ Código enviado exitosamente');
     showSuccess("Código enviado exitosamente a tu correo");
     setIsEmailSubmitted(true);
     setTimeout(() => setCurrentView("verification"), 1500);
+    } catch (err) {
+      console.error('💥 Error de conexión:', err);
+      showError("Error de conexión al enviar código");
+    }
   };
 
   // Funciones de código de verificación
@@ -171,22 +211,35 @@ const AuthApp = () => {
       showError("Por favor ingresa el código completo");
       return;
     }
+    
+    console.log('🔍 Verificando código:', { email: forgotEmail, code, codeLength: code.length });
+    
     try {
+      const requestBody = { email: forgotEmail, code };
+      console.log('📤 Enviando solicitud:', requestBody);
+      
       const res = await fetch(`${API_URL}/api/password-recovery/verify-code`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: forgotEmail, code })
+        body: JSON.stringify(requestBody)
       });
+      
+      console.log('📥 Respuesta del servidor:', { status: res.status, statusText: res.statusText });
+      
       const data = await res.json();
+      console.log('📄 Datos de respuesta:', data);
+      
       if (!res.ok) {
+        console.error('❌ Error en verificación:', { status: res.status, message: data.message });
         showError(data.message || "Código inválido");
       } else {
+        console.log('✅ Código verificado exitosamente');
         showSuccess("Código verificado correctamente");
         setCurrentView("reset-password");
       }
     } catch (err) {
-      console.error(err);
-      alert("Error de conexión");
+      console.error('💥 Error de conexión:', err);
+      showError("Error de conexión al verificar código");
     }
   };
 
@@ -215,26 +268,40 @@ const AuthApp = () => {
       return;
     }
 
+    console.log('🔐 Restableciendo contraseña:', { email: forgotEmail, code, passwordLength: password.length });
+
     try {
+      const requestBody = {
+        email: forgotEmail,       
+        code,
+        newPassword: password,
+      };
+      
+      console.log('📤 Enviando solicitud de restablecimiento:', requestBody);
+      
       const res = await fetch(`${API_URL}/api/password-recovery/reset`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email: forgotEmail,       
-          code,
-          newPassword: password,
-        }),
+        body: JSON.stringify(requestBody),
       });
+      
+      console.log('📥 Respuesta del servidor:', { status: res.status, statusText: res.statusText });
+      
       const data = await res.json();
+      console.log('📄 Datos de respuesta:', data);
+      
       if (!res.ok) {
+        console.error('❌ Error al restablecer contraseña:', { status: res.status, message: data.message });
         showError(data.message || "Error al cambiar contraseña");
         return;
       }
+      
+      console.log('✅ Contraseña restablecida exitosamente');
       showSuccess("Contraseña restablecida exitosamente");
       setCurrentView("login");
     } catch (err) {
-      console.error(err);
-      showError("Error de conexión");
+      console.error('💥 Error de conexión:', err);
+      showError("Error de conexión al restablecer contraseña");
     }
   };
 

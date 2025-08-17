@@ -16,6 +16,11 @@ import profileRoutes          from './src/routes/profile.js';
 import adminAuthRoutes        from './src/routes/adminAuth.js';
 import logoutRoutes           from './src/routes/logout.js';
 import paymentRoutes          from './src/routes/paymentRoutes.js';
+import ratingsRoutes          from './src/routes/ratings.js';
+
+import swaggerUi from "swagger-ui-express";
+import fs from "fs";
+import path from "path";
 
 /**
  * Aplicación principal de Express.
@@ -31,12 +36,19 @@ app.use(express.json());
 /** Habilita el parseo de cookies en las solicitudes */
 app.use(cookieParser());
 
+//Traemos el archivo json
+const swaggerDocument = JSON.parse(
+  fs.readFileSync(path.resolve("./DangStore.json"), "utf-8")
+);
+
 /** Sirve archivos estáticos desde la carpeta "uploads" bajo la ruta /uploads */
 app.use('/uploads', express.static('uploads'));
 
 /**
  * Rutas de la API montadas en diferentes endpoints:
  */
+
+app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // CRUD de clientes
 app.use('/api/customers', customerRoutes);
@@ -75,6 +87,9 @@ app.use('/api/logout', logoutRoutes);
 
 // Procesamiento de pagos (Wompi y pagos simulados)
 app.use('/api/payments', paymentRoutes);
+
+// Sistema de reseñas y ratings de productos
+app.use('/api/ratings', ratingsRoutes);
 
 /**
  * Exporta la instancia de la aplicación Express

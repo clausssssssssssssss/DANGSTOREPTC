@@ -1,0 +1,1144 @@
+{
+  "openapi" : "3.0.0",
+  "info" : {
+    "title" : "home-iot-api",
+    "version" : "1.0.0",
+    "description" : "The API for the EatBacon IOT project"
+  },
+  "servers" : [ {
+    "url" : "https://virtserver.swaggerhub.com/dangstore/Dang/1.0.0"
+  } ],
+  "paths" : {
+    "/api/customers" : {
+      "get" : {
+        "summary" : "Obtiene todos los clientes",
+        "tags" : [ "customer" ],
+        "operationId" : "get-api-customers",
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          },
+          "400" : {
+            "description" : "Bad Request"
+          }
+        }
+      },
+      "put" : {
+        "summary" : "Actualiza un cliente existente",
+        "tags" : [ "customer" ],
+        "operationId" : "put-api-customers",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "header",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "required" : true,
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "type" : "object",
+                "required" : [ "name" ],
+                "properties" : {
+                  "name" : {
+                    "type" : "string"
+                  },
+                  "email" : {
+                    "type" : "string"
+                  },
+                  "password" : {
+                    "type" : "string"
+                  },
+                  "telephone" : {
+                    "type" : "number"
+                  },
+                  "favorites" : {
+                    "type" : "object"
+                  },
+                  "orders" : {
+                    "type" : "object"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          },
+          "400" : {
+            "description" : "Bad Request"
+          }
+        }
+      },
+      "post" : {
+        "summary" : "Crea un nuevo cliente",
+        "tags" : [ "customer" ],
+        "operationId" : "post-api-customers",
+        "parameters" : [ {
+          "name" : "X-Custom-Header",
+          "in" : "header",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "required" : true,
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "type" : "object",
+                "properties" : {
+                  "name" : {
+                    "type" : "string"
+                  },
+                  "email" : {
+                    "type" : "string"
+                  },
+                  "password" : {
+                    "type" : "string"
+                  },
+                  "telephone" : {
+                    "type" : "number"
+                  },
+                  "favorites" : {
+                    "type" : "object"
+                  },
+                  "orders" : {
+                    "type" : "object"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          },
+          "400" : {
+            "description" : "Bad Request"
+          }
+        }
+      },
+      "delete" : {
+        "summary" : "Elimina un cliente",
+        "tags" : [ "customer" ],
+        "operationId" : "delete-api-customers",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "header",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          },
+          "400" : {
+            "description" : "Bad Request"
+          }
+        }
+      }
+    },
+    "/api/password-recovery" : {
+      "get" : {
+        "summary" : "Recuperación de contraseña",
+        "tags" : [ "auth" ],
+        "operationId" : "get-password-recovery",
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object",
+                  "properties" : {
+                    "code" : {
+                      "type" : "integer"
+                    },
+                    "message" : {
+                      "type" : "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/cart" : {
+      "get" : {
+        "summary" : "Se realiza un select a la coleccion de cart",
+        "tags" : [ "cart" ],
+        "operationId" : "get-api-cart",
+        "description" : "Select hacia la coleccion de cart",
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          },
+          "400" : {
+            "description" : "Bad Request"
+          }
+        }
+      },
+      "put" : {
+        "summary" : "Update a la coleccion de cart",
+        "tags" : [ "cart" ],
+        "operationId" : "put-api-cart",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "type" : "object",
+                "properties" : {
+                  "user" : {
+                    "type" : "object"
+                  },
+                  "product" : {
+                    "type" : "object"
+                  },
+                  "customizedProduct" : {
+                    "type" : "object"
+                  },
+                  "state" : {
+                    "type" : "string"
+                  },
+                  "paymethMethod" : {
+                    "type" : "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          },
+          "400" : {
+            "description" : "Bad Request"
+          }
+        }
+      },
+      "post" : {
+        "summary" : "Agregar productos al carrito",
+        "tags" : [ "cart" ],
+        "operationId" : "post-api-cart",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "type" : "object",
+                "properties" : {
+                  "user" : {
+                    "type" : "object"
+                  },
+                  "product" : {
+                    "type" : "object"
+                  },
+                  "customizedProduct" : {
+                    "type" : "object"
+                  },
+                  "state" : {
+                    "type" : "string"
+                  },
+                  "paymentMethod" : {
+                    "type" : "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          },
+          "400" : {
+            "description" : "Bad Request"
+          }
+        }
+      },
+      "delete" : {
+        "summary" : "Eliminar carritos en proceso",
+        "tags" : [ "cart" ],
+        "operationId" : "delete-api-cart",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "header",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          },
+          "400" : {
+            "description" : "Bad Request"
+          }
+        }
+      }
+    },
+    "/api/cart/orders" : {
+      "get" : {
+        "summary" : "Traer todas las órdenes de un usuario",
+        "tags" : [ "orders" ],
+        "operationId" : "get-api-cart-orders",
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          },
+          "400" : {
+            "description" : "Bad Request"
+          }
+        }
+      },
+      "post" : {
+        "summary" : "Insertar o consultar órdenes",
+        "tags" : [ "orders" ],
+        "operationId" : "post-api-cart-orders",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "type" : "object",
+                "properties" : {
+                  "user" : {
+                    "type" : "object"
+                  },
+                  "item" : {
+                    "type" : "object"
+                  },
+                  "quantity" : {
+                    "type" : "number"
+                  },
+                  "price" : {
+                    "type" : "number"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          },
+          "400" : {
+            "description" : "Bad Request"
+          }
+        }
+      }
+    },
+    "/api/custom-orders" : {
+      "post" : {
+        "summary" : "Crear solicitud personalizada",
+        "tags" : [ "custom-orders" ],
+        "operationId" : "post-api-custom-orders",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "type" : "object",
+                "properties" : {
+                  "user" : {
+                    "type" : "object"
+                  },
+                  "imageUrl" : {
+                    "type" : "string"
+                  },
+                  "modelType" : {
+                    "type" : "string"
+                  },
+                  "description" : {
+                    "type" : "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          },
+          "400" : {
+            "description" : "Bad Request"
+          }
+        }
+      }
+    },
+    "/api/custom-orders/me" : {
+      "get" : {
+        "summary" : "Traer mis órdenes personalizadas",
+        "tags" : [ "custom-orders" ],
+        "operationId" : "get-api-custom-orders-me",
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          },
+          "400" : {
+            "description" : "Bad Request"
+          }
+        }
+      }
+    },
+    "/api/custom-orders/pending" : {
+      "get" : {
+        "summary" : "Traer todas las órdenes pendientes",
+        "tags" : [ "custom-orders" ],
+        "operationId" : "get-api-custom-orders-pending",
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          },
+          "400" : {
+            "description" : "Bad Request"
+          }
+        }
+      }
+    },
+    "/api/custom-orders/{id}/quote" : {
+      "put" : {
+        "summary" : "Cotizar custom-order",
+        "tags" : [ "custom-orders" ],
+        "operationId" : "put-api-custom-orders-id-quote",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          },
+          "400" : {
+            "description" : "Bad Request"
+          }
+        }
+      }
+    },
+    "/api/custom-orders/{id}/respond" : {
+      "put" : {
+        "summary" : "Update a custom-orders",
+        "tags" : [ "custom-orders" ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          },
+          "400" : {
+            "description" : "Bad Request"
+          }
+        },
+        "operationId" : "put-custom-orders-id-respond",
+        "parameters" : [ {
+          "schema" : {
+            "type" : "string"
+          },
+          "in" : "path",
+          "name" : "id",
+          "required" : true
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "type" : "object",
+                "properties" : {
+                  "type" : {
+                    "type" : "object",
+                    "x-stoplight" : {
+                      "id" : "m5c7zplat4njn"
+                    }
+                  },
+                  "required" : {
+                    "type" : "boolean",
+                    "x-stoplight" : {
+                      "id" : "vu740tbuhllxe"
+                    }
+                  },
+                  "price" : {
+                    "type" : "number",
+                    "x-stoplight" : {
+                      "id" : "7dn1yrr8ikokr"
+                    }
+                  },
+                  "comment" : {
+                    "type" : "string",
+                    "x-stoplight" : {
+                      "id" : "mqayf8erypfn4"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/contact" : {
+      "post" : {
+        "summary" : "Insert a contact",
+        "tags" : [ "contact" ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          },
+          "400" : {
+            "description" : "Bad Request"
+          }
+        },
+        "operationId" : "post-api-contact",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "type" : "object",
+                "properties" : {
+                  "name" : {
+                    "type" : "string",
+                    "x-stoplight" : {
+                      "id" : "8rej8pwrexgv8"
+                    }
+                  },
+                  "email" : {
+                    "type" : "string",
+                    "x-stoplight" : {
+                      "id" : "uwecp3g42y96i"
+                    }
+                  },
+                  "message" : {
+                    "type" : "string",
+                    "x-stoplight" : {
+                      "id" : "gnx0szsr2v9n8"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "description" : "Con este metodo podemos contactarnos con el admin "
+      }
+    },
+    "/api/catalog" : {
+      "get" : {
+        "summary" : "Select a products",
+        "tags" : [ "catalog" ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          },
+          "400" : {
+            "description" : "Bad Request"
+          }
+        },
+        "operationId" : "get-api-catalog",
+        "description" : "Con este metodo podemos obtener el catalago de los productos"
+      }
+    },
+    "/api/products" : {
+      "get" : {
+        "summary" : "Your GET endpoint",
+        "tags" : [ "product" ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          },
+          "400" : {
+            "description" : "Bad Request"
+          }
+        },
+        "operationId" : "get-api-products",
+        "description" : "Con este metodo podemos obtener todos los productos "
+      },
+      "post" : {
+        "summary" : "Insert a product",
+        "tags" : [ "product" ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          },
+          "400" : {
+            "description" : "Bad Request"
+          }
+        },
+        "operationId" : "post-api-products",
+        "description" : "Con este metodo podemos crear un producto nuevo ",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "type" : "object",
+                "required" : [ "price", "stock" ],
+                "properties" : {
+                  "name" : {
+                    "type" : "string",
+                    "x-stoplight" : {
+                      "id" : "8i4cusq3xk5b9"
+                    }
+                  },
+                  "price" : {
+                    "type" : "number",
+                    "x-stoplight" : {
+                      "id" : "7445iyu28p1pl"
+                    }
+                  },
+                  "stock" : {
+                    "type" : "number",
+                    "x-stoplight" : {
+                      "id" : "0x492lmw8c9hu"
+                    }
+                  },
+                  "description" : {
+                    "type" : "string",
+                    "x-stoplight" : {
+                      "id" : "qd6p5lp6blry0"
+                    }
+                  },
+                  "category" : {
+                    "type" : "string",
+                    "x-stoplight" : {
+                      "id" : "ov135oocmff0y"
+                    }
+                  },
+                  "images" : {
+                    "type" : "string",
+                    "x-stoplight" : {
+                      "id" : "5nwikf50zfa33"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/products/popular" : {
+      "get" : {
+        "summary" : "Select a product",
+        "tags" : [ "product" ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          },
+          "400" : {
+            "description" : "Bad Request"
+          }
+        },
+        "operationId" : "get-api-products-popular",
+        "description" : "Con este metodo podemos obetener los productos mas populares"
+      }
+    },
+    "/api/products/{id}" : {
+      "parameters" : [ {
+        "schema" : {
+          "type" : "string"
+        },
+        "name" : "id",
+        "in" : "path",
+        "required" : true
+      } ],
+      "get" : {
+        "summary" : "Select a product",
+        "tags" : [ "product" ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          },
+          "400" : {
+            "description" : "Bad Request"
+          },
+          "404" : {
+            "description" : "Producto no encontrado"
+          }
+        },
+        "operationId" : "get-api-products-id",
+        "description" : "Con este metodo podemos obtener un producto mediante su id "
+      },
+      "put" : {
+        "summary" : "Update a product",
+        "tags" : [ "product" ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        },
+        "operationId" : "put-api-products-id",
+        "description" : "Con este metodo podemos actualizar un producto mediante su id ",
+        "parameters" : [ {
+          "schema" : {
+            "type" : "string"
+          },
+          "in" : "header",
+          "name" : "id",
+          "required" : true
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "type" : "object",
+                "required" : [ "name", "price", "stock", "category" ],
+                "properties" : {
+                  "name" : {
+                    "type" : "string",
+                    "x-stoplight" : {
+                      "id" : "w3doxmyd0tocs"
+                    }
+                  },
+                  "price" : {
+                    "type" : "number",
+                    "x-stoplight" : {
+                      "id" : "b1uus0u604ms9"
+                    }
+                  },
+                  "stock" : {
+                    "type" : "number",
+                    "x-stoplight" : {
+                      "id" : "7zq1nla2fhk5t"
+                    }
+                  },
+                  "description" : {
+                    "type" : "string",
+                    "x-stoplight" : {
+                      "id" : "ki6hjsnq8fwhl"
+                    }
+                  },
+                  "category" : {
+                    "type" : "string",
+                    "x-stoplight" : {
+                      "id" : "s7jmcr7gxaqb8"
+                    }
+                  },
+                  "images" : {
+                    "type" : "string",
+                    "x-stoplight" : {
+                      "id" : "c776ahpcs88js"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete" : {
+        "summary" : "Delete a products",
+        "tags" : [ "product" ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          },
+          "204" : {
+            "description" : "Producto eliminado exitosamente"
+          }
+        },
+        "operationId" : "delete-api-products-id",
+        "description" : "Con este metodo podemos eliminar un producto mediante su id "
+      }
+    },
+    "/api/profile" : {
+      "get" : {
+        "summary" : "Select a profile",
+        "tags" : [ "perfil" ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        },
+        "operationId" : "get-api-profile",
+        "description" : "Con este metodo podempos obtener los datos de un usuario logueado "
+      },
+      "put" : {
+        "summary" : "Update a profile",
+        "tags" : [ "perfil" ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        },
+        "operationId" : "put-api-profile",
+        "description" : "Con este metodo podemos actualizar datos de usuario",
+        "parameters" : [ {
+          "schema" : {
+            "type" : "string"
+          },
+          "in" : "header",
+          "name" : "id",
+          "required" : true
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "type" : "object",
+                "properties" : {
+                  "name" : {
+                    "type" : "string",
+                    "x-stoplight" : {
+                      "id" : "ssferfmaifqrf"
+                    }
+                  },
+                  "telephone" : {
+                    "type" : "string",
+                    "x-stoplight" : {
+                      "id" : "jghwthr9toncv"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/profile/password" : {
+      "put" : {
+        "summary" : "Your PUT endpoint",
+        "tags" : [ "perfil" ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        },
+        "operationId" : "put-api-profile-password",
+        "description" : "Este metodo permite al usuario cambiar su contraseña",
+        "parameters" : [ {
+          "schema" : {
+            "type" : "string"
+          },
+          "in" : "header",
+          "name" : "id",
+          "required" : true
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "type" : "object",
+                "required" : [ "currentPassword", "newPassword" ],
+                "properties" : {
+                  "currentPassword" : {
+                    "type" : "string",
+                    "x-stoplight" : {
+                      "id" : "qr1hpgdk2v7uk"
+                    }
+                  },
+                  "newPassword" : {
+                    "type" : "string",
+                    "x-stoplight" : {
+                      "id" : "aept459htm63z"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/profile/order" : {
+      "get" : {
+        "summary" : "Select a orders",
+        "tags" : [ "perfil" ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        },
+        "operationId" : "get-api-profile-order",
+        "description" : "Este metodo permite al usuario ver su historial de pedidos "
+      }
+    },
+    "/api/profile/favorites" : {
+      "get" : {
+        "summary" : "Select a favortios",
+        "tags" : [ "perfil" ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        },
+        "operationId" : "get-api-profile-favorites",
+        "description" : "Este metodo permite al usuario ver sus productos seleccionados como favoritos"
+      }
+    },
+    "/api/profile/favorites/{productId}" : {
+      "parameters" : [ {
+        "schema" : {
+          "type" : "string"
+        },
+        "name" : "productId",
+        "in" : "path",
+        "required" : true
+      } ],
+      "post" : {
+        "summary" : "Insert a favorites",
+        "tags" : [ "perfil" ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        },
+        "operationId" : "post-api-profile-favorites-productId",
+        "description" : "Este metodo permite al usuario agregar o quitar un producto de favoritos",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "type" : "object",
+                "properties" : {
+                  "name" : {
+                    "type" : "object",
+                    "x-stoplight" : {
+                      "id" : "iw2ikta0f1pbx"
+                    },
+                    "properties" : {
+                      "productId" : {
+                        "type" : "string",
+                        "x-stoplight" : {
+                          "id" : "ioep8vnc2eck4"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admins/login" : {
+      "post" : {
+        "summary" : "Inicio de sesión",
+        "tags" : [ "Admin" ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        },
+        "operationId" : "post-api-admins-login",
+        "description" : "Con este metodo permite al admin iniciar sesion",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "type" : "object",
+                "required" : [ "email", "password" ],
+                "properties" : {
+                  "email" : {
+                    "type" : "string",
+                    "x-stoplight" : {
+                      "id" : "s1b4d1hbpgsyw"
+                    }
+                  },
+                  "password" : {
+                    "type" : "string",
+                    "x-stoplight" : {
+                      "id" : "0i7edh3jq575t"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/logout" : {
+      "post" : {
+        "summary" : "Cierre de sesión",
+        "tags" : [ "Admin" ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          },
+          "401" : {
+            "description" : "Unauthorized"
+          }
+        },
+        "operationId" : "post-api-logout",
+        "description" : "Este metodo permite al admin poder cerrar sesión"
+      }
+    },
+    "/api/payments/token" : {
+      "post" : {
+        "summary" : "Obtener el token",
+        "tags" : [ "Pagos" ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          },
+          "500" : {
+            "description" : "Internal Server Error"
+          }
+        },
+        "operationId" : "post-api-payments-token",
+        "description" : "Este metodo solicita un token de acceso a la api de wompi ",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "type" : "object",
+                "properties" : {
+                  "access_token" : {
+                    "type" : "string",
+                    "x-stoplight" : {
+                      "id" : "9xi60m3ebqwap"
+                    }
+                  },
+                  "token_type" : {
+                    "type" : "string",
+                    "x-stoplight" : {
+                      "id" : "iw8riyh304som"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/payments/testPayment" : {
+      "post" : {
+        "summary" : "Pago de prueba sin 3DS",
+        "tags" : [ "Pagos" ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          },
+          "400" : {
+            "description" : "Bad Request"
+          },
+          "500" : {
+            "description" : "Internal Server Error"
+          }
+        },
+        "operationId" : "post-api-payments-testPayment",
+        "description" : "Este metodo realiza un pago de prueba tokenizado sin autenticación 3DS usando Wompi.",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "type" : "object",
+                "properties" : {
+                  "token" : {
+                    "type" : "string",
+                    "x-stoplight" : {
+                      "id" : "02k723zsq8uej"
+                    }
+                  },
+                  "formData" : {
+                    "type" : "string",
+                    "x-stoplight" : {
+                      "id" : "dapam2avyjt07"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/payments/payment3ds" : {
+      "post" : {
+        "summary" : "Pago real con 3DS",
+        "tags" : [ "Pagos" ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          },
+          "400" : {
+            "description" : "Bad Request"
+          },
+          "500" : {
+            "description" : "Internal Server Error"
+          }
+        },
+        "operationId" : "post-api-payments-payment3ds",
+        "description" : "Este metodo realiza un pago real tokenizado con autenticación 3DS usando Wompi",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "type" : "object",
+                "properties" : {
+                  "token" : {
+                    "type" : "string",
+                    "x-stoplight" : {
+                      "id" : "d94x0p070m2zg"
+                    }
+                  },
+                  "formData" : {
+                    "type" : "string",
+                    "x-stoplight" : {
+                      "id" : "ysv1fgrm1shxn"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/payments/fakePayment" : {
+      "post" : {
+        "summary" : "Pago simulado",
+        "tags" : [ "Pagos" ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          },
+          "400" : {
+            "description" : "Bad Request"
+          }
+        },
+        "operationId" : "post-api-payments-fakePayment",
+        "description" : " Simula un pago exitoso sin interactuar con Wompi, es para entorno de desarrollo.",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "type" : "object",
+                "required" : [ "amount" ],
+                "properties" : {
+                  "amount" : {
+                    "type" : "string",
+                    "x-stoplight" : {
+                      "id" : "swq04iuwqsan1"
+                    }
+                  },
+                  "currency" : {
+                    "type" : "string",
+                    "x-stoplight" : {
+                      "id" : "a3ni7ohh3h4v9"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

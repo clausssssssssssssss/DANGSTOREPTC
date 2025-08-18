@@ -11,7 +11,7 @@ import '../components/styles/CarritoDeCompras.css';
 const CarritoDeCompras = () => {
   const { user } = useAuth();
   const userId = user?.id;
-  const { cart, clearCart, updateQuantity, removeFromCart } = useCart(userId);
+  const { cart, clearCart, updateQuantity, removeFromCart, refreshCart } = useCart(userId);
   const { toasts, showSuccess, showError, showWarning, removeToast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
@@ -23,7 +23,35 @@ const CarritoDeCompras = () => {
   const [error, setError] = useState('');
   const [paidTotal, setPaidTotal] = useState(null);
 
-  const total = cart.reduce((acc, item) => acc + (item.product?.price || 0) * (item.quantity || 0), 0);
+  // Recargar carrito cuando se llegue a la página
+  useEffect(() => {
+    if (userId && refreshCart) {
+      console.log('🔄 Recargando carrito al llegar a la página...');
+      refreshCart(userId); // Pasar el userId explícitamente
+    }
+  }, [userId, refreshCart]);
+
+  // Forzar recarga adicional cuando se llegue a la página
+  useEffect(() => {
+    const forceRefresh = async () => {
+      if (userId && refreshCart) {
+        console.log('🔄 Forzando recarga adicional del carrito...');
+        // Esperar un poco y luego recargar
+        setTimeout(async () => {
+          await refreshCart(userId);
+        }, 500);
+      }
+    };
+    
+    forceRefresh();
+  }, []); // Solo se ejecuta una vez al montar el componente
+
+  const total = cart.reduce((acc, item) => {
+    const price = item.product?.price || 0;
+    const quantity = item.quantity || 0;
+    return acc + (price * quantity);
+  }, 0);
+  
   const itemCount = cart.reduce((acc, item) => acc + (item.quantity || 0), 0);
   
   const handlePayment = async () => {
@@ -36,12 +64,27 @@ const CarritoDeCompras = () => {
         throw new Error('El carrito está vacío');
       }
 
-      const validItems = cart.filter(item => 
-        item.product && 
-        (item.product._id || item.product.id) && 
-        item.product.price && 
-        item.quantity
-      );
+      const validItems = cart.filter(item => {
+        // Para productos estándar
+        if (item.product.type === 'standard') {
+          return item.product && 
+                 (item.product._id || item.product.id) && 
+                 item.product.price && 
+                 item.quantity;
+        }
+        // Para productos personalizados
+        if (item.product.type === 'customized') {
+          return item.product && 
+                 (item.product._id || item.product.id) && 
+                 item.product.price && 
+                 item.quantity;
+        }
+        // Fallback para compatibilidad
+        return item.product && 
+               (item.product._id || item.product.id) && 
+               item.product.price && 
+               item.quantity;
+      });
 
       if (validItems.length !== cart.length) {
         throw new Error('Algunos productos no tienen información completa');
@@ -200,12 +243,24 @@ const CarritoDeCompras = () => {
                           alt={item.product?.name || 'Producto'}
                           className="item-img"
                         />
+                        {item.product?.type === 'customized' && (
+                          <div className="customized-badge">
+                            <span>🎨</span>
+                          </div>
+                        )}
                       </div>
                       
                       <div className="item-details">
                         <div className="item-info">
-                          <h4>{item.product?.name || 'Producto'}</h4>
-                          <p className="item-description">{item.product?.description || 'Diseño exclusivo'}</p>
+                          <h4>
+                            {item.product?.name || 'Producto'}
+                            {item.product?.type === 'customized' && (
+                              <span className="customized-label"> (Personalizado)</span>
+                            )}
+                          </h4>
+                          <p className="item-description">
+                            {item.product?.description || 'Diseño exclusivo'}
+                          </p>
                         </div>
                         
                         <div className="item-controls">
@@ -233,6 +288,26 @@ const CarritoDeCompras = () => {
                             <span className="subtotal-label">Subtotal:</span>
                             <span className="item-total">${((item.product?.price || 0) * item.quantity).toFixed(2)}</span>
                           </div>
+                          
+                          {/* Botón de pago individual para productos personalizados */}
+                          {item.product?.type === 'customized' && (
+                            <button 
+                              onClick={() => {
+                                // Navegar directamente al pago con solo este producto
+                                navigate('/form-payment', { 
+                                  state: { 
+                                    items: [item], 
+                                    total: (item.product?.price || 0) * item.quantity,
+                                    singleItem: true
+                                  } 
+                                });
+                              }}
+                              className="pay-customized-btn"
+                            >
+                              <CreditCard size={16} />
+                              Pagar Ahora - ${((item.product?.price || 0) * item.quantity).toFixed(2)}
+                            </button>
+                          )}
                         </div>
                       </div>
                       
@@ -258,6 +333,17 @@ const CarritoDeCompras = () => {
               <div className="cart-summary">
                 <h3>Resumen de compra</h3>
                 
+                {/* Mensaje especial para productos personalizados */}
+                {cart.every(item => item.product?.type === 'customized') && cart.length > 0 && (
+                  <div className="customized-notice">
+                    <div className="notice-icon">🎨</div>
+                    <div className="notice-content">
+                      <h4>¡Productos Personalizados!</h4>
+                      <p>Estos son tus encargos personalizados. Puedes pagarlos individualmente o todos juntos.</p>
+                    </div>
+                  </div>
+                )}
+                
                 <div className="summary-lines">
                   <div className="summary-line">
                     <span>Subtotal ({itemCount} {itemCount === 1 ? 'producto' : 'productos'})</span>
@@ -277,16 +363,20 @@ const CarritoDeCompras = () => {
                   onClick={handlePayment} 
                   disabled={loading || cart.length === 0}
                   className="checkout-btn"
+                  title={cart.length === 0 ? "Agrega productos al carrito para continuar" : "Proceder al pago"}
                 >
                   {loading ? (
                     <>
                       <div className="spinner"></div>
-                      Procesando...
+                      Procesando pago...
                     </>
                   ) : (
                     <>
                       <CreditCard size={20} />
-                      Pagar ${total.toFixed(2)}
+                      {cart.every(item => item.product?.type === 'customized') 
+                        ? `¡Pagar Todos los Personalizados! - $${total.toFixed(2)}`
+                        : `¡Ir a Pagar! - $${total.toFixed(2)}`
+                      }
                     </>
                   )}
                 </button>

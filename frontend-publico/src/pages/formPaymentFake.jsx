@@ -19,24 +19,9 @@ const FormPaymentFake = () => {
   // calcula total y cantidad
   const total = cart.reduce((sum, item) => sum + (item.product?.price || 0) * (item.quantity || 0), 0);
 
-  // Debug del carrito
-  console.log('=== DEBUG DEL CARRITO ===');
-  console.log('Cart completo:', cart);
-  console.log('Número de items:', cart.length);
-  console.log('Items individuales:', cart.map(item => ({
-    id: item.product?._id || item.product?.id,
-    name: item.product?.name,
-    price: item.product?.price,
-    quantity: item.quantity,
-    subtotal: (item.product?.price || 0) * (item.quantity || 0)
-  })));
-  console.log('Total calculado:', total);
-  console.log('========================');
-
   // Asegurar que el carrito se cargue cuando el componente se monte
   useEffect(() => {
     if (userId && cart.length === 0) {
-      console.log('Recargando carrito para userId:', userId);
       loadCart(userId);
     }
   }, [userId, cart.length, loadCart]);

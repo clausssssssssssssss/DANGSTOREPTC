@@ -1,4 +1,4 @@
-/* ===== ESTILOS LIMPIOS PARA CARRITO ===== */
+/* ===== ESTILOS DEL CARRITO LIMPIOS Y OPTIMIZADOS ===== */
 
 /* Estructura principal */
 .cart-container {
@@ -281,38 +281,51 @@
   font-size: 1.2rem;
 }
 
+/* ===== BOTÓN DE PAGO MEJORADO ===== */
 .checkout-btn {
   width: 100%;
-  padding: 1rem;
-  background: #6c5ce7;
-  color: #ffffff;
+  padding: 16px 24px;
+  background: linear-gradient(135deg, #6c5ce7 0%, #a29bfe 100%);
+  color: white;
   border: none;
-  border-radius: 8px;
+  border-radius: 12px;
+  font-size: 18px;
   font-weight: 600;
   cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(108, 92, 231, 0.3);
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
-  transition: all 0.2s ease;
+  gap: 12px;
+  margin-top: 20px;
+  position: relative;
+  overflow: hidden;
 }
 
-.checkout-btn:hover:not(:disabled) {
-  background: #a29bfe;
+.checkout-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(108, 92, 231, 0.3);
+  box-shadow: 0 8px 25px rgba(108, 92, 231, 0.4);
+  background: linear-gradient(135deg, #5f3dc4 0%, #8b7ae6 100%);
+}
+
+.checkout-btn:active {
+  transform: translateY(0);
 }
 
 .checkout-btn:disabled {
-  opacity: 0.7;
+  background: #e0e0e0;
+  color: #999;
   cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
-.spinner {
+.checkout-btn .spinner {
   width: 20px;
   height: 20px;
   border: 2px solid rgba(255, 255, 255, 0.3);
-  border-top: 2px solid #ffffff;
+  border-top: 2px solid white;
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
@@ -320,6 +333,36 @@
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
+}
+
+/* ===== BOTÓN SECUNDARIO PARA PRODUCTOS PERSONALIZADOS ===== */
+.pay-customized-btn {
+  width: 100%;
+  padding: 12px 20px;
+  background: linear-gradient(135deg, #00b894 0%, #00cec9 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 3px 12px rgba(0, 184, 148, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.pay-customized-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(0, 184, 148, 0.4);
+  background: linear-gradient(135deg, #00a085 0%, #00b5b0 100%);
+}
+
+.pay-customized-btn:active {
+  transform: translateY(0);
 }
 
 .payment-security {
@@ -758,4 +801,77 @@
   gap: 0.5rem;
     text-align: center;
   }
+}
+
+/* ===== PRODUCTOS PERSONALIZADOS ===== */
+.customized-badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(108, 92, 231, 0.9);
+  color: white;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  backdrop-filter: blur(4px);
+}
+
+.customized-label {
+  color: #6c5ce7;
+  font-size: 0.8em;
+  font-weight: 500;
+  font-style: italic;
+}
+
+.item-image-container {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  border-radius: 8px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+/* ===== MENSAJE ESPECIAL PARA PRODUCTOS PERSONALIZADOS ===== */
+.customized-notice {
+  background: linear-gradient(135deg, #f8f9ff 0%, #e8f4fd 100%);
+  border: 2px solid #6c5ce7;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 2px 10px rgba(108, 92, 231, 0.1);
+}
+
+.notice-icon {
+  font-size: 24px;
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, #6c5ce7 0%, #a29bfe 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  flex-shrink: 0;
+}
+
+.notice-content h4 {
+  margin: 0 0 4px 0;
+  color: #6c5ce7;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.notice-content p {
+  margin: 0;
+  color: #666;
+  font-size: 14px;
+  line-height: 1.4;
 }

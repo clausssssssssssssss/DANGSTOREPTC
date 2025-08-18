@@ -44,8 +44,11 @@ const UserProfile = () => {
         });
         if (!res.ok) return;
         const data = await res.json();
+        // Solo mostrar notificación si hay cotizaciones pendientes de decisión
         if (data.some(o => o.status === 'quoted')) {
           setHasQuotesFlag(true);
+        } else {
+          setHasQuotesFlag(false);
         }
       } catch (err) {
         console.error('Error checking quotes status:', err);
@@ -138,7 +141,7 @@ const UserProfile = () => {
             <nav className="profile-navigation">
               <button
                 onClick={() => setActiveSection('personal')}
-                className={`nav-btn ${activeSection === 'personal' ? 'active' : ''}`}
+                className={`nav-button ${activeSection === 'personal' ? 'active' : ''}`}
               >
                 <User className="nav-icon" />
                 <span>Mis datos</span>
@@ -146,7 +149,7 @@ const UserProfile = () => {
               
               <button
                 onClick={() => setActiveSection('orders')}
-                className={`nav-btn ${activeSection === 'orders' ? 'active' : ''}`}
+                className={`nav-button ${activeSection === 'orders' ? 'active' : ''}`}
               >
                 <ShoppingCart className="nav-icon" />
                 <span>Mis pedidos</span>
@@ -154,7 +157,7 @@ const UserProfile = () => {
               
               <button
                 onClick={() => setActiveSection('favorites')}
-                className={`nav-btn ${activeSection === 'favorites' ? 'active' : ''}`}
+                className={`nav-button ${activeSection === 'favorites' ? 'active' : ''}`}
               >
                 <Heart className="nav-icon" />
                 <span>Favoritos</span>
@@ -162,7 +165,7 @@ const UserProfile = () => {
               
               <button
                 onClick={() => setActiveSection('password')}
-                className={`nav-btn ${activeSection === 'password' ? 'active' : ''}`}
+                className={`nav-button ${activeSection === 'password' ? 'active' : ''}`}
               >
                 <Lock className="nav-icon" />
                 <span>Contraseña</span>
@@ -170,7 +173,7 @@ const UserProfile = () => {
               
               <button
                 onClick={() => setActiveSection('quotes')}
-                className={`nav-btn ${activeSection === 'quotes' ? 'active' : ''}`}
+                className={`nav-button ${activeSection === 'quotes' ? 'active' : ''}`}
               >
                 <Gift className="nav-icon" />
                 <span>Cotizaciones</span>
@@ -179,7 +182,7 @@ const UserProfile = () => {
               
               <button
                 onClick={() => setShowLogoutModal(true)}
-                className={`nav-btn logout-btn`}
+                className="nav-button logout-btn"
               >
                 <LogOut className="nav-icon" />
                 <span>Cerrar Sesión</span>
@@ -189,10 +192,8 @@ const UserProfile = () => {
         </aside>
 
         {/* Main Content */}
-        <main className="profile-content">
-          <div className="content-wrapper">
-            {renderSection()}
-          </div>
+        <main className="profile-main">
+          {renderSection()}
         </main>
       </div>
 

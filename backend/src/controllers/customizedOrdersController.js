@@ -207,3 +207,25 @@ export const respondCustomOrder = async (req, res) => {
       });
   }
 };
+
+// Agregar esta función al final de tu customizedOrdersController.js
+
+/** Obtener una orden personalizada específica por ID */
+export const getCustomOrderById = async (req, res) => {
+  try {
+    const userId = req.user.id || req.user.userId;
+    const order = await CustomizedOrder.findOne({ 
+      _id: req.params.id,
+      user: userId // Solo sus propias órdenes
+    });
+    
+    if (!order) {
+      return res.status(404).json({ message: 'Orden personalizada no encontrada' });
+    }
+    
+    return res.json(order);
+  } catch (err) {
+    console.error("Error obteniendo orden personalizada:", err);
+    return res.status(500).json({ message: "Error obteniendo orden", error: err.message });
+  }
+};

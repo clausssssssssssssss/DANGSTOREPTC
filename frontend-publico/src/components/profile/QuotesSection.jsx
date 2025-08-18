@@ -7,7 +7,8 @@ const QuotesSection = ({ setHasQuotesFlag, showSuccess, showError, showWarning }
   const [quotes, setQuotes] = useState([]);
   const [loadingQuotes, setLoadingQuotes] = useState(false);
   const [errorQuotes, setErrorQuotes] = useState('');
-  const [quotesFilter, setQuotesFilter] = useState('all'); // 'all', 'pending', 'completed'
+  const [quotesFilter, setQuotesFilter] = useState('all');
+  const [debugInfo, setDebugInfo] = useState(null); // Para debug
 
   // --- Carga inicial de cotizaciones ---
   useEffect(() => {
@@ -17,30 +18,58 @@ const QuotesSection = ({ setHasQuotesFlag, showSuccess, showError, showWarning }
   const fetchQuotes = async () => {
     setLoadingQuotes(true);
     setErrorQuotes('');
+    
+    // Debug info
+    console.log('🔍 DEBUG - Fetching quotes...');
+    console.log('🔍 API_URL:', API_URL);
+    console.log('🔍 Token:', localStorage.getItem('token') ? 'EXISTS' : 'MISSING');
+    console.log('🔍 Filter:', quotesFilter);
+    
     try {
       const res = await fetch(`${API_URL}/api/custom-orders/me`, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
       });
+      
+      console.log('🔍 Response status:', res.status);
+      
       if (!res.ok) throw new Error(`Status ${res.status}`);
       const data = await res.json();
 
-      // Filtrar según el estado seleccionado
+      console.log('🔍 Raw data from API:', data);
+      console.log('🔍 Number of items:', data.length);
+      
+      // Mostrar todos los estados únicos que existen
+      const uniqueStatuses = [...new Set(data.map(item => item.status))];
+      console.log('🔍 Unique statuses found:', uniqueStatuses);
+
+      // Debug info para el componente
+      setDebugInfo({
+        totalItems: data.length,
+        uniqueStatuses: uniqueStatuses,
+        rawData: data
+      });
+
+      // CAMBIO IMPORTANTE: Primero mostrar TODAS las cotizaciones sin filtrar
       let filteredQuotes = [];
+      
       if (quotesFilter === 'pending') {
         filteredQuotes = data.filter(o => o.status === 'quoted' || o.status === 'pending');
       } else if (quotesFilter === 'completed') {
         filteredQuotes = data.filter(o => o.status === 'accepted' || o.status === 'rejected');
       } else {
-        // 'all' - traemos todas las cotizaciones relevantes
-        filteredQuotes = data.filter(
-          (o) => o.status === 'quoted' || o.status === 'pending' || o.status === 'accepted' || o.status === 'rejected'
-        );
+        // Para 'all' - mostrar TODAS las cotizaciones sin importar el estado
+        filteredQuotes = data; // Cambiado: mostrar todo
       }
+
+      console.log('🔍 Filtered quotes:', filteredQuotes);
+      console.log('🔍 Filtered count:', filteredQuotes.length);
 
       setQuotes(filteredQuotes);
       // Puntito de notificación si hay alguna 'quoted'
       setHasQuotesFlag(filteredQuotes.some((o) => o.status === 'quoted'));
+      
     } catch (err) {
+      console.error('🔍 ERROR:', err);
       setErrorQuotes(`Error: ${err.message || err}`);
     } finally {
       setLoadingQuotes(false);
@@ -48,6 +77,8 @@ const QuotesSection = ({ setHasQuotesFlag, showSuccess, showError, showWarning }
   };
 
   const handleDecision = async (orderId, decision) => {
+    console.log('🔍 Handle decision:', { orderId, decision });
+    
     try {
       const res = await fetch(`${API_URL}/api/custom-orders/${orderId}/respond`, {
         method: 'PUT',
@@ -60,18 +91,17 @@ const QuotesSection = ({ setHasQuotesFlag, showSuccess, showError, showWarning }
 
       if (!res.ok) throw new Error(`Status ${res.status}`);
       const updatedOrder = await res.json();
+      
+      console.log('🔍 Updated order:', updatedOrder);
 
       setQuotes((q) => {
         if (decision === 'accept') {
-          // Mantener la cotización con estado 'accepted'
           const updatedQuotes = q.map((item) =>
             item._id === orderId ? { ...item, status: 'accepted' } : item
           );
-          // Actualizamos puntito según cotizaciones restantes
           setHasQuotesFlag(updatedQuotes.some((o) => o.status === 'quoted'));
           return updatedQuotes;
         } else {
-          // Rechazado: actualizar estado a 'rejected'
           const updatedQuotes = q.map((item) =>
             item._id === orderId ? { ...item, status: 'rejected' } : item
           );
@@ -82,7 +112,6 @@ const QuotesSection = ({ setHasQuotesFlag, showSuccess, showError, showWarning }
 
       if (decision === 'accept') {
         showSuccess('¡Has aceptado la cotización! El producto se ha agregado a tu carrito. Redirigiendo...');
-        // Redirigir al carrito después de 2 segundos
         setTimeout(() => {
           window.location.href = '/carrito';
         }, 2000);
@@ -90,12 +119,13 @@ const QuotesSection = ({ setHasQuotesFlag, showSuccess, showError, showWarning }
         showSuccess('Cotización rechazada correctamente');
       }
     } catch (err) {
-      console.error(err);
+      console.error('🔍 Error in handleDecision:', err);
       showError('Error al procesar la decisión');
     }
   };
 
   const handleFilterChange = (filter) => {
+    console.log('🔍 Filter changed to:', filter);
     setQuotesFilter(filter);
   };
 
@@ -110,7 +140,7 @@ const QuotesSection = ({ setHasQuotesFlag, showSuccess, showError, showWarning }
       case 'rejected':
         return <span className="status-badge rejected">❌ Rechazada</span>;
       default:
-        return <span className="status-badge unknown">❓ Estado desconocido</span>;
+        return <span className="status-badge unknown">❓ {status || 'Sin estado'}</span>;
     }
   };
 
@@ -166,6 +196,8 @@ const QuotesSection = ({ setHasQuotesFlag, showSuccess, showError, showWarning }
         </div>
       </div>
 
+      
+
       {quotes.length === 0 ? (
         <div className="empty-state">
           <Gift size={48} className="empty-icon" />
@@ -208,6 +240,8 @@ const QuotesSection = ({ setHasQuotesFlag, showSuccess, showError, showWarning }
                 </div>
                 
                 <p className="quote-description">{quote.description}</p>
+                
+               
                 
                 <div className="quote-price-row">
                   <span className="quote-price">

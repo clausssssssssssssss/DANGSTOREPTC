@@ -1,7 +1,6 @@
 // src/pages/UserProfile.jsx
 import React, { useState, useEffect } from 'react';
-import {Heart, ShoppingCart, User, Gift, LogOut, Lock}
-from 'lucide-react';
+import { Heart, ShoppingCart, User, Gift, LogOut, Lock } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { useNavigate, useLocation } from 'react-router-dom';
 import '../components/styles/UserProfile.css';
@@ -9,10 +8,10 @@ import { useToast } from '../hooks/useToast';
 import ToastContainer from '../components/ui/ToastContainer';
 
 import PersonalDataSection from '../components/profile/PersonalDataSection';
-import OrdersSection       from '../components/profile/OrdersSection';
-import FavoritesSection    from '../components/profile/FavoritesSection';
-import PasswordSection     from '../components/profile/PasswordSection';
-import UserSection         from '../components/profile/UserSection';
+import OrdersSection from '../components/profile/OrdersSection';
+import FavoritesSection from '../components/profile/FavoritesSection';
+import PasswordSection from '../components/profile/PasswordSection';
+import UserSection from '../components/profile/UserSection';
 
 const API_URL = import.meta.env.VITE_API_URL || '';
 
@@ -20,10 +19,146 @@ const UserProfile = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const { toasts, showSuccess, showError, removeToast } = useToast();
+  const { toasts, showSuccess, showError, showWarning, removeToast } = useToast();
 
+  const [activeSection, setActiveSection] = useState('personal');
+  const [hasQuotesFlag, setHasQuotesFlag] = useState(false);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
+
+  // --- Estado para cotizaciones ---
+  const [quotes, setQuotes] = useState([]);
+  const [loadingQuotes, setLoadingQuotes] = useState(false);
+  const [errorQuotes, setErrorQuotes] = useState(null);
+  const [quotesFilter, setQuotesFilter] = useState('all'); // 'all', 'pending', 'completed'
+
+  // Detectar si viene de otra página con una sección específica
   useEffect(() => {
-  }, [user]);
+    if (location.state?.activeSection) {
+      setActiveSection(location.state.activeSection);
+      // Limpiar el estado para que no persista en futuras navegaciones
+      navigate(location.pathname, { replace: true, state: {} });
+    }
+  }, [location.state, navigate, location.pathname]);
+
+  // Carga inicial: revisa si hay cotizaciones con status "quoted"
+  useEffect(() => {
+    const fetchAll = async () => {
+      try {
+        const res = await fetch(`${API_URL}/api/custom-orders/me`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+        });
+        if (!res.ok) return;
+        const data = await res.json();
+        if (data.some(o => o.status === 'quoted')) {
+          setHasQuotesFlag(true);
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    fetchAll();
+  }, []);
+
+  // Carga las cotizaciones cuando el usuario entra en esa sección
+  useEffect(() => {
+    if (activeSection === 'quotes') {
+      loadQuotes();
+    }
+  }, [activeSection, quotesFilter]);
+
+  // Función para recargar las cotizaciones
+  const loadQuotes = async () => {
+    try {
+      setLoadingQuotes(true);
+      const res = await fetch(`${API_URL}/api/custom-orders/me`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+      });
+      
+      if (!res.ok) throw new Error(`Status ${res.status}`);
+      
+      const data = await res.json();
+      
+      // Filtrar según el estado seleccionado
+      let filteredQuotes = [];
+      if (quotesFilter === 'pending') {
+        filteredQuotes = data.filter(o => o.status === 'quoted');
+      } else if (quotesFilter === 'completed') {
+        filteredQuotes = data.filter(o => o.status === 'accepted' || o.status === 'rejected');
+      } else {
+        filteredQuotes = data.filter(o => o.status === 'quoted' || o.status === 'accepted' || o.status === 'rejected');
+      }
+      
+      setQuotes(filteredQuotes);
+      
+      if (filteredQuotes.length > 0) {
+        setHasQuotesFlag(true);
+      } else {
+        setHasQuotesFlag(false);
+      }
+    } catch (err) {
+      console.error('Error cargando cotizaciones:', err);
+      setErrorQuotes(err.message);
+    } finally {
+      setLoadingQuotes(false);
+    }
+  };
+
+  // Función para cambiar el filtro
+  const handleFilterChange = (filter) => {
+    setQuotesFilter(filter);
+  };
+
+  const handleDecision = (orderId, decision) => {
+    // Primero verificar si es una cotización existente o un nuevo encargo personalizado
+    const quote = quotes.find(q => q._id === orderId);
+    
+    if (quote && quote.status === 'quoted') {
+      // Es una cotización existente, usar la API de respuesta
+      fetch(`${API_URL}/api/custom-orders/${orderId}/respond`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify({ decision })
+      })
+        .then(res => {
+          if (!res.ok) throw new Error(`Status ${res.status}`);
+          return res.json();
+        })
+        .then((data) => {
+          console.log('Respuesta del servidor:', data);
+          
+          // Si se aceptó, mostrar mensaje especial y redirigir al carrito
+          if (decision === 'accept') {
+            showSuccess('¡Has aceptado la cotización! El producto se ha agregado a tu carrito. Redirigiendo al carrito...');
+            
+            // Redirigir al carrito después de 2 segundos
+            setTimeout(() => {
+              window.location.href = '/carrito';
+            }, 2000);
+          } else {
+            showSuccess('Has rechazado la cotización.');
+          }
+          
+          // Recargar las cotizaciones para mostrar el estado actualizado
+          loadQuotes();
+        })
+        .catch(err => {
+          console.error('Error en handleDecision:', err);
+          showError(`Error al procesar la decisión: ${err.message}`);
+        });
+    } else {
+      // Es un encargo nuevo, crear primero y luego responder
+      showWarning('Este encargo necesita ser cotizado primero por el administrador.');
+    }
+  };
+
+  const handleLogout = () => {
+    logout();
+    navigate('/');
+    showSuccess('Sesión cerrada correctamente');
+  };
 
   if (!user) {
     return (
@@ -51,107 +186,6 @@ const UserProfile = () => {
     );
   }
 
-  const [activeSection, setActiveSection] = useState('personal');
-
-  // Detectar si viene de otra página con una sección específica
-  useEffect(() => {
-    if (location.state?.activeSection) {
-      setActiveSection(location.state.activeSection);
-      // Limpiar el estado para que no persista en futuras navegaciones
-      navigate(location.pathname, { replace: true, state: {} });
-    }
-  }, [location.state, navigate, location.pathname]);
-
-  // --- Estado para cotizaciones ---
-  const [quotes, setQuotes] = useState([]);
-  const [loadingQuotes, setLoadingQuotes] = useState(false);
-  const [errorQuotes, setErrorQuotes] = useState('');
-
-  // --- Bandera para mostrar puntito rojo ---
-  const [hasQuotesFlag, setHasQuotesFlag] = useState(false);
-
-  // --- Estado para mostrar modal de confirmación de logout ---
-  const [showLogoutModal, setShowLogoutModal] = useState(false);
-
-  // Carga inicial: revisa si hay cotizaciones con status "quoted"
-  useEffect(() => {
-    const fetchAll = async () => {
-      try {
-        const res = await fetch(`${API_URL}/api/custom-orders/me`, {
-          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-        });
-        if (!res.ok) return;
-        const data = await res.json();
-        if (data.some(o => o.status === 'quoted')) {
-          setHasQuotesFlag(true);
-        }
-      } catch (err) {
-        console.error(err);
-      }
-    };
-    fetchAll();
-  }, []);
-
-  // Carga las cotizaciones cuando el usuario entra en esa sección
-  useEffect(() => {
-    if (activeSection === 'quotes') {
-      setLoadingQuotes(true);
-      setErrorQuotes('');
-      fetch(`${API_URL}/api/custom-orders/me`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-      })
-        .then(res => {
-          if (!res.ok) throw new Error(`Status ${res.status}`);
-          return res.json();
-        })
-        .then(data => {
-          // solo las cotizadas
-          const quoted = data.filter(o => o.status === 'quoted');
-          setQuotes(quoted);
-          // si ya no quedan nuevas, quita el puntito
-          if (quoted.length === 0) {
-            setHasQuotesFlag(false);
-          }
-        })
-        .catch(err => setErrorQuotes(err.message))
-        .finally(() => setLoadingQuotes(false));
-    }
-  }, [activeSection]);
-
-  const handleDecision = (orderId, decision) => {
-    fetch(`${API_URL}/api/custom-orders/${orderId}/respond`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${localStorage.getItem('token')}`
-      },
-      body: JSON.stringify({ decision })
-    })
-      .then(res => {
-        if (!res.ok) throw new Error(`Status ${res.status}`);
-        return res.json();
-      })
-      .then(() => {
-        // refresca la lista y quita el puntito si ya no quedan
-        setQuotes(q => {
-          const remaining = q.filter(o => o._id !== orderId);
-          if (remaining.length === 0) setHasQuotesFlag(false);
-          return remaining;
-        });
-        showSuccess(decision === 'accept' ? 'Cotización aceptada' : 'Cotización rechazada');
-      })
-      .catch(err => {
-        console.error('Error:', err);
-                  showError('Error al procesar la decisión');
-      });
-  };
-
-  const handleLogout = () => {
-    logout();
-    navigate('/');
-            showSuccess('Sesión cerrada correctamente');
-  };
-
   const renderSection = () => {
     switch (activeSection) {
       case 'personal':
@@ -172,8 +206,24 @@ const UserProfile = () => {
               </div>
               <div className="header-actions">
                 <div className="quotes-filter">
-                  <button className="filter-btn active">Completadas</button>
-                  <button className="filter-btn">Pendientes</button>
+                  <button 
+                    className={`filter-btn ${quotesFilter === 'all' ? 'active' : ''}`}
+                    onClick={() => handleFilterChange('all')}
+                  >
+                    Todas
+                  </button>
+                  <button 
+                    className={`filter-btn ${quotesFilter === 'pending' ? 'active' : ''}`}
+                    onClick={() => handleFilterChange('pending')}
+                  >
+                    Pendientes
+                  </button>
+                  <button 
+                    className={`filter-btn ${quotesFilter === 'completed' ? 'active' : ''}`}
+                    onClick={() => handleFilterChange('completed')}
+                  >
+                    Completadas
+                  </button>
                 </div>
               </div>
             </div>
@@ -193,7 +243,14 @@ const UserProfile = () => {
             {!loadingQuotes && quotes.length === 0 && (
               <div className="empty-state">
                 <Gift size={48} className="empty-icon" />
-                <p>No tienes cotizaciones nuevas.</p>
+                <p>
+                  {quotesFilter === 'pending' 
+                    ? 'No tienes cotizaciones pendientes.'
+                    : quotesFilter === 'completed'
+                    ? 'No tienes cotizaciones completadas.'
+                    : 'No tienes cotizaciones.'
+                  }
+                </p>
               </div>
             )}
 
@@ -216,21 +273,48 @@ const UserProfile = () => {
                   <div className="quote-details">
                     <h4 className="quote-title">{quote.modelType}</h4>
                     <p className="quote-description">{quote.description}</p>
+                    
+                    {/* Mostrar el estado de la decisión si existe */}
+                    {quote.decision && (
+                      <div className="quote-decision">
+                        <span className={`decision-badge ${quote.decision}`}>
+                          {quote.decision === 'accept' ? '✅ Aceptado' : '❌ Rechazado'}
+                        </span>
+                        <span className="decision-date">
+                          {new Date(quote.updatedAt || quote.createdAt).toLocaleDateString()}
+                        </span>
+                      </div>
+                    )}
+                    
                     <div className="quote-price-row">
                       <span className="quote-price">${quote.price?.toFixed(2) || '0.00'}</span>
                       <div className="quote-actions">
-                        <button
-                          className="btn-quote accept"
-                          onClick={() => handleDecision(quote._id, 'accept')}
-                        >
-                          VER DETALLES
-                        </button>
-                        <button
-                          className="btn-quote reject"
-                          onClick={() => handleDecision(quote._id, 'reject')}
-                        >
-                          YA ORDENAR
-                        </button>
+                        {quote.status === 'quoted' ? (
+                          // Si está cotizada pero sin decisión, mostrar botones de aceptar/rechazar
+                          <>
+                            <button
+                              className="btn-quote accept"
+                              onClick={() => handleDecision(quote._id, 'accept')}
+                            >
+                              ACEPTAR
+                            </button>
+                            <button
+                              className="btn-quote reject"
+                              onClick={() => handleDecision(quote._id, 'reject')}
+                            >
+                              RECHAZAR
+                            </button>
+                          </>
+                        ) : quote.status === 'accepted' ? (
+                          // Si fue aceptada, mostrar badge de aceptado
+                          <span className="decision-badge accept">✅ ACEPTADO</span>
+                        ) : quote.status === 'rejected' ? (
+                          // Si fue rechazada, mostrar badge de rechazado
+                          <span className="decision-badge reject">❌ RECHAZADO</span>
+                        ) : (
+                          // Estado pendiente o desconocido
+                          <span className="decision-badge pending">⏳ PENDIENTE</span>
+                        )}
                       </div>
                     </div>
                   </div>

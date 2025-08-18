@@ -35,6 +35,92 @@ const usePaymentFakeForm = () => {
     empresaFacturacion: "",
   });
 
+  // Función para detectar el tipo de tarjeta
+  const detectCardType = (cardNumber) => {
+    const cleanNumber = cardNumber.replace(/\s/g, '');
+    
+    if (/^4/.test(cleanNumber)) return 'visa';
+    if (/^5[1-5]/.test(cleanNumber)) return 'mastercard';
+    if (/^3[47]/.test(cleanNumber)) return 'amex';
+    if (/^6(?:011|5)/.test(cleanNumber)) return 'discover';
+    
+    return 'unknown';
+  };
+
+  // Función para validar un campo específico
+  const validateField = (field, value) => {
+    if (!value || (typeof value === 'string' && value.trim() === '')) {
+      return false;
+    }
+    
+    switch (field) {
+      case 'numeroTarjeta':
+        return value.replace(/\s/g, '').length >= 13 && value.replace(/\s/g, '').length <= 19;
+      case 'cvv':
+        return value.length >= 3 && value.length <= 4;
+      case 'mesVencimiento':
+        const month = parseInt(value);
+        return month >= 1 && month <= 12;
+      case 'anioVencimiento':
+        const year = parseInt(value);
+        return year >= new Date().getFullYear() && year <= new Date().getFullYear() + 20;
+      case 'nombreTitular':
+        return value.trim().length >= 2;
+      case 'nombreFacturacion':
+        return value.trim().length >= 2;
+      case 'emailFacturacion':
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+      case 'direccionFacturacion':
+        return value.trim().length >= 5;
+      case 'ciudadFacturacion':
+        return value.trim().length >= 2;
+      case 'estadoFacturacion':
+        return value.trim().length >= 2;
+      case 'codigoPostal':
+        return value.trim().length >= 3;
+      case 'paisFacturacion':
+        return value.trim().length >= 2;
+      case 'telefonoFacturacion':
+        return value.trim().length >= 7;
+      default:
+        return true;
+    }
+  };
+
+  // Función para manejar cambios en campos específicos
+  const handleFieldChange = (field, value) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  // Función para obtener la clase CSS de un campo
+  const getFieldClass = (field, value) => {
+    if (!value || (typeof value === 'string' && value.trim() === '')) {
+      return '';
+    }
+    
+    return validateField(field, value) ? 'valid' : 'error';
+  };
+
+  // Función para calcular el progreso del formulario
+  const calculateProgress = () => {
+    const requiredFields = [
+      'numeroTarjeta', 'cvv', 'mesVencimiento', 'anioVencimiento',
+      'nombreTitular', 'nombreFacturacion', 'emailFacturacion',
+      'direccionFacturacion', 'ciudadFacturacion', 'estadoFacturacion',
+      'codigoPostal', 'paisFacturacion', 'telefonoFacturacion'
+    ];
+    
+    const validFields = requiredFields.filter(field => {
+      const value = formData[field];
+      return validateField(field, value);
+    });
+    
+    return Math.round((validFields.length / requiredFields.length) * 100);
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     let processedValue = value;
@@ -99,35 +185,53 @@ const usePaymentFakeForm = () => {
 
     if (name === 'ciudadFacturacion' || name === 'estadoFacturacion' || name === 'paisFacturacion') {
       // Solo permitir letras, espacios y algunos caracteres especiales
-      processedValue = value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s\-]/g, '');
+      processedValue = value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '');
       if (processedValue.length > 50) return;
     }
 
-    if (name === 'empresaFacturacion') {
-      // Permitir letras, números, espacios y caracteres comunes de empresa
-      processedValue = value.replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s\.,&]/g, '');
-      if (processedValue.length > 80) return;
-    }
-
-    setFormData((prev) => ({
+    setFormData(prev => ({
       ...prev,
-      [name]: processedValue,
+      [name]: processedValue
     }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    try {
+      const validation = validateForm();
+      
+      if (!validation.isValid) {
+        throw new Error(validation.message);
+      }
+
+      // Simular envío exitoso
+      setDatosEnviados({
+        ...formData,
+        timestamp: new Date().toISOString(),
+        status: 'success'
+      });
+
+      console.log('Formulario enviado exitosamente:', formData);
+      
+      return { success: true, data: formData };
+      
+    } catch (error) {
+      console.error('Error al enviar formulario:', error);
+      throw error;
+    }
   };
 
   const limpiarFormulario = () => {
     setFormData({
-      // Campos básicos
       nombreCliente: "",
       emailCliente: "",
       monto: 0.01,
-      // Campos de tarjeta
       numeroTarjeta: "",
       cvv: "",
       mesVencimiento: "",
       anioVencimiento: new Date().getFullYear().toString(),
       nombreTitular: "",
-      // Campos de facturación
       nombreFacturacion: "",
       emailFacturacion: "",
       direccionFacturacion: "",
@@ -140,29 +244,8 @@ const usePaymentFakeForm = () => {
     });
     setDatosEnviados(null);
     setStep(1);
-    setAccessToken(null);
-    setFormDataTarjeta({
-      numeroTarjeta: "",
-      cvv: "",
-      mesVencimiento: 0,
-      anioVencimiento: 0,
-    });
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    
-    // Validar todos los campos antes de enviar
-    const validationResult = validateForm();
-    if (!validationResult.isValid) {
-      alert(`Error de validación: ${validationResult.message}`);
-      return;
-    }
-    
-    setDatosEnviados(formData);
-  };
-
-  // Función de validación completa del formulario
   const validateForm = () => {
     const {
       numeroTarjeta,
@@ -180,53 +263,32 @@ const usePaymentFakeForm = () => {
       telefonoFacturacion
     } = formData;
 
-    // Validar número de tarjeta
     if (!numeroTarjeta || numeroTarjeta.replace(/\s/g, '').length < 13) {
       return { isValid: false, message: 'Número de tarjeta inválido (mínimo 13 dígitos)' };
     }
 
-    // Validar CVV
     if (!cvv || cvv.length < 3) {
-      return { isValid: false, message: 'CVV inválido (mínimo 3 dígitos)' };
+      return { isValid: false, message: 'CVV es requerido (mínimo 3 dígitos)' };
     }
 
-    // Validar fecha de vencimiento
-    if (!mesVencimiento || !anioVencimiento) {
-      return { isValid: false, message: 'Fecha de vencimiento incompleta' };
+    if (!mesVencimiento || mesVencimiento.trim().length === 0) {
+      return { isValid: false, message: 'Mes de vencimiento es requerido' };
     }
 
-    const currentDate = new Date();
-    const currentYear = currentDate.getFullYear();
-    const currentMonth = currentDate.getMonth() + 1;
-
-    // Solo validar que no sea muy antigua, no bloquear por año actual
-    if (parseInt(anioVencimiento) < currentYear - 10) {
-      return { isValid: false, message: 'El año de vencimiento es muy antiguo' };
-    }
-    
-    // Solo validar expiración si ambos campos están completos
-    if (parseInt(anioVencimiento) === currentYear && parseInt(mesVencimiento) < currentMonth) {
-      return { isValid: false, message: 'La tarjeta ha expirado este mes' };
+    if (!anioVencimiento || anioVencimiento.trim().length === 0) {
+      return { isValid: false, message: 'Año de vencimiento es requerido' };
     }
 
-    // Validar nombre del titular
     if (!nombreTitular || nombreTitular.trim().length < 2) {
       return { isValid: false, message: 'Nombre del titular es requerido (mínimo 2 caracteres)' };
     }
 
-    // Validar información de facturación
     if (!nombreFacturacion || nombreFacturacion.trim().length < 2) {
-      return { isValid: false, message: 'Nombre de facturación es requerido' };
+      return { isValid: false, message: 'Nombre de facturación es requerido (mínimo 2 caracteres)' };
     }
 
-    if (!emailFacturacion) {
-      return { isValid: false, message: 'Email de facturación es requerido' };
-    }
-
-    // Validar formato de email
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(emailFacturacion)) {
-      return { isValid: false, message: 'Formato de email inválido' };
+    if (!emailFacturacion || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailFacturacion)) {
+      return { isValid: false, message: 'Email de facturación inválido' };
     }
 
     if (!direccionFacturacion || direccionFacturacion.trim().length < 5) {
@@ -323,14 +385,20 @@ const usePaymentFakeForm = () => {
     handleChange,
     handleSubmit,
     limpiarFormulario,
-    handleFakePayment, // ✅ Función que SÍ guarda la orden
-    validateForm, // ✅ Función de validación
+    handleFakePayment,
+    validateForm,
     step,
     setStep,
     formDataTarjeta,
     setFormDataTarjeta,
     accessToken,
     setAccessToken,
+    // Funciones agregadas
+    detectCardType,
+    validateField,
+    handleFieldChange,
+    getFieldClass,
+    calculateProgress,
   };
 };
 

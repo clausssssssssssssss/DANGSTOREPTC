@@ -49,8 +49,11 @@ const UserProfile = () => {
         });
         if (!res.ok) return;
         const data = await res.json();
+        // Solo mostrar notificación si hay cotizaciones pendientes de decisión
         if (data.some(o => o.status === 'quoted')) {
           setHasQuotesFlag(true);
+        } else {
+          setHasQuotesFlag(false);
         }
       } catch (err) {
         console.error(err);
@@ -89,12 +92,13 @@ const UserProfile = () => {
       }
       
       setQuotes(filteredQuotes);
-      
-      if (filteredQuotes.length > 0) {
-        setHasQuotesFlag(true);
-      } else {
-        setHasQuotesFlag(false);
-      }
+       
+       // Actualizar el estado de notificación basado en cotizaciones pendientes
+       if (filteredQuotes.some(q => q.status === 'quoted')) {
+         setHasQuotesFlag(true);
+       } else {
+         setHasQuotesFlag(false);
+       }
     } catch (err) {
       console.error('Error cargando cotizaciones:', err);
       setErrorQuotes(err.message);
@@ -108,49 +112,91 @@ const UserProfile = () => {
     setQuotesFilter(filter);
   };
 
-  const handleDecision = (orderId, decision) => {
-    // Primero verificar si es una cotización existente o un nuevo encargo personalizado
-    const quote = quotes.find(q => q._id === orderId);
+  const handleDecision = async (orderId, decision) => {
+    console.log('🚀 === INICIO handleDecision ===');
+    console.log('📝 Parámetros:', { orderId, decision });
     
-    if (quote && quote.status === 'quoted') {
-      // Es una cotización existente, usar la API de respuesta
-      fetch(`${API_URL}/api/custom-orders/${orderId}/respond`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify({ decision })
-      })
-        .then(res => {
-          if (!res.ok) throw new Error(`Status ${res.status}`);
-          return res.json();
-        })
-        .then((data) => {
-          console.log('Respuesta del servidor:', data);
+    try {
+      // Primero verificar si es una cotización existente o un nuevo encargo personalizado
+      const quote = quotes.find(q => q._id === orderId);
+      console.log('🔍 Cotización encontrada:', quote);
+      
+      if (!quote) {
+        console.log('❌ No se encontró la cotización en el estado local');
+        showError('No se pudo encontrar la cotización');
+        return;
+      }
+      
+      if (quote.status === 'quoted') {
+        console.log('✅ Es una cotización existente, procesando decisión...');
+        
+        // Mostrar loading state
+        showSuccess('Procesando tu decisión...');
+        
+        const response = await fetch(`${API_URL}/api/custom-orders/${orderId}/respond`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('token')}`
+          },
+          body: JSON.stringify({ decision })
+        });
+        
+        console.log('📡 Respuesta del servidor:', response.status, response.statusText);
+        
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error('❌ Error del servidor:', errorText);
           
-          // Si se aceptó, mostrar mensaje especial y redirigir al carrito
-          if (decision === 'accept') {
-            showSuccess('¡Has aceptado la cotización! El producto se ha agregado a tu carrito. Redirigiendo al carrito...');
-            
-            // Redirigir al carrito después de 2 segundos
-            setTimeout(() => {
-              window.location.href = '/carrito';
-            }, 2000);
-          } else {
-            showSuccess('Has rechazado la cotización.');
+          let errorMessage = 'Error del servidor';
+          try {
+            const errorData = JSON.parse(errorText);
+            errorMessage = errorData.message || errorData.error || errorMessage;
+          } catch (e) {
+            console.log('No se pudo parsear el error como JSON');
           }
           
-          // Recargar las cotizaciones para mostrar el estado actualizado
-          loadQuotes();
-        })
-        .catch(err => {
-          console.error('Error en handleDecision:', err);
-          showError(`Error al procesar la decisión: ${err.message}`);
-        });
-    } else {
-      // Es un encargo nuevo, crear primero y luego responder
-      showWarning('Este encargo necesita ser cotizado primero por el administrador.');
+          throw new Error(`${response.status}: ${errorMessage}`);
+        }
+        
+        const data = await response.json();
+        console.log('✅ Respuesta exitosa del servidor:', data);
+        
+        // Si se aceptó, mostrar mensaje especial y redirigir al carrito
+        if (decision === 'accept') {
+          console.log('✅ Cotización aceptada, redirigiendo al carrito...');
+          showSuccess('¡Has aceptado la cotización! El producto se ha agregado a tu carrito. Redirigiendo al carrito...');
+          
+          // Redirigir directamente al carrito después de 2 segundos
+          setTimeout(() => {
+            console.log('🚀 Navegando a /carrito...');
+            navigate('/carrito');
+          }, 2000);
+        } else {
+          showSuccess('Has rechazado la cotización.');
+        }
+        
+        // Recargar las cotizaciones para mostrar el estado actualizado
+        console.log('🔄 Recargando cotizaciones...');
+        await loadQuotes();
+        
+      } else {
+        console.log('❌ Estado de cotización no válido:', quote.status);
+        showWarning('Este encargo necesita ser cotizado primero por el administrador.');
+      }
+      
+    } catch (err) {
+      console.error('❌ Error en handleDecision:', err);
+      console.error('❌ Stack trace:', err.stack);
+      
+      let errorMessage = 'Error al procesar la decisión';
+      if (err.message) {
+        errorMessage += `: ${err.message}`;
+      }
+      
+      showError(errorMessage);
+    } finally {
+      console.log('🏁 === FIN handleDecision ===');
     }
   };
 
@@ -201,126 +247,173 @@ const UserProfile = () => {
           <div className="content-card">
             <div className="card-header">
               <div className="card-title">
-                <Gift className="section-icon" />
-                <h3>Mis cotizaciones</h3>
+                <Gift size={20} className="section-icon" />
+                <h3>Mis Cotizaciones</h3>
               </div>
-              <div className="header-actions">
-                <div className="quotes-filter">
-                  <button 
-                    className={`filter-btn ${quotesFilter === 'all' ? 'active' : ''}`}
-                    onClick={() => handleFilterChange('all')}
-                  >
-                    Todas
-                  </button>
-                  <button 
-                    className={`filter-btn ${quotesFilter === 'pending' ? 'active' : ''}`}
-                    onClick={() => handleFilterChange('pending')}
-                  >
-                    Pendientes
-                  </button>
-                  <button 
-                    className={`filter-btn ${quotesFilter === 'completed' ? 'active' : ''}`}
-                    onClick={() => handleFilterChange('completed')}
-                  >
-                    Completadas
-                  </button>
-                </div>
+              <div className="quotes-summary">
+                <span className="quotes-count">
+                  <Gift size={16} />
+                  {quotes.length} cotización{quotes.length !== 1 ? 'es' : ''}
+                </span>
               </div>
+            </div>
+
+            {/* Filtros */}
+            <div className="quotes-filters">
+              <button 
+                className={`filter-button ${quotesFilter === 'all' ? 'active' : ''}`}
+                onClick={() => handleFilterChange('all')}
+              >
+                Todas
+              </button>
+              <button 
+                className={`filter-button ${quotesFilter === 'pending' ? 'active' : ''}`}
+                onClick={() => handleFilterChange('pending')}
+              >
+                Pendientes
+              </button>
+              <button 
+                className={`filter-button ${quotesFilter === 'completed' ? 'active' : ''}`}
+                onClick={() => handleFilterChange('completed')}
+              >
+                Completadas
+              </button>
             </div>
 
             {loadingQuotes && (
               <div className="loading-state">
+                <div className="spinner"></div>
                 <p>Cargando cotizaciones...</p>
               </div>
             )}
             
             {errorQuotes && (
               <div className="error-state">
-                <p className="error-message">{errorQuotes}</p>
+                <div className="error-icon">⚠️</div>
+                <h4>Error al cargar cotizaciones</h4>
+                <p>{errorQuotes}</p>
+                <button onClick={() => loadQuotes()} className="retry-button">
+                  Reintentar
+                </button>
               </div>
             )}
             
             {!loadingQuotes && quotes.length === 0 && (
               <div className="empty-state">
-                <Gift size={48} className="empty-icon" />
+                <div className="empty-icon">🎁</div>
+                <h4>
+                  {quotesFilter === 'pending' 
+                    ? 'No tienes cotizaciones pendientes'
+                    : quotesFilter === 'completed'
+                    ? 'No tienes cotizaciones completadas'
+                    : 'No tienes cotizaciones'
+                  }
+                </h4>
                 <p>
                   {quotesFilter === 'pending' 
-                    ? 'No tienes cotizaciones pendientes.'
+                    ? 'Cuando tengas cotizaciones pendientes aparecerán aquí para que puedas aceptarlas o rechazarlas.'
                     : quotesFilter === 'completed'
-                    ? 'No tienes cotizaciones completadas.'
-                    : 'No tienes cotizaciones.'
+                    ? 'Las cotizaciones que hayas aceptado o rechazado aparecerán aquí como historial.'
+                    : 'Los encargos personalizados que envíes serán cotizados por nuestro equipo y aparecerán aquí.'
                   }
                 </p>
               </div>
             )}
 
-            <div className="quotes-list">
-              {quotes.map(quote => (
-                <div key={quote._id} className="quote-card">
-                  <div className="quote-image">
-                    <img 
-                      src={quote.imageUrl || '/api/placeholder/80/80'} 
-                      alt={quote.modelType}
-                      onError={(e) => {
-                        e.target.style.display = 'none';
-                        e.target.nextSibling.style.display = 'flex';
-                      }}
-                    />
-                    <div className="quote-placeholder" style={{display: 'none'}}>
-                      <Gift size={24} />
-                    </div>
-                  </div>
-                  <div className="quote-details">
-                    <h4 className="quote-title">{quote.modelType}</h4>
-                    <p className="quote-description">{quote.description}</p>
-                    
-                    {/* Mostrar el estado de la decisión si existe */}
-                    {quote.decision && (
-                      <div className="quote-decision">
-                        <span className={`decision-badge ${quote.decision}`}>
-                          {quote.decision === 'accept' ? '✅ Aceptado' : '❌ Rechazado'}
-                        </span>
-                        <span className="decision-date">
-                          {new Date(quote.updatedAt || quote.createdAt).toLocaleDateString()}
-                        </span>
-                      </div>
-                    )}
-                    
-                    <div className="quote-price-row">
-                      <span className="quote-price">${quote.price?.toFixed(2) || '0.00'}</span>
-                      <div className="quote-actions">
-                        {quote.status === 'quoted' ? (
-                          // Si está cotizada pero sin decisión, mostrar botones de aceptar/rechazar
-                          <>
-                            <button
-                              className="btn-quote accept"
-                              onClick={() => handleDecision(quote._id, 'accept')}
-                            >
-                              ACEPTAR
-                            </button>
-                            <button
-                              className="btn-quote reject"
-                              onClick={() => handleDecision(quote._id, 'reject')}
-                            >
-                              RECHAZAR
-                            </button>
-                          </>
-                        ) : quote.status === 'accepted' ? (
-                          // Si fue aceptada, mostrar badge de aceptado
-                          <span className="decision-badge accept">✅ ACEPTADO</span>
-                        ) : quote.status === 'rejected' ? (
-                          // Si fue rechazada, mostrar badge de rechazado
-                          <span className="decision-badge reject">❌ RECHAZADO</span>
-                        ) : (
-                          // Estado pendiente o desconocido
-                          <span className="decision-badge pending">⏳ PENDIENTE</span>
-                        )}
+            {!loadingQuotes && quotes.length > 0 && (
+              <div className="quotes-grid">
+                {quotes.map(quote => (
+                  <div key={quote._id} className="quote-card">
+                    {/* Imagen del encargo */}
+                    <div className="quote-image">
+                      {quote.imageUrl ? (
+                        <img 
+                          src={quote.imageUrl} 
+                          alt={quote.modelType}
+                          onError={(e) => {
+                            e.target.style.display = 'none';
+                            e.target.nextSibling.style.display = 'flex';
+                          }}
+                        />
+                      ) : null}
+                      <div 
+                        className="quote-image-placeholder"
+                        style={{display: quote.imageUrl ? 'none' : 'flex'}}
+                      >
+                        <Gift size={32} />
+                        <span>{quote.modelType}</span>
                       </div>
                     </div>
+
+                    {/* Información del encargo */}
+                    <div className="quote-info">
+                      <h4 className="quote-title">{quote.modelType}</h4>
+                      
+                      {quote.description && (
+                        <p className="quote-description">
+                          {quote.description.length > 60 
+                            ? `${quote.description.substring(0, 60)}...` 
+                            : quote.description
+                          }
+                        </p>
+                      )}
+                      
+                      {quote.price && (
+                        <div className="quote-price">
+                          <span className="price-label">Precio cotizado:</span>
+                          <span className="price-value">${quote.price.toFixed(2)}</span>
+                        </div>
+                      )}
+                      
+                      {quote.comment && (
+                        <div className="quote-comment">
+                          <span className="comment-label">Comentario:</span>
+                          <span className="comment-value">{quote.comment}</span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Estado y acciones */}
+                    <div className="quote-status">
+                      {quote.decision ? (
+                        // Cotización con decisión tomada
+                        <div className="quote-decision">
+                          <span className={`decision-badge ${quote.decision}`}>
+                            {quote.decision === 'accept' ? '✅ ACEPTADO' : '❌ RECHAZADO'}
+                          </span>
+                          <span className="decision-date">
+                            {new Date(quote.updatedAt || quote.createdAt).toLocaleDateString()}
+                          </span>
+                        </div>
+                      ) : quote.status === 'quoted' ? (
+                        // Cotización pendiente de decisión
+                        <div className="quote-actions">
+                          <button
+                            className="action-button accept-button"
+                            onClick={() => handleDecision(quote._id, 'accept')}
+                          >
+                            ACEPTAR
+                          </button>
+                          <button
+                            className="action-button reject-button"
+                            onClick={() => handleDecision(quote._id, 'reject')}
+                          >
+                            RECHAZAR
+                          </button>
+                        </div>
+                      ) : (
+                        // Estado pendiente
+                        <div className="quote-status-badge">
+                          <span className={`status-badge ${quote.status}`}>
+                            {quote.status === 'pending' ? '⏳ PENDIENTE' : '📋 EN REVISIÓN'}
+                          </span>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
         );
       case 'customOrders':
@@ -353,7 +446,7 @@ const UserProfile = () => {
             <nav className="profile-navigation">
               <button
                 onClick={() => setActiveSection('personal')}
-                className={`nav-btn ${activeSection === 'personal' ? 'active' : ''}`}
+                className={`nav-button ${activeSection === 'personal' ? 'active' : ''}`}
               >
                 <User className="nav-icon" />
                 <span>Mis datos</span>
@@ -361,7 +454,7 @@ const UserProfile = () => {
               
               <button
                 onClick={() => setActiveSection('orders')}
-                className={`nav-btn ${activeSection === 'orders' ? 'active' : ''}`}
+                className={`nav-button ${activeSection === 'orders' ? 'active' : ''}`}
               >
                 <ShoppingCart className="nav-icon" />
                 <span>Mis pedidos</span>
@@ -369,7 +462,7 @@ const UserProfile = () => {
               
               <button
                 onClick={() => setActiveSection('favorites')}
-                className={`nav-btn ${activeSection === 'favorites' ? 'active' : ''}`}
+                className={`nav-button ${activeSection === 'favorites' ? 'active' : ''}`}
               >
                 <Heart className="nav-icon" />
                 <span>Favoritos</span>
@@ -377,7 +470,7 @@ const UserProfile = () => {
               
               <button
                 onClick={() => setActiveSection('password')}
-                className={`nav-btn ${activeSection === 'password' ? 'active' : ''}`}
+                className={`nav-button ${activeSection === 'password' ? 'active' : ''}`}
               >
                 <Lock className="nav-icon" />
                 <span>Contraseña</span>
@@ -385,7 +478,7 @@ const UserProfile = () => {
               
               <button
                 onClick={() => setActiveSection('quotes')}
-                className={`nav-btn ${activeSection === 'quotes' ? 'active' : ''}`}
+                className={`nav-button ${activeSection === 'quotes' ? 'active' : ''}`}
               >
                 <Gift className="nav-icon" />
                 <span>Cotizaciones</span>
@@ -394,7 +487,7 @@ const UserProfile = () => {
               
               <button
                 onClick={() => setShowLogoutModal(true)}
-                className={`nav-btn logout-btn`}
+                className="nav-button logout-btn"
               >
                 <LogOut className="nav-icon" />
                 <span>Cerrar Sesión</span>
@@ -404,10 +497,8 @@ const UserProfile = () => {
         </aside>
 
         {/* Main Content */}
-        <main className="profile-content">
-          <div className="content-wrapper">
-            {renderSection()}
-          </div>
+        <main className="profile-main">
+          {renderSection()}
         </main>
       </div>
 

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Package, Calendar, DollarSign, ShoppingCart } from 'lucide-react';
 
 const OrdersSection = () => {
   const [orders, setOrders] = useState([]);
@@ -36,10 +37,21 @@ const OrdersSection = () => {
 
   const getStatusColor = (status) => {
     switch (status.toLowerCase()) {
-      case 'pending': return 'yellow';
-      case 'completed': return 'green';
-      case 'cancelled': return 'red';
-      default: return 'purple';
+      case 'pending': return 'pending';
+      case 'completed': return 'completed';
+      case 'cancelled': return 'cancelled';
+      case 'processing': return 'processing';
+      default: return 'default';
+    }
+  };
+
+  const getStatusText = (status) => {
+    switch (status.toLowerCase()) {
+      case 'pending': return 'PENDIENTE';
+      case 'completed': return 'COMPLETADO';
+      case 'cancelled': return 'CANCELADO';
+      case 'processing': return 'PROCESANDO';
+      default: return status.toUpperCase();
     }
   };
 
@@ -51,8 +63,9 @@ const OrdersSection = () => {
             <h3>Historial de Pedidos</h3>
           </div>
         </div>
-        <div className="loading-spinner">
+        <div className="loading-state">
           <div className="spinner"></div>
+          <p>Cargando pedidos...</p>
         </div>
       </div>
     );
@@ -64,12 +77,19 @@ const OrdersSection = () => {
         <div className="card-title">
           <h3>Historial de Pedidos</h3>
         </div>
+        <div className="orders-summary">
+          <span className="orders-count">
+            <ShoppingCart size={16} />
+            {orders.length} pedido{orders.length !== 1 ? 's' : ''}
+          </span>
+        </div>
       </div>
 
       {orders.length === 0 ? (
         <div className="empty-state">
           <div className="empty-icon">📋</div>
-          <p>No hay órdenes registradas.</p>
+          <h4>No hay pedidos registrados</h4>
+          <p>Aún no has realizado ningún pedido. ¡Explora nuestro catálogo y encuentra productos increíbles!</p>
         </div>
       ) : (
         <div className="orders-grid">
@@ -77,20 +97,28 @@ const OrdersSection = () => {
             <div className="order-card" key={order._id}>
               {/* Header de la orden */}
               <div className="order-card-header">
-                <div>
-                  <div className="order-id">Orden #{order._id.slice(-8)}</div>
-                  <div className="order-date">{formatDate(order.createdAt)}</div>
+                <div className="order-header-left">
+                  <div className="order-icon">
+                    <Package size={20} />
+                  </div>
+                  <div className="order-info">
+                    <div className="order-id">Orden #{order._id.slice(-8)}</div>
+                    <div className="order-date">
+                      <Calendar size={14} />
+                      {formatDate(order.createdAt)}
+                    </div>
+                  </div>
                 </div>
-                <span className={`order-status ${getStatusColor(order.status)}`}>
-                  {order.status}
-                </span>
+                <div className={`order-status-badge ${getStatusColor(order.status)}`}>
+                  {getStatusText(order.status)}
+                </div>
               </div>
 
               {/* Cuerpo de la orden */}
               <div className="order-card-body">
                 <div className="order-items">
                   {order.items.map((item, i) => (
-                    <div className="order-item-row" key={i}>
+                    <div className="order-item" key={i}>
                       <div className="order-item-info">
                         <div className="order-item-name">
                           {item.product?.name || 'Producto eliminado'}
@@ -107,9 +135,14 @@ const OrdersSection = () => {
                 </div>
 
                 {/* Total */}
-                <div className="order-total-row">
-                  <span>Total:</span>
-                  <span className="order-total">${order.total.toFixed(2)}</span>
+                <div className="order-total-section">
+                  <div className="order-total-line">
+                    <span className="total-label">Total:</span>
+                    <span className="order-total">
+                      <DollarSign size={16} />
+                      {order.total.toFixed(2)}
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>

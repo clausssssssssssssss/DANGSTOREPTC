@@ -18,6 +18,9 @@ export const loginAdmin = async (req, res) => {
       return res.status(400).json({ message: "Email y contraseña son requeridos" });
     }
 
+
+    console.log(">>> DEBUG Credenciales recibidasPPPPPPPPP:", { email, password });
+
     // Comparar con credenciales almacenadas
     if (email !== config.admin.email || password !== config.admin.password) {
       // Responder con error 401 si son inválidas

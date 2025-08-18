@@ -47,6 +47,17 @@ const customizedOrderSchema = new Schema(
     comment: {
       type: String,
     },
+
+    /** Decisión del usuario sobre la cotización */
+    decision: {
+      type: String,
+      enum: ['accept', 'reject'],
+    },
+
+    /** Fecha en que el usuario tomó la decisión */
+    decisionDate: {
+      type: Date,
+    },
   },
   {
     // Agrega campos createdAt y updatedAt automáticamente

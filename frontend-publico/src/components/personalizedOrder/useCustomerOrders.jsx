@@ -21,14 +21,14 @@ export default function useCustomerOrders() {
   };
 
   const clearImage = () => {
-  setImage(null);
-  setPreview(null);
-  // También limpiar el input file
-  const input = document.getElementById('image-upload');
-  if (input) {
-    input.value = '';
-  }
-};
+    setImage(null);
+    setPreview(null);
+    // También limpiar el input file
+    const input = document.getElementById('image-upload');
+    if (input) {
+      input.value = '';
+    }
+  };
 
   const submit = async () => {
     console.log('🚀 submit called', { image, modelType, description });
@@ -47,30 +47,30 @@ export default function useCustomerOrders() {
     }
 
     try {
-  const token = localStorage.getItem('token');
-  const form  = new FormData();
-  form.append('image', image);
-  form.append('modelType', modelType);
-  form.append('description', description);
+      const token = localStorage.getItem('token');
+      const form = new FormData();
+      form.append('image', image);
+      form.append('modelType', modelType);
+      form.append('description', description);
 
-  const res = await fetch(`${API_URL}/api/custom-orders`, {
-    method: 'POST',
-    headers: { Authorization: `Bearer ${token}` },
-    body: form
-  });
+      const res = await fetch(`${API_URL}/api/custom-orders`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+        body: form
+      });
 
-  if (!res.ok) {
-    const errBody = await res.json().catch(() => null);
-    throw new Error(errBody?.message || 'Error al enviar el encargo');
-  }
+      if (!res.ok) {
+        const errBody = await res.json().catch(() => null);
+        throw new Error(errBody?.message || 'Error al enviar el encargo');
+      }
 
-  const data = await res.json();
-  setSuccess(true);
-  // El toast se maneja desde el componente padre
+      const data = await res.json();
+      setSuccess(true);
+      // El toast se maneja desde el componente padre
 
-} catch (err) {
-  console.error('CATCH en submit:', err);
-  setError(err.message);
+    } catch (err) {
+      console.error('CATCH en submit:', err);
+      setError(err.message);
     } finally {
       setLoading(false);
     }

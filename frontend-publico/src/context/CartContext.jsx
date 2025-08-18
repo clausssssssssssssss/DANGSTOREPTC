@@ -1,8 +1,8 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 
 const CartContext = createContext();
 
-export function CartProvider({ children }) {
+export const CartProvider = ({ children }) => {
   const [cart, setCart] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -21,7 +21,6 @@ export function CartProvider({ children }) {
       }
     });
 
-    // Si es GET y no existe el carrito → devolvemos estructura vacía
     if (opts.method == null && res.status === 404) {
       return { products: [] };
     }
@@ -34,7 +33,6 @@ export function CartProvider({ children }) {
     return res.json();
   }
 
-  // Sincroniza el estado local con la respuesta del backend
   function sync(cartDoc) {
     const newCart = (cartDoc.products || []).map(p => ({
       product: {
@@ -49,7 +47,6 @@ export function CartProvider({ children }) {
     setCart(newCart);
   }
 
-  // Cargar carrito inicial
   const loadCart = async (userId) => {
     if (!userId) {
       setCart([]);
@@ -76,18 +73,15 @@ export function CartProvider({ children }) {
     }
   };
 
-  // Añadir producto al carrito
   const addToCart = async ({ productId, quantity = 1 }) => {
     const json = await authFetch('/api/cart', {
       method: 'POST',
       body: JSON.stringify({ productId, quantity })
     });
-    // El backend puede devolver { cart } o directamente el carrito
     const cartData = json.cart || json;
     sync(cartData);
   };
 
-  // Actualizar cantidad
   const updateQuantity = async (productId, quantity) => {
     const json = await authFetch('/api/cart', {
       method: 'PUT',
@@ -97,7 +91,6 @@ export function CartProvider({ children }) {
     sync(cartData);
   };
 
-  // Eliminar un producto
   const removeFromCart = async (productId) => {
     const json = await authFetch('/api/cart', {
       method: 'DELETE',
@@ -107,7 +100,6 @@ export function CartProvider({ children }) {
     sync(cartData);
   };
 
-  // Vaciar el carrito
   const clearCart = async () => {
     for (const item of cart) {
       await authFetch('/api/cart', {
@@ -118,6 +110,12 @@ export function CartProvider({ children }) {
     setCart([]);
   };
 
+    const getTotal = useCallback(() => {
+    return cart.reduce((total, item) => {
+      return total + (item.product.price * item.quantity);
+    }, 0);
+  }, [cart]);
+
   const value = {
     cart,
     loading,
@@ -125,7 +123,8 @@ export function CartProvider({ children }) {
     addToCart,
     updateQuantity,
     removeFromCart,
-    clearCart
+    clearCart,
+    getTotal
   };
 
   return (
@@ -133,20 +132,22 @@ export function CartProvider({ children }) {
       {children}
     </CartContext.Provider>
   );
-}
+};
 
-export function useCart(userId) {
+// Exporta el hook como función nombrada
+export const useCart = (userId) => {
   const context = useContext(CartContext);
   if (!context) {
     throw new Error('useCart must be used within a CartProvider');
   }
 
-  // Cargar carrito cuando cambie el userId
+  const { loadCart, loading } = context;
+
   useEffect(() => {
-    if (userId && !context.loading) {
-      context.loadCart(userId);
+    if (userId && !loading) {
+      loadCart(userId);
     }
-  }, [userId]);
+  }, [userId, loadCart, loading]);
 
   return context;
-} 
+};

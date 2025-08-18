@@ -1,6 +1,6 @@
 // src/pages/Encargo.jsx
 import React, { useEffect } from 'react';
-import { CloudUpload, X } from 'lucide-react';
+import { CloudUpload, X, Check, XCircle } from 'lucide-react';
 import useCustomerOrders from '../components/personalizedOrder/useCustomerOrders';
 import { useAuth } from '../hooks/useAuth';
 import Modal from '../components/ui/Modal';
@@ -30,6 +30,7 @@ const { toasts, showSuccess, showError, showWarning, removeToast } = useToast();
   useEffect(() => {
     if (success) {
       showSuccess('¡Tu pedido ha sido enviado exitosamente! Te contactaremos pronto.');
+      
       const timer = setTimeout(() => {
         window.location.reload();
       }, 2000);
@@ -162,16 +163,25 @@ const { toasts, showSuccess, showError, showWarning, removeToast } = useToast();
           {/* Mostrar mensaje de error si existe */}
           {error && <p className="error-message">{error}</p>}
 
-          <button
-            onClick={handleEncargoSubmit}
-            disabled={loading || !preview || !modelType}
-            className="submit-button"
-          >
-            {!user ? 'Regístrate para enviar' : (loading ? 'Enviando...' : 'Enviar')}
-          </button>
+          {/* Botón de enviar encargo - solo mostrar si el usuario está logueado */}
+          {user ? (
+            <button
+              onClick={handleEncargoSubmit}
+              disabled={loading || !preview || !modelType}
+              className="submit-button"
+            >
+              {loading ? 'Enviando...' : 'Enviar Encargo'}
+            </button>
+          ) : (
+            <button
+              disabled={true}
+              className="submit-button"
+            >
+              Regístrate para enviar
+            </button>
+          )}
         </div>
       </div>
-
 
       
       <ToastContainer toasts={toasts} removeToast={removeToast} />

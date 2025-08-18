@@ -41,12 +41,23 @@ const FormPayment = () => {
   };
 
   return (
-    <div className="payment-page">
-      <div className="payment-wrapper">
-        <div className="page-header">
-          <h1 className="page-title">Información de Pago</h1>
+    <div className="payment-container">
+      <div className="payment-card">
+        <div className="payment-header">
+          <h1 className="payment-title">
+            <CreditCard size={24} className="icon-title" />
+            Pago Simulado
+          </h1>
+          <p className="payment-subtitle">
+            Completa los datos para generar una orden de prueba
+          </p>
         </div>
 
+<<<<<<< HEAD
+        {step === 1 && (
+          <div className="payment-form">
+=======
+<<<<<<< Updated upstream
           <div className="payment-card">
             <div className="section-header">
             <h2 className="section-title">
@@ -57,225 +68,289 @@ const FormPayment = () => {
               <Lock size={16} />
               Completa los datos de tu tarjeta para continuar
               </p>
+=======
+        {step === 1 && (
+          <div className="payment-form">
+            <div className="form-section">
+              <div className="input-group">
+                <label htmlFor="nombre" className="input-label">
+                  <User size={18} className="input-icon" />
+                  Nombre del Cliente *
+                </label>
+                <InputField
+                  id="nombre"
+                  name="nombre"
+                  value={formData.nombre}
+                  onChange={handleChangeData}
+                  type="text"
+                  placeholder="Ej: Gabriel Alexander"
+                  required
+                />
+            </div>
+
+              <div className="input-group">
+                <label htmlFor="email" className="input-label">
+                  <Mail size={18} className="input-icon" />
+                  Email del Cliente *
+                </label>
+                <InputField
+                  id="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChangeData}
+                  type="email"
+                  placeholder="Ej: gaboquintana10@gmail.com"
+                  required
+                />
+              </div>
+
+              <div className="form-footer">
+                <Button
+                  onClick={() => setStep(2)}
+                  variant="primary"
+                  className="btn-primary"
+                  text="Continuar al Pago"
+                />
+              </div>
+>>>>>>> Stashed changes
             </div>
 
           <div className="card-form">
             {/* Información de la Tarjeta */}
+>>>>>>> master
             <div className="form-section">
-              <h3 className="section-subtitle">
+              <div className="input-group">
+                <label htmlFor="nombre" className="input-label">
+                  <User size={18} className="input-icon" />
+                  Nombre del Cliente *
+                </label>
+                <InputField
+                  id="nombre"
+                  name="nombre"
+                  value={formData.nombre}
+                  onChange={handleChangeData}
+                  type="text"
+                  placeholder="Ej: Gabriel Alexander"
+                  required
+                />
+              </div>
+
+              <div className="input-group">
+                <label htmlFor="email" className="input-label">
+                  <Mail size={18} className="input-icon" />
+                  Email del Cliente *
+                </label>
+                <InputField
+                  id="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChangeData}
+                  type="email"
+                  placeholder="Ej: gaboquintana10@gmail.com"
+                  required
+                />
+              </div>
+
+              <div className="form-footer">
+                <Button
+                  onClick={() => setStep(2)}
+                  variant="primary"
+                  className="btn-primary"
+                  text="Continuar al Pago"
+                />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {step === 2 && (
+          <div className="payment-process">
+            <div className="payment-details">
+              <h3 className="payment-details-title">
                 <CreditCard size={18} />
-                Datos de la Tarjeta
+                Información de Pago
               </h3>
               
-              <InputField 
-                id="numeroTarjeta" 
-                name="numeroTarjeta" 
-                value={formDataTarjeta.numeroTarjeta} 
-                onChange={handleChangeTarjeta} 
-                type="text" 
-                label="Número de tarjeta" 
-                placeholder="4242 4242 4242 4242" 
-                maxLength="19"
-                required 
-              />
-
-              <InputField 
-                id="nombreTitular" 
-                name="nombreTitular" 
-                value={formDataTarjeta.nombreTitular} 
-                onChange={handleChangeTarjeta} 
-                type="text" 
-                label="Nombre en la tarjeta" 
-                placeholder="Como aparece en la tarjeta" 
-                required 
-              />
-
-              <div className="triple-grid">
-                <InputField 
-                  id="mesVencimiento" 
-                  name="mesVencimiento" 
-                  value={formDataTarjeta.mesVencimiento} 
-                  onChange={handleChangeTarjeta} 
-                  type="text" 
-                  label="Mes" 
-                  placeholder="MM" 
-                  maxLength="2"
-                  required 
-                />
-                <InputField 
-                  id="anioVencimiento" 
-                  name="anioVencimiento" 
-                  value={formDataTarjeta.anioVencimiento} 
-                  onChange={handleChangeTarjeta} 
-                  type="text" 
-                  label="Año" 
-                  placeholder="YYYY" 
-                  maxLength="4"
-                  required 
-                />
-                <div className="input-field">
-                  <label htmlFor="cvv" className="input-label">
-                    CVV <span className="required">*</span>
-                    <HelpCircle size={16} className="help-icon" />
+              <div className="card-form">
+                <div className="input-group">
+                  <label htmlFor="numeroTarjeta" className="input-label">
+                    Número de tarjeta *
                   </label>
-                  <input
-                    type="text"
-                    id="cvv"
-                    name="cvv"
-                    value={formDataTarjeta.cvv}
+                  <div className="card-input">
+                    <CreditCard size={18} />
+                    <InputField
+                      id="numeroTarjeta"
+                      name="numeroTarjeta"
+                      value={formDataTarjeta.numeroTarjeta}
+                      onChange={handleChangeTarjeta}
+                      type="text"
+                      placeholder="4242 4242 4242 4242"
+                      required
+                      maxLength="19"
+                    />
+                  </div>
+                </div>
+
+                <div className="input-group">
+                  <label htmlFor="nombreTarjeta" className="input-label">
+                    Nombre en la tarjeta *
+                  </label>
+                  <InputField
+                    id="nombreTarjeta"
+                    name="nombreTarjeta"
+                    value={formDataTarjeta.nombreTarjeta}
                     onChange={handleChangeTarjeta}
-                    className="input"
-                    placeholder="123"
-                    maxLength="4"
+                    type="text"
+                    placeholder="Como aparece en la tarjeta"
                     required
                   />
+<<<<<<< HEAD
+=======
+<<<<<<< Updated upstream
+=======
+>>>>>>> master
+                </div>
+
+                <div className="double-grid">
+                  <div className="input-group">
+                    <label className="input-label">
+                      Fecha de vencimiento *
+                    </label>
+                    <div className="expiry-fields">
+                      <select
+                        name="mesVencimiento"
+                        value={formDataTarjeta.mesVencimiento}
+                        onChange={handleChangeTarjeta}
+                        className="expiry-select"
+                        required
+                      >
+                        <option value="">Mes</option>
+                        {Array.from({length: 12}, (_, i) => (
+                          <option key={i+1} value={String(i+1).padStart(2, '0')}>
+                            {String(i+1).padStart(2, '0')}
+                          </option>
+                        ))}
+                      </select>
+                      <select
+                        name="anioVencimiento"
+                        value={formDataTarjeta.anioVencimiento}
+                        onChange={handleChangeTarjeta}
+                        className="expiry-select"
+                        required
+                      >
+                        <option value="">Año</option>
+                        {Array.from({length: 10}, (_, i) => (
+                          <option key={i} value={new Date().getFullYear() + i}>
+                            {new Date().getFullYear() + i}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+<<<<<<< HEAD
+                  </div>
+=======
+              </div>
+>>>>>>> master
+
+                  <div className="input-group">
+                    <div className="cvv-label-container">
+                      <label htmlFor="cvv" className="input-label">
+                        CVV *
+                      </label>
+                      <span className="help-tooltip">
+                        <HelpCircle size={16} />
+                        <span className="tooltip-text">
+                          El CVV son los 3 dígitos en el reverso de tu tarjeta
+                        </span>
+                      </span>
+                    </div>
+                    <InputField
+                      id="cvv"
+                      name="cvv"
+                      value={formDataTarjeta.cvv}
+                      onChange={handleChangeTarjeta}
+                      type="text"
+                      placeholder="123"
+                      required
+                      maxLength="3"
+                    />
+                  </div>
+                </div>
+
+                <div className="accepted-cards">
+                  <span>Tarjetas aceptadas:</span>
+                  <div className="card-brands">
+                    <div className="card-brand visa">VISA</div>
+                    <div className="card-brand mastercard">MASTERCARD</div>
+<<<<<<< HEAD
+                  </div>
+=======
+                </div>
+>>>>>>> master
+                </div>
+              </div>
+
+              <div className="payment-actions">
+                <Button
+                  onClick={() => setStep(1)}
+                  variant="secondary"
+                  className="btn-secondary"
+                  text="Volver"
+                />
+                <Button
+                  onClick={handlePaymentWithErrorHandling}
+                  variant="primary"
+                  className="btn-primary"
+                  text="Confirmar Pago"
+                />
+<<<<<<< HEAD
+=======
+>>>>>>> Stashed changes
+>>>>>>> master
               </div>
             </div>
           </div>
+        )}
 
-            {/* Información de Facturación */}
-            <div className="form-section">
-              <h3 className="section-subtitle">
-                <Building size={18} />
-                Dirección de Facturación
-              </h3>
-              
-              <div className="double-grid">
-                <InputField 
-                  id="nombreFacturacion" 
-                  name="nombreFacturacion" 
-                  value={formDataTarjeta.nombreFacturacion || ''} 
-                  onChange={handleChangeTarjeta} 
-                  type="text" 
-                  label="Nombre completo" 
-                  placeholder="Nombre y apellidos" 
-                  required 
-                />
-                <InputField 
-                  id="emailFacturacion" 
-                  name="emailFacturacion" 
-                  value={formDataTarjeta.emailFacturacion || ''} 
-                  onChange={handleChangeTarjeta} 
-                  type="email" 
-                  label="Email de facturación" 
-                  placeholder="email@ejemplo.com" 
-                  required 
-                />
-              </div>
-
-              <InputField 
-                id="direccionFacturacion" 
-                name="direccionFacturacion" 
-                value={formDataTarjeta.direccionFacturacion || ''} 
-                onChange={handleChangeTarjeta} 
-                type="text" 
-                label="Dirección" 
-                placeholder="Calle, número, apartamento" 
-                required 
-              />
-
-                <div className="triple-grid">
-                <InputField 
-                  id="ciudadFacturacion" 
-                  name="ciudadFacturacion" 
-                  value={formDataTarjeta.ciudadFacturacion || ''} 
-                  onChange={handleChangeTarjeta} 
-                  type="text" 
-                  label="Ciudad" 
-                  placeholder="Ciudad" 
-                  required 
-                />
-                <InputField 
-                  id="estadoFacturacion" 
-                  name="estadoFacturacion" 
-                  value={formDataTarjeta.estadoFacturacion || ''} 
-                  onChange={handleChangeTarjeta} 
-                  type="text" 
-                  label="Estado/Provincia" 
-                  placeholder="Estado o provincia" 
-                  required 
-                />
-                <InputField 
-                  id="codigoPostal" 
-                  name="codigoPostal" 
-                  value={formDataTarjeta.codigoPostal || ''} 
-                  onChange={handleChangeTarjeta} 
-                  type="text" 
-                  label="Código Postal" 
-                  placeholder="Código postal" 
-                  required 
-                />
-              </div>
-
-              <InputField 
-                id="paisFacturacion" 
-                name="paisFacturacion" 
-                value={formDataTarjeta.paisFacturacion || ''} 
-                onChange={handleChangeTarjeta} 
-                type="text" 
-                label="País" 
-                placeholder="País" 
-                required 
-              />
+        {step === 3 && (
+          <div className="payment-success">
+            <div className="success-icon">
+              <CheckCircle size={32} />
             </div>
+            <h2 className="success-title">¡Pago Simulado Exitoso!</h2>
+            <p className="success-message">
+              Esta es una simulación, no se ha realizado ningún cargo real
+            </p>
 
-            {/* Información Adicional */}
-            <div className="form-section">
-              <h3 className="section-subtitle">
-                <Shield size={18} />
-                Información Adicional
-              </h3>
-              
-              <div className="double-grid">
-                <InputField 
-                  id="telefonoFacturacion" 
-                  name="telefonoFacturacion" 
-                  value={formDataTarjeta.telefonoFacturacion || ''} 
-                  onChange={handleChangeTarjeta} 
-                  type="tel" 
-                  label="Teléfono" 
-                  placeholder="+1 (555) 123-4567" 
-                  required 
-                />
-                <InputField 
-                  id="empresaFacturacion" 
-                  name="empresaFacturacion" 
-                  value={formDataTarjeta.empresaFacturacion || ''} 
-                  onChange={handleChangeTarjeta} 
-                  type="text" 
-                  label="Empresa (opcional)" 
-                  placeholder="Nombre de la empresa" 
-                />
+            <div className="success-details">
+              <div className="detail-item">
+                <span className="detail-label">Nombre:</span>
+                <span className="detail-value">{formData.nombre}</span>
+              </div>
+              <div className="detail-item">
+                <span className="detail-label">Email:</span>
+                <span className="detail-value">{formData.email}</span>
+              </div>
+              <div className="detail-item">
+                <span className="detail-label">Tarjeta:</span>
+                <span className="detail-value">•••• •••• •••• {formDataTarjeta.numeroTarjeta.slice(-4)}</span>
               </div>
             </div>
 
-            <div className="accepted-cards">
-              <span className="accepted-label">Tarjetas aceptadas:</span>
-              <div className="card-logos">
-                <div className="card-logo visa">VISA</div>
-                <div className="card-logo mastercard">MASTERCARD</div>
-                <div className="card-logo amex">AMEX</div>
-                <div className="card-logo discover">DISCOVER</div>
-              </div>
-                </div>
-
-                <div className="actions actions-duo">
-              <Button 
-                onClick={() => window.history.back()} 
-                variant="secondary" 
-                className="btn-secondary" 
-                text="Volver" 
+            <div className="success-actions">
+              <Button
+                onClick={() => {
+                  setStep(1);
+                  limpiarFormulario();
+                }}
+                variant="primary"
+                className="btn-primary"
+                text="Nuevo Pago"
               />
-              <Button 
-                onClick={handlePaymentWithErrorHandling} 
-                variant="primary" 
-                className="btn-primary" 
-                text="Confirmar Pago" 
-              />
-                </div>
-              </div>
             </div>
           </div>
+        )}
+      </div>
       
       <ToastContainer toasts={toasts} removeToast={removeToast} />
     </div>

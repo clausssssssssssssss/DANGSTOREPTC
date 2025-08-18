@@ -6,7 +6,8 @@ import {
   getMyCustomOrders,
   getAllPendingOrders,
   quoteCustomOrder,
-  respondCustomOrder
+  respondCustomOrder,
+  getCustomOrderById // ← AGREGAR ESTA LÍNEA
 } from '../controllers/customizedOrdersController.js';
 
 const router = Router();
@@ -25,6 +26,13 @@ router.get(
   '/me',
   authMiddleware(),
   getMyCustomOrders
+);
+
+// 
+router.get(
+  '/:id',
+  authMiddleware(),
+  getCustomOrderById
 );
 
 // Ver todas las órdenes pendientes (admin)

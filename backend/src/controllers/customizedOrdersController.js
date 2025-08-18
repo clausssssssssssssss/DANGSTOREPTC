@@ -12,9 +12,7 @@ export const createCustomOrder = async (req, res) => {
   const { modelType, description } = req.body;
   const userId = req.user.id || req.user.userId;
 
-  console.log("🧪 REQ.user.id:", userId);
-  console.log("🧪 REQ.body:", req.body);
-  console.log("🧪 REQ.file:", req.file);
+
 
   if (!modelType) {
     return res.status(400).json({ message: 'modelType es requerido.' });
@@ -148,7 +146,9 @@ export const respondCustomOrder = async (req, res) => {
 
     // 5) Lo metemos al carrito
     try {
+      console.log('🛒 Buscando carrito para usuario:', userId);
       let cart = await Cart.findOne({ user: userId });
+      
       if (!cart) {
         console.log('🛒 Creando nuevo carrito para usuario:', userId);
         cart = new Cart({ 
@@ -156,6 +156,8 @@ export const respondCustomOrder = async (req, res) => {
           products: [],
           customizedProducts: []
         });
+      } else {
+        console.log('🛒 Carrito existente encontrado:', cart._id);
       }
 
       // Verificar si ya existe en el carrito
@@ -174,21 +176,34 @@ export const respondCustomOrder = async (req, res) => {
         });
       }
 
+      console.log('💾 Guardando carrito...');
       await cart.save();
       console.log('✅ Carrito actualizado correctamente');
+      console.log('📊 Productos personalizados en carrito:', cart.customizedProducts.length);
 
       // 6) Respuesta combinada
+      console.log('📤 Enviando respuesta exitosa');
       return res.json({ 
         message: 'Encargo aceptado y agregado al carrito',
         order,
         cart: {
           id: cart._id,
-          customizedProductsCount: cart.customizedProducts.length
+          customizedProductsCount: cart.customizedProducts.length,
+          totalItems: cart.products.length + cart.customizedProducts.length,
+          customizedProducts: cart.customizedProducts.map(item => ({
+            id: item.item._id || item.item,
+            quantity: item.quantity,
+            price: item.item.price || 0,
+            modelType: item.item.modelType || 'Producto Personalizado'
+          })),
+          totalValue: cart.products.reduce((sum, p) => sum + (p.product.price * p.quantity), 0) +
+                     cart.customizedProducts.reduce((sum, p) => sum + (p.item.price * p.quantity), 0)
         }
       });
 
     } catch (cartError) {
       console.error('❌ Error con el carrito:', cartError);
+      console.error('❌ Stack trace:', cartError.stack);
       // Si falla el carrito, al menos guardamos la decisión
       return res.json({ 
         message: 'Encargo aceptado pero hubo un problema con el carrito',
@@ -205,5 +220,27 @@ export const respondCustomOrder = async (req, res) => {
         message: 'Error procesando respuesta de encargo', 
         error: err.message 
       });
+  }
+};
+
+// Agregar esta función al final de tu customizedOrdersController.js
+
+/** Obtener una orden personalizada específica por ID */
+export const getCustomOrderById = async (req, res) => {
+  try {
+    const userId = req.user.id || req.user.userId;
+    const order = await CustomizedOrder.findOne({ 
+      _id: req.params.id,
+      user: userId // Solo sus propias órdenes
+    });
+    
+    if (!order) {
+      return res.status(404).json({ message: 'Orden personalizada no encontrada' });
+    }
+    
+    return res.json(order);
+  } catch (err) {
+    console.error("Error obteniendo orden personalizada:", err);
+    return res.status(500).json({ message: "Error obteniendo orden", error: err.message });
   }
 };

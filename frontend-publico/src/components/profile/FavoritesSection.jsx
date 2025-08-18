@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Heart } from 'lucide-react';
+import { Heart, ShoppingCart, Star, Package } from 'lucide-react';
 
 const FavoritesSection = ({ userId }) => {
   const [favorites, setFavorites] = useState([]);
@@ -23,8 +23,6 @@ const FavoritesSection = ({ userId }) => {
         }
       });
 
-      console.log('Status response:', response.status);
-      
       if (!response.ok) {
         if (response.status === 401) {
           throw new Error('Token inválido o expirado');
@@ -33,7 +31,6 @@ const FavoritesSection = ({ userId }) => {
       }
 
       const products = await response.json();
-      console.log('Productos favoritos recibidos:', products);
       
       // El backend ya devuelve los productos completos con detalles
       setFavorites(products);
@@ -77,7 +74,6 @@ const FavoritesSection = ({ userId }) => {
       }
 
       const result = await response.json();
-      console.log('Favorito removido:', result);
       
       // Actualizar lista local
       setFavorites(prev => prev.filter(product => product._id !== productId));
@@ -101,11 +97,14 @@ const FavoritesSection = ({ userId }) => {
       <div className="content-card">
         <div className="card-header">
           <div className="card-title">
-            <Heart className="section-icon" />
-            <h3>Favoritos</h3>
+            <Heart size={20} className="section-icon" />
+            <h3>Mis Favoritos</h3>
           </div>
         </div>
-        <div className="loading-message">Cargando favoritos...</div>
+        <div className="loading-state">
+          <div className="spinner"></div>
+          <p>Cargando favoritos...</p>
+        </div>
       </div>
     );
   }
@@ -115,12 +114,14 @@ const FavoritesSection = ({ userId }) => {
       <div className="content-card">
         <div className="card-header">
           <div className="card-title">
-            <Heart className="section-icon" />
-            <h3>Favoritos</h3>
+            <Heart size={20} className="section-icon" />
+            <h3>Mis Favoritos</h3>
           </div>
         </div>
-        <div className="error-message">
-          <p>Error: {error}</p>
+        <div className="error-state">
+          <div className="error-icon">⚠️</div>
+          <h4>Error al cargar favoritos</h4>
+          <p>{error}</p>
           <button onClick={fetchFavorites} className="retry-button">
             Reintentar
           </button>
@@ -133,27 +134,34 @@ const FavoritesSection = ({ userId }) => {
     <div className="content-card">
       <div className="card-header">
         <div className="card-title">
-          <Heart className="section-icon" />
-          <h3>Favoritos ({favorites.length})</h3>
+          <Heart size={20} className="section-icon" />
+          <h3>Mis Favoritos</h3>
+        </div>
+        <div className="favorites-summary">
+          <span className="favorites-count">
+            <Star size={16} />
+            {favorites.length} producto{favorites.length !== 1 ? 's' : ''}
+          </span>
         </div>
       </div>
 
       {favorites.length === 0 ? (
-        <div className="empty-message">
-          <p>No tienes favoritos aún</p>
-          <p style={{fontSize: '14px', color: '#666'}}>
-            Los productos que marques como favoritos aparecerán aquí
-          </p>
+        <div className="empty-state">
+          <div className="empty-icon">💖</div>
+          <h4>No tienes favoritos aún</h4>
+          <p>Los productos que marques como favoritos aparecerán aquí para que puedas acceder a ellos fácilmente.</p>
         </div>
       ) : (
         <div className="favorites-grid">
           {favorites.map(product => (
-            <div className="favorite-item" key={product._id}>
+            <div className="favorite-card" key={product._id}>
+              {/* Imagen del producto */}
               <div className="favorite-image-container">
                 {product.images && product.images.length > 0 ? (
                   <img 
                     src={product.images[0]} 
                     alt={product.name}
+                    className="favorite-image"
                     onError={(e) => {
                       e.target.style.display = 'none';
                       e.target.nextSibling.style.display = 'flex';
@@ -161,27 +169,58 @@ const FavoritesSection = ({ userId }) => {
                   />
                 ) : null}
                 <div 
-                  className="favorite-image"
+                  className="favorite-image-placeholder"
                   style={{display: product.images && product.images.length > 0 ? 'none' : 'flex'}}
                 >
-                  {product.name}
+                  <Package size={32} />
+                  <span>{product.name}</span>
                 </div>
+                
+                {/* Botón de quitar favorito */}
+                <button 
+                  className="remove-favorite-btn" 
+                  onClick={() => removeFavorite(product._id)}
+                  title="Quitar de favoritos"
+                >
+                  <Heart size={16} className="heart-icon-filled" />
+                </button>
               </div>
 
+              {/* Información del producto */}
               <div className="favorite-info">
                 <h4 className="favorite-name">{product.name}</h4>
+                
                 {product.description && (
-                  <p className="favorite-subtitle">{product.description}</p>
+                  <p className="favorite-description">
+                    {product.description.length > 80 
+                      ? `${product.description.substring(0, 80)}...` 
+                      : product.description
+                    }
+                  </p>
+                )}
+                
+                {product.price && (
+                  <div className="favorite-price">
+                    <span className="price-label">Precio:</span>
+                    <span className="price-value">${product.price.toFixed(2)}</span>
+                  </div>
+                )}
+                
+                {product.category && (
+                  <div className="favorite-category">
+                    <span className="category-label">Categoría:</span>
+                    <span className="category-value">{product.category}</span>
+                  </div>
                 )}
               </div>
 
-              <button 
-                className="favorite-button" 
-                onClick={() => removeFavorite(product._id)}
-                title="Quitar de favoritos"
-              >
-                <Heart className="favorite-icon active" />
-              </button>
+              {/* Acciones */}
+              <div className="favorite-actions">
+                <button className="view-product-btn">
+                  <Package size={16} />
+                  Ver Producto
+                </button>
+              </div>
             </div>
           ))}
         </div>

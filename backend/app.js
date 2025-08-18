@@ -37,9 +37,9 @@ app.use(express.json());
 app.use(cookieParser());
 
 //Traemos el archivo json
-const swaggerDocument = JSON.parse(
-  fs.readFileSync(path.resolve("./DangStore.01.json"), "utf-8")
-);
+// const swaggerDocument = JSON.parse(
+//   fs.readFileSync(path.resolve("./DangStore.01.json"), "utf-8")
+// );
 
 /** Sirve archivos estáticos desde la carpeta "uploads" bajo la ruta /uploads */
 app.use('/uploads', express.static('uploads'));
@@ -48,7 +48,7 @@ app.use('/uploads', express.static('uploads'));
  * Rutas de la API montadas en diferentes endpoints:
  */
 
-app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+// app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // CRUD de clientes
 app.use('/api/customers', customerRoutes);

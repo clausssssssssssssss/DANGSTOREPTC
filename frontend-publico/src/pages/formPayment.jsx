@@ -4,7 +4,7 @@ import Button from "../components/payment/Button";
 import usePaymentForm from "../components/payment/hook/usePaymentForm";
 import { useToast } from "../hooks/useToast";
 import ToastContainer from "../components/ui/ToastContainer";
-import { CreditCard, User, Mail, HelpCircle, CheckCircle } from "lucide-react";
+import { CreditCard, User, Mail, HelpCircle, CheckCircle, MapPin, ShoppingCart } from "lucide-react";
 import "../components/styles/formPayment.css";
 
 const FormPayment = () => {
@@ -46,67 +46,24 @@ const FormPayment = () => {
         <div className="payment-header">
           <h1 className="payment-title">
             <CreditCard size={24} className="icon-title" />
-            Pago Simulado
+            Pago Simulado con Tarjeta
           </h1>
           <p className="payment-subtitle">
             Completa los datos para generar una orden de prueba
           </p>
         </div>
 
+        {/* PASO 1: DATOS DE LA TARJETA */}
         {step === 1 && (
           <div className="payment-form">
             <div className="form-section">
-              <div className="input-group">
-                <label htmlFor="nombre" className="input-label">
-                  <User size={18} className="input-icon" />
-                  Nombre del Cliente *
-                </label>
-                <InputField
-                  id="nombre"
-                  name="nombre"
-                  value={formData.nombre}
-                  onChange={handleChangeData}
-                  type="text"
-                  placeholder="Ej: Gabriel Alexander"
-                  required
-                />
-            </div>
-
-              <div className="input-group">
-                <label htmlFor="email" className="input-label">
-                  <Mail size={18} className="input-icon" />
-                  Email del Cliente *
-                </label>
-                <InputField
-                  id="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChangeData}
-                  type="email"
-                  placeholder="Ej: gaboquintana10@gmail.com"
-                  required
-                />
-              </div>
-
-              <div className="form-footer">
-                <Button
-                  onClick={() => setStep(2)}
-                  variant="primary"
-                  className="btn-primary"
-                  text="Continuar al Pago"
-                />
-              </div>
-            </div>
-          </div>
-        )}
-
-        {step === 2 && (
-          <div className="payment-process">
-            <div className="payment-details">
-              <h3 className="payment-details-title">
-                <CreditCard size={18} />
-                Información de Pago
+              <h3 className="section-title">
+                <CreditCard size={18} className="input-icon" />
+                Datos de la Tarjeta
               </h3>
+              <p className="section-subtitle">
+                Completa los datos de tu tarjeta para la simulación
+              </p>
               
               <div className="card-form">
                 <div className="input-group">
@@ -156,7 +113,7 @@ const FormPayment = () => {
                         className="expiry-select"
                         required
                       >
-                        <option value="">Mes</option>
+                        <option value="">MM</option>
                         {Array.from({length: 12}, (_, i) => (
                           <option key={i+1} value={String(i+1).padStart(2, '0')}>
                             {String(i+1).padStart(2, '0')}
@@ -170,7 +127,7 @@ const FormPayment = () => {
                         className="expiry-select"
                         required
                       >
-                        <option value="">Año</option>
+                        <option value="">AAAA</option>
                         {Array.from({length: 10}, (_, i) => (
                           <option key={i} value={new Date().getFullYear() + i}>
                             {new Date().getFullYear() + i}
@@ -178,7 +135,7 @@ const FormPayment = () => {
                         ))}
                       </select>
                     </div>
-              </div>
+                  </div>
 
                   <div className="input-group">
                     <div className="cvv-label-container">
@@ -210,29 +167,224 @@ const FormPayment = () => {
                   <div className="card-brands">
                     <div className="card-brand visa">VISA</div>
                     <div className="card-brand mastercard">MASTERCARD</div>
+                  </div>
                 </div>
-                </div>
-              </div>
 
-              <div className="payment-actions">
-                <Button
-                  onClick={() => setStep(1)}
-                  variant="secondary"
-                  className="btn-secondary"
-                  text="Volver"
-                />
-                <Button
-                  onClick={handlePaymentWithErrorHandling}
-                  variant="primary"
-                  className="btn-primary"
-                  text="Confirmar Pago"
-                />
+                <div className="form-footer">
+                  <Button
+                    onClick={() => setStep(2)}
+                    variant="primary"
+                    className="btn-primary"
+                    text="Continuar a Facturación"
+                  />
+                </div>
               </div>
             </div>
           </div>
         )}
 
+        {/* PASO 2: DIRECCIÓN DE FACTURACIÓN */}
+        {step === 2 && (
+          <div className="payment-form">
+            <div className="form-section">
+              <h3 className="section-title">
+                <MapPin size={18} className="input-icon" />
+                Dirección de Facturación
+              </h3>
+              <p className="section-subtitle">
+                Completa tu información de facturación
+              </p>
+              
+              <div className="billing-form">
+                <div className="input-group">
+                  <label htmlFor="nombreFacturacion" className="input-label">
+                    Nombre completo *
+                  </label>
+                  <InputField
+                    id="nombreFacturacion"
+                    name="nombreFacturacion"
+                    value={formDataTarjeta.nombreFacturacion}
+                    onChange={handleChangeTarjeta}
+                    type="text"
+                    placeholder="Nombre y apellidos"
+                    required
+                  />
+                </div>
+
+                <div className="input-group">
+                  <label htmlFor="emailFacturacion" className="input-label">
+                    Email de facturación *
+                  </label>
+                  <InputField
+                    id="emailFacturacion"
+                    name="emailFacturacion"
+                    value={formDataTarjeta.emailFacturacion}
+                    onChange={handleChangeTarjeta}
+                    type="email"
+                    placeholder="email@ejemplo.com"
+                    required
+                  />
+                </div>
+
+                <div className="input-group">
+                  <label htmlFor="telefonoFacturacion" className="input-label">
+                    Teléfono *
+                  </label>
+                  <InputField
+                    id="telefonoFacturacion"
+                    name="telefonoFacturacion"
+                    value={formDataTarjeta.telefonoFacturacion}
+                    onChange={handleChangeTarjeta}
+                    type="tel"
+                    placeholder="+1 (555) 123-4567"
+                    required
+                  />
+                </div>
+
+                <div className="input-group">
+                  <label htmlFor="direccionFacturacion" className="input-label">
+                    Dirección *
+                  </label>
+                  <InputField
+                    id="direccionFacturacion"
+                    name="direccionFacturacion"
+                    value={formDataTarjeta.direccionFacturacion}
+                    onChange={handleChangeTarjeta}
+                    type="text"
+                    placeholder="Calle, número, apartamento"
+                    required
+                  />
+                </div>
+
+                <div className="triple-grid">
+                  <div className="input-group">
+                    <label htmlFor="ciudadFacturacion" className="input-label">
+                      Ciudad *
+                    </label>
+                    <InputField
+                      id="ciudadFacturacion"
+                      name="ciudadFacturacion"
+                      value={formDataTarjeta.ciudadFacturacion}
+                      onChange={handleChangeTarjeta}
+                      type="text"
+                      placeholder="Ciudad"
+                      required
+                    />
+                  </div>
+
+                  <div className="input-group">
+                    <label htmlFor="estadoFacturacion" className="input-label">
+                      Estado/Provincia *
+                    </label>
+                    <InputField
+                      id="estadoFacturacion"
+                      name="estadoFacturacion"
+                      value={formDataTarjeta.estadoFacturacion}
+                      onChange={handleChangeTarjeta}
+                      type="text"
+                      placeholder="Estado o provincia"
+                      required
+                    />
+                  </div>
+
+                  <div className="input-group">
+                    <label htmlFor="codigoPostal" className="input-label">
+                      Código Postal *
+                    </label>
+                    <InputField
+                      id="codigoPostal"
+                      name="codigoPostal"
+                      value={formDataTarjeta.codigoPostal}
+                      onChange={handleChangeTarjeta}
+                      type="text"
+                      placeholder="Código postal"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="input-group">
+                  <label htmlFor="paisFacturacion" className="input-label">
+                    País *
+                  </label>
+                  <InputField
+                    id="paisFacturacion"
+                    name="paisFacturacion"
+                    value={formDataTarjeta.paisFacturacion}
+                    onChange={handleChangeTarjeta}
+                    type="text"
+                    placeholder="País"
+                    required
+                  />
+                </div>
+
+                <div className="form-footer">
+                  <Button
+                    onClick={() => setStep(1)}
+                    variant="secondary"
+                    className="btn-secondary"
+                    text="Volver a Tarjeta"
+                  />
+                  <Button
+                    onClick={() => setStep(3)}
+                    variant="primary"
+                    className="btn-primary"
+                    text="Continuar a Confirmación"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* PASO 3: CONFIRMACIÓN Y PAGO */}
         {step === 3 && (
+          <div className="payment-form">
+            <div className="form-section">
+              <h3 className="section-title">
+                <CheckCircle size={18} className="input-icon" />
+                Confirmar Pago
+              </h3>
+              <p className="section-subtitle">
+                Revisa los datos antes de confirmar
+              </p>
+              
+              <div className="confirmation-details">
+                <div className="detail-section">
+                  <h4>Datos de la Tarjeta</h4>
+                  <p>•••• •••• •••• {formDataTarjeta.numeroTarjeta.slice(-4)}</p>
+                  <p>{formDataTarjeta.nombreTarjeta}</p>
+                </div>
+
+                <div className="detail-section">
+                  <h4>Dirección de Facturación</h4>
+                  <p>{formDataTarjeta.nombreFacturacion}</p>
+                  <p>{formDataTarjeta.direccionFacturacion}</p>
+                  <p>{formDataTarjeta.ciudadFacturacion}, {formDataTarjeta.estadoFacturacion} {formDataTarjeta.codigoPostal}</p>
+                  <p>{formDataTarjeta.paisFacturacion}</p>
+                </div>
+
+                <div className="form-footer">
+                  <Button
+                    onClick={() => setStep(2)}
+                    variant="secondary"
+                    className="btn-secondary"
+                    text="Volver a Facturación"
+                  />
+                  <Button
+                    onClick={handlePaymentWithErrorHandling}
+                    variant="primary"
+                    className="btn-primary"
+                    text="Confirmar Pago"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* PASO 4: PAGO EXITOSO */}
+        {step === 4 && (
           <div className="payment-success">
             <div className="success-icon">
               <CheckCircle size={32} />
@@ -244,16 +396,16 @@ const FormPayment = () => {
 
             <div className="success-details">
               <div className="detail-item">
+                <span className="detail-label">Tarjeta:</span>
+                <span className="detail-value">•••• •••• •••• {formDataTarjeta.numeroTarjeta.slice(-4)}</span>
+              </div>
+              <div className="detail-item">
                 <span className="detail-label">Nombre:</span>
-                <span className="detail-value">{formData.nombre}</span>
+                <span className="detail-value">{formDataTarjeta.nombreFacturacion}</span>
               </div>
               <div className="detail-item">
                 <span className="detail-label">Email:</span>
-                <span className="detail-value">{formData.email}</span>
-              </div>
-              <div className="detail-item">
-                <span className="detail-label">Tarjeta:</span>
-                <span className="detail-value">•••• •••• •••• {formDataTarjeta.numeroTarjeta.slice(-4)}</span>
+                <span className="detail-value">{formDataTarjeta.emailFacturacion}</span>
               </div>
             </div>
 

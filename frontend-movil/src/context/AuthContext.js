@@ -13,6 +13,7 @@ export const AuthProvider = ({ children }) => {
 
   const API_URL = "http://10.10.4.241:4000/api";
 
+
   useEffect(() => {
     const loadToken = async () => {
       const token = await AsyncStorage.getItem('authToken');

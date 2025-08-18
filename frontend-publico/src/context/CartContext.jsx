@@ -34,40 +34,16 @@ export const CartProvider = ({ children }) => {
   }
 
   function sync(cartDoc) {
-    console.log('🔄 Sincronizando carrito con datos:', cartDoc);
-    
-    // Productos estándar
-    const standardProducts = (cartDoc.products || []).map(p => ({
+    const newCart = (cartDoc.products || []).map(p => ({
       product: {
-        id: p.product._id || p.product.id,
+        id: p.product._id,
         name: p.product.name,
         price: p.product.price,
         image: p.product.images?.[0] || '',
-        description: p.product.description || '',
-        type: 'standard'
+        description: p.product.description || ''
       },
       quantity: p.quantity
     }));
-
-    // Productos personalizados
-    const customizedProducts = (cartDoc.customizedProducts || []).map(p => {
-      console.log('🎨 Procesando producto personalizado:', p);
-      return {
-        product: {
-          id: p.item._id || p.item.id || p.item,
-          name: p.item.modelType || 'Producto Personalizado',
-          price: p.item.price || 0,
-          image: p.item.imageUrl || '',
-          description: p.item.description || 'Encargo personalizado',
-          type: 'customized'
-        },
-        quantity: p.quantity
-      };
-    });
-
-    // Combinar ambos tipos de productos
-    const newCart = [...standardProducts, ...customizedProducts];
-    console.log('🛒 Carrito final sincronizado:', newCart);
     setCart(newCart);
   }
 
@@ -79,39 +55,21 @@ export const CartProvider = ({ children }) => {
     }
 
     try {
-      setLoading(true);
       const data = await authFetch(`/api/cart`);
-      console.log('🛒 Datos del carrito recibidos:', data);
-      
-      // Usar la función sync actualizada que maneja ambos tipos de productos
-      sync(data);
+      setCart((data.products || []).map(p => ({
+        product: {
+          id: p.product._id,
+          name: p.product.name,
+          price: p.product.price,
+          image: p.product.images?.[0] || '',
+          description: p.product.description || ''
+        },
+        quantity: p.quantity
+      })));
     } catch (err) {
       console.error('Global useCart load:', err);
-      setCart([]);
     } finally {
       setLoading(false);
-    }
-  };
-
-  // Función para forzar recarga del carrito
-  const refreshCart = async (forceUserId = null) => {
-    try {
-      // Si se proporciona un userId forzado, usarlo
-      if (forceUserId) {
-        console.log('🔄 Recargando carrito con userId forzado:', forceUserId);
-        await loadCart(forceUserId);
-        return;
-      }
-      
-      // Si no hay userId forzado, intentar obtenerlo del carrito existente
-      if (cart.length > 0) {
-        const userId = cart[0]?.userId || null;
-        if (userId) {
-          await loadCart(userId);
-        }
-      }
-    } catch (err) {
-      console.error('Error en refreshCart:', err);
     }
   };
 
@@ -166,8 +124,7 @@ export const CartProvider = ({ children }) => {
     updateQuantity,
     removeFromCart,
     clearCart,
-    getTotal,
-    refreshCart
+    getTotal
   };
 
   return (

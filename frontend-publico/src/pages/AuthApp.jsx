@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Eye, EyeOff, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import "../components/styles/AuthApp.css";  
-import logoIcon from "../assets/DANGSTORELOGOPRUEBA.png";
+import logoIcon from "../assets/DANGSTORELOGOPRUEBA.PNG";
 
 // ——— imports para el login y contexto ———
 import { useAuth, parseJwt } from '../hooks/useAuth.jsx';

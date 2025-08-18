@@ -135,7 +135,7 @@ const FormPayment = () => {
                         ))}
                       </select>
                     </div>
-                  </div>
+              </div>
 
                   <div className="input-group">
                     <div className="cvv-label-container">
@@ -167,7 +167,7 @@ const FormPayment = () => {
                   <div className="card-brands">
                     <div className="card-brand visa">VISA</div>
                     <div className="card-brand mastercard">MASTERCARD</div>
-                  </div>
+                </div>
                 </div>
 
                 <div className="form-footer">
@@ -316,13 +316,13 @@ const FormPayment = () => {
                     placeholder="País"
                     required
                   />
-                </div>
+              </div>
 
                 <div className="form-footer">
-                  <Button
-                    onClick={() => setStep(1)}
-                    variant="secondary"
-                    className="btn-secondary"
+                <Button
+                  onClick={() => setStep(1)}
+                  variant="secondary"
+                  className="btn-secondary"
                     text="Volver a Tarjeta"
                   />
                   <Button
@@ -370,13 +370,13 @@ const FormPayment = () => {
                     variant="secondary"
                     className="btn-secondary"
                     text="Volver a Facturación"
-                  />
-                  <Button
-                    onClick={handlePaymentWithErrorHandling}
-                    variant="primary"
-                    className="btn-primary"
-                    text="Confirmar Pago"
-                  />
+                />
+                <Button
+                  onClick={handlePaymentWithErrorHandling}
+                  variant="primary"
+                  className="btn-primary"
+                  text="Confirmar Pago"
+                />
                 </div>
               </div>
             </div>

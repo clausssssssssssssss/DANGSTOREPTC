@@ -141,7 +141,7 @@ const FormPaymentFake = () => {
         } else {
           const cleanPhone = value.replace(/[^0-9]/g, '');
           if (cleanPhone.length < 7) {
-            error = 'Mínimo 7 dígitos';
+          error = 'Mínimo 7 dígitos';
           } else if (cleanPhone.length > 15) {
             error = 'Máximo 15 dígitos';
           }
@@ -259,7 +259,12 @@ const FormPaymentFake = () => {
 
     if (result?.success) {
       showSuccess('¡Pago simulado exitoso!', 4000);
-      clearCart();
+      // Solo limpiar el carrito después de que la orden se haya guardado exitosamente
+      try {
+        await clearCart();
+      } catch (err) {
+        console.error('Error al limpiar carrito:', err);
+      }
       limpiarFormulario();
       setFieldErrors({});
       setCurrentStep(4); // Ir al paso de confirmación exitosa
@@ -268,6 +273,27 @@ const FormPaymentFake = () => {
       showError(`Error al procesar el pago simulado: ${result?.error?.message || 'Error desconocido'}`, 4000);
     }
   };
+
+  // Timeout para redirigir al catálogo después de 19 segundos
+  useEffect(() => {
+    let timeoutId;
+    
+    if (currentStep === 4) {
+      timeoutId = setTimeout(() => {
+        setCurrentStep(1);
+        limpiarFormulario();
+        setFieldErrors({});
+        clearCart();
+        navigate('/catalogo');
+      }, 19000); // 19 segundos
+    }
+
+    return () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+    };
+  }, [currentStep, navigate]);
 
   // Función para validar el paso actual antes de continuar
   const validateCurrentStep = () => {
@@ -357,63 +383,66 @@ const FormPaymentFake = () => {
         </div>
 
         <div className="payment-card">
-          {/* Resumen del carrito */}
-          <div className="cart-summary" style={{ 
-            background: '#f8f9fa', 
-            padding: '16px', 
-            borderRadius: '8px', 
-            marginBottom: '20px',
-            border: '1px solid #e9ecef',
-            position: 'static',
-            top: 'auto',
-            left: 'auto',
-            right: 'auto',
-            bottom: 'auto',
-            zIndex: 'auto'
-          }}>
-            <h3 style={{ margin: '0 0 12px 0', color: '#6c5ce7', fontSize: '18px' }}>
-              📋 Resumen del Carrito
-            </h3>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-              <div>
-                <strong>Productos:</strong> {loading ? 'Cargando...' : `${cart.length} ${cart.length === 1 ? 'producto' : 'productos'}`}
+          {/* Resumen del carrito - solo visible en pasos 1, 2 y 3 */}
+          {currentStep !== 4 && (
+            <div className="cart-summary" style={{ 
+              background: '#f8f9fa', 
+              padding: '16px', 
+              borderRadius: '8px', 
+              marginBottom: '20px',
+              border: '1px solid #e9ecef',
+              position: 'static',
+              top: 'auto',
+              left: 'auto',
+              right: 'auto',
+              bottom: 'auto',
+              zIndex: 'auto'
+            }}>
+              <h3 style={{ margin: '0 0 12px 0', color: '#6c5ce7', fontSize: '18px' }}>
+                📋 Resumen del Carrito
+              </h3>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                <div>
+                  <strong>Productos:</strong> {loading ? 'Cargando...' : `${cart.length} ${cart.length === 1 ? 'producto' : 'productos'}`}
+                </div>
+                <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#6c5ce7' }}>
+                  Total: {loading ? 'Cargando...' : `$${total.toFixed(2)}`}
+                </div>
               </div>
-              <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#6c5ce7' }}>
-                Total: {loading ? 'Cargando...' : `$${total.toFixed(2)}`}
-              </div>
+              
+              {/* Debug info - solo en desarrollo */}
+              {process.env.NODE_ENV === 'development' && (
+                <div style={{ 
+                  background: '#fff3cd', 
+                  border: '1px solid #ffeaa7', 
+                  borderRadius: '4px', 
+                  padding: '8px', 
+                  fontSize: '12px',
+                  color: '#856404'
+                }}>
+                  <strong>Debug:</strong> Cart length: {cart.length} | 
+                  Items: {cart.map(item => `${item.product?.name || 'Sin nombre'} (${item.quantity})`).join(', ')} |
+                  User ID: {userId} |
+                  Loading: {loading}
+                </div>
+              )}
             </div>
-            
-            {/* Debug info - solo en desarrollo */}
-            {process.env.NODE_ENV === 'development' && (
-              <div style={{ 
-                background: '#fff3cd', 
-                border: '1px solid #ffeaa7', 
-                borderRadius: '4px', 
-                padding: '8px', 
-                fontSize: '12px',
-                color: '#856404'
-              }}>
-                <strong>Debug:</strong> Cart length: {cart.length} | 
-                Items: {cart.map(item => `${item.product?.name || 'Sin nombre'} (${item.quantity})`).join(', ')} |
-                User ID: {userId} |
-                Loading: {loading}
-              </div>
-            )}
-          </div>
+          )}
 
-          {/* Indicador de pasos */}
-          <div className="step-indicator" style={{ 
-            display: 'flex', 
-            justifyContent: 'center', 
-            alignItems: 'center', 
-            gap: '20px', 
-            marginBottom: '30px',
-            padding: '20px',
-            background: '#f8f9fa',
-            borderRadius: '12px',
-            border: '1px solid #e9ecef',
-            flexWrap: 'wrap'
-          }}>
+          {/* Indicador de pasos - solo visible en pasos 1, 2 y 3 */}
+          {currentStep !== 4 && (
+            <div className="step-indicator" style={{ 
+              display: 'flex', 
+              justifyContent: 'center', 
+              alignItems: 'center', 
+              gap: '20px', 
+              marginBottom: '30px',
+              padding: '20px',
+              background: '#f8f9fa',
+              borderRadius: '12px',
+              border: '1px solid #e9ecef',
+              flexWrap: 'wrap'
+            }}>
             <div style={{ 
               display: 'flex', 
               alignItems: 'center', 
@@ -496,99 +525,100 @@ const FormPaymentFake = () => {
               <span style={{ fontSize: '14px' }}>Confirmar</span>
             </div>
           </div>
+        )}
 
           {/* PASO 1: DATOS DE LA TARJETA */}
           {currentStep === 1 && (
             <div className="card-form">
-              <div className="section-header">
-                <h2 className="section-title">
-                  <CreditCard size={24} />
+          <div className="section-header">
+            <h2 className="section-title">
+              <CreditCard size={24} />
                   Datos de la Tarjeta
-                </h2>
-                <p className="section-subtitle">
-                  <Lock size={16} />
-                  Completa los datos de tu tarjeta para la simulación
-                </p>
-              </div>
+            </h2>
+            <p className="section-subtitle">
+              <Lock size={16} />
+              Completa los datos de tu tarjeta para la simulación
+            </p>
+          </div>
 
-              <div className="form-section">
-                                 <InputField 
-                   id="numeroTarjeta" 
-                   name="numeroTarjeta" 
-                   value={formData.numeroTarjeta || ''} 
-                   onChange={handleFieldChange} 
-                   type="text" 
-                   label="Número de tarjeta" 
-                   placeholder="4242 4242 4242 4242" 
-                   maxLength="19"
-                   required 
-                 />
-                {fieldErrors.numeroTarjeta && (
-                  <div className="field-error">{fieldErrors.numeroTarjeta}</div>
-                )}
-                
-                                 <InputField 
-                   id="nombreTitular" 
-                   name="nombreTitular" 
-                   value={formData.nombreTitular || ''} 
-                   onChange={handleFieldChange} 
-                   type="text" 
-                   label="Nombre en la tarjeta" 
-                   placeholder="Como aparece en la tarjeta" 
-                   required 
-                 />
-                {fieldErrors.nombreTitular && (
-                  <div className="field-error">{fieldErrors.nombreTitular}</div>
-                )}
+            <div className="form-section">
+              <InputField 
+                id="numeroTarjeta" 
+                name="numeroTarjeta" 
+                value={formData.numeroTarjeta || ''} 
+                onChange={handleFieldChange} 
+                type="text" 
+                label="Número de tarjeta" 
+                placeholder="4242 4242 4242 4242" 
+                maxLength="19"
+                required 
+              />
+              {fieldErrors.numeroTarjeta && (
+                <div className="field-error">{fieldErrors.numeroTarjeta}</div>
+              )}
+              
+              <InputField 
+                id="nombreTitular" 
+                name="nombreTitular" 
+                value={formData.nombreTitular || ''} 
+                onChange={handleFieldChange} 
+                type="text" 
+                label="Nombre en la tarjeta" 
+                placeholder="Como aparece en la tarjeta" 
+                required 
+              />
+              {fieldErrors.nombreTitular && (
+                <div className="field-error">{fieldErrors.nombreTitular}</div>
+              )}
 
-                <div className="triple-grid">
-                                     <InputField 
-                     id="mesVencimiento" 
-                     name="mesVencimiento" 
-                     value={formData.mesVencimiento || ''} 
-                     onChange={handleFieldChange} 
-                     type="text" 
-                     label="Mes" 
-                     placeholder="MM" 
-                     maxLength="2"
-                     required 
-                   />
-                   <InputField 
-                     id="anioVencimiento" 
-                     name="anioVencimiento" 
-                     value={formData.anioVencimiento || ''} 
-                     onChange={handleFieldChange} 
-                     type="text" 
-                     label="Año" 
-                     placeholder="YYYY" 
-                     maxLength="4"
-                     required 
-                   />
+              <div className="triple-grid">
+                <InputField 
+                  id="mesVencimiento" 
+                  name="mesVencimiento" 
+                  value={formData.mesVencimiento || ''} 
+                  onChange={handleFieldChange} 
+                  type="text" 
+                  label="Mes" 
+                  placeholder="MM" 
+                  maxLength="2"
+                  required 
+                />
+                <InputField 
+                  id="anioVencimiento" 
+                  name="anioVencimiento" 
+                  value={formData.anioVencimiento || ''} 
+                  onChange={handleFieldChange} 
+                  type="text" 
+                  label="Año" 
+                  placeholder="YYYY" 
+                  maxLength="4"
+                  required 
+                />
                    <div className="input-field">
-                     <label htmlFor="cvv" className="input-label">
-                       CVV <span className="required">*</span>
-                       <HelpCircle size={16} className="help-icon" />
-                     </label>
-                     <input
-                       type="text"
-                       id="cvv"
-                       name="cvv"
-                       value={formData.cvv || ''}
-                       onChange={handleFieldChange}
+                  <label htmlFor="cvv" className="input-label">
+                    CVV <span className="required">*</span>
+                    <HelpCircle size={16} className="help-icon" />
+                  </label>
+                  <input
+                    type="text"
+                    id="cvv"
+                    name="cvv"
+                    value={formData.cvv || ''}
+                    onChange={handleFieldChange}
                        className="input"
-                       placeholder="123"
-                       maxLength="4"
-                       required
-                     />
-                   </div>
+                    placeholder="123"
+                    maxLength="4"
+                    required
+                  />
                 </div>
-                {(fieldErrors.mesVencimiento || fieldErrors.anioVencimiento || fieldErrors.cvv) && (
-                  <div className="field-error">
-                    {fieldErrors.mesVencimiento && `Mes: ${fieldErrors.mesVencimiento} `}
-                    {fieldErrors.anioVencimiento && `Año: ${fieldErrors.anioVencimiento} `}
-                    {fieldErrors.cvv && `CVV: ${fieldErrors.cvv}`}
-                  </div>
-                )}
+              </div>
+              {(fieldErrors.mesVencimiento || fieldErrors.anioVencimiento || fieldErrors.cvv) && (
+                <div className="field-error">
+                  {fieldErrors.mesVencimiento && `Mes: ${fieldErrors.mesVencimiento} `}
+                  {fieldErrors.anioVencimiento && `Año: ${fieldErrors.anioVencimiento} `}
+                  {fieldErrors.cvv && `CVV: ${fieldErrors.cvv}`}
+                </div>
+              )}
 
                 <div className="accepted-cards">
                   <span className="accepted-label">Tarjetas aceptadas:</span>
@@ -596,7 +626,7 @@ const FormPaymentFake = () => {
                     <div className="card-logo visa">VISA</div>
                     <div className="card-logo mastercard">MASTERCARD</div>
                   </div>
-                </div>
+            </div>
 
                 <div className="form-footer">
                   <Button 
@@ -616,7 +646,7 @@ const FormPaymentFake = () => {
               <div className="section-header">
                 <h2 className="section-title">
                   <Building size={24} />
-                  Dirección de Facturación
+                Dirección de Facturación
                 </h2>
                 <p className="section-subtitle">
                   <MapPin size={16} />
@@ -635,84 +665,84 @@ const FormPaymentFake = () => {
                   placeholder="Nombre y apellidos" 
                   required 
                 />
-                
-                <div className="double-grid">
-                  <InputField 
-                    id="emailFacturacion" 
-                    name="emailFacturacion" 
-                    value={formData.emailFacturacion || ''} 
-                    onChange={handleFieldChange} 
-                    type="email" 
-                    label="Email de facturación" 
-                    placeholder="email@ejemplo.com" 
-                    required 
-                  />
-                  <InputField 
-                    id="telefonoFacturacion" 
-                    name="telefonoFacturacion" 
-                    value={formData.telefonoFacturacion || ''} 
-                    onChange={handleFieldChange} 
-                    type="tel" 
-                    label="Teléfono" 
-                    placeholder="+1 (555) 123-4567" 
-                    required 
-                  />
-                </div>
-
+              
+              <div className="double-grid">
                 <InputField 
-                  id="direccionFacturacion" 
-                  name="direccionFacturacion" 
-                  value={formData.direccionFacturacion || ''} 
+                  id="emailFacturacion" 
+                  name="emailFacturacion" 
+                  value={formData.emailFacturacion || ''} 
                   onChange={handleFieldChange} 
-                  type="text" 
-                  label="Dirección" 
-                  placeholder="Calle, número, apartamento" 
+                  type="email" 
+                  label="Email de facturación" 
+                  placeholder="email@ejemplo.com" 
                   required 
                 />
-
-                <div className="triple-grid">
-                  <InputField 
-                    id="ciudadFacturacion" 
-                    name="ciudadFacturacion" 
-                    value={formData.ciudadFacturacion || ''} 
-                    onChange={handleFieldChange} 
-                    type="text" 
-                    label="Ciudad" 
-                    placeholder="Ciudad" 
-                    required 
-                  />
-                  <InputField 
-                    id="estadoFacturacion" 
-                    name="estadoFacturacion" 
-                    value={formData.estadoFacturacion || ''} 
-                    onChange={handleFieldChange} 
-                    type="text" 
-                    label="Estado/Provincia" 
-                    placeholder="Estado o provincia" 
-                    required 
-                  />
-                  <InputField 
-                    id="codigoPostal" 
-                    name="codigoPostal" 
-                    value={formData.codigoPostal || ''} 
-                    onChange={handleFieldChange} 
-                    type="text" 
-                    label="Código Postal" 
-                    placeholder="Código postal" 
-                    required 
-                  />
-                </div>
-
                 <InputField 
-                  id="paisFacturacion" 
-                  name="paisFacturacion" 
-                  value={formData.paisFacturacion || ''} 
+                  id="telefonoFacturacion" 
+                  name="telefonoFacturacion" 
+                  value={formData.telefonoFacturacion || ''} 
                   onChange={handleFieldChange} 
-                  type="text" 
-                  label="País" 
-                  placeholder="País" 
+                  type="tel" 
+                  label="Teléfono" 
+                  placeholder="+1 (555) 123-4567" 
                   required 
                 />
+              </div>
+
+              <InputField 
+                id="direccionFacturacion" 
+                name="direccionFacturacion" 
+                value={formData.direccionFacturacion || ''} 
+                onChange={handleFieldChange} 
+                type="text" 
+                label="Dirección" 
+                placeholder="Calle, número, apartamento" 
+                required 
+              />
+
+              <div className="triple-grid">
+                <InputField 
+                  id="ciudadFacturacion" 
+                  name="ciudadFacturacion" 
+                  value={formData.ciudadFacturacion || ''} 
+                  onChange={handleFieldChange} 
+                  type="text" 
+                  label="Ciudad" 
+                  placeholder="Ciudad" 
+                  required 
+                />
+                <InputField 
+                  id="estadoFacturacion" 
+                  name="estadoFacturacion" 
+                  value={formData.estadoFacturacion || ''} 
+                  onChange={handleFieldChange} 
+                  type="text" 
+                  label="Estado/Provincia" 
+                  placeholder="Estado o provincia" 
+                  required 
+                />
+                <InputField 
+                  id="codigoPostal" 
+                  name="codigoPostal" 
+                  value={formData.codigoPostal || ''} 
+                  onChange={handleFieldChange} 
+                  type="text" 
+                  label="Código Postal" 
+                  placeholder="Código postal" 
+                  required 
+                />
+              </div>
+
+              <InputField 
+                id="paisFacturacion" 
+                name="paisFacturacion" 
+                value={formData.paisFacturacion || ''} 
+                onChange={handleFieldChange} 
+                type="text" 
+                label="País" 
+                placeholder="País" 
+                required 
+              />
 
                 <div className="form-footer">
                   <Button 
@@ -758,7 +788,7 @@ const FormPaymentFake = () => {
                   <p>{formData.direccionFacturacion || 'No especificado'}</p>
                   <p>{formData.ciudadFacturacion || 'No especificado'}, {formData.estadoFacturacion || 'No especificado'} {formData.codigoPostal || 'No especificado'}</p>
                   <p>{formData.paisFacturacion || 'No especificado'}</p>
-                </div>
+            </div>
 
                 <div className="detail-section" style={{ background: '#f8f9fa', border: '1px solid #e9ecef', borderRadius: '8px', padding: '16px' }}>
                   <h4 style={{ color: '#6c5ce7', marginBottom: '12px' }}>Resumen de la Compra</h4>
@@ -769,31 +799,31 @@ const FormPaymentFake = () => {
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
                     <span>Total:</span>
                     <strong style={{ color: '#6c5ce7', fontSize: '18px' }}>${total.toFixed(2)}</strong>
-                  </div>
-                </div>
+              </div>
+          </div>
 
                 <div className="form-footer">
-                  <Button 
+              <Button 
                     onClick={prevStep} 
-                    variant="secondary" 
-                    className="btn-secondary" 
+                variant="secondary" 
+                className="btn-secondary" 
                     text="Volver a Facturación" 
-                  />
-                  <Button 
+              />
+              <Button 
                     onClick={onPay} 
-                    variant="primary" 
-                    className="btn-primary" 
+                variant="primary" 
+                className="btn-primary" 
                     text={`Confirmar Pago $${total.toFixed(2)}`} 
-                  />
-                </div>
-              </div>
+              />
             </div>
+          </div>
+        </div>
           )}
 
-          {/* PASO 4: PAGO EXITOSO */}
+                    {/* PASO 4: PAGO EXITOSO */}
           {currentStep === 4 && (
             <div className="card-form">
-              <div className="section-header">
+            <div className="section-header">
                 <h2 className="section-title" style={{ color: '#00b894' }}>
                   <CheckCircle size={24} />
                   ¡Pago Exitoso!
@@ -801,7 +831,10 @@ const FormPaymentFake = () => {
                 <p className="section-subtitle">
                   Tu pedido ha sido procesado correctamente y guardado en nuestra base de datos. Recibirás un correo de confirmación con los detalles de tu compra.
                 </p>
-              </div>
+                <p className="section-subtitle" style={{ fontSize: '14px', color: '#666', marginTop: '10px' }}>
+                  ⏰ Serás redirigido al catálogo en 19 segundos...
+                </p>
+            </div>
 
               <div className="form-footer">
                 <Button 
@@ -810,7 +843,7 @@ const FormPaymentFake = () => {
                     limpiarFormulario();
                     setFieldErrors({});
                     clearCart();
-                    navigate('/carrito');
+                    navigate('/catalogo');
                   }} 
                   variant="primary" 
                   className="btn-primary" 
@@ -828,9 +861,9 @@ const FormPaymentFake = () => {
                   className="btn-secondary" 
                   text="Ver mis pedidos" 
                 />
-              </div>
             </div>
-          )}
+          </div>
+        )}
         </div>
       </div>
       

@@ -101,13 +101,20 @@ export const CartProvider = ({ children }) => {
   };
 
   const clearCart = async () => {
-    for (const item of cart) {
-      await authFetch('/api/cart', {
-        method: 'DELETE',
-        body: JSON.stringify({ itemId: item.product.id, type: 'product' })
-      });
+    try {
+      // Limpiar el carrito en el servidor usando la ruta existente
+      for (const item of cart) {
+        await authFetch('/api/cart', {
+          method: 'DELETE',
+          body: JSON.stringify({ itemId: item.product.id, type: 'product' })
+        });
+      }
+    } catch (err) {
+      console.error('Error al limpiar carrito:', err);
+    } finally {
+      // Siempre limpiar el estado local
+      setCart([]);
     }
-    setCart([]);
   };
 
     const getTotal = useCallback(() => {
@@ -141,13 +148,13 @@ export const useCart = (userId) => {
     throw new Error('useCart must be used within a CartProvider');
   }
 
-  const { loadCart, loading } = context;
+  const { loadCart } = context;
 
   useEffect(() => {
-    if (userId && !loading) {
+    if (userId) {
       loadCart(userId);
     }
-  }, [userId, loading]); // Removido loadCart de las dependencias para evitar bucle infinito
+  }, [userId]); // Solo se ejecuta cuando cambia userId
 
   return context;
 };

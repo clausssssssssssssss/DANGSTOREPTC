@@ -1180,6 +1180,7 @@
   background: #5a67d8;
 }
 
+<<<<<<< HEAD
 /* Responsive para las decisiones */
 @media (max-width: 768px) {
   .quote-decision {
@@ -1208,6 +1209,145 @@
   }
 }
 
+=======
+/* src/components/styles/QuotesSection.css */
+
+.quotes-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+}
+
+.quote-card {
+  display: flex;
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  overflow: hidden;
+  padding: 12px;
+  align-items: center;
+  transition: transform 0.2s;
+}
+
+.quote-card:hover {
+  transform: translateY(-2px);
+}
+
+.quote-image {
+  width: 80px;
+  height: 80px;
+  flex-shrink: 0;
+  border-radius: 8px;
+  background-color: #f0f0f0;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.quote-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.quote-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  color: #999;
+}
+
+.quote-info {
+  flex: 1;
+  margin-left: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.quote-info h4 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.quote-info p {
+  margin: 0;
+  font-size: 14px;
+  color: #555;
+}
+
+.quote-actions {
+  margin-top: 8px;
+  display: flex;
+  gap: 8px;
+}
+
+.btn-accept, .btn-reject {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.btn-accept {
+  background-color: #4caf50;
+  color: #fff;
+}
+
+.btn-accept:hover {
+  background-color: #43a047;
+}
+
+.btn-reject {
+  background-color: #f44336;
+  color: #fff;
+}
+
+.btn-reject:hover {
+  background-color: #e53935;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 32px;
+  color: #777;
+}
+
+.empty-icon {
+  margin-bottom: 12px;
+}
+
+.loading-message, .error-message {
+  text-align: center;
+  padding: 24px;
+  color: #555;
+}
+
+.quote-approved {
+  font-weight: bold;
+  color: green;
+  background-color: #e6f5ea;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.pending-label {
+  font-style: italic;
+  color: #555;
+}
+
+
+
+>>>>>>> cdc1332ee81bfe2324c033254bbafcb8a2e87ae1
 /* ===== RESPONSIVE IMPROVEMENTS ===== */
 @media (min-width: 480px) {
   .form-grid {

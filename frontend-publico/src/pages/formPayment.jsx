@@ -53,8 +53,71 @@ const FormPayment = () => {
           </p>
         </div>
 
+<<<<<<< HEAD
         {step === 1 && (
           <div className="payment-form">
+=======
+<<<<<<< Updated upstream
+          <div className="payment-card">
+            <div className="section-header">
+            <h2 className="section-title">
+              <CreditCard size={24} />
+              Información de Pago
+            </h2>
+              <p className="section-subtitle">
+              <Lock size={16} />
+              Completa los datos de tu tarjeta para continuar
+              </p>
+=======
+        {step === 1 && (
+          <div className="payment-form">
+            <div className="form-section">
+              <div className="input-group">
+                <label htmlFor="nombre" className="input-label">
+                  <User size={18} className="input-icon" />
+                  Nombre del Cliente *
+                </label>
+                <InputField
+                  id="nombre"
+                  name="nombre"
+                  value={formData.nombre}
+                  onChange={handleChangeData}
+                  type="text"
+                  placeholder="Ej: Gabriel Alexander"
+                  required
+                />
+            </div>
+
+              <div className="input-group">
+                <label htmlFor="email" className="input-label">
+                  <Mail size={18} className="input-icon" />
+                  Email del Cliente *
+                </label>
+                <InputField
+                  id="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChangeData}
+                  type="email"
+                  placeholder="Ej: gaboquintana10@gmail.com"
+                  required
+                />
+              </div>
+
+              <div className="form-footer">
+                <Button
+                  onClick={() => setStep(2)}
+                  variant="primary"
+                  className="btn-primary"
+                  text="Continuar al Pago"
+                />
+              </div>
+>>>>>>> Stashed changes
+            </div>
+
+          <div className="card-form">
+            {/* Información de la Tarjeta */}
+>>>>>>> master
             <div className="form-section">
               <div className="input-group">
                 <label htmlFor="nombre" className="input-label">
@@ -141,6 +204,11 @@ const FormPayment = () => {
                     placeholder="Como aparece en la tarjeta"
                     required
                   />
+<<<<<<< HEAD
+=======
+<<<<<<< Updated upstream
+=======
+>>>>>>> master
                 </div>
 
                 <div className="double-grid">
@@ -178,7 +246,11 @@ const FormPayment = () => {
                         ))}
                       </select>
                     </div>
+<<<<<<< HEAD
                   </div>
+=======
+              </div>
+>>>>>>> master
 
                   <div className="input-group">
                     <div className="cvv-label-container">
@@ -210,7 +282,11 @@ const FormPayment = () => {
                   <div className="card-brands">
                     <div className="card-brand visa">VISA</div>
                     <div className="card-brand mastercard">MASTERCARD</div>
+<<<<<<< HEAD
                   </div>
+=======
+                </div>
+>>>>>>> master
                 </div>
               </div>
 
@@ -227,6 +303,10 @@ const FormPayment = () => {
                   className="btn-primary"
                   text="Confirmar Pago"
                 />
+<<<<<<< HEAD
+=======
+>>>>>>> Stashed changes
+>>>>>>> master
               </div>
             </div>
           </div>

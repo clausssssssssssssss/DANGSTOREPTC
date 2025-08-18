@@ -3,15 +3,15 @@ import Customer from "../models/Customers.js";
 import Order from "../models/Order.js";
 import Product from "../models/Product.js";
 import AdminProfile from "../models/AdminProfile.js";
-import { v2 as cloudinary } from 'cloudinary';
+// import { v2 as cloudinary } from 'cloudinary';
 import { config } from '../../config.js';
 
 // Inicializar cloudinary si hay variables
-cloudinary.config({
-  cloud_name: config.cloudinary.cloudinary_name,
-  api_key: config.cloudinary.cloudinary_api_key,
-  api_secret: config.cloudinary.cloudinary_api_secret,
-});
+// cloudinary.config({
+//   cloud_name: config.cloudinary.cloudinary_name,
+//   api_key: config.cloudinary.cloudinary_api_key,
+//   api_secret: config.cloudinary.cloudinary_api_secret,
+// });
 
 /**
  * Controlador para gestionar las acciones del perfil de usuario.

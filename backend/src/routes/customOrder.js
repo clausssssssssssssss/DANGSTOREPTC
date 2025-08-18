@@ -1,23 +1,22 @@
 import { Router } from 'express';
-import multer from 'multer';
 import authMiddleware from '../middleware/authMiddleware.js';
+import upload from '../middleware/multer.js'; // Importa el middleware de multer
 import {
   createCustomOrder,
   getMyCustomOrders,
   getAllPendingOrders,
   quoteCustomOrder,
   respondCustomOrder,
-  getCustomOrderById // ← AGREGAR ESTA LÍNEA
+  getCustomOrderById 
 } from '../controllers/customizedOrdersController.js';
 
 const router = Router();
-const upload = multer({ dest: 'uploads/' });
 
-// Crear solicitud
+// Crear solicitud con imagen (usando el middleware de multer)
 router.post(
   '/',
   authMiddleware(),
-  upload.single('image'),
+  upload.single('image'),  // Procesa la imagen enviada como 'image' en el body
   createCustomOrder
 );
 
@@ -28,7 +27,7 @@ router.get(
   getMyCustomOrders
 );
 
-// 
+// Obtener una solicitud personalizada por ID
 router.get(
   '/:id',
   authMiddleware(),

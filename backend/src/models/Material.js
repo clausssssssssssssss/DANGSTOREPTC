@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import { Schema, model } from 'mongoose';
-import cloudinary from 'cloudinary';
+// import cloudinary from 'cloudinary';
 
 /**
  * Esquema de datos para el modelo Material.

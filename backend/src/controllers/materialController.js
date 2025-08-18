@@ -1,13 +1,13 @@
-import { v2 as cloudinary } from 'cloudinary';
+// import { v2 as cloudinary } from 'cloudinary';
 import Material from '../models/Material.js';
 import { config } from '../../config.js';
 
 // Configuro cloudinary con mis credenciales
-cloudinary.config({
-  cloud_name: config.cloudinary.cloudinary_name,
-  api_key: config.cloudinary.cloudinary_api_key,
-  api_secret: config.cloudinary.cloudinary_api_secret,
-});
+// cloudinary.config({
+//   cloud_name: config.cloudinary.cloudinary_name,
+//   api_key: config.cloudinary.cloudinary_api_key,
+//   api_secret: config.cloudinary.cloudinary_api_secret,
+// });
 
 // función para subir una imagen a cloudinary usando un buffer
 const uploadToCloudinary = (buffer) => {

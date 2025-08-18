@@ -1,7 +1,23 @@
 // src/controllers/customizedOrdersController.js
+// import { v2 as cloudinary} from "cloudinary"
 import CustomizedOrder from '../models/customizedOrders.js';
 import Order from '../models/Order.js';
 import Cart from '../models/Cart.js';
+
+
+// Función para subir la imagen a Cloudinary
+const uploadToCloudinary = (buffer) => {
+  return new Promise((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(
+      { folder: 'customized-orders' },  // Puedes cambiar 'customized-orders' por el nombre de tu carpeta
+      (error, result) => {
+        if (result) resolve(result);
+        else reject(error);
+      }
+    );
+    stream.end(buffer);  // Aquí enviamos el buffer de la imagen
+  });
+};
 
 /** Usuario sube imagen y crea la orden pendiente */
 export const createCustomOrder = async (req, res) => {
@@ -11,8 +27,6 @@ export const createCustomOrder = async (req, res) => {
 
   const { modelType, description } = req.body;
   const userId = req.user.id || req.user.userId;
-
-
 
   if (!modelType) {
     return res.status(400).json({ message: 'modelType es requerido.' });
@@ -25,7 +39,13 @@ export const createCustomOrder = async (req, res) => {
   }
 
   try {
-    const imageUrl = `/uploads/${req.file.filename}`;
+    // Subir la imagen a Cloudinary
+    const imageUploadResult = await uploadToCloudinary(req.file.buffer);
+
+    // URL de la imagen subida a Cloudinary
+    const imageUrl = imageUploadResult.secure_url;  // Cloudinary te proporciona esta URL
+
+    // Crear la orden personalizada en la base de datos
     const order = new CustomizedOrder({
       user: userId,
       imageUrl,
@@ -33,6 +53,7 @@ export const createCustomOrder = async (req, res) => {
       description,
     });
     await order.save();
+
     return res.status(201).json(order);
   } catch (err) {
     console.error("🔥 Error creando solicitud personalizada:", err);

@@ -201,8 +201,8 @@ const usePaymentForm = () => {
         throw new Error(responseData.message || `Error del servidor: ${response.status}`);
       }
 
-      // Volver al carrito con estado de éxito
-      navigate('/carrito', { replace: true, state: { paid: true, total } });
+      // Pago exitoso - ir al paso 4 (confirmación exitosa)
+      setStep(4);
       return responseData;
     } catch (error) {
       console.error("❌ Error en pago simulado:", error);

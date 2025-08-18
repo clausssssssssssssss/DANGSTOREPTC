@@ -147,7 +147,7 @@ export const useCart = (userId) => {
     if (userId && !loading) {
       loadCart(userId);
     }
-  }, [userId, loadCart, loading]);
+  }, [userId, loading]); // Removido loadCart de las dependencias para evitar bucle infinito
 
   return context;
 };

@@ -1109,4 +1109,461 @@
   }
 }
 
+/* Estilos para el formulario de facturación */
+.billing-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* Estilos para la pantalla de confirmación */
+.confirmation-details {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.detail-section {
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 20px;
+  border: 1px solid #e9ecef;
+}
+
+.detail-section h4 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.detail-section p {
+  margin: 6px 0;
+  color: #666;
+  font-size: 0.95rem;
+}
+
+/* Estilos para el footer del formulario */
+.form-footer {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 24px;
+  flex-wrap: wrap;
+}
+
+.form-footer .btn {
+  flex: 1;
+  min-width: 160px;
+  max-width: 200px;
+}
+
+/* Ajustes para el grid triple en facturación */
+.triple-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 16px;
+}
+
+/* Responsive para el grid triple */
+@media (max-width: 768px) {
+  .triple-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  
+  .form-footer {
+    flex-direction: column;
+  }
+  
+  .form-footer .btn {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .triple-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+}
+
+/* Estilos mejorados para el indicador de pasos */
+.step-indicator {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 30px;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 12px;
+  border: 1px solid #e9ecef;
+  flex-wrap: wrap;
+}
+
+.step-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 120px;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.step-number {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: bold;
+  transition: all 0.3s ease;
+}
+
+.step-text {
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+/* Estilos mejorados para campos con error */
+.input.error,
+.input-field.error .input {
+  border-color: #dc3545;
+  box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.1);
+  background-color: #fff5f5;
+}
+
+.input.error:focus,
+.input-field.error .input:focus {
+  border-color: #dc3545;
+  box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.2);
+}
+
+/* Estilos mejorados para campos válidos */
+.input.valid,
+.input-field.valid .input {
+  border-color: #28a745;
+  box-shadow: 0 0 0 2px rgba(40, 167, 69, 0.1);
+  background-color: #f8fff9;
+}
+
+.input.valid:focus,
+.input-field.valid .input:focus {
+  border-color: #28a745;
+  box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.2);
+}
+
+/* Estilos para mensajes de error mejorados */
+.field-error {
+  color: #dc3545;
+  font-size: 0.8rem;
+  margin-top: 4px;
+  margin-bottom: 8px;
+  padding: 8px 12px;
+  background-color: #fff5f5;
+  border: 1px solid #feb2b2;
+  border-radius: 6px;
+  animation: slideInError 0.3s ease-in;
+  border-left: 4px solid #dc3545;
+}
+
+@keyframes slideInError {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+    max-height: 0;
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    max-height: 100px;
+  }
+}
+
+/* Estilos para campos requeridos */
+.required {
+  color: #dc3545;
+  font-weight: bold;
+}
+
+/* Estilos para tooltips mejorados */
+.help-tooltip {
+  position: relative;
+  display: inline-block;
+  margin-left: 8px;
+  cursor: help;
+}
+
+.tooltip-text {
+  visibility: hidden;
+  width: 200px;
+  background-color: #333;
+  color: white;
+  text-align: center;
+  border-radius: 6px;
+  padding: 8px;
+  position: absolute;
+  z-index: 1;
+  bottom: 125%;
+  left: 50%;
+  margin-left: -100px;
+  opacity: 0;
+  transition: opacity 0.3s;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.help-tooltip:hover .tooltip-text {
+  visibility: visible;
+  opacity: 1;
+}
+
+/* Estilos para el grid responsive mejorado */
+.triple-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 16px;
+}
+
+.double-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+/* Responsive mejorado para móviles */
+@media (max-width: 768px) {
+  .step-indicator {
+    gap: 15px;
+    padding: 15px;
+  }
+  
+  .step-item {
+    min-width: 100px;
+  }
+  
+  .step-text {
+    font-size: 12px;
+  }
+  
+  .step-number {
+    width: 25px;
+    height: 25px;
+    font-size: 12px;
+  }
+  
+  .triple-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  
+  .double-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  
+  .form-footer {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .form-footer .btn {
+    width: 100%;
+    max-width: none;
+  }
+  
+  .card-logos {
+    justify-content: center;
+    gap: 8px;
+  }
+  
+  .card-logo {
+    padding: 8px 12px;
+    font-size: 12px;
+    min-width: 70px;
+  }
+}
+
+@media (max-width: 480px) {
+  .step-indicator {
+    gap: 10px;
+    padding: 12px;
+  }
+  
+  .step-item {
+    min-width: 80px;
+  }
+  
+  .step-text {
+    font-size: 11px;
+  }
+  
+  .step-number {
+    width: 22px;
+    height: 22px;
+    font-size: 11px;
+  }
+  
+  .triple-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  
+  .card-logos {
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .card-logo {
+    width: 100%;
+    max-width: 120px;
+    text-align: center;
+  }
+  
+  .field-error {
+    font-size: 11px;
+    padding: 6px 8px;
+  }
+  
+  .tooltip-text {
+    width: 150px;
+    margin-left: -75px;
+    font-size: 11px;
+  }
+}
+
+/* Estilos para pantallas muy pequeñas */
+@media (max-width: 360px) {
+  .step-indicator {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .step-item {
+    min-width: 100%;
+    justify-content: center;
+  }
+  
+  .step-text {
+    font-size: 12px;
+  }
+  
+  .step-number {
+    width: 24px;
+    height: 24px;
+    font-size: 12px;
+  }
+}
+
+/* Estilos para orientación landscape en móviles */
+@media (max-width: 768px) and (orientation: landscape) {
+  .step-indicator {
+    flex-direction: row;
+    gap: 15px;
+  }
+  
+  .step-item {
+    min-width: 90px;
+  }
+  
+  .triple-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  
+  .double-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* Estilos para pantallas de alta densidad */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .input:focus {
+    box-shadow: 0 0 0 2px rgba(108, 92, 231, 0.2);
+  }
+  
+  .field-error {
+    border-width: 1.5px;
+  }
+  
+  .step-number {
+    border: 1px solid rgba(0, 0, 0, 0.1);
+  }
+}
+
+/* Estilos para modo oscuro del sistema (opcional) */
+@media (prefers-color-scheme: dark) {
+  .step-indicator {
+    background: #2d3748;
+    border-color: #4a5568;
+  }
+  
+  .step-text {
+    color: #e2e8f0;
+  }
+  
+  .step-number {
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+}
+
+/* Estilos para usuarios con preferencias de movimiento reducido */
+@media (prefers-reduced-motion: reduce) {
+  .input:focus,
+  .btn-primary:hover,
+  .btn-secondary:hover,
+  .field-error,
+  .step-number {
+    transition: none;
+  }
+  
+  .tooltip-text {
+    transition: none;
+  }
+}
+
+/* Estilos para pantallas táctiles */
+@media (hover: none) and (pointer: coarse) {
+  .input {
+    min-height: 44px;
+  }
+  
+  .btn {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  .card-logo {
+    min-height: 44px;
+    min-width: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .step-number {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  .help-tooltip {
+    min-height: 44px;
+    min-width: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
 

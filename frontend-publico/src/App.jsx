@@ -11,6 +11,7 @@ import UserProfile from './pages/UserProfile'
 import FormPaymentFake from './pages/formPaymentFake'
 import { AuthProvider } from './hooks/useAuth'
 import { FavoritesProvider } from './context/FavoritesContext'
+import { CartProvider } from './context/CartContext'
 
 import './App.css'
 
@@ -91,13 +92,14 @@ const App = () => {
 
   return (
     <AuthProvider>
-      <FavoritesProvider>
-        <AppErrorBoundary>
-          <Suspense fallback={<LoadingSpinner />}>
-            <Routes>
-              <Route element={<MainLayout />}>
-                <Route path="/" element={<Acerca />} />
-                <Route path="/auth/*" element={<AuthApp />} />
+      <CartProvider>
+        <FavoritesProvider>
+          <AppErrorBoundary>
+            <Suspense fallback={<LoadingSpinner />}>
+              <Routes>
+                <Route element={<MainLayout />}>
+                  <Route path="/" element={<Acerca />} />
+                  <Route path="/auth/*" element={<AuthApp />} />
                 <Route path="/encargo" element={<Encargo />} />
                 <Route path="/catalogo" element={<Catalogo />} />
                 <Route path="/carrito" element={<CarritoDeCompras />} />
@@ -111,6 +113,7 @@ const App = () => {
           </Suspense>
         </AppErrorBoundary>
       </FavoritesProvider>
+        </CartProvider>
     </AuthProvider>
   )
 }

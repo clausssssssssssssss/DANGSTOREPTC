@@ -10,7 +10,7 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [authToken, setAuthToken] = useState(null);
   const [loading, setLoading] = useState(false);
-  const API_URL = "http://192.168.0.8:4000/api";
+  const API_URL = "http://10.10.2.140a:4000/api";
 
   useEffect(() => {
     const loadToken = async () => {

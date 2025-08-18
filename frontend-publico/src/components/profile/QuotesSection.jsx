@@ -239,7 +239,7 @@ const QuotesSection = ({ setHasQuotesFlag, showSuccess, showError, showWarning }
                   {getStatusBadge(quote.status)}
                 </div>
                 
-                <p className="quote-description">{quote.description}</p>
+               
                 
                
                 

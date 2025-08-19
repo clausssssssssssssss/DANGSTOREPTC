@@ -5,7 +5,6 @@ import SalesModel from "../models/Sale.js";
 import { sendEmail } from "../utils/mailService.js";
 
 
-
 // Añadir producto o ítem personalizado al carrito del usuario
 export const addToCart = async (req, res) => {
   console.log('addToCart body:', req.body);

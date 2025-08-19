@@ -15,7 +15,7 @@ export default function useCustomerOrders() {
   const handleImageChange = e => {
     const file = e.target.files[0];
     if (!file) return;
-    console.log('📸 handleImageChange:', file);
+    console.log('handleImageChange:', file);
     setImage(file);
     setPreview(URL.createObjectURL(file));
   };
@@ -31,7 +31,7 @@ export default function useCustomerOrders() {
   };
 
   const submit = async () => {
-    console.log('🚀 submit called', { image, modelType, description });
+    console.log('submit called', { image, modelType, description });
     setLoading(true);
     setError(null);
 

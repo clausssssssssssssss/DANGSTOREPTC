@@ -10,7 +10,6 @@ import { config } from '../../config.js';
  * y firma un JWT con userType para distinguir customer/admin.
  */
 
-
 //Declarar dos constatnes Una que guarde el maximo de intentos posibleas y otra que guarde el tiempo de bloqueo
 
 const maxAttempts = 5;

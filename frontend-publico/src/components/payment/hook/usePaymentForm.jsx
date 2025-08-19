@@ -179,7 +179,7 @@ const usePaymentForm = () => {
         cardType: detectCardType(formDataTarjeta.numeroTarjeta),
       };
 
-      console.log("📦 Enviando orden al backend:", orderData);
+      console.log("Enviando orden al backend:", orderData);
 
       const base = import.meta.env.VITE_API_URL || '';
       const response = await fetch(`${base}/api/cart/order`, {
@@ -191,11 +191,11 @@ const usePaymentForm = () => {
         body: JSON.stringify(orderData),
       });
 
-              console.log("🌐 URL completa:", "http://localhost:4000/https://dangstoreptc-n9km.vercel.app/api/cart/order");
-      console.log("📨 Haciendo petición...");
+              console.log("URL completa:", "http://localhost:4000/https://dangstoreptc-n9km.vercel.app/api/cart/order");
+              console.log("Haciendo petición...");
 
       const responseData = await response.json();
-      console.log("📨 Datos de respuesta:", responseData);
+              console.log("Datos de respuesta:", responseData);
 
       if (!response.ok) {
         throw new Error(responseData.message || `Error del servidor: ${response.status}`);
@@ -205,7 +205,7 @@ const usePaymentForm = () => {
       setStep(4);
       return responseData;
     } catch (error) {
-      console.error("❌ Error en pago simulado:", error);
+              console.error("Error en pago simulado:", error);
       // El error será manejado por el componente que use este hook
       throw error;
     }

@@ -167,7 +167,7 @@ materialController.searchMaterials = async (req, res) => {
     
     const materials = await Material.find({
       $or: [
-        { name: { $regex: query, $options: 'i' } }, // búsqueda insensible a mayúsculas
+        { name: { $regex: query, $options: 'i' } }, 
         { type: { $regex: query, $options: 'i' } }
       ]
     });

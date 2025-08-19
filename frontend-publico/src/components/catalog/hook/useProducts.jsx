@@ -13,16 +13,16 @@ export function useProducts() {
       setLoading(true);
       setError(null);
       
-      console.log('🔍 Intentando conectar a:', `${API_BASE}/catalog`);
+      console.log('Intentando conectar a:', `${API_BASE}/catalog`);
       
       const res = await fetch(`${API_BASE}/catalog`);
       
-      console.log('📡 Respuesta del servidor:', res.status, res.statusText);
+      console.log('Respuesta del servidor:', res.status, res.statusText);
       
       if (!res.ok) {
         // Intentar leer el texto de la respuesta para debuggear
         const errorText = await res.text();
-        console.error('❌ Error response text:', errorText);
+        console.error('Error response text:', errorText);
         
         if (errorText.includes('<!doctype') || errorText.includes('<html')) {
           throw new Error('El servidor está devolviendo HTML en lugar de JSON. Verifica que la API esté corriendo.');
@@ -32,11 +32,11 @@ export function useProducts() {
       }
       
       const data = await res.json();
-      console.log('✅ Datos recibidos:', data);
+      console.log('Datos recibidos:', data);
       
       setProducts(data);
     } catch (err) {
-      console.error('❌ Error fetching products:', err);
+      console.error('Error fetching products:', err);
       
       // Mensaje de error más específico
       if (err.message.includes('fetch')) {

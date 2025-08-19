@@ -4,19 +4,17 @@ import CustomizedOrder from '../models/customizedOrders.js';
 import Order from '../models/Order.js';
 import Cart from '../models/Cart.js';
 
-// Función para subir la imagen a Cloudinary (temporalmente deshabilitada)
-// const uploadToCloudinary = (buffer) => {
-//   return new Promise((resolve, reject) => {
-//     const stream = cloudinary.uploader.upload_stream(
-//       { folder: 'customized-orders' },
-//       (error, result) => {
-//         if (result) resolve(result);
-//         else reject(error);
-//       }
-//     );
-//     stream.end(buffer);
-//   });
-// };
+const uploadToCloudinary = (buffer) => {
+   return new Promise((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(
+       { folder: 'customized-orders' },
+       (error, result) => {
+         if (result) resolve(result);
+         else reject(error);
+       }
+     );
+   });
+ };
 
 /** Usuario sube imagen y crea la orden pendiente */
 export const createCustomOrder = async (req, res) => {

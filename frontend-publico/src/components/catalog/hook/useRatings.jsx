@@ -15,7 +15,7 @@ export const useRatings = (productId) => {
   // Verificar si el usuario puede dejar reseñas
   const checkCanRate = async () => {
     if (!productId || !user) {
-      console.log('🔍 No se puede verificar permisos:', { productId, user: !!user });
+      console.log('No se puede verificar permisos:', { productId, user: !!user });
       setCanRate(false);
       setCanRateMessage('Debes iniciar sesión para dejar reseñas');
       return;
@@ -23,9 +23,9 @@ export const useRatings = (productId) => {
     
     try {
       const token = localStorage.getItem('token');
-      console.log('🔍 Verificando permisos para:', { productId, userId: user.id });
-      console.log('🔍 Token disponible:', !!token);
-      console.log('🔍 Token length:', token ? token.length : 0);
+              console.log('Verificando permisos para:', { productId, userId: user.id });
+              console.log('Token disponible:', !!token);
+              console.log('Token length:', token ? token.length : 0);
       
               const response = await fetch(`https://dangstoreptc-n9km.vercel.app/api/ratings/can-rate/${productId}`, {
         headers: {
@@ -35,13 +35,13 @@ export const useRatings = (productId) => {
       
       if (response.ok) {
         const data = await response.json();
-        console.log('🔍 Respuesta de permisos:', data);
+        console.log('Respuesta de permisos:', data);
         setCanRate(data.canRate);
         setCanRateMessage(data.message);
       } else {
-        console.log('🔍 Error en respuesta de permisos:', response.status);
+        console.log('Error en respuesta de permisos:', response.status);
         const errorData = await response.json().catch(() => ({}));
-        console.log('🔍 Error data:', errorData);
+        console.log('Error data:', errorData);
         setCanRate(false);
         setCanRateMessage(errorData.message || 'Error al verificar permisos');
       }
@@ -68,7 +68,7 @@ export const useRatings = (productId) => {
         
         // Buscar si el usuario ya tiene una reseña
         if (user) {
-          console.log('🔍 Buscando reseña del usuario:', {
+          console.log('Buscando reseña del usuario:', {
             userId: user.id,
             ratings: data.ratings,
             userRating: data.ratings?.find(r => r.id_customer === user.id)
@@ -96,7 +96,7 @@ export const useRatings = (productId) => {
     try {
       setLoading(true);
       const token = localStorage.getItem('token');
-      console.log('🔍 Enviando reseña con token:', !!token);
+              console.log('Enviando reseña con token:', !!token);
       
       const method = userRating ? 'PUT' : 'POST';
       const url = userRating 

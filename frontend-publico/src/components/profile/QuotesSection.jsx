@@ -20,27 +20,27 @@ const QuotesSection = ({ setHasQuotesFlag, showSuccess, showError, showWarning }
     setErrorQuotes('');
     
     // Debug info
-    console.log('🔍 DEBUG - Fetching quotes...');
-    console.log('🔍 API_URL:', API_URL);
-    console.log('🔍 Token:', localStorage.getItem('token') ? 'EXISTS' : 'MISSING');
-    console.log('🔍 Filter:', quotesFilter);
+    console.log('DEBUG - Fetching quotes...');
+          console.log('API_URL:', API_URL);
+          console.log('Token:', localStorage.getItem('token') ? 'EXISTS' : 'MISSING');
+          console.log('Filter:', quotesFilter);
     
     try {
       const res = await fetch(`${API_URL}/api/custom-orders/me`, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
       });
       
-      console.log('🔍 Response status:', res.status);
+              console.log('Response status:', res.status);
       
       if (!res.ok) throw new Error(`Status ${res.status}`);
       const data = await res.json();
 
-      console.log('🔍 Raw data from API:', data);
-      console.log('🔍 Number of items:', data.length);
+              console.log('Raw data from API:', data);
+              console.log('Number of items:', data.length);
       
       // Mostrar todos los estados únicos que existen
       const uniqueStatuses = [...new Set(data.map(item => item.status))];
-      console.log('🔍 Unique statuses found:', uniqueStatuses);
+              console.log('Unique statuses found:', uniqueStatuses);
 
       // Debug info para el componente
       setDebugInfo({
@@ -61,15 +61,15 @@ const QuotesSection = ({ setHasQuotesFlag, showSuccess, showError, showWarning }
         filteredQuotes = data; // Cambiado: mostrar todo
       }
 
-      console.log('🔍 Filtered quotes:', filteredQuotes);
-      console.log('🔍 Filtered count:', filteredQuotes.length);
+              console.log('Filtered quotes:', filteredQuotes);
+              console.log('Filtered count:', filteredQuotes.length);
 
       setQuotes(filteredQuotes);
       // Puntito de notificación si hay alguna 'quoted'
       setHasQuotesFlag(filteredQuotes.some((o) => o.status === 'quoted'));
       
     } catch (err) {
-      console.error('🔍 ERROR:', err);
+              console.error('ERROR:', err);
       setErrorQuotes(`Error: ${err.message || err}`);
     } finally {
       setLoadingQuotes(false);
@@ -77,7 +77,7 @@ const QuotesSection = ({ setHasQuotesFlag, showSuccess, showError, showWarning }
   };
 
   const handleDecision = async (orderId, decision) => {
-    console.log('🔍 Handle decision:', { orderId, decision });
+          console.log('Handle decision:', { orderId, decision });
     
     try {
       const res = await fetch(`${API_URL}/api/custom-orders/${orderId}/respond`, {
@@ -92,7 +92,7 @@ const QuotesSection = ({ setHasQuotesFlag, showSuccess, showError, showWarning }
       if (!res.ok) throw new Error(`Status ${res.status}`);
       const updatedOrder = await res.json();
       
-      console.log('🔍 Updated order:', updatedOrder);
+              console.log('Updated order:', updatedOrder);
 
       setQuotes((q) => {
         if (decision === 'accept') {
@@ -119,28 +119,28 @@ const QuotesSection = ({ setHasQuotesFlag, showSuccess, showError, showWarning }
         showSuccess('Cotización rechazada correctamente');
       }
     } catch (err) {
-      console.error('🔍 Error in handleDecision:', err);
+              console.error('Error in handleDecision:', err);
       showError('Error al procesar la decisión');
     }
   };
 
   const handleFilterChange = (filter) => {
-    console.log('🔍 Filter changed to:', filter);
+          console.log('Filter changed to:', filter);
     setQuotesFilter(filter);
   };
 
   const getStatusBadge = (status) => {
     switch (status) {
       case 'quoted':
-        return <span className="status-badge quoted">💬 Por responder</span>;
+        return <span className="status-badge quoted"> Por responder</span>;
       case 'pending':
-        return <span className="status-badge pending">⏳ Esperando cotización</span>;
+        return <span className="status-badge pending">Esperando cotización</span>;
       case 'accepted':
-        return <span className="status-badge accepted">✅ Aceptada</span>;
+        return <span className="status-badge accepted">Aceptada</span>;
       case 'rejected':
-        return <span className="status-badge rejected">❌ Rechazada</span>;
+        return <span className="status-badge rejected">Rechazada</span>;
       default:
-        return <span className="status-badge unknown">❓ {status || 'Sin estado'}</span>;
+                  return <span className="status-badge unknown">{status || 'Sin estado'}</span>;
     }
   };
 

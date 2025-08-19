@@ -11,7 +11,7 @@ const RatingForm = ({ onSubmit, onDelete, userRating, loading, productName, canR
     e.preventDefault();
     
     // Debug: mostrar valores en consola
-    console.log('🔍 Debug RatingForm:', {
+    console.log('Debug RatingForm:', {
       canRate,
       canRateMessage,
       userRating: !!userRating,

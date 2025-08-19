@@ -1,5 +1,5 @@
 import { sendEmail } from "../utils/mailService.js";
-import { config } from "../../config.js"; // ✅ importar config
+import { config } from "../../config.js"; //  importar config
 
 const contactController = {};
 
@@ -19,7 +19,7 @@ contactController.sendContact = async (req, res) => {
       <p><strong>Mensaje:</strong><br>${message}</p>
     `;
 
-    console.log('Enviando correo a:', config.email.user); // ✅
+    console.log('Enviando correo a:', config.email.user); // 
 
     await sendEmail({
       to: config.email.user,

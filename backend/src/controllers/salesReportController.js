@@ -2,7 +2,7 @@ import SalesModel from "../models/Sales.js";
 
 const salesController = {};
 
-// 📄 aquí obtengo todas las ventas guardadas
+// aquí obtengo todas las ventas guardadas
 salesController.getAllSales = async (req, res) => {
   try {
     const sales = await SalesModel.find(); // traigo todas las ventas
@@ -13,7 +13,7 @@ salesController.getAllSales = async (req, res) => {
   }
 };
 
-// 📄 aquí registro una nueva venta
+// aquí registro una nueva venta
 salesController.insertSales = async (req, res) => {
   try {
     const { product, category, customer, total } = req.body;
@@ -33,7 +33,7 @@ salesController.insertSales = async (req, res) => {
   }
 };
 
-// 📄 aquí actualizo una venta por su ID
+// aquí actualizo una venta por su ID
 salesController.updateSales = async (req, res) => {
   try {
     const { product, category, customer, total } = req.body;
@@ -59,7 +59,7 @@ salesController.updateSales = async (req, res) => {
   }
 };
 
-// 📄 aquí elimino una venta por su ID
+// aquí elimino una venta por su ID
 salesController.deleteSales = async (req, res) => {
   try {
     const deleted = await SalesModel.findByIdAndDelete(req.params.id);
@@ -75,7 +75,7 @@ salesController.deleteSales = async (req, res) => {
   }
 };
 
-// 📊 aquí hago resumen de ventas: diario, mensual y anual
+// aquí hago resumen de ventas: diario, mensual y anual
 salesController.getSalesSummary = async (req, res) => {
   try {
     const daily = await SalesModel.aggregate([
@@ -117,7 +117,7 @@ salesController.getSalesSummary = async (req, res) => {
   }
 };
 
-// 📊 aquí obtengo ventas agrupadas por categoría
+//  aquí obtengo ventas agrupadas por categoría
 salesController.getSalesByCategory = async (req, res) => {
   try {
     const result = await SalesModel.aggregate([
@@ -131,7 +131,7 @@ salesController.getSalesByCategory = async (req, res) => {
   }
 };
 
-// 📊 aquí calculo las ganancias en un rango de fechas
+//  aquí calculo las ganancias en un rango de fechas
 salesController.getIncomeByDateRange = async (req, res) => {
   try {
     const { start, end } = req.query; // leo fechas de la query

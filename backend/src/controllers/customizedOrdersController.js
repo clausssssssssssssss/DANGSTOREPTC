@@ -52,7 +52,7 @@ export const createCustomOrder = async (req, res) => {
     });
     await order.save();
 
-    console.log('✅ Orden personalizada creada exitosamente:', order._id);
+    console.log(' Orden personalizada creada exitosamente:', order._id);
     return res.status(201).json({
       message: 'Encargo personalizado creado exitosamente',
       order: {
@@ -64,7 +64,7 @@ export const createCustomOrder = async (req, res) => {
       }
     });
   } catch (err) {
-    console.error("🔥 Error creando solicitud personalizada:", err);
+    console.error(" Error creando solicitud personalizada:", err);
     return res.status(500).json({
       message: "Error creando solicitud",
       error: err.message
@@ -123,29 +123,29 @@ export const respondCustomOrder = async (req, res) => {
     const { decision } = req.body;
     const { id } = req.params;
 
-    console.log('🔄 respondCustomOrder llamado con:', { decision, id });
-    console.log('👤 Usuario autenticado:', req.user);
-    console.log('🔑 ID del usuario:', req.user.id || req.user.userId);
+    console.log('respondCustomOrder llamado con:', { decision, id });
+    console.log(' Usuario autenticado:', req.user);
+    console.log(' ID del usuario:', req.user.id || req.user.userId);
 
     // Obtener el ID del usuario del objeto req.user
     const userId = req.user.id || req.user.userId;
     if (!userId) {
-      console.log('❌ No se pudo obtener el ID del usuario');
+      console.log(' No se pudo obtener el ID del usuario');
       return res.status(400).json({ message: 'ID de usuario no válido' });
     }
 
     // 1) Buscamos la orden
     const order = await CustomizedOrder.findById(id);
     if (!order) {
-      console.log('❌ Orden no encontrada:', id);
+      console.log(' Orden no encontrada:', id);
       return res.status(404).json({ message: 'Encargo personalizado no encontrado.' });
     }
 
-    console.log('✅ Orden encontrada:', order._id, 'Status actual:', order.status);
+    console.log(' Orden encontrada:', order._id, 'Status actual:', order.status);
 
     // 2) Validamos la decisión
     if (decision !== 'accept' && decision !== 'reject') {
-      console.log('❌ Decisión inválida:', decision);
+      console.log(' Decisión inválida:', decision);
       return res
         .status(400)
         .json({ message: 'El campo decision debe ser "accept" o "reject".' });
@@ -153,13 +153,13 @@ export const respondCustomOrder = async (req, res) => {
 
     // 3) Procesamos el rechazo
     if (decision === 'reject') {
-      console.log('🔄 Procesando rechazo...');
+      console.log('Procesando rechazo...');
       order.status = 'rejected';
       order.decisionDate = new Date();
       order.decision = 'reject';
       await order.save();
       
-      console.log('✅ Rechazo procesado correctamente');
+      console.log(' Rechazo procesado correctamente');
       return res.json({
         message: 'Encargo rechazado correctamente',
         order
@@ -167,7 +167,7 @@ export const respondCustomOrder = async (req, res) => {
     }
 
     // 4) Procesamos la aceptación
-    console.log('🔄 Procesando aceptación...');
+    console.log('Procesando aceptación...');
     order.status = 'accepted';
     order.decisionDate = new Date();
     order.decision = 'accept';
@@ -175,18 +175,18 @@ export const respondCustomOrder = async (req, res) => {
 
     // 5) Lo metemos al carrito
     try {
-      console.log('🛒 Buscando carrito para usuario:', userId);
+      console.log(' Buscando carrito para usuario:', userId);
       let cart = await Cart.findOne({ user: userId });
       
       if (!cart) {
-        console.log('🛒 Creando nuevo carrito para usuario:', userId);
+        console.log(' Creando nuevo carrito para usuario:', userId);
         cart = new Cart({ 
           user: userId,
           products: [],
           customizedProducts: []
         });
       } else {
-        console.log('🛒 Carrito existente encontrado:', cart._id);
+        console.log(' Carrito existente encontrado:', cart._id);
       }
 
       // Verificar si ya existe en el carrito
@@ -195,23 +195,23 @@ export const respondCustomOrder = async (req, res) => {
       );
 
       if (existingProduct) {
-        console.log('🔄 Producto ya existe en carrito, actualizando cantidad');
+        console.log(' Producto ya existe en carrito, actualizando cantidad');
         existingProduct.quantity += 1;
       } else {
-        console.log('🆕 Agregando nuevo producto personalizado al carrito');
+        console.log(' Agregando nuevo producto personalizado al carrito');
         cart.customizedProducts.push({ 
           item: order._id, 
           quantity: 1 
         });
       }
 
-      console.log('💾 Guardando carrito...');
+      console.log(' Guardando carrito...');
       await cart.save();
-      console.log('✅ Carrito actualizado correctamente');
-      console.log('📊 Productos personalizados en carrito:', cart.customizedProducts.length);
+      console.log(' Carrito actualizado correctamente');
+      console.log(' Productos personalizados en carrito:', cart.customizedProducts.length);
 
       // 6) Respuesta combinada
-      console.log('📤 Enviando respuesta exitosa');
+      console.log(' Enviando respuesta exitosa');
       return res.json({ 
         message: 'Encargo aceptado y agregado al carrito',
         order,
@@ -231,8 +231,8 @@ export const respondCustomOrder = async (req, res) => {
       });
 
     } catch (cartError) {
-      console.error('❌ Error con el carrito:', cartError);
-      console.error('❌ Stack trace:', cartError.stack);
+      console.error(' Error con el carrito:', cartError);
+      console.error(' Stack trace:', cartError.stack);
       // Si falla el carrito, al menos guardamos la decisión
       return res.json({ 
         message: 'Encargo aceptado pero hubo un problema con el carrito',
@@ -242,7 +242,7 @@ export const respondCustomOrder = async (req, res) => {
     }
 
   } catch (err) {
-    console.error('❌ Error en respondCustomOrder:', err);
+    console.error('Error en respondCustomOrder:', err);
     return res
       .status(500)
       .json({ 

@@ -46,7 +46,7 @@ export function useCart(userId) {
 
     (async () => {
       try {
-        const data = await authFetch(`/api/cart`);
+        const data = await authFetch(`https://dangstoreptc.onrender.com/api/cart`);
         setCart((data.products || []).map(p => ({
           product: {
             id: p.product._id,
@@ -67,7 +67,7 @@ export function useCart(userId) {
 
   // Sincroniza el estado local con la respuesta del backend
   function sync(cartDoc) {
-    console.log('🔄 Sync cart data:', cartDoc);
+    console.log('Sync cart data:', cartDoc);
     const newCart = (cartDoc.products || []).map(p => ({
       product: {
         id: p.product._id,
@@ -78,7 +78,7 @@ export function useCart(userId) {
       },
       quantity: p.quantity
     }));
-    console.log('🔄 New cart state:', newCart);
+    console.log('New cart state:', newCart);
     setCart(newCart);
   }
 

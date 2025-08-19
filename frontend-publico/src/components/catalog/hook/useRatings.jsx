@@ -27,7 +27,7 @@ export const useRatings = (productId) => {
       console.log('🔍 Token disponible:', !!token);
       console.log('🔍 Token length:', token ? token.length : 0);
       
-      const response = await fetch(`/api/ratings/can-rate/${productId}`, {
+      const response = await fetch(`https://dangstoreptc.onrender.com/api/ratings/can-rate/${productId}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -58,7 +58,7 @@ export const useRatings = (productId) => {
     
     try {
       setLoading(true);
-      const response = await fetch(`/api/ratings/product/${productId}`);
+      const response = await fetch(`https://dangstoreptc.onrender.com/api/ratings/product/${productId}`);
       
       if (response.ok) {
         const data = await response.json();
@@ -100,8 +100,8 @@ export const useRatings = (productId) => {
       
       const method = userRating ? 'PUT' : 'POST';
       const url = userRating 
-        ? `/api/ratings/${userRating._id}`
-        : `/api/ratings`;
+        ? `https://dangstoreptc.onrender.com/api/ratings/${userRating._id}`
+        : `https://dangstoreptc.onrender.com/api/ratings`;
 
       const response = await fetch(url, {
         method,
@@ -166,7 +166,7 @@ export const useRatings = (productId) => {
 
     try {
       setLoading(true);
-      const response = await fetch(`/api/ratings/${userRating._id}`, {
+      const response = await fetch(`https://dangstoreptc.onrender.com/api/ratings/${userRating._id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`

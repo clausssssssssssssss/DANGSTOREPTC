@@ -31,7 +31,7 @@ const validImageTypes = [
   'image/svg+xml', 'image/avif', 'image/jpg'
 ];
 
-// 📄 insertar un material con imagen
+//  insertar un material con imagen
 materialController.insertMaterial = async (req, res) => {
   try {
     const { name, type, quantity, dateOfEntry, investment } = req.body;
@@ -67,7 +67,7 @@ materialController.insertMaterial = async (req, res) => {
   }
 };
 
-// 📄 obtener todos los materiales
+//  obtener todos los materiales
 materialController.getAllMaterials = async (req, res) => {
   try {
     const materials = await Material.find(); // traigo todo
@@ -78,7 +78,7 @@ materialController.getAllMaterials = async (req, res) => {
   }
 };
 
-// 📄 obtener material por ID
+//  obtener material por ID
 materialController.getMaterialById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -95,7 +95,7 @@ materialController.getMaterialById = async (req, res) => {
   }
 };
 
-// 📄 actualizar material existente
+//  actualizar material existente
 materialController.updateMaterial = async (req, res) => {
   try {
     const { id } = req.params;
@@ -137,7 +137,7 @@ materialController.updateMaterial = async (req, res) => {
   }
 };
 
-// 📄 eliminar material
+// eliminar material
 materialController.deleteMaterial = async (req, res) => {
   try {
     const { id } = req.params;
@@ -160,7 +160,7 @@ materialController.deleteMaterial = async (req, res) => {
   }
 };
 
-// 📄 buscar materiales por nombre o tipo
+//  buscar materiales por nombre o tipo
 materialController.searchMaterials = async (req, res) => {
   try {
     const { query } = req.query; 

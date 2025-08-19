@@ -191,7 +191,7 @@ const usePaymentForm = () => {
         body: JSON.stringify(orderData),
       });
 
-      console.log("🌐 URL completa:", "http://localhost:4000/api/cart/order");
+      console.log("🌐 URL completa:", "http://localhost:4000/https://dangstoreptc.onrender.com/api/cart/order");
       console.log("📨 Haciendo petición...");
 
       const responseData = await response.json();

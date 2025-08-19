@@ -8,8 +8,8 @@ import { sendEmail } from "../utils/mailService.js";
 
 // Añadir producto o ítem personalizado al carrito del usuario
 export const addToCart = async (req, res) => {
-  console.log('📥 addToCart body:', req.body);
-  console.log('👤 addToCart user:', req.user);
+  console.log('addToCart body:', req.body);
+  console.log('addToCart user:', req.user);
   try {
     const userId = req.user.id; // saco el id del usuario autenticado
     const { productId, quantity = 1, customItemId } = req.body; // datos que llegan para añadir
@@ -54,7 +54,7 @@ export const addToCart = async (req, res) => {
     return res.status(200).json({ message: 'Carrito actualizado', cart });
   } catch (error) {
     // Si algo falla, muestro error por consola y respondo error al cliente
-    console.error('❌ Error añadiendo al carrito:', error);
+    console.error('Error añadiendo al carrito:', error);
     return res.status(500).json({ message: 'Error añadiendo al carrito', error: error.message });
   }
 };
@@ -76,7 +76,7 @@ export const getCart = async (req, res) => {
     // Devuelvo el carrito encontrado
     return res.status(200).json(cart);
   } catch (error) {
-    console.error('❌ Error obteniendo carrito:', error);
+    console.error(' Error obteniendo carrito:', error);
     return res.status(500).json({ message: 'Error obteniendo carrito', error: error.message });
   }
 };
@@ -114,7 +114,7 @@ cart = await Cart.findOne({ user: userId })
  
 return res.status(200).json({ message: 'Carrito actualizado', cart });
   } catch (error) {
-    console.error('❌ Error actualizando carrito:', error);
+    console.error('Error actualizando carrito:', error);
     return res.status(500).json({ message: 'Error actualizando carrito', error: error.message });
   }
 };
@@ -149,14 +149,14 @@ export const removeCartItem = async (req, res) => {
     // Devuelvo carrito actualizado tras eliminar ítem
     return res.status(200).json({ message: 'Ítem eliminado', cart });
   } catch (error) {
-    console.error('❌ Error eliminando ítem:', error);
+    console.error(' Error eliminando ítem:', error);
     return res.status(500).json({ message: 'Error eliminando ítem', error: error.message });
   }
 };
 
 //---------------Crear Orden---------------------//
 export const createOrder = async (req, res) => {
-  console.log("🛒 ============= INICIO createOrder =============");
+  console.log(" ============= INICIO createOrder =============");
   try {
     const userId = req.user?.id;
     if (!req.user || !userId) {
@@ -181,7 +181,7 @@ export const createOrder = async (req, res) => {
       0
     );
 
-    // ✅ 1. Crear orden y guardarla
+    //  1. Crear orden y guardarla
     const order = new Order({
       user: userId,
       items,
@@ -191,14 +191,14 @@ export const createOrder = async (req, res) => {
     });
 
     const savedOrder = await order.save();
-    console.log("🎉 Orden guardada. ID:", savedOrder._id);
+    console.log("Orden guardada. ID:", savedOrder._id);
 
-    // ✅ 2. Asociar orden al cliente
+    //  2. Asociar orden al cliente
     await Customer.findByIdAndUpdate(userId, {
       $push: { orders: savedOrder._id },
     });
 
-    // ✅ 3. Limpiar el carrito si el pago fue exitoso
+    //  3. Limpiar el carrito si el pago fue exitoso
     if (wompiStatus === "COMPLETED") {
       await Cart.findOneAndUpdate(
         { user: userId },
@@ -206,7 +206,7 @@ export const createOrder = async (req, res) => {
       );
     }
 
-    // ✅ 4. Registrar la venta en SalesModel
+    //  4. Registrar la venta en SalesModel
     try {
       const productIds = (items || []).map((item) => item.product).filter(Boolean); // solo productos válidos
 
@@ -218,12 +218,12 @@ export const createOrder = async (req, res) => {
       });
 
       await newSale.save();
-      console.log("📝 Venta registrada en SalesModel");
+      console.log(" Venta registrada en SalesModel");
     } catch (salesError) {
-      console.warn("⚠️ Error al guardar venta:", salesError.message);
+      console.warn(" Error al guardar venta:", salesError.message);
     }
 
-    // ✅ 5. Enviar correo de confirmación (si el cliente tiene email)
+    //  5. Enviar correo de confirmación (si el cliente tiene email)
     try {
       const customer = await Customer.findById(userId).select('email name');
       if (customer?.email) {
@@ -241,10 +241,10 @@ export const createOrder = async (req, res) => {
         await sendEmail({ to: customer.email, subject, html, text: `Orden ${savedOrder._id} por $${totalAmount.toFixed(2)}` });
       }
     } catch (mailErr) {
-      console.warn('⚠️ No se pudo enviar correo de confirmación:', mailErr.message);
+      console.warn(' No se pudo enviar correo de confirmación:', mailErr.message);
     }
 
-    // ✅ 6. Respuesta exitosa
+    //  6. Respuesta exitosa
     return res.status(201).json({
       success: true,
       message: "Orden y venta registradas con éxito",
@@ -252,7 +252,7 @@ export const createOrder = async (req, res) => {
     });
 
   } catch (error) {
-    console.error("💥 ERROR EN createOrder:", error);
+    console.error(" ERROR EN createOrder:", error);
     return res.status(500).json({
       success: false,
       message: "Error al crear la orden",
@@ -272,7 +272,7 @@ export const getOrders = async (req, res) => {
       .populate("items.product", "name price");
     return res.status(200).json(orders);
   } catch (err) {
-    console.error("❌ Error obteniendo órdenes:", err);
+    console.error(" Error obteniendo órdenes:", err);
     return res.status(500).json({ message: "Error al obtener órdenes" });
   }
 };

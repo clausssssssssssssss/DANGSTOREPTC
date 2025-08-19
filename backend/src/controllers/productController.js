@@ -2,7 +2,7 @@ import productModel from "../models/Product.js";
 
 const productController = {};
 
-// 📄 obtener todos los productos
+// obtener todos los productos
 productController.getProducts = async (req, res) => {
   try {
     // Usar .lean() para devolver objetos JS puros y no documentos mongoose
@@ -20,7 +20,7 @@ productController.getProducts = async (req, res) => {
   }
 };
 
-// 📄 obtener un producto por su ID
+// obtener un producto por su ID
 productController.getProductById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -36,7 +36,7 @@ productController.getProductById = async (req, res) => {
   }
 };
 
-// 📄 obtener productos populares (solo ejemplo)
+//  obtener productos populares (solo ejemplo)
 productController.getPopularProducts = async (req, res) => {
   try {
     const popularProducts = await productModel.find().limit(5); // traigo máximo 5
@@ -46,7 +46,7 @@ productController.getPopularProducts = async (req, res) => {
   }
 };
 
-// 📄 crear un nuevo producto
+//  crear un nuevo producto
 productController.insertProduct = async (req, res) => {
   try {
     const { name, price, stock, description, category, images } = req.body;
@@ -65,7 +65,7 @@ productController.insertProduct = async (req, res) => {
   }
 };
 
-// 📄 actualizar un producto existente
+//  actualizar un producto existente
 productController.updateProduct = async (req, res) => {
   try {
     const { id } = req.params;
@@ -88,7 +88,7 @@ productController.updateProduct = async (req, res) => {
   }
 };
 
-// 📄 eliminar un producto por su ID
+// eliminar un producto por su ID
 productController.deleteProduct = async (req, res) => {
   try {
     const { id } = req.params;

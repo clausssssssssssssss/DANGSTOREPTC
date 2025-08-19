@@ -15,7 +15,7 @@ export const useAllProductsRatings = (products) => {
       setLoading(true);
       const ratingsPromises = products.map(async (product) => {
         try {
-          const response = await fetch(`/api/ratings/product/${product._id}`);
+          const response = await fetch(`https://dangstoreptc.onrender.com/api/ratings/product/${product._id}`);
           if (response.ok) {
             const data = await response.json();
             return {

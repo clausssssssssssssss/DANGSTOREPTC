@@ -191,7 +191,7 @@ const usePaymentForm = () => {
         body: JSON.stringify(orderData),
       });
 
-              console.log("URL completa:", "http://localhost:4000/https://dangstoreptc-n9km.vercel.app/api/cart/order");
+              console.log("URL completa:", "https://dangstoreptc.onrender.com/cart/order");
               console.log("Haciendo petición...");
 
       const responseData = await response.json();

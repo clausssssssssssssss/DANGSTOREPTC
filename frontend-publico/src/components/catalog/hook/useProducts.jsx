@@ -13,9 +13,9 @@ export function useProducts() {
       setLoading(true);
       setError(null);
       
-      console.log('Intentando conectar a:', `${API_BASE}/catalog`);
+      console.log('Intentando conectar a:', `${API_BASE}https://dangstoreptc.onrender.com/catalog`);
       
-      const res = await fetch(`${API_BASE}/catalog`);
+      const res = await fetch(`${API_BASE}https://dangstoreptc.onrender.com/catalog`);
       
       console.log('Respuesta del servidor:', res.status, res.statusText);
       

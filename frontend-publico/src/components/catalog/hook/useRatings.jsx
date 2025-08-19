@@ -27,7 +27,7 @@ export const useRatings = (productId) => {
               console.log('Token disponible:', !!token);
               console.log('Token length:', token ? token.length : 0);
       
-              const response = await fetch(`https://dangstoreptc-n9km.vercel.app/api/ratings/can-rate/${productId}`, {
+              const response = await fetch(`https://dangstoreptc.onrender.com/ratings/can-rate/${productId}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -58,7 +58,7 @@ export const useRatings = (productId) => {
     
     try {
       setLoading(true);
-              const response = await fetch(`https://dangstoreptc-n9km.vercel.app/api/ratings/product/${productId}`);
+              const response = await fetch(`https://dangstoreptc.onrender.com/api/ratings/product/${productId}`);
       
       if (response.ok) {
         const data = await response.json();

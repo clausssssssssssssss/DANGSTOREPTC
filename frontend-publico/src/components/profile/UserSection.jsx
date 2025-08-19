@@ -6,7 +6,7 @@ const UserSection = () => {
   const token = localStorage.getItem('token');
 
   useEffect(() => {
-    fetch('/api/profile', {
+    fetch('https://dangstoreptc.onrender.com/api/profile', {
       headers: { Authorization: `Bearer ${token}` }
     })
       .then(res => res.json())

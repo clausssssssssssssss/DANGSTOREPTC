@@ -16,7 +16,7 @@ const FavoritesSection = ({ userId }) => {
         throw new Error('No se encontró token de autenticación');
       }
 
-      const response = await fetch('/api/profile/favorites', {
+      const response = await fetch('https://dangstoreptc.onrender.com/api/profile/favorites', {
         headers: { 
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'

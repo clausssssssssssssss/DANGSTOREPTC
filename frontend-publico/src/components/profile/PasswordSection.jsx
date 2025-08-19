@@ -85,7 +85,7 @@ const PasswordSection = () => {
         throw new Error('No se encontró token de autenticación');
       }
 
-      const response = await fetch('/api/profile/change-password', {
+      const response = await fetch('https://dangstoreptc.onrender.com/api/profile/change-password', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,

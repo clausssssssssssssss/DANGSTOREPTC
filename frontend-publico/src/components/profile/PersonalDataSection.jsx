@@ -17,7 +17,7 @@ const PersonalDataSection = () => {
   const loadUserProfile = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/profile', { 
+      const response = await fetch('https://dangstoreptc.onrender.com/api/profile', { 
         headers: { Authorization: `Bearer ${token}` } 
       });
       
@@ -38,7 +38,7 @@ const PersonalDataSection = () => {
   const handleSave = async () => {
     try {
       setSaving(true);
-      const response = await fetch('/api/profile', {
+      const response = await fetch('https://dangstoreptc.onrender.com/api/profile', {
         method: 'PUT',
         headers: { 
           'Content-Type': 'application/json', 

@@ -46,7 +46,7 @@ export function useCart(userId) {
 
     (async () => {
       try {
-        const data = await authFetch(`https://dangstoreptc-n9km.vercel.app/api/cart`);
+        const data = await authFetch(`https://dangstoreptc.onrender.com/api/cart`);
         setCart((data.products || []).map(p => ({
           product: {
             id: p.product._id,

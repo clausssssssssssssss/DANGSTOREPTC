@@ -18,7 +18,7 @@ export function useFavorites(userId) {
       const token = localStorage.getItem('token');
       if (!token) return;
 
-              const response = await fetch('https://dangstoreptc-n9km.vercel.app/api/profile/favorites', {
+              const response = await fetch('https://dangstoreptc.onrender.com/profile/favorites', {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -54,7 +54,7 @@ export function useFavorites(userId) {
       const token = localStorage.getItem('token');
       if (!token) throw new Error('No token found');
 
-      const response = await fetch(`/api/profile/favorites/${productId}`, {
+      const response = await fetch(`https://dangstoreptc.onrender.com/api/profile/favorites/${productId}`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,

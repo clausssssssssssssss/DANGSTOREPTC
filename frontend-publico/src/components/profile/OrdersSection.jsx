@@ -8,7 +8,7 @@ const OrdersSection = () => {
 
   useEffect(() => {
     setLoading(true);
-    fetch('/api/profile/orders', {
+    fetch('https://dangstoreptc.onrender.com/api/profile/orders', {
       headers: { Authorization: `Bearer ${token}` }
     })
       .then(res => res.json())

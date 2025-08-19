@@ -26,7 +26,7 @@ const QuotesSection = ({ setHasQuotesFlag, showSuccess, showError, showWarning }
           console.log('Filter:', quotesFilter);
     
     try {
-      const res = await fetch(`${API_URL}/api/custom-orders/me`, {
+      const res = await fetch(`${API_URL}https://dangstoreptc.onrender.com/api/custom-orders/me`, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
       });
       
@@ -80,7 +80,7 @@ const QuotesSection = ({ setHasQuotesFlag, showSuccess, showError, showWarning }
           console.log('Handle decision:', { orderId, decision });
     
     try {
-      const res = await fetch(`${API_URL}/api/custom-orders/${orderId}/respond`, {
+      const res = await fetch(`${API_URL}https://dangstoreptc.onrender.com/api/custom-orders/${orderId}/respond`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

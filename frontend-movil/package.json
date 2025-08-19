@@ -11,7 +11,8 @@
     "test": "jest"
   },
   "dependencies": {
-    "@expo/metro-runtime": "~5.0.4",
+    "@expo/dev-server": "^0.5.5",
+    "@expo/metro-runtime": "^5.0.4",
     "@react-native-async-storage/async-storage": "2.1.2",
     "@react-native-community/datetimepicker": "8.4.1",
     "@react-native-picker/picker": "^2.11.1",
@@ -20,7 +21,6 @@
     "@react-navigation/stack": "^7.4.7",
     "axios": "^1.11.0",
     "expo": "^53.0.20",
-    "expo-cli": "^6.3.12",
     "expo-image-picker": "~16.1.4",
     "expo-linear-gradient": "~14.1.5",
     "react": "19.0.0",

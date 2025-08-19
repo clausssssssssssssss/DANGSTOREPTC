@@ -15,7 +15,7 @@ export default function useContactForm() {
 
     try {
       const base = import.meta.env.VITE_API_URL || '';
-      const res = await fetch(`${base}https://dangstoreptc.onrender.com/api/contact`, {
+              const res = await fetch(`${base}https://dangstoreptc-n9km.vercel.app/api/contact`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

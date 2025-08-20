@@ -11,8 +11,7 @@ export const AuthProvider = ({ children }) => {
   const [authToken, setAuthToken] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  const API_URL = "http://10.10.4.241:4000/api";
-
+  const API_URL = "http://10.10.0.253:4000/api";
 
   useEffect(() => {
     const loadToken = async () => {

@@ -1,125 +1,90 @@
 import React, { useState } from 'react';
-import { Lock, Eye, EyeOff, Shield, CheckCircle, AlertCircle } from 'lucide-react';
+import { Lock, Eye, EyeOff, AlertCircle, CheckCircle } from 'lucide-react';
 import { useToast } from '../../hooks/useToast';
 
-const PasswordSection = () => {
-  const [formData, setFormData] = useState({
-    currentPassword: '',
-    newPassword: '',
-    confirmPassword: ''
-  });
-  
-  const [showPasswords, setShowPasswords] = useState({
-    current: false,
-    new: false,
-    confirm: false
-  });
-  
-  const [loading, setLoading] = useState(false);
-  const [validation, setValidation] = useState({
-    currentPassword: true,
-    newPassword: true,
-    confirmPassword: true
-  });
+// URL del servidor de producción
+const API_BASE = 'https://dangstoreptc.onrender.com/api';
 
+const PasswordSection = () => {
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState({});
   const { showSuccess, showError } = useToast();
 
-  const handleInputChange = (field, value) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-    
-    // Validar en tiempo real
-    if (field === 'newPassword') {
-      validateNewPassword(value);
-    } else if (field === 'confirmPassword') {
-      validateConfirmPassword(value, formData.newPassword);
-    }
-  };
-
-  const togglePasswordVisibility = (field) => {
-    setShowPasswords(prev => ({ ...prev, [field]: !prev[field] }));
-  };
-
-  const validateNewPassword = (password) => {
-    const isValid = password.length >= 8 && 
-                   /[A-Z]/.test(password) && 
-                   /[a-z]/.test(password) && 
-                   /[0-9]/.test(password);
-    
-    setValidation(prev => ({ ...prev, newPassword: isValid }));
-    return isValid;
-  };
-
-  const validateConfirmPassword = (confirmPassword, newPassword) => {
-    const isValid = confirmPassword === newPassword && confirmPassword.length > 0;
-    setValidation(prev => ({ ...prev, confirmPassword: isValid }));
-    return isValid;
-  };
-
   const validateForm = () => {
-    const currentValid = formData.currentPassword.length > 0;
-    const newValid = validateNewPassword(formData.newPassword);
-    const confirmValid = validateConfirmPassword(formData.confirmPassword, formData.newPassword);
+    const newErrors = {};
 
-    setValidation({
-      currentPassword: currentValid,
-      newPassword: newValid,
-      confirmPassword: confirmValid
-    });
+    if (!currentPassword.trim()) {
+      newErrors.currentPassword = 'La contraseña actual es requerida';
+    }
 
-    return currentValid && newValid && confirmValid;
+    if (!newPassword.trim()) {
+      newErrors.newPassword = 'La nueva contraseña es requerida';
+    } else if (newPassword.length < 6) {
+      newErrors.newPassword = 'La nueva contraseña debe tener al menos 6 caracteres';
+    }
+
+    if (!confirmPassword.trim()) {
+      newErrors.confirmPassword = 'Confirma tu nueva contraseña';
+    } else if (newPassword !== confirmPassword) {
+      newErrors.confirmPassword = 'Las contraseñas no coinciden';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     
     if (!validateForm()) {
-      showError('Por favor, completa todos los campos correctamente');
       return;
     }
 
-    setLoading(true);
-
     try {
+      setLoading(true);
+      setErrors({});
+
       const token = localStorage.getItem('token');
       if (!token) {
         throw new Error('No se encontró token de autenticación');
       }
 
-      const response = await fetch('https://dangstoreptc.onrender.com/api/profile/change-password', {
-        method: 'POST',
+      const response = await fetch(`${API_BASE}/profile/change-password`, {
+        method: 'PUT',
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
-          currentPassword: formData.currentPassword,
-          newPassword: formData.newPassword
+          currentPassword,
+          newPassword
         })
       });
 
       if (!response.ok) {
+        if (response.status === 401) {
+          throw new Error('Contraseña actual incorrecta');
+        }
         const errorData = await response.json();
         throw new Error(errorData.message || 'Error al cambiar la contraseña');
       }
 
-      showSuccess('Contraseña actualizada exitosamente');
+      showSuccess('Contraseña cambiada correctamente');
       
       // Limpiar formulario
-      setFormData({
-        currentPassword: '',
-        newPassword: '',
-        confirmPassword: ''
-      });
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
       
-      setValidation({
-        currentPassword: true,
-        newPassword: true,
-        confirmPassword: true
-      });
-
     } catch (error) {
       console.error('Error changing password:', error);
-      showError(error.message || 'Error al cambiar la contraseña');
+      showError(error.message);
     } finally {
       setLoading(false);
     }
@@ -146,7 +111,7 @@ const PasswordSection = () => {
     return levels[Math.min(score - 1, 4)] || { level: 0, text: '', color: '#e5e7eb' };
   };
 
-  const passwordStrength = getPasswordStrength(formData.newPassword);
+  const passwordStrength = getPasswordStrength(newPassword);
 
   return (
     <div className="content-card">
@@ -166,27 +131,27 @@ const PasswordSection = () => {
             </label>
             <div className="password-input-container">
               <input
-                type={showPasswords.current ? 'text' : 'password'}
+                type={showCurrentPassword ? 'text' : 'password'}
                 id="currentPassword"
-                value={formData.currentPassword}
-                onChange={(e) => handleInputChange('currentPassword', e.target.value)}
-                className={`form-input ${!validation.currentPassword ? 'error' : ''}`}
+                value={currentPassword}
+                onChange={(e) => setCurrentPassword(e.target.value)}
+                className={`form-input ${errors.currentPassword ? 'error' : ''}`}
                 placeholder="Ingresa tu contraseña actual"
                 required
               />
               <button
                 type="button"
                 className="password-toggle-btn"
-                onClick={() => togglePasswordVisibility('current')}
-                title={showPasswords.current ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                title={showCurrentPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
               >
-                {showPasswords.current ? <EyeOff size={18} /> : <Eye size={18} />}
+                {showCurrentPassword ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
             </div>
-            {!validation.currentPassword && (
+            {errors.currentPassword && (
               <div className="field-error">
                 <AlertCircle size={14} />
-                <span>La contraseña actual es requerida</span>
+                <span>{errors.currentPassword}</span>
               </div>
             )}
           </div>
@@ -198,26 +163,26 @@ const PasswordSection = () => {
             </label>
             <div className="password-input-container">
               <input
-                type={showPasswords.new ? 'text' : 'password'}
+                type={showNewPassword ? 'text' : 'password'}
                 id="newPassword"
-                value={formData.newPassword}
-                onChange={(e) => handleInputChange('newPassword', e.target.value)}
-                className={`form-input ${!validation.newPassword ? 'error' : ''}`}
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                className={`form-input ${errors.newPassword ? 'error' : ''}`}
                 placeholder="Mínimo 8 caracteres"
                 required
               />
               <button
                 type="button"
                 className="password-toggle-btn"
-                onClick={() => togglePasswordVisibility('new')}
-                title={showPasswords.new ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                onClick={() => setShowNewPassword(!showNewPassword)}
+                title={showNewPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
               >
-                {showPasswords.new ? <EyeOff size={18} /> : <Eye size={18} />}
+                {showNewPassword ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
             </div>
             
             {/* Indicador de fortaleza de contraseña */}
-            {formData.newPassword.length > 0 && (
+            {newPassword.length > 0 && (
               <div className="password-strength">
                 <div className="strength-bar">
                   <div 
@@ -234,10 +199,10 @@ const PasswordSection = () => {
               </div>
             )}
 
-            {!validation.newPassword && (
+            {errors.newPassword && (
               <div className="field-error">
                 <AlertCircle size={14} />
-                <span>La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula y un número</span>
+                <span>{errors.newPassword}</span>
               </div>
             )}
           </div>
@@ -249,27 +214,27 @@ const PasswordSection = () => {
             </label>
             <div className="password-input-container">
               <input
-                type={showPasswords.confirm ? 'text' : 'password'}
+                type={showConfirmPassword ? 'text' : 'password'}
                 id="confirmPassword"
-                value={formData.confirmPassword}
-                onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
-                className={`form-input ${!validation.confirmPassword ? 'error' : ''}`}
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                className={`form-input ${errors.confirmPassword ? 'error' : ''}`}
                 placeholder="Repite la nueva contraseña"
                 required
               />
               <button
                 type="button"
                 className="password-toggle-btn"
-                onClick={() => togglePasswordVisibility('confirm')}
-                title={showPasswords.confirm ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                title={showConfirmPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
               >
-                {showPasswords.confirm ? <EyeOff size={18} /> : <Eye size={18} />}
+                {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
             </div>
-            {!validation.confirmPassword && (
+            {errors.confirmPassword && (
               <div className="field-error">
                 <AlertCircle size={14} />
-                <span>Las contraseñas no coinciden</span>
+                <span>{errors.confirmPassword}</span>
               </div>
             )}
           </div>
@@ -278,23 +243,23 @@ const PasswordSection = () => {
         {/* Requisitos de contraseña */}
         <div className="password-requirements">
           <h4 className="requirements-title">
-            <Shield size={16} />
+            <Lock size={16} />
             Requisitos de la nueva contraseña:
           </h4>
           <ul className="requirements-list">
-            <li className={formData.newPassword.length >= 8 ? 'valid' : ''}>
+            <li className={newPassword.length >= 8 ? 'valid' : ''}>
               <CheckCircle size={14} />
               Mínimo 8 caracteres
             </li>
-            <li className={/[A-Z]/.test(formData.newPassword) ? 'valid' : ''}>
+            <li className={/[A-Z]/.test(newPassword) ? 'valid' : ''}>
               <CheckCircle size={14} />
               Al menos una letra mayúscula
             </li>
-            <li className={/[a-z]/.test(formData.newPassword) ? 'valid' : ''}>
+            <li className={/[a-z]/.test(newPassword) ? 'valid' : ''}>
               <CheckCircle size={14} />
               Al menos una letra minúscula
             </li>
-            <li className={/[0-9]/.test(formData.newPassword) ? 'valid' : ''}>
+            <li className={/[0-9]/.test(newPassword) ? 'valid' : ''}>
               <CheckCircle size={14} />
               Al menos un número
             </li>
@@ -306,7 +271,7 @@ const PasswordSection = () => {
           <button
             type="submit"
             className="save-button"
-            disabled={loading || !validation.currentPassword || !validation.newPassword || !validation.confirmPassword}
+            disabled={loading || errors.currentPassword || errors.newPassword || errors.confirmPassword}
           >
             {loading ? (
               <>

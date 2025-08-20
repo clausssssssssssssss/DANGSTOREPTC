@@ -1,6 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../../hooks/useAuth.jsx';
 
+// URL del servidor de producción
+const API_BASE = 'https://dangstoreptc.onrender.com/api';
+
 export const useRatings = (productId) => {
   const { user } = useAuth();
   const [ratings, setRatings] = useState([]);
@@ -27,7 +30,7 @@ export const useRatings = (productId) => {
               console.log('Token disponible:', !!token);
               console.log('Token length:', token ? token.length : 0);
       
-              const response = await fetch(`https://dangstoreptc.onrender.com/ratings/can-rate/${productId}`, {
+              const response = await fetch(`${API_BASE}/ratings/can-rate/${productId}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -58,7 +61,7 @@ export const useRatings = (productId) => {
     
     try {
       setLoading(true);
-              const response = await fetch(`https://dangstoreptc.onrender.com/api/ratings/product/${productId}`);
+              const response = await fetch(`${API_BASE}/ratings/product/${productId}`);
       
       if (response.ok) {
         const data = await response.json();
@@ -100,8 +103,8 @@ export const useRatings = (productId) => {
       
       const method = userRating ? 'PUT' : 'POST';
       const url = userRating 
-        ? `https://dangstoreptc-n9km.vercel.app/api/ratings/${userRating._id}`
-        : `https://dangstoreptc-n9km.vercel.app/api/ratings`;
+        ? `${API_BASE}/ratings/${userRating._id}`
+        : `${API_BASE}/ratings`;
 
       const response = await fetch(url, {
         method,
@@ -166,7 +169,7 @@ export const useRatings = (productId) => {
 
     try {
       setLoading(true);
-              const response = await fetch(`https://dangstoreptc-n9km.vercel.app/api/ratings/${userRating._id}`, {
+              const response = await fetch(`${API_BASE}/ratings/${userRating._id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`

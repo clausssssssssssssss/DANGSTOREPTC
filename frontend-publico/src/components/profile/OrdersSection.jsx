@@ -1,28 +1,31 @@
 import React, { useEffect, useState } from 'react';
-import { Package, Calendar, DollarSign, ShoppingCart } from 'lucide-react';
+import { Package, Calendar, DollarSign, MapPin } from 'lucide-react';
 
-const OrdersSection = () => {
+// URL del servidor de producción
+const API_BASE = 'https://dangstoreptc.onrender.com/api';
+
+const OrdersSection = ({ userId }) => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
-  const token = localStorage.getItem('token');
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    setLoading(true);
-    fetch('https://dangstoreptc.onrender.com/api/profile/orders', {
-      headers: { Authorization: `Bearer ${token}` }
+    fetch(`${API_BASE}/profile/orders`, {
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      }
     })
-      .then(res => res.json())
-      .then(data => {
-        // Ordenar por fecha más reciente primero
-        const sortedOrders = data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-        setOrders(sortedOrders);
-        setLoading(false);
-      })
-      .catch(err => {
-        console.error(err);
-        setLoading(false);
-      });
-  }, [token]);
+    .then(res => res.json())
+    .then(data => {
+      setOrders(data);
+      setLoading(false);
+    })
+    .catch(err => {
+      console.error('Error fetching orders:', err);
+      setError('Error al cargar las órdenes');
+      setLoading(false);
+    });
+  }, [userId]);
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -79,7 +82,7 @@ const OrdersSection = () => {
         </div>
         <div className="orders-summary">
           <span className="orders-count">
-            <ShoppingCart size={16} />
+            <MapPin size={16} />
             {orders.length} pedido{orders.length !== 1 ? 's' : ''}
           </span>
         </div>

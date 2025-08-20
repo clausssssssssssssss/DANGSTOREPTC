@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Heart, ShoppingCart, Star, Package } from 'lucide-react';
 
+// URL del servidor de producción
+const API_BASE = 'https://dangstoreptc.onrender.com/api';
+
 const FavoritesSection = ({ userId }) => {
   const [favorites, setFavorites] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -16,7 +19,7 @@ const FavoritesSection = ({ userId }) => {
         throw new Error('No se encontró token de autenticación');
       }
 
-      const response = await fetch('https://dangstoreptc.onrender.com/api/profile/favorites', {
+      const response = await fetch(`${API_BASE}/profile/favorites`, {
         headers: { 
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -61,7 +64,7 @@ const FavoritesSection = ({ userId }) => {
         throw new Error('No se encontró token de autenticación');
       }
 
-      const response = await fetch(`/api/profile/favorites/${productId}`, {
+      const response = await fetch(`${API_BASE}/profile/favorites/${productId}`, {
         method: 'POST', // Tu backend usa POST para toggle
         headers: { 
           'Authorization': `Bearer ${token}`,

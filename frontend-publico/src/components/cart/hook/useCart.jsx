@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 
-const API_URL = import.meta.env.VITE_API_URL || '';
+// URL del servidor de producción
+const API_BASE = 'https://dangstoreptc.onrender.com/api';
 
 export function useCart(userId) {
   const [cart, setCart] = useState([]);
@@ -18,7 +19,7 @@ export function useCart(userId) {
     const token = localStorage.getItem('token');
     if (!token) throw new Error('No estás autenticado');
 
-    const res = await fetch(`${API_URL}${path}`, {
+    const res = await fetch(`${API_BASE}${path}`, {
       ...opts,
       headers: {
         'Content-Type': 'application/json',
@@ -46,7 +47,7 @@ export function useCart(userId) {
 
     (async () => {
       try {
-        const data = await authFetch(`https://dangstoreptc.onrender.com/api/cart`);
+        const data = await authFetch(`/cart`);
         setCart((data.products || []).map(p => ({
           product: {
             id: p.product._id,
@@ -84,7 +85,7 @@ export function useCart(userId) {
 
   // Añadir producto al carrito
   async function addToCart({ productId, quantity = 1 }) {
-    const json = await authFetch('/api/cart', {
+    const json = await authFetch('/cart', {
       method: 'POST',
       body: JSON.stringify({ productId, quantity })
     });
@@ -95,7 +96,7 @@ export function useCart(userId) {
 
   // Actualizar cantidad
   async function updateQuantity(productId, quantity) {
-    const json = await authFetch('/api/cart', {
+    const json = await authFetch('/cart', {
       method: 'PUT',
       body: JSON.stringify({ itemId: productId, type: 'product', quantity })
     });
@@ -105,7 +106,7 @@ export function useCart(userId) {
 
   // Eliminar un producto
   async function removeFromCart(productId) {
-    const json = await authFetch('/api/cart', {
+    const json = await authFetch('/cart', {
       method: 'DELETE',
       body: JSON.stringify({ itemId: productId, type: 'product' })
     });
@@ -116,7 +117,7 @@ export function useCart(userId) {
   // Vaciar el carrito
   async function clearCart() {
     for (const item of cart) {
-      await authFetch('/api/cart', {
+      await authFetch('/cart', {
         method: 'DELETE',
         body: JSON.stringify({ itemId: item.product.id, type: 'product' })
       });

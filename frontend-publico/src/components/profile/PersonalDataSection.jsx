@@ -1,70 +1,113 @@
-import React, { useEffect, useState } from 'react';
-import { Save, Edit2, AlertCircle } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { User, Mail, Phone, MapPin, Edit, Save, X } from 'lucide-react';
 import { useToast } from '../../hooks/useToast';
 
-const PersonalDataSection = () => {
-  const token = localStorage.getItem('token');
-  const { showSuccess, showError } = useToast();
-  const [user, setUser] = useState({});
-  const [editing, setEditing] = useState(false);
+// URL del servidor de producción
+const API_BASE = 'https://dangstoreptc.onrender.com/api';
+
+const PersonalDataSection = ({ userId }) => {
+  const [personalData, setPersonalData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    address: ''
+  });
+  const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState(null);
+  const [successMessage, setSuccessMessage] = useState('');
+  const { showSuccess, showError } = useToast();
 
-  useEffect(() => {
-    loadUserProfile();
-  }, []);
-
-  const loadUserProfile = async () => {
+  // Cargar datos personales
+  const fetchPersonalData = async () => {
     try {
       setLoading(true);
-      const response = await fetch('https://dangstoreptc.onrender.com/api/profile', { 
-        headers: { Authorization: `Bearer ${token}` } 
-      });
+      setError(null);
       
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('No se encontró token de autenticación');
+      }
+
+      const response = await fetch(`${API_BASE}/profile`, {
+        headers: { 
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
       if (!response.ok) {
+        if (response.status === 401) {
+          throw new Error('Token inválido o expirado');
+        }
         throw new Error(`Error ${response.status}: ${response.statusText}`);
       }
-      
+
       const data = await response.json();
-      setUser(data);
-    } catch (error) {
-      console.error('Error cargando perfil:', error);
-      showError('Error al cargar el perfil del usuario');
+      setPersonalData({
+        name: data.name || '',
+        email: data.email || '',
+        phone: data.phone || '',
+        address: data.address || ''
+      });
+      
+    } catch (err) {
+      console.error('Error fetching personal data:', err);
+      setError(err.message);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSave = async () => {
+  // Guardar cambios
+  const saveChanges = async () => {
     try {
-      setSaving(true);
-      const response = await fetch('https://dangstoreptc.onrender.com/api/profile', {
+      setLoading(true);
+      setError(null);
+      
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('No se encontró token de autenticación');
+      }
+
+      const response = await fetch(`${API_BASE}/profile`, {
         method: 'PUT',
         headers: { 
-          'Content-Type': 'application/json', 
-          Authorization: `Bearer ${token}` 
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
         },
-        body: JSON.stringify(user)
+        body: JSON.stringify(personalData)
       });
 
       if (!response.ok) {
+        if (response.status === 401) {
+          throw new Error('Token inválido o expirado');
+        }
         throw new Error(`Error ${response.status}: ${response.statusText}`);
       }
 
-      showSuccess('Perfil actualizado correctamente');
-      setEditing(false);
-    } catch (error) {
-      console.error('Error guardando perfil:', error);
-      showError('Error al guardar el perfil');
+      setSuccessMessage('Datos actualizados correctamente');
+      setIsEditing(false);
+      
+      // Limpiar mensaje de éxito después de 3 segundos
+      setTimeout(() => setSuccessMessage(''), 3000);
+      
+    } catch (err) {
+      console.error('Error updating personal data:', err);
+      setError(err.message);
     } finally {
-      setSaving(false);
+      setLoading(false);
     }
   };
 
   const handleCancel = () => {
-    setEditing(false);
-    loadUserProfile(); // Recargar datos originales
+    setIsEditing(false);
+    fetchPersonalData(); // Recargar datos originales
   };
+
+  useEffect(() => {
+    fetchPersonalData();
+  }, []);
 
   if (loading) {
     return (
@@ -83,17 +126,17 @@ const PersonalDataSection = () => {
         <div className="card-title">
           <h3>Datos Personales</h3>
         </div>
-        {!editing ? (
-          <button className="edit-button" onClick={() => setEditing(true)}>
-            <Edit2 size={16} /> Editar
+        {!isEditing ? (
+          <button className="edit-button" onClick={() => setIsEditing(true)}>
+            <Edit size={16} /> Editar
           </button>
         ) : (
           <div className="edit-actions">
             <button className="cancel-button" onClick={handleCancel}>
               Cancelar
             </button>
-            <button className="save-button" onClick={handleSave} disabled={saving}>
-              <Save size={16} /> {saving ? 'Guardando...' : 'Guardar'}
+            <button className="save-button" onClick={saveChanges} disabled={loading}>
+              <Save size={16} /> {loading ? 'Guardando...' : 'Guardar'}
             </button>
           </div>
         )}
@@ -104,9 +147,9 @@ const PersonalDataSection = () => {
           <label className="form-label">Nombre</label>
           <input
             className="form-input"
-            value={user.name || ''}
-            disabled={!editing}
-            onChange={e => setUser({ ...user, name: e.target.value })}
+            value={personalData.name || ''}
+            disabled={!isEditing}
+            onChange={e => setPersonalData({ ...personalData, name: e.target.value })}
             placeholder="Tu nombre completo"
           />
         </div>
@@ -115,9 +158,9 @@ const PersonalDataSection = () => {
           <label className="form-label">Teléfono</label>
           <input
             className="form-input"
-            value={user.telephone || ''}
-            disabled={!editing}
-            onChange={e => setUser({ ...user, telephone: e.target.value })}
+            value={personalData.phone || ''}
+            disabled={!isEditing}
+            onChange={e => setPersonalData({ ...personalData, phone: e.target.value })}
             placeholder="Tu número de teléfono"
           />
         </div>
@@ -126,18 +169,18 @@ const PersonalDataSection = () => {
           <label className="form-label">Email</label>
           <input
             className="form-input"
-            value={user.email || ''}
-            disabled={!editing}
-            onChange={e => setUser({ ...user, email: e.target.value })}
+            value={personalData.email || ''}
+            disabled={!isEditing}
+            onChange={e => setPersonalData({ ...personalData, email: e.target.value })}
             placeholder="Tu dirección de email"
             type="email"
           />
         </div>
       </div>
 
-      {editing && (
+      {isEditing && (
         <div className="edit-hint">
-          <AlertCircle size={16} />
+          <X size={16} />
           <span>Haz clic en "Guardar" para confirmar los cambios o "Cancelar" para descartarlos.</span>
         </div>
       )}

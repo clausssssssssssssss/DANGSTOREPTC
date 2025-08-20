@@ -1,7 +1,9 @@
 import { createContext, useContext, useEffect, useState } from "react";
 
+// URL del servidor de producción
+const API_BASE = 'https://dangstoreptc.onrender.com/api';
+
 const FavoritesContext = createContext();
-const API_URL = import.meta.env.VITE_API_URL || '';
 
 export const FavoritesProvider = ({ children }) => {
   const [favorites, setFavorites] = useState([]);
@@ -10,7 +12,7 @@ export const FavoritesProvider = ({ children }) => {
     const token = localStorage.getItem("token");
     if (!token) return;
     try {
-      const res = await fetch(`${API_URL}/api/profile/favorites`, {
+      const res = await fetch(`${API_BASE}/profile/favorites`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       const data = await res.json();
@@ -42,7 +44,7 @@ export const FavoritesProvider = ({ children }) => {
 
       setFavorites(updated);
 
-      const res = await fetch(`${API_URL}/api/profile/favorites`, {
+      const res = await fetch(`${API_BASE}/profile/favorites`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

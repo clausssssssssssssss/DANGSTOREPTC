@@ -1,18 +1,19 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 
+// URL del servidor de producción
+const API_BASE = 'https://dangstoreptc.onrender.com/api';
+
 const CartContext = createContext();
 
 export const CartProvider = ({ children }) => {
   const [cart, setCart] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const API_URL = import.meta.env.VITE_API_URL || '';
-
   async function authFetch(path, opts = {}) {
     const token = localStorage.getItem('token');
     if (!token) throw new Error('No estás autenticado');
 
-    const res = await fetch(`${API_URL}${path}`, {
+    const res = await fetch(`${API_BASE}${path}`, {
       ...opts,
       headers: {
         'Content-Type': 'application/json',
@@ -55,7 +56,7 @@ export const CartProvider = ({ children }) => {
     }
 
     try {
-      const data = await authFetch(`/api/cart`);
+      const data = await authFetch(`/cart`);
       setCart((data.products || []).map(p => ({
         product: {
           id: p.product._id,
@@ -74,7 +75,7 @@ export const CartProvider = ({ children }) => {
   };
 
   const addToCart = async ({ productId, quantity = 1 }) => {
-    const json = await authFetch('/api/cart', {
+    const json = await authFetch('/cart', {
       method: 'POST',
       body: JSON.stringify({ productId, quantity })
     });
@@ -83,7 +84,7 @@ export const CartProvider = ({ children }) => {
   };
 
   const updateQuantity = async (productId, quantity) => {
-    const json = await authFetch('/api/cart', {
+    const json = await authFetch('/cart', {
       method: 'PUT',
       body: JSON.stringify({ itemId: productId, type: 'product', quantity })
     });
@@ -92,7 +93,7 @@ export const CartProvider = ({ children }) => {
   };
 
   const removeFromCart = async (productId) => {
-    const json = await authFetch('/api/cart', {
+    const json = await authFetch('/cart', {
       method: 'DELETE',
       body: JSON.stringify({ itemId: productId, type: 'product' })
     });
@@ -104,7 +105,7 @@ export const CartProvider = ({ children }) => {
     try {
       // Limpiar el carrito en el servidor usando la ruta existente
       for (const item of cart) {
-        await authFetch('/api/cart', {
+        await authFetch('/cart', {
           method: 'DELETE',
           body: JSON.stringify({ itemId: item.product.id, type: 'product' })
         });

@@ -1,5 +1,8 @@
 import { useState } from 'react';
 
+// URL del servidor de producción
+const API_BASE = 'https://dangstoreptc.onrender.com/api';
+
 export default function useContactForm() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -14,8 +17,7 @@ export default function useContactForm() {
     setSuccess(false);
 
     try {
-      const base = import.meta.env.VITE_API_URL || '';
-              const res = await fetch(`${base}https://dangstoreptc.onrender.com/contact`, {
+      const res = await fetch(`${API_BASE}/contact`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

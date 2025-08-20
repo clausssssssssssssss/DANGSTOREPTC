@@ -1,18 +1,29 @@
 import React, { useEffect, useState } from 'react';
-import { User, AlertTriangle } from 'lucide-react';
+import { User, Mail, Phone, MapPin, AlertTriangle } from 'lucide-react';
 
-const UserSection = () => {
+// URL del servidor de producción
+const API_BASE = 'https://dangstoreptc.onrender.com/api';
+
+const UserSection = ({ userId }) => {
   const [user, setUser] = useState({});
-  const token = localStorage.getItem('token');
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('https://dangstoreptc.onrender.com/api/profile', {
-      headers: { Authorization: `Bearer ${token}` }
+    fetch(`${API_BASE}/profile`, {
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      }
     })
-      .then(res => res.json())
-      .then(data => setUser(data))
-      .catch(err => console.error(err));
-  }, []);
+    .then(res => res.json())
+    .then(data => {
+      setUser(data);
+      setLoading(false);
+    })
+    .catch(err => {
+      console.error('Error fetching user:', err);
+      setLoading(false);
+    });
+  }, [userId]);
 
   return (
     <div className="user-section">

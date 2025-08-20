@@ -1,5 +1,8 @@
 import { useState } from "react";
 
+// URL del servidor de producción
+const API_BASE = 'https://dangstoreptc.onrender.com/api';
+
 const usePaymentFakeForm = () => {
   const [datosEnviados, setDatosEnviados] = useState(null);
   const [step, setStep] = useState(1);
@@ -351,8 +354,7 @@ const usePaymentFakeForm = () => {
       console.log('Datos de orden a enviar:', orderData);
 
       // Enviar orden al servidor
-      const base = import.meta.env.VITE_API_URL || '';
-      const url = `${base}/api/cart/order`;
+      const url = `${API_BASE}/cart/order`;
       console.log('URL de la API:', url);
       
       const response = await fetch(url, {

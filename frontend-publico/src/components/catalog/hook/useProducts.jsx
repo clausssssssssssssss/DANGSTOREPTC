@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 
-// Usar el proxy configurado en vite.config.js
-const API_BASE = '/api';
+// URL del servidor de producción
+const API_BASE = 'https://dangstoreptc.onrender.com/api';
 
 export function useProducts() {
   const [products, setProducts] = useState([]);
@@ -13,9 +13,9 @@ export function useProducts() {
       setLoading(true);
       setError(null);
       
-      console.log('Intentando conectar a:', `${API_BASE}https://dangstoreptc.onrender.com/catalog`);
+      console.log('Intentando conectar a:', `${API_BASE}/catalog`);
       
-      const res = await fetch(`${API_BASE}https://dangstoreptc.onrender.com/catalog`);
+      const res = await fetch(`${API_BASE}/catalog`);
       
       console.log('Respuesta del servidor:', res.status, res.statusText);
       

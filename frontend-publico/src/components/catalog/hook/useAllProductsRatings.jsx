@@ -1,6 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../../hooks/useAuth.jsx';
 
+// URL del servidor de producción
+const API_BASE = 'https://dangstoreptc.onrender.com/api';
+
 export const useAllProductsRatings = (products) => {
   const { user } = useAuth();
   const [productsRatings, setProductsRatings] = useState({});
@@ -15,7 +18,7 @@ export const useAllProductsRatings = (products) => {
       setLoading(true);
       const ratingsPromises = products.map(async (product) => {
         try {
-          const response = await fetch(`https://dangstoreptc.onrender.com/ratings/product/${product._id}`);
+          const response = await fetch(`${API_BASE}/ratings/product/${product._id}`);
           if (response.ok) {
             const data = await response.json();
             return {

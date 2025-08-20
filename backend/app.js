@@ -38,7 +38,7 @@ app.use(cookieParser());
 
 //Traemos el archivo json
  const swaggerDocument = JSON.parse(
-   fs.readFileSync(path.resolve("./DangStore.01.json"), "utf-8")
+   fs.readFileSync(path.resolve("./DangStore.json"), "utf-8")
  );
 
 /** Sirve archivos estáticos desde la carpeta "uploads" bajo la ruta /uploads */

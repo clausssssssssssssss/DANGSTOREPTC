@@ -1,229 +1,490 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator, Alert, Modal, Image, TextInput } from 'react-native';
+import React, { useState } from 'react';
+import { 
+  View, Text, StyleSheet, TouchableOpacity, 
+  ActivityIndicator, Alert, Image, RefreshControl,
+  FlatList, Modal 
+} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-
-const API_BASE = 'http://192.168.0.8:4000/api';
+import { useNotifications } from '../hooks/useNotifications';
+import { getImageUrl } from '../services/customOrdersAPI';
 
 const Notificaciones = () => {
   const navigation = useNavigation();
-  const [loading, setLoading] = useState(false);
-  const [orders, setOrders] = useState([]);
-  const [error, setError] = useState('');
-  const [selected, setSelected] = useState(null);
-  const [price, setPrice] = useState('');
-  const [comment, setComment] = useState('');
+  const {
+    notifications,
+    unreadCount,
+    loading,
+    error,
+    socketConnected,
+    refresh,
+    markAsRead,
+    markAllAsRead,
+    deleteNotification,
+    deleteAllNotifications
+  } = useNotifications();
 
-  const load = async () => {
-    setLoading(true);
-    setError('');
+  const [refreshing, setRefreshing] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [selectedNotification, setSelectedNotification] = useState(null);
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await refresh();
+    setRefreshing(false);
+  };
+
+  const handleMarkAsRead = async (notificationId) => {
     try {
-      const res = await fetch(`${API_BASE}/custom-orders/pending`);
-      if (!res.ok) throw new Error(await res.text());
-      const data = await res.json();
-      setOrders(Array.isArray(data) ? data : []);
-    } catch (e) {
-      setError('No se pudieron cargar las órdenes');
-    } finally {
-      setLoading(false);
+      await markAsRead(notificationId);
+    } catch (error) {
+      Alert.alert('Error', 'No se pudo marcar como leída');
     }
   };
 
-  useEffect(() => { load(); }, []);
-
-  const quote = async (id, price, comment) => {
+  const handleDelete = async (notificationId) => {
     try {
-      const res = await fetch(`${API_BASE}/custom-orders/${id}/quote`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ price, comment }),
-      });
-      if (!res.ok) throw new Error(await res.text());
-      Alert.alert('Cotización enviada');
-      await load();
-    } catch (e) {
-      Alert.alert('Error', 'No se pudo enviar cotización');
+      await deleteNotification(notificationId);
+      setSelectedNotification(null);
+    } catch (error) {
+      Alert.alert('Error', 'No se pudo eliminar la notificación');
     }
   };
 
-  const reject = async (id) => {
+  const handleDeleteAll = async () => {
+    Alert.alert(
+      'Eliminar todas las notificaciones',
+      '¿Estás seguro de que quieres eliminar todas las notificaciones?',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        { 
+          text: 'Eliminar', 
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await deleteAllNotifications();
+              setShowDeleteModal(false);
+            } catch (error) {
+              Alert.alert('Error', 'No se pudieron eliminar todas las notificaciones');
+            }
+          }
+        }
+      ]
+    );
+  };
+
+  const handleMarkAllAsRead = async () => {
     try {
-      const res = await fetch(`${API_BASE}/custom-orders/${id}/respond`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ decision: 'reject' }),
-      });
-      if (!res.ok) throw new Error(await res.text());
-      Alert.alert('Orden rechazada');
-      await load();
-    } catch (e) {
-      Alert.alert('Error', 'No se pudo rechazar');
+      await markAllAsRead();
+      Alert.alert('Éxito', 'Todas las notificaciones marcadas como leídas');
+    } catch (error) {
+      Alert.alert('Error', 'No se pudieron marcar todas como leídas');
     }
   };
+
+  const renderNotification = ({ item }) => {
+    const isUnread = !item.read;
+    
+    return (
+      <TouchableOpacity 
+        style={[styles.notificationCard, isUnread && styles.unreadCard]}
+        onPress={() => handleMarkAsRead(item._id)}
+        onLongPress={() => setSelectedNotification(item)}
+      >
+        <View style={styles.notificationContent}>
+          <Text style={[styles.notificationTitle, isUnread && styles.unreadTitle]}>
+            {item.title}
+          </Text>
+          <Text style={styles.notificationMessage}>{item.message}</Text>
+          <Text style={styles.notificationTime}>
+            {new Date(item.createdAt).toLocaleDateString()} - {new Date(item.createdAt).toLocaleTimeString()}
+          </Text>
+          
+          {item.imageUrl && (
+            <Image 
+              source={{ uri: getImageUrl(item.imageUrl) }} 
+              style={styles.notificationImage}
+              resizeMode="cover"
+            />
+          )}
+        </View>
+        
+        {isUnread && <View style={styles.unreadDot} />}
+        
+        <TouchableOpacity 
+          style={styles.menuButton}
+          onPress={() => setSelectedNotification(item)}
+        >
+          <Text style={styles.menuButtonText}>⋯</Text>
+        </TouchableOpacity>
+      </TouchableOpacity>
+    );
+  };
+
+  if (loading && !refreshing) {
+    return (
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <Text style={styles.headerTitle}>Notificaciones</Text>
+        </View>
+        <ActivityIndicator size="large" color="#8B5CF6" style={styles.loader} />
+      </View>
+    );
+  }
 
   return (
-    <View style={styles.bg}>
+    <View style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Text style={styles.backBtn}>{'<'}</Text>
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Órdenes pendientes</Text>
-        <Text style={styles.menuBtn}>⋮</Text>
+        <Text style={styles.headerTitle}>Notificaciones</Text>
+        <View style={styles.headerActions}>
+          {unreadCount > 0 && (
+            <TouchableOpacity onPress={handleMarkAllAsRead} style={styles.actionButton}>
+              <Text style={styles.actionButtonText}>Marcar todas</Text>
+            </TouchableOpacity>
+          )}
+          <TouchableOpacity onPress={() => setShowDeleteModal(true)} style={styles.actionButton}>
+            <Text style={styles.actionButtonText}>Limpiar</Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
-      {loading ? (
-        <ActivityIndicator color="#fff" />
-      ) : error ? (
-        <Text style={{ color: '#fff', textAlign: 'center' }}>{error}</Text>
-      ) : (
-        <ScrollView contentContainerStyle={styles.scrollContent}>
-          {orders.map((o) => (
-            <TouchableOpacity key={o._id} style={styles.ordenCard} onPress={() => { setSelected(o); setPrice(String(o.price || '')); setComment(o.comment || ''); }}>
-              <View style={{ flex: 1 }}>
-                <Text style={styles.nombre}>{o.user?.name || 'Usuario'}</Text>
-                <Text style={styles.cantidad}>{o.modelType}</Text>
-              </View>
-              <Text style={styles.alerta}>⋯</Text>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
+      <View style={styles.connectionStatus}>
+        <View style={[styles.statusDot, socketConnected ? styles.connected : styles.disconnected]} />
+        <Text style={styles.statusText}>
+          {socketConnected ? 'Conectado' : 'Desconectado'}
+        </Text>
+      </View>
+
+      {error && (
+        <View style={styles.errorContainer}>
+          <Text style={styles.errorText}>{error}</Text>
+          <TouchableOpacity onPress={refresh} style={styles.retryButton}>
+            <Text style={styles.retryText}>Reintentar</Text>
+          </TouchableOpacity>
+        </View>
       )}
-      <QuoteModal
-        visible={!!selected}
-        order={selected}
-        price={price}
-        setPrice={setPrice}
-        comment={comment}
-        setComment={setComment}
-        onClose={() => { setSelected(null); setPrice(''); setComment(''); }}
-        onSend={async () => { await quote(selected._id, Number(price || 0), comment); setSelected(null); setPrice(''); setComment(''); }}
-        onReject={async () => { await reject(selected._id); setSelected(null); setPrice(''); setComment(''); }}
-      />
+
+      {notifications.length === 0 ? (
+        <View style={styles.emptyContainer}>
+          <Text style={styles.emptyText}>No hay notificaciones</Text>
+          <Text style={styles.emptySubtext}>Te avisaremos cuando tengas nuevas notificaciones</Text>
+        </View>
+      ) : (
+        <FlatList
+          data={notifications}
+          renderItem={renderNotification}
+          keyExtractor={item => item._id}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
+          contentContainerStyle={styles.listContent}
+        />
+      )}
+
+      {/* Modal de acciones para notificación */}
+      <Modal
+        visible={!!selectedNotification}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setSelectedNotification(null)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Opciones</Text>
+            
+            <TouchableOpacity 
+              style={styles.modalOption}
+              onPress={() => {
+                if (selectedNotification) {
+                  handleMarkAsRead(selectedNotification._id);
+                  setSelectedNotification(null);
+                }
+              }}
+            >
+              <Text style={styles.modalOptionText}>
+                {selectedNotification?.read ? 'Marcar como no leída' : 'Marcar como leída'}
+              </Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity 
+              style={styles.modalOption}
+              onPress={() => {
+                if (selectedNotification) {
+                  handleDelete(selectedNotification._id);
+                }
+              }}
+            >
+              <Text style={[styles.modalOptionText, styles.deleteOption]}>Eliminar</Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity 
+              style={styles.modalCancel}
+              onPress={() => setSelectedNotification(null)}
+            >
+              <Text style={styles.modalCancelText}>Cancelar</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Modal para eliminar todas las notificaciones */}
+      <Modal
+        visible={showDeleteModal}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowDeleteModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>¿Eliminar todas las notificaciones?</Text>
+            <Text style={styles.modalSubtitle}>Esta acción no se puede deshacer</Text>
+            
+            <View style={styles.modalButtons}>
+              <TouchableOpacity 
+                style={[styles.modalButton, styles.cancelButton]}
+                onPress={() => setShowDeleteModal(false)}
+              >
+                <Text style={styles.cancelButtonText}>Cancelar</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity 
+                style={[styles.modalButton, styles.deleteButton]}
+                onPress={handleDeleteAll}
+              >
+                <Text style={styles.deleteButtonText}>Eliminar</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
 
-// Modal de cotización
-const QuoteModal = ({ visible, onClose, order, onSend, onReject, price, setPrice, comment, setComment }) => {
-  if (!order) return null;
-  return (
-    <Modal visible={visible} animationType="slide" transparent>
-      <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.45)', justifyContent: 'center', padding: 16 }}>
-        <View style={{ backgroundColor: 'white', borderRadius: 16, overflow: 'hidden' }}>
-          <Image source={{ uri: order.imageUrl?.startsWith('http') ? order.imageUrl : `http://192.168.0.8:4000${order.imageUrl}` }} style={{ width: '100%', height: 180 }} />
-          <View style={{ padding: 16 }}>
-            <Text style={{ fontSize: 18, fontWeight: '800', marginBottom: 6 }}>{order.description || 'Encargo personalizado'}</Text>
-            <Text style={{ color: '#6B7280', marginBottom: 12 }}>Tipo: {order.modelType}</Text>
-            <TextInput placeholder="Asignar precio" value={price} onChangeText={setPrice} keyboardType="numeric" style={styles.input} />
-            <TextInput placeholder="Comentario (opcional)" value={comment} onChangeText={setComment} style={styles.input} />
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 8 }}>
-              <TouchableOpacity onPress={onReject} style={styles.secondaryBtn}><Text style={[styles.secondaryBtnText, { color: '#EF4444' }]}>Rechazar</Text></TouchableOpacity>
-              <View style={{ flexDirection: 'row' }}>
-                <TouchableOpacity onPress={onClose} style={[styles.secondaryBtn, { marginRight: 8 }]}><Text style={styles.secondaryBtnText}>Cerrar</Text></TouchableOpacity>
-                <TouchableOpacity onPress={onSend} style={styles.primaryBtn}><Text style={styles.primaryBtnText}>Enviar</Text></TouchableOpacity>
-              </View>
-            </View>
-          </View>
-        </View>
-      </View>
-    </Modal>
-  );
-};
-
 const styles = StyleSheet.create({
-	bg: {
-		flex: 1,
-		backgroundColor: '#b39ddb',
-		paddingTop: 40,
-		paddingHorizontal: 12,
-	},
-	header: {
-		flexDirection: 'row',
-		alignItems: 'center',
-		marginBottom: 18,
-		justifyContent: 'space-between',
-	},
-	backBtn: {
-		fontSize: 24,
-		color: '#fff',
-		paddingHorizontal: 8,
-		fontWeight: 'bold',
-	},
-	headerTitle: {
-		fontSize: 24,
-		color: '#fff',
-		fontWeight: 'bold',
-		flex: 1,
-		textAlign: 'center',
-		marginRight: 24,
-	},
-	menuBtn: {
-		fontSize: 24,
-		color: '#fff',
-		paddingHorizontal: 8,
-	},
-	scrollContent: {
-		paddingBottom: 30,
-	},
-	ordenCard: {
-		backgroundColor: '#d1c4e9',
-		borderRadius: 14,
-		flexDirection: 'row',
-		alignItems: 'center',
-		paddingVertical: 16,
-		paddingHorizontal: 18,
-		marginBottom: 12,
-		justifyContent: 'space-between',
-	},
-	nombre: {
-		fontSize: 18,
-		color: '#4b3ca7',
-		fontWeight: 'bold',
-		flex: 1,
-	},
-	cantidad: {
-		fontSize: 18,
-		color: '#4b3ca7',
-		fontWeight: 'bold',
-		marginHorizontal: 16,
-	},
-	alerta: {
-		fontSize: 22,
-		fontWeight: 'bold',
-	},
-  input: {
-    backgroundColor: '#F3F4F6',
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
-    paddingHorizontal: 12,
-    height: 44,
+  container: {
+    flex: 1,
+    backgroundColor: '#f5f5f5',
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 16,
+    backgroundColor: 'white',
+    borderBottomWidth: 1,
+    borderBottomColor: '#e0e0e0',
+  },
+  headerTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#333',
+  },
+  headerActions: {
+    flexDirection: 'row',
+  },
+  actionButton: {
+    padding: 8,
+    marginLeft: 8,
+  },
+  actionButtonText: {
+    color: '#8B5CF6',
+    fontSize: 14,
+  },
+  connectionStatus: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 8,
+    backgroundColor: '#f0f0f0',
+  },
+  statusDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    marginRight: 8,
+  },
+  connected: {
+    backgroundColor: '#4CAF50',
+  },
+  disconnected: {
+    backgroundColor: '#F44336',
+  },
+  statusText: {
+    fontSize: 12,
+    color: '#666',
+  },
+  loader: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  errorContainer: {
+    padding: 20,
+    alignItems: 'center',
+  },
+  errorText: {
+    color: '#d32f2f',
     marginBottom: 10,
-    color: '#111827',
+    textAlign: 'center',
   },
-  primaryBtn: {
+  retryButton: {
+    padding: 10,
     backgroundColor: '#8B5CF6',
-    paddingHorizontal: 16,
-    height: 44,
-    borderRadius: 10,
-    alignItems: 'center',
+    borderRadius: 5,
+  },
+  retryText: {
+    color: 'white',
+  },
+  emptyContainer: {
+    flex: 1,
     justifyContent: 'center',
-  },
-  primaryBtnText: {
-    color: '#fff',
-    fontWeight: '700',
-  },
-  secondaryBtn: {
-    backgroundColor: '#F3F4F6',
-    paddingHorizontal: 16,
-    height: 44,
-    borderRadius: 10,
     alignItems: 'center',
-    justifyContent: 'center',
+    padding: 20,
   },
-  secondaryBtnText: {
-    color: '#374151',
-    fontWeight: '700',
+  emptyText: {
+    fontSize: 18,
+    color: '#666',
+    marginBottom: 8,
+  },
+  emptySubtext: {
+    fontSize: 14,
+    color: '#999',
+    textAlign: 'center',
+  },
+  listContent: {
+    padding: 16,
+  },
+  notificationCard: {
+    backgroundColor: 'white',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 12,
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  unreadCard: {
+    backgroundColor: '#f0e8ff',
+    borderLeftWidth: 4,
+    borderLeftColor: '#8B5CF6',
+  },
+  notificationContent: {
+    flex: 1,
+  },
+  notificationTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#333',
+    marginBottom: 4,
+  },
+  unreadTitle: {
+    color: '#8B5CF6',
+  },
+  notificationMessage: {
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 8,
+  },
+  notificationTime: {
+    fontSize: 12,
+    color: '#999',
+  },
+  notificationImage: {
+    width: 60,
+    height: 60,
+    borderRadius: 8,
+    marginTop: 8,
+  },
+  unreadDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#8B5CF6',
+    marginLeft: 8,
+    marginTop: 4,
+  },
+  menuButton: {
+    padding: 4,
+    marginLeft: 8,
+  },
+  menuButtonText: {
+    fontSize: 18,
+    color: '#666',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    borderRadius: 12,
+    padding: 20,
+    width: '80%',
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  modalSubtitle: {
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  modalOption: {
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
+  },
+  modalOptionText: {
+    fontSize: 16,
+    textAlign: 'center',
+  },
+  deleteOption: {
+    color: '#F44336',
+  },
+  modalCancel: {
+    padding: 16,
+    marginTop: 8,
+  },
+  modalCancelText: {
+    fontSize: 16,
+    color: '#666',
+    textAlign: 'center',
+  },
+  modalButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 16,
+  },
+  modalButton: {
+    flex: 1,
+    padding: 12,
+    borderRadius: 6,
+    marginHorizontal: 4,
+  },
+  cancelButton: {
+    backgroundColor: '#f0f0f0',
+  },
+  cancelButtonText: {
+    textAlign: 'center',
+    color: '#666',
+  },
+  deleteButton: {
+    backgroundColor: '#F44336',
+  },
+  deleteButtonText: {
+    textAlign: 'center',
+    color: 'white',
   },
 });
 
-export default Notificaciones;	
+export default Notificaciones;

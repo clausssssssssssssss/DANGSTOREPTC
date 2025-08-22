@@ -1,20 +1,7 @@
-// src/controllers/customizedOrdersController.js
-// import { v2 as cloudinary} from "cloudinary"
 import CustomizedOrder from '../models/customizedOrders.js';
 import Order from '../models/Order.js';
 import Cart from '../models/Cart.js';
-
-const uploadToCloudinary = (buffer) => {
-   return new Promise((resolve, reject) => {
-    const stream = cloudinary.uploader.upload_stream(
-       { folder: 'customized-orders' },
-       (error, result) => {
-         if (result) resolve(result);
-         else reject(error);
-       }
-     );
-   });
- };
+import { createNotification } from './notificationController.js';
 
 /** Usuario sube imagen y crea la orden pendiente */
 export const createCustomOrder = async (req, res) => {
@@ -43,14 +30,32 @@ export const createCustomOrder = async (req, res) => {
     // Crear la orden personalizada en la base de datos
     const order = new CustomizedOrder({
       user: userId,
-      imageUrl: base64Image, // Guardamos como base64 temporalmente
+      imageUrl: base64Image,
       modelType,
       description,
       status: 'pending'
     });
     await order.save();
 
-    console.log(' Orden personalizada creada exitosamente:', order._id);
+    // Crear notificación para el administrador
+    // NOTA: Reemplaza con el ID real del usuario admin de tu base de datos
+    const adminUserId = process.env.ADMIN_USER_ID || '65d8f1a9c8b6c94d4a8b459d';
+    
+    await createNotification(
+      adminUserId,
+      'nuevo_encargo',
+      'Nuevo Encargo Personalizado',
+      `Nuevo encargo de ${req.user.name || 'Cliente'} - ${modelType}`,
+      order._id,
+      {
+        customerName: req.user.name,
+        customerEmail: req.user.email,
+        modelType,
+        description
+      }
+    );
+
+    console.log('Orden personalizada creada exitosamente:', order._id);
     return res.status(201).json({
       message: 'Encargo personalizado creado exitosamente',
       order: {
@@ -62,7 +67,7 @@ export const createCustomOrder = async (req, res) => {
       }
     });
   } catch (err) {
-    console.error(" Error creando solicitud personalizada:", err);
+    console.error("Error creando solicitud personalizada:", err);
     return res.status(500).json({
       message: "Error creando solicitud",
       error: err.message
@@ -104,10 +109,29 @@ export const quoteCustomOrder = async (req, res) => {
     if (!order) {
       return res.status(404).json({ message: 'Encargo personalizado no encontrado.' });
     }
+    
+    const oldStatus = order.status;
     order.status = 'quoted';
     order.price = price;
     order.comment = comment;
     await order.save();
+
+    // Crear notificación para el usuario cuando se cotiza
+    if (oldStatus === 'pending') {
+      await createNotification(
+        order.user,
+        'cotizacion_lista',
+        'Cotización Lista',
+        `Tu encargo "${order.modelType}" tiene una cotización de $${price}`,
+        order._id,
+        {
+          price,
+          comment,
+          modelType: order.modelType
+        }
+      );
+    }
+
     return res.json(order);
   } catch (err) {
     console.error("Error cotizando encargo personalizado:", err);
@@ -122,28 +146,28 @@ export const respondCustomOrder = async (req, res) => {
     const { id } = req.params;
 
     console.log('respondCustomOrder llamado con:', { decision, id });
-    console.log(' Usuario autenticado:', req.user);
-    console.log(' ID del usuario:', req.user.id || req.user.userId);
+    console.log('Usuario autenticado:', req.user);
+    console.log('ID del usuario:', req.user.id || req.user.userId);
 
     // Obtener el ID del usuario del objeto req.user
     const userId = req.user.id || req.user.userId;
     if (!userId) {
-      console.log(' No se pudo obtener el ID del usuario');
+      console.log('No se pudo obtener el ID del usuario');
       return res.status(400).json({ message: 'ID de usuario no válido' });
     }
 
     // 1) Buscamos la orden
     const order = await CustomizedOrder.findById(id);
     if (!order) {
-      console.log(' Orden no encontrada:', id);
+      console.log('Orden no encontrada:', id);
       return res.status(404).json({ message: 'Encargo personalizado no encontrado.' });
     }
 
-    console.log(' Orden encontrada:', order._id, 'Status actual:', order.status);
+    console.log('Orden encontrada:', order._id, 'Status actual:', order.status);
 
     // 2) Validamos la decisión
     if (decision !== 'accept' && decision !== 'reject') {
-      console.log(' Decisión inválida:', decision);
+      console.log('Decisión inválida:', decision);
       return res
         .status(400)
         .json({ message: 'El campo decision debe ser "accept" o "reject".' });
@@ -157,7 +181,22 @@ export const respondCustomOrder = async (req, res) => {
       order.decision = 'reject';
       await order.save();
       
-      console.log(' Rechazo procesado correctamente');
+      // Notificar al admin sobre el rechazo
+      const adminUserId = process.env.ADMIN_USER_ID || '65d8f1a9c8b6c94d4a8b459d';
+      await createNotification(
+        adminUserId,
+        'cotizacion_rechazada',
+        'Cotización Rechazada',
+        `El cliente ha rechazado la cotización para "${order.modelType}"`,
+        order._id,
+        {
+          customerName: req.user.name,
+          modelType: order.modelType,
+          price: order.price
+        }
+      );
+      
+      console.log('Rechazo procesado correctamente');
       return res.json({
         message: 'Encargo rechazado correctamente',
         order
@@ -171,20 +210,35 @@ export const respondCustomOrder = async (req, res) => {
     order.decision = 'accept';
     await order.save();
 
+    // Notificar al admin sobre la aceptación
+    const adminUserId = process.env.ADMIN_USER_ID || '65d8f1a9c8b6c94d4a8b459d';
+    await createNotification(
+      adminUserId,
+      'cotizacion_aceptada',
+      'Cotización Aceptada',
+      `El cliente ha aceptado la cotización de $${order.price} para "${order.modelType}"`,
+      order._id,
+      {
+        customerName: req.user.name,
+        modelType: order.modelType,
+        price: order.price
+      }
+    );
+
     // 5) Lo metemos al carrito
     try {
-      console.log(' Buscando carrito para usuario:', userId);
+      console.log('Buscando carrito para usuario:', userId);
       let cart = await Cart.findOne({ user: userId });
       
       if (!cart) {
-        console.log(' Creando nuevo carrito para usuario:', userId);
+        console.log('Creando nuevo carrito para usuario:', userId);
         cart = new Cart({ 
           user: userId,
           products: [],
           customizedProducts: []
         });
       } else {
-        console.log(' Carrito existente encontrado:', cart._id);
+        console.log('Carrito existente encontrado:', cart._id);
       }
 
       // Verificar si ya existe en el carrito
@@ -193,23 +247,23 @@ export const respondCustomOrder = async (req, res) => {
       );
 
       if (existingProduct) {
-        console.log(' Producto ya existe en carrito, actualizando cantidad');
+        console.log('Producto ya existe en carrito, actualizando cantidad');
         existingProduct.quantity += 1;
       } else {
-        console.log(' Agregando nuevo producto personalizado al carrito');
+        console.log('Agregando nuevo producto personalizado al carrito');
         cart.customizedProducts.push({ 
           item: order._id, 
           quantity: 1 
         });
       }
 
-      console.log(' Guardando carrito...');
+      console.log('Guardando carrito...');
       await cart.save();
-      console.log(' Carrito actualizado correctamente');
-      console.log(' Productos personalizados en carrito:', cart.customizedProducts.length);
+      console.log('Carrito actualizado correctamente');
+      console.log('Productos personalizados en carrito:', cart.customizedProducts.length);
 
       // 6) Respuesta combinada
-      console.log(' Enviando respuesta exitosa');
+      console.log('Enviando respuesta exitosa');
       return res.json({ 
         message: 'Encargo aceptado y agregado al carrito',
         order,
@@ -229,8 +283,8 @@ export const respondCustomOrder = async (req, res) => {
       });
 
     } catch (cartError) {
-      console.error(' Error con el carrito:', cartError);
-      console.error(' Stack trace:', cartError.stack);
+      console.error('Error con el carrito:', cartError);
+      console.error('Stack trace:', cartError.stack);
       // Si falla el carrito, al menos guardamos la decisión
       return res.json({ 
         message: 'Encargo aceptado pero hubo un problema con el carrito',
@@ -249,8 +303,6 @@ export const respondCustomOrder = async (req, res) => {
       });
   }
 };
-
-// Agregar esta función al final de tu customizedOrdersController.js
 
 /** Obtener una orden personalizada específica por ID */
 export const getCustomOrderById = async (req, res) => {

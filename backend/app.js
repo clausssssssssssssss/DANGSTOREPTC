@@ -1,10 +1,6 @@
-// backend/app.js
-
 import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
-import { createServer } from 'http';
-import { initSocket } from './src/services/socket.js';
 
 import customerRoutes         from './src/routes/customers.js';
 import passwordRecoveryRoutes from './src/routes/passwordRecovery.js';
@@ -19,7 +15,6 @@ import adminAuthRoutes        from './src/routes/adminAuth.js';
 import logoutRoutes           from './src/routes/logout.js';
 import paymentRoutes          from './src/routes/paymentRoutes.js';
 import ratingsRoutes          from './src/routes/ratings.js';
-import notificationRoutes     from './src/routes/notifications.js'; // Nueva ruta
 
 import swaggerUi from "swagger-ui-express";
 import fs from "fs";
@@ -30,18 +25,11 @@ import path from "path";
  * Configura middlewares globales y monta los routers de la API.
  */
 const app = express();
-const server = createServer(app); // Crear servidor HTTP para Socket.io
-
-// Inicializar Socket.io
-initSocket(server);
-
 app.use(cors());
 
-/** Habilita el parseo de JSON en el cuerpo de las solicitudes */
-app.use(express.json({ limit: '50mb' }));
 
-/** Habilita el parseo de datos de formularios */
-app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+/** Habilita el parseo de JSON en el cuerpo de las solicitudes */
+app.use(express.json());
 
 /** Habilita el parseo de cookies en las solicitudes */
 app.use(cookieParser());
@@ -101,38 +89,8 @@ app.use('/api/payments', paymentRoutes);
 // Sistema de reseñas y ratings de productos
 app.use('/api/ratings', ratingsRoutes);
 
-// Sistema de notificaciones en tiempo real
-app.use('/api/notifications', notificationRoutes);
-
-// Ruta de salud para verificar que el servidor está funcionando
-app.get('/api/health', (req, res) => {
-  res.json({ 
-    message: 'Servidor DangStore funcionando correctamente', 
-    timestamp: new Date(),
-    services: {
-      notifications: true,
-      websocket: true,
-      database: 'MongoDB'
-    }
-  });
-});
-
-// Manejo de errores global
-app.use((err, req, res, next) => {
-  console.error('Error global:', err);
-  res.status(500).json({ 
-    message: 'Error interno del servidor',
-    error: process.env.NODE_ENV === 'development' ? err.message : 'Ocurrió un error inesperado'
-  });
-});
-
-// Ruta no encontrada
-app.use('*', (req, res) => {
-  res.status(404).json({ message: 'Ruta no encontrada' });
-});
-
 /**
- * Exporta la instancia del servidor HTTP
- * para que pueda ser utilizada por el punto de entrada (e.g., server.js).
+ * Exporta la instancia de la aplicación Express
+ * para que pueda ser utilizada por el servidor (e.g., server.js).
  */
-export { app, server };
+export default app;

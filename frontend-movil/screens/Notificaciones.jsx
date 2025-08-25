@@ -96,7 +96,10 @@ const Notificaciones = () => {
           </Text>
           <Text style={styles.notificationMessage}>{item.message}</Text>
           <Text style={styles.notificationTime}>
-            {new Date(item.createdAt).toLocaleDateString()} - {new Date(item.createdAt).toLocaleTimeString()}
+            {new Date(item.createdAt).toLocaleDateString('es-ES')} - {new Date(item.createdAt).toLocaleTimeString('es-ES', { 
+              hour: '2-digit', 
+              minute: '2-digit' 
+            })}
           </Text>
           
           {item.imageUrl && (
@@ -148,9 +151,9 @@ const Notificaciones = () => {
       </View>
 
       <View style={styles.connectionStatus}>
-        <View style={[styles.statusDot, socketConnected ? styles.connected : styles.disconnected]} />
+        <View style={[styles.statusDot, styles.connected]} />
         <Text style={styles.statusText}>
-          {socketConnected ? 'Conectado' : 'Desconectado'}
+          Sincronizando cada 15 segundos
         </Text>
       </View>
 
@@ -174,7 +177,12 @@ const Notificaciones = () => {
           renderItem={renderNotification}
           keyExtractor={item => item._id}
           refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+            <RefreshControl 
+              refreshing={refreshing} 
+              onRefresh={onRefresh}
+              colors={['#8B5CF6']}
+              tintColor={'#8B5CF6'}
+            />
           }
           contentContainerStyle={styles.listContent}
         />
@@ -289,28 +297,29 @@ const styles = StyleSheet.create({
   actionButtonText: {
     color: '#8B5CF6',
     fontSize: 14,
+    fontWeight: '600',
   },
   connectionStatus: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 8,
-    backgroundColor: '#f0f0f0',
+    padding: 12,
+    backgroundColor: '#f8f9fa',
+    borderBottomWidth: 1,
+    borderBottomColor: '#e9ecef',
   },
   statusDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
+    width: 10,
+    height: 10,
+    borderRadius: 5,
     marginRight: 8,
   },
   connected: {
-    backgroundColor: '#4CAF50',
-  },
-  disconnected: {
-    backgroundColor: '#F44336',
+    backgroundColor: '#28a745',
   },
   statusText: {
-    fontSize: 12,
-    color: '#666',
+    fontSize: 13,
+    color: '#6c757d',
+    fontWeight: '500',
   },
   loader: {
     flex: 1,
@@ -320,38 +329,49 @@ const styles = StyleSheet.create({
   errorContainer: {
     padding: 20,
     alignItems: 'center',
+    justifyContent: 'center',
+    flex: 1,
   },
   errorText: {
-    color: '#d32f2f',
-    marginBottom: 10,
+    color: '#dc3545',
+    marginBottom: 16,
     textAlign: 'center',
+    fontSize: 16,
   },
   retryButton: {
-    padding: 10,
+    padding: 12,
     backgroundColor: '#8B5CF6',
-    borderRadius: 5,
+    borderRadius: 8,
+    minWidth: 120,
+    alignItems: 'center',
   },
   retryText: {
     color: 'white',
+    fontWeight: '600',
+    fontSize: 16,
   },
   emptyContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 20,
+    padding: 40,
   },
   emptyText: {
     fontSize: 18,
-    color: '#666',
+    color: '#6c757d',
+    fontWeight: '600',
     marginBottom: 8,
+    textAlign: 'center',
   },
   emptySubtext: {
     fontSize: 14,
-    color: '#999',
+    color: '#adb5bd',
     textAlign: 'center',
+    lineHeight: 20,
   },
   listContent: {
     padding: 16,
+    paddingBottom: 30,
   },
   notificationCard: {
     backgroundColor: 'white',
@@ -361,129 +381,145 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'flex-start',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
+    shadowRadius: 3,
+    elevation: 3,
   },
   unreadCard: {
-    backgroundColor: '#f0e8ff',
+    backgroundColor: '#f3e8ff',
     borderLeftWidth: 4,
     borderLeftColor: '#8B5CF6',
   },
   notificationContent: {
     flex: 1,
+    marginRight: 8,
   },
   notificationTitle: {
     fontSize: 16,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 4,
+    fontWeight: '700',
+    color: '#2d3748',
+    marginBottom: 6,
   },
   unreadTitle: {
     color: '#8B5CF6',
   },
   notificationMessage: {
     fontSize: 14,
-    color: '#666',
+    color: '#4a5568',
     marginBottom: 8,
+    lineHeight: 20,
   },
   notificationTime: {
     fontSize: 12,
-    color: '#999',
+    color: '#718096',
+    fontStyle: 'italic',
   },
   notificationImage: {
     width: 60,
     height: 60,
     borderRadius: 8,
     marginTop: 8,
+    backgroundColor: '#f7fafc',
   },
   unreadDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
+    width: 10,
+    height: 10,
+    borderRadius: 5,
     backgroundColor: '#8B5CF6',
     marginLeft: 8,
     marginTop: 4,
   },
   menuButton: {
-    padding: 4,
-    marginLeft: 8,
+    padding: 8,
+    marginLeft: 4,
   },
   menuButtonText: {
-    fontSize: 18,
-    color: '#666',
+    fontSize: 20,
+    color: '#a0aec0',
+    fontWeight: 'bold',
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
   },
   modalContent: {
     backgroundColor: 'white',
-    borderRadius: 12,
-    padding: 20,
-    width: '80%',
+    borderRadius: 16,
+    padding: 24,
+    width: '85%',
+    maxWidth: 400,
   },
   modalTitle: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: 'bold',
-    marginBottom: 8,
+    marginBottom: 16,
     textAlign: 'center',
+    color: '#2d3748',
   },
   modalSubtitle: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 20,
+    fontSize: 15,
+    color: '#718096',
+    marginBottom: 24,
     textAlign: 'center',
+    lineHeight: 20,
   },
   modalOption: {
     padding: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
+    borderBottomColor: '#edf2f7',
   },
   modalOptionText: {
     fontSize: 16,
     textAlign: 'center',
+    color: '#4a5568',
+    fontWeight: '500',
   },
   deleteOption: {
-    color: '#F44336',
+    color: '#e53e3e',
   },
   modalCancel: {
     padding: 16,
     marginTop: 8,
+    borderRadius: 8,
+    backgroundColor: '#f7fafc',
   },
   modalCancelText: {
     fontSize: 16,
-    color: '#666',
+    color: '#4a5568',
     textAlign: 'center',
+    fontWeight: '600',
   },
   modalButtons: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: 16,
+    marginTop: 20,
+    gap: 12,
   },
   modalButton: {
     flex: 1,
-    padding: 12,
-    borderRadius: 6,
-    marginHorizontal: 4,
+    padding: 14,
+    borderRadius: 8,
+    alignItems: 'center',
   },
   cancelButton: {
-    backgroundColor: '#f0f0f0',
+    backgroundColor: '#edf2f7',
   },
   cancelButtonText: {
-    textAlign: 'center',
-    color: '#666',
+    color: '#4a5568',
+    fontWeight: '600',
+    fontSize: 16,
   },
   deleteButton: {
-    backgroundColor: '#F44336',
+    backgroundColor: '#e53e3e',
   },
   deleteButtonText: {
-    textAlign: 'center',
     color: 'white',
+    fontWeight: '600',
+    fontSize: 16,
   },
 });
 

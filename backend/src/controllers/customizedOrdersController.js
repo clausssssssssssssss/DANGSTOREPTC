@@ -1,7 +1,6 @@
 import CustomizedOrder from '../models/customizedOrders.js';
 import Order from '../models/Order.js';
 import Cart from '../models/Cart.js';
-import { createNotification } from './notificationController.js';
 
 /** Usuario sube imagen y crea la orden pendiente */
 export const createCustomOrder = async (req, res) => {

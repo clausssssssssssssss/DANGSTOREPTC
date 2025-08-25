@@ -4,7 +4,6 @@ import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import { createServer } from 'http';
-import { initSocket } from './src/services/socket.js';
 
 import customerRoutes         from './src/routes/customers.js';
 import passwordRecoveryRoutes from './src/routes/passwordRecovery.js';
@@ -19,7 +18,6 @@ import adminAuthRoutes        from './src/routes/adminAuth.js';
 import logoutRoutes           from './src/routes/logout.js';
 import paymentRoutes          from './src/routes/paymentRoutes.js';
 import ratingsRoutes          from './src/routes/ratings.js';
-import notificationRoutes     from './src/routes/notifications.js'; // Nueva ruta
 
 import swaggerUi from "swagger-ui-express";
 import fs from "fs";
@@ -33,7 +31,6 @@ const app = express();
 const server = createServer(app); // Crear servidor HTTP para Socket.io
 
 // Inicializar Socket.io
-initSocket(server);
 
 app.use(cors());
 
@@ -102,7 +99,6 @@ app.use('/api/payments', paymentRoutes);
 app.use('/api/ratings', ratingsRoutes);
 
 // Sistema de notificaciones en tiempo real
-app.use('/api/notifications', notificationRoutes);
 
 // Ruta de salud para verificar que el servidor está funcionando
 app.get('/api/health', (req, res) => {

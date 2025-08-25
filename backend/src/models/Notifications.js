@@ -1,42 +1,57 @@
-import mongoose from 'mongoose';
+import { Schema, model } from 'mongoose';
 
-const notificationSchema = new mongoose.Schema({
-  userId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true
+const notificationSchema = new Schema(
+  {
+    /** Título de la notificación */
+    title: {
+      type: String,
+      required: true,
+    },
+
+    /** Mensaje/descripción de la notificación */
+    message: {
+      type: String,
+      required: true,
+    },
+
+    /** Tipo de notificación */
+    type: {
+      type: String,
+      enum: ['new_order', 'order_updated', 'payment', 'general'],
+      default: 'general',
+    },
+
+    /** Prioridad de la notificación */
+    priority: {
+      type: String,
+      enum: ['low', 'normal', 'high'],
+      default: 'normal',
+    },
+
+    /** Si ha sido leída */
+    isRead: {
+      type: Boolean,
+      default: false,
+    },
+
+    /** Datos adicionales (ID de orden, etc.) */
+    data: {
+      orderId: String,
+      customerName: String,
+      modelType: String,
+      price: Number,
+      imageUrl: String,
+    },
+
+    /** Icono para mostrar en la notificación */
+    icon: {
+      type: String,
+      default: '🔔',
+    },
   },
-  type: {
-    type: String,
-    required: true,
-    enum: ['nuevo_encargo', 'cotizacion_aprobada', 'cotizacion_rechazada', 'orden_completada', 'sistema']
-  },
-  title: {
-    type: String,
-    required: true
-  },
-  message: {
-    type: String,
-    required: true
-  },
-  orderId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'CustomizedOrder'
-  },
-  read: {
-    type: Boolean,
-    default: false
-  },
-  data: {
-    type: mongoose.Schema.Types.Mixed,
-    default: {}
+  {
+    timestamps: true,
   }
-}, {
-  timestamps: true
-});
+);
 
-// Índices para mejor rendimiento
-notificationSchema.index({ userId: 1, createdAt: -1 });
-notificationSchema.index({ userId: 1, read: 1 });
-
-export default mongoose.model('Notification', notificationSchema);
+export default model('Notification', notificationSchema);

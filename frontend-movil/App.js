@@ -6,6 +6,8 @@
   import AppNavigator from './navigation/AppNavigator';
   import { enableScreens } from 'react-native-screens';
   import { AuthProvider } from './src/context/AuthContext.js';
+  import CustomizedOrder from '../models/CustomOrder.js';
+
   enableScreens();
 
   export default function App() {

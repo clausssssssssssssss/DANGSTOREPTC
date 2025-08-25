@@ -1,70 +1,168 @@
-import React, { useState } from 'react';
-import { 
-  View, Text, StyleSheet, TouchableOpacity, 
-  ActivityIndicator, Alert, Image, RefreshControl,
-  FlatList, Modal 
+import React, { useState, useEffect, useCallback } from 'react';
+import {
+  View,
+  Text,
+  ScrollView,
+  TouchableOpacity,
+  RefreshControl,
+  Alert,
+  StyleSheet,
+  StatusBar,
+  ActivityIndicator,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { useNotifications } from '../hooks/useNotifications';
-import { getImageUrl } from '../services/customOrdersAPI';
+import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const Notificaciones = () => {
-  const navigation = useNavigation();
-  const {
-    notifications,
-    unreadCount,
-    loading,
-    error,
-    socketConnected,
-    refresh,
-    markAsRead,
-    markAllAsRead,
-    deleteNotification,
-    deleteAllNotifications
-  } = useNotifications();
+const API_URL = 'http://192.168.1.2:4000/api'; // Usa el puerto 4000 de tu server.js
 
+const Notificaciones = ({ navigation }) => {
+  const [notifications, setNotifications] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [selectedNotification, setSelectedNotification] = useState(null);
+  const [unreadCount, setUnreadCount] = useState(0);
 
-  const onRefresh = async () => {
-    setRefreshing(true);
-    await refresh();
-    setRefreshing(false);
-  };
-
-  const handleMarkAsRead = async (notificationId) => {
+  // Obtener token de autenticación
+  const getAuthToken = async () => {
     try {
-      await markAsRead(notificationId);
+      return await AsyncStorage.getItem('adminToken'); // o el key que uses para admin
     } catch (error) {
-      Alert.alert('Error', 'No se pudo marcar como leída');
+      console.error('Error obteniendo token:', error);
+      return null;
     }
   };
 
-  const handleDelete = async (notificationId) => {
+  // Headers para requests
+  const getHeaders = async () => {
+    const token = await getAuthToken();
+    return {
+      'Content-Type': 'application/json',
+      ...(token && { 'Authorization': `Bearer ${token}` }),
+    };
+  };
+
+  // Cargar notificaciones
+  const fetchNotifications = useCallback(async () => {
     try {
-      await deleteNotification(notificationId);
-      setSelectedNotification(null);
+      setLoading(true);
+      const headers = await getHeaders();
+      
+      const response = await fetch(`${API_URL}/notifications?limit=50`, {
+        method: 'GET',
+        headers,
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          setNotifications(data.data);
+        }
+      } else {
+        console.error('Error response:', response.status);
+      }
     } catch (error) {
-      Alert.alert('Error', 'No se pudo eliminar la notificación');
+      console.error('Error cargando notificaciones:', error);
+      Alert.alert('Error', 'No se pudieron cargar las notificaciones');
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  }, []);
+
+  // Cargar conteo no leídas
+  const fetchUnreadCount = useCallback(async () => {
+    try {
+      const headers = await getHeaders();
+      const response = await fetch(`${API_URL}/notifications/unread-count`, {
+        method: 'GET',
+        headers,
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          setUnreadCount(data.unreadCount);
+        }
+      }
+    } catch (error) {
+      console.error('Error cargando conteo:', error);
+    }
+  }, []);
+
+  // Marcar como leída
+  const markAsRead = async (notificationId) => {
+    try {
+      const headers = await getHeaders();
+      const response = await fetch(`${API_URL}/notifications/${notificationId}/read`, {
+        method: 'PUT',
+        headers,
+      });
+
+      if (response.ok) {
+        setNotifications(prev => 
+          prev.map(notif => 
+            notif._id === notificationId 
+              ? { ...notif, isRead: true }
+              : notif
+          )
+        );
+        setUnreadCount(prev => Math.max(0, prev - 1));
+      }
+    } catch (error) {
+      console.error('Error marcando como leída:', error);
     }
   };
 
-  const handleDeleteAll = async () => {
+  // Marcar todas como leídas
+  const markAllAsRead = async () => {
+    try {
+      const headers = await getHeaders();
+      const response = await fetch(`${API_URL}/notifications/read-all`, {
+        method: 'PUT',
+        headers,
+      });
+
+      if (response.ok) {
+        setNotifications(prev => 
+          prev.map(notif => ({ ...notif, isRead: true }))
+        );
+        setUnreadCount(0);
+      }
+    } catch (error) {
+      console.error('Error marcando todas como leídas:', error);
+    }
+  };
+
+  // Eliminar notificación
+  const deleteNotification = (notificationId) => {
     Alert.alert(
-      'Eliminar todas las notificaciones',
-      '¿Estás seguro de que quieres eliminar todas las notificaciones?',
+      'Eliminar Notificación',
+      '¿Estás seguro que deseas eliminar esta notificación?',
       [
         { text: 'Cancelar', style: 'cancel' },
-        { 
-          text: 'Eliminar', 
+        {
+          text: 'Eliminar',
           style: 'destructive',
           onPress: async () => {
             try {
-              await deleteAllNotifications();
-              setShowDeleteModal(false);
+              const headers = await getHeaders();
+              const response = await fetch(`${API_URL}/notifications/${notificationId}`, {
+                method: 'DELETE',
+                headers,
+              });
+
+              if (response.ok) {
+                const notificationToDelete = notifications.find(n => n._id === notificationId);
+                
+                setNotifications(prev => 
+                  prev.filter(notif => notif._id !== notificationId)
+                );
+                
+                if (notificationToDelete && !notificationToDelete.isRead) {
+                  setUnreadCount(prev => Math.max(0, prev - 1));
+                }
+              }
             } catch (error) {
-              Alert.alert('Error', 'No se pudieron eliminar todas las notificaciones');
+              console.error('Error eliminando notificación:', error);
             }
           }
         }
@@ -72,190 +170,251 @@ const Notificaciones = () => {
     );
   };
 
-  const handleMarkAllAsRead = async () => {
-    try {
-      await markAllAsRead();
-      Alert.alert('Éxito', 'Todas las notificaciones marcadas como leídas');
-    } catch (error) {
-      Alert.alert('Error', 'No se pudieron marcar todas como leídas');
+  // Eliminar todas
+  const deleteAllNotifications = () => {
+    Alert.alert(
+      'Eliminar Todas',
+      '¿Estás seguro que deseas eliminar todas las notificaciones?',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Eliminar Todo',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              const headers = await getHeaders();
+              const response = await fetch(`${API_URL}/notifications`, {
+                method: 'DELETE',
+                headers,
+              });
+
+              if (response.ok) {
+                setNotifications([]);
+                setUnreadCount(0);
+              }
+            } catch (error) {
+              console.error('Error eliminando todas:', error);
+            }
+          }
+        }
+      ]
+    );
+  };
+
+  // Navegar a detalles de orden
+  const goToOrderDetails = (orderId) => {
+    if (orderId) {
+      // navigation.navigate('DetallesOrden', { orderId });
+      console.log('Navegar a orden:', orderId);
     }
   };
 
-  const renderNotification = ({ item }) => {
-    const isUnread = !item.read;
-    
+  // Refrescar
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    fetchNotifications();
+    fetchUnreadCount();
+  }, [fetchNotifications, fetchUnreadCount]);
+
+  // Efectos
+  useEffect(() => {
+    fetchNotifications();
+    fetchUnreadCount();
+  }, [fetchNotifications, fetchUnreadCount]);
+
+  // Auto-refresh cada 30 segundos
+  useEffect(() => {
+    const interval = setInterval(() => {
+      fetchNotifications();
+      fetchUnreadCount();
+    }, 30000);
+
+    return () => clearInterval(interval);
+  }, [fetchNotifications, fetchUnreadCount]);
+
+  // Componente NotificationCard
+  const NotificationCard = ({ item, index }) => {
+    const getTypeColor = (type) => {
+      switch (type) {
+        case 'new_order': return '#8B5CF6';
+        case 'order_updated': return '#10B981';
+        case 'payment': return '#F59E0B';
+        default: return '#6B7280';
+      }
+    };
+
+    const getTypeIcon = (type) => {
+      switch (type) {
+        case 'new_order': return 'bag-add-outline';
+        case 'order_updated': return 'checkmark-circle-outline';
+        case 'payment': return 'card-outline';
+        default: return 'notifications-outline';
+      }
+    };
+
+    const formatDate = (dateString) => {
+      const date = new Date(dateString);
+      const now = new Date();
+      const diffInHours = (now - date) / (1000 * 60 * 60);
+      
+      if (diffInHours < 1) {
+        return 'Hace unos minutos';
+      } else if (diffInHours < 24) {
+        return `Hace ${Math.floor(diffInHours)} horas`;
+      } else {
+        return date.toLocaleDateString('es-ES', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+      }
+    };
+
     return (
-      <TouchableOpacity 
-        style={[styles.notificationCard, isUnread && styles.unreadCard]}
-        onPress={() => handleMarkAsRead(item._id)}
-        onLongPress={() => setSelectedNotification(item)}
+      <TouchableOpacity
+        style={[
+          styles.notificationCard,
+          !item.isRead && styles.unreadCard
+        ]}
+        onPress={() => {
+          if (!item.isRead) markAsRead(item._id);
+          if (item.data?.orderId) goToOrderDetails(item.data.orderId);
+        }}
       >
-        <View style={styles.notificationContent}>
-          <Text style={[styles.notificationTitle, isUnread && styles.unreadTitle]}>
-            {item.title}
-          </Text>
-          <Text style={styles.notificationMessage}>{item.message}</Text>
-          <Text style={styles.notificationTime}>
-            {new Date(item.createdAt).toLocaleDateString()} - {new Date(item.createdAt).toLocaleTimeString()}
-          </Text>
-          
-          {item.imageUrl && (
-            <Image 
-              source={{ uri: getImageUrl(item.imageUrl) }} 
-              style={styles.notificationImage}
-              resizeMode="cover"
+        <View style={styles.cardHeader}>
+          <View style={[styles.iconContainer, { backgroundColor: getTypeColor(item.type) + '20' }]}>
+            <Ionicons 
+              name={getTypeIcon(item.type)} 
+              size={24} 
+              color={getTypeColor(item.type)} 
             />
-          )}
+          </View>
+          
+          <View style={styles.cardContent}>
+            <Text style={styles.cardTitle}>{item.title}</Text>
+            <Text style={styles.cardMessage}>{item.message}</Text>
+            
+            {item.data?.customerName && (
+              <Text style={styles.customerName}>Cliente: {item.data.customerName}</Text>
+            )}
+            
+            {item.data?.modelType && (
+              <Text style={styles.modelType}>Tipo: {item.data.modelType}</Text>
+            )}
+          </View>
+          
+          <View style={styles.cardActions}>
+            {!item.isRead && <View style={styles.unreadDot} />}
+            <TouchableOpacity
+              onPress={() => deleteNotification(item._id)}
+              style={styles.deleteButton}
+            >
+              <Ionicons name="trash-outline" size={20} color="#EF4444" />
+            </TouchableOpacity>
+          </View>
         </View>
         
-        {isUnread && <View style={styles.unreadDot} />}
-        
-        <TouchableOpacity 
-          style={styles.menuButton}
-          onPress={() => setSelectedNotification(item)}
-        >
-          <Text style={styles.menuButtonText}>⋯</Text>
-        </TouchableOpacity>
+        <View style={styles.cardFooter}>
+          <Text style={styles.timestamp}>{formatDate(item.createdAt)}</Text>
+          
+          {item.data?.price && (
+            <Text style={styles.price}>${item.data.price}</Text>
+          )}
+        </View>
       </TouchableOpacity>
     );
   };
 
-  if (loading && !refreshing) {
+  if (loading && notifications.length === 0) {
     return (
-      <View style={styles.container}>
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>Notificaciones</Text>
-        </View>
-        <ActivityIndicator size="large" color="#8B5CF6" style={styles.loader} />
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#8B5CF6" />
+        <Text style={styles.loadingText}>Cargando notificaciones...</Text>
       </View>
     );
   }
 
   return (
     <View style={styles.container}>
+      <StatusBar backgroundColor="#8B5CF6" barStyle="light-content" />
+      
+      {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Notificaciones</Text>
-        <View style={styles.headerActions}>
+        <View style={styles.headerLeft}>
+          <TouchableOpacity onPress={() => navigation.goBack()}>
+            <Ionicons name="arrow-back" size={24} color="white" />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>Notificaciones</Text>
+        </View>
+        
+        <View style={styles.headerRight}>
           {unreadCount > 0 && (
-            <TouchableOpacity onPress={handleMarkAllAsRead} style={styles.actionButton}>
-              <Text style={styles.actionButtonText}>Marcar todas</Text>
-            </TouchableOpacity>
+            <View style={styles.badgeContainer}>
+              <Text style={styles.badgeText}>{unreadCount}</Text>
+            </View>
           )}
-          <TouchableOpacity onPress={() => setShowDeleteModal(true)} style={styles.actionButton}>
-            <Text style={styles.actionButtonText}>Limpiar</Text>
+          
+          <TouchableOpacity onPress={markAllAsRead} style={styles.headerButton}>
+            <Ionicons name="checkmark-done-outline" size={24} color="white" />
+          </TouchableOpacity>
+          
+          <TouchableOpacity onPress={deleteAllNotifications} style={styles.headerButton}>
+            <Ionicons name="trash-outline" size={24} color="white" />
           </TouchableOpacity>
         </View>
       </View>
 
-      <View style={styles.connectionStatus}>
-        <View style={[styles.statusDot, socketConnected ? styles.connected : styles.disconnected]} />
-        <Text style={styles.statusText}>
-          {socketConnected ? 'Conectado' : 'Desconectado'}
-        </Text>
+      {/* Stats Card */}
+      <View style={styles.statsCard}>
+        <View style={styles.statItem}>
+          <Text style={styles.statNumber}>{notifications.length}</Text>
+          <Text style={styles.statLabel}>Total</Text>
+        </View>
+        <View style={styles.statDivider} />
+        <View style={styles.statItem}>
+          <Text style={[styles.statNumber, { color: '#EF4444' }]}>{unreadCount}</Text>
+          <Text style={styles.statLabel}>No leídas</Text>
+        </View>
+        <View style={styles.statDivider} />
+        <View style={styles.statItem}>
+          <Text style={[styles.statNumber, { color: '#10B981' }]}>
+            {notifications.filter(n => n.isRead).length}
+          </Text>
+          <Text style={styles.statLabel}>Leídas</Text>
+        </View>
       </View>
 
-      {error && (
-        <View style={styles.errorContainer}>
-          <Text style={styles.errorText}>{error}</Text>
-          <TouchableOpacity onPress={refresh} style={styles.retryButton}>
-            <Text style={styles.retryText}>Reintentar</Text>
-          </TouchableOpacity>
-        </View>
-      )}
-
+      {/* Notifications List */}
       {notifications.length === 0 ? (
         <View style={styles.emptyContainer}>
-          <Text style={styles.emptyText}>No hay notificaciones</Text>
-          <Text style={styles.emptySubtext}>Te avisaremos cuando tengas nuevas notificaciones</Text>
+          <Ionicons name="notifications-off-outline" size={80} color="#D1D5DB" />
+          <Text style={styles.emptyTitle}>No hay notificaciones</Text>
+          <Text style={styles.emptySubtitle}>
+            Las nuevas órdenes aparecerán aquí automáticamente
+          </Text>
         </View>
       ) : (
-        <FlatList
-          data={notifications}
-          renderItem={renderNotification}
-          keyExtractor={item => item._id}
+        <ScrollView
+          style={styles.scrollContainer}
           refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              colors={['#8B5CF6']}
+              tintColor="#8B5CF6"
+            />
           }
-          contentContainerStyle={styles.listContent}
-        />
+          showsVerticalScrollIndicator={false}
+        >
+          {notifications.map((item, index) => (
+            <NotificationCard key={item._id} item={item} index={index} />
+          ))}
+          
+          <View style={styles.bottomPadding} />
+        </ScrollView>
       )}
-
-      {/* Modal de acciones para notificación */}
-      <Modal
-        visible={!!selectedNotification}
-        transparent
-        animationType="fade"
-        onRequestClose={() => setSelectedNotification(null)}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Opciones</Text>
-            
-            <TouchableOpacity 
-              style={styles.modalOption}
-              onPress={() => {
-                if (selectedNotification) {
-                  handleMarkAsRead(selectedNotification._id);
-                  setSelectedNotification(null);
-                }
-              }}
-            >
-              <Text style={styles.modalOptionText}>
-                {selectedNotification?.read ? 'Marcar como no leída' : 'Marcar como leída'}
-              </Text>
-            </TouchableOpacity>
-            
-            <TouchableOpacity 
-              style={styles.modalOption}
-              onPress={() => {
-                if (selectedNotification) {
-                  handleDelete(selectedNotification._id);
-                }
-              }}
-            >
-              <Text style={[styles.modalOptionText, styles.deleteOption]}>Eliminar</Text>
-            </TouchableOpacity>
-            
-            <TouchableOpacity 
-              style={styles.modalCancel}
-              onPress={() => setSelectedNotification(null)}
-            >
-              <Text style={styles.modalCancelText}>Cancelar</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
-
-      {/* Modal para eliminar todas las notificaciones */}
-      <Modal
-        visible={showDeleteModal}
-        transparent
-        animationType="fade"
-        onRequestClose={() => setShowDeleteModal(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>¿Eliminar todas las notificaciones?</Text>
-            <Text style={styles.modalSubtitle}>Esta acción no se puede deshacer</Text>
-            
-            <View style={styles.modalButtons}>
-              <TouchableOpacity 
-                style={[styles.modalButton, styles.cancelButton]}
-                onPress={() => setShowDeleteModal(false)}
-              >
-                <Text style={styles.cancelButtonText}>Cancelar</Text>
-              </TouchableOpacity>
-              
-              <TouchableOpacity 
-                style={[styles.modalButton, styles.deleteButton]}
-                onPress={handleDeleteAll}
-              >
-                <Text style={styles.deleteButtonText}>Eliminar</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      </Modal>
     </View>
   );
 };
@@ -263,227 +422,237 @@ const Notificaciones = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#F8FAFC',
   },
+  
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#F8FAFC',
+  },
+  
+  loadingText: {
+    fontSize: 16,
+    color: '#6B7280',
+    marginTop: 10,
+  },
+
+  // Header Styles
   header: {
+    backgroundColor: '#8B5CF6',
+    paddingTop: 50,
+    paddingBottom: 15,
+    paddingHorizontal: 20,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 16,
-    backgroundColor: 'white',
-    borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
   },
+  
+  headerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  
   headerTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#333',
-  },
-  headerActions: {
-    flexDirection: 'row',
-  },
-  actionButton: {
-    padding: 8,
-    marginLeft: 8,
-  },
-  actionButtonText: {
-    color: '#8B5CF6',
-    fontSize: 14,
-  },
-  connectionStatus: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 8,
-    backgroundColor: '#f0f0f0',
-  },
-  statusDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    marginRight: 8,
-  },
-  connected: {
-    backgroundColor: '#4CAF50',
-  },
-  disconnected: {
-    backgroundColor: '#F44336',
-  },
-  statusText: {
-    fontSize: 12,
-    color: '#666',
-  },
-  loader: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  errorContainer: {
-    padding: 20,
-    alignItems: 'center',
-  },
-  errorText: {
-    color: '#d32f2f',
-    marginBottom: 10,
-    textAlign: 'center',
-  },
-  retryButton: {
-    padding: 10,
-    backgroundColor: '#8B5CF6',
-    borderRadius: 5,
-  },
-  retryText: {
     color: 'white',
+    marginLeft: 15,
   },
-  emptyContainer: {
-    flex: 1,
+  
+  headerRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  
+  headerButton: {
+    marginLeft: 15,
+  },
+  
+  badgeContainer: {
+    backgroundColor: '#EF4444',
+    borderRadius: 12,
+    minWidth: 24,
+    height: 24,
     justifyContent: 'center',
     alignItems: 'center',
+    marginRight: 5,
+  },
+  
+  badgeText: {
+    color: 'white',
+    fontSize: 12,
+    fontWeight: 'bold',
+  },
+
+  // Stats Card
+  statsCard: {
+    backgroundColor: 'white',
+    margin: 20,
+    borderRadius: 12,
     padding: 20,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
   },
-  emptyText: {
-    fontSize: 18,
-    color: '#666',
-    marginBottom: 8,
+  
+  statItem: {
+    alignItems: 'center',
+    flex: 1,
   },
-  emptySubtext: {
+  
+  statNumber: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#8B5CF6',
+  },
+  
+  statLabel: {
     fontSize: 14,
-    color: '#999',
-    textAlign: 'center',
+    color: '#6B7280',
+    marginTop: 4,
   },
-  listContent: {
-    padding: 16,
+  
+  statDivider: {
+    width: 1,
+    backgroundColor: '#E5E7EB',
+    marginHorizontal: 10,
   },
+
+  // Notifications List
+  scrollContainer: {
+    flex: 1,
+    paddingHorizontal: 20,
+  },
+  
   notificationCard: {
     backgroundColor: 'white',
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
-    flexDirection: 'row',
-    alignItems: 'flex-start',
+    elevation: 2,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 2,
-    elevation: 2,
   },
+  
   unreadCard: {
-    backgroundColor: '#f0e8ff',
     borderLeftWidth: 4,
     borderLeftColor: '#8B5CF6',
   },
-  notificationContent: {
+  
+  cardHeader: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+  },
+  
+  iconContainer: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  
+  cardContent: {
     flex: 1,
   },
-  notificationTitle: {
+  
+  cardTitle: {
     fontSize: 16,
-    fontWeight: '600',
-    color: '#333',
+    fontWeight: 'bold',
+    color: '#1F2937',
     marginBottom: 4,
   },
-  unreadTitle: {
-    color: '#8B5CF6',
-  },
-  notificationMessage: {
+  
+  cardMessage: {
     fontSize: 14,
-    color: '#666',
+    color: '#6B7280',
+    lineHeight: 20,
     marginBottom: 8,
   },
-  notificationTime: {
+  
+  customerName: {
+    fontSize: 13,
+    color: '#8B5CF6',
+    fontWeight: '600',
+  },
+  
+  modelType: {
     fontSize: 12,
-    color: '#999',
+    color: '#6B7280',
+    marginTop: 2,
   },
-  notificationImage: {
-    width: 60,
-    height: 60,
-    borderRadius: 8,
-    marginTop: 8,
+  
+  cardActions: {
+    alignItems: 'center',
   },
+  
   unreadDot: {
     width: 8,
     height: 8,
     borderRadius: 4,
     backgroundColor: '#8B5CF6',
-    marginLeft: 8,
-    marginTop: 4,
-  },
-  menuButton: {
-    padding: 4,
-    marginLeft: 8,
-  },
-  menuButtonText: {
-    fontSize: 18,
-    color: '#666',
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-  },
-  modalContent: {
-    backgroundColor: 'white',
-    borderRadius: 12,
-    padding: 20,
-    width: '80%',
-  },
-  modalTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
     marginBottom: 8,
-    textAlign: 'center',
   },
-  modalSubtitle: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 20,
-    textAlign: 'center',
+  
+  deleteButton: {
+    padding: 4,
   },
-  modalOption: {
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
-  },
-  modalOptionText: {
-    fontSize: 16,
-    textAlign: 'center',
-  },
-  deleteOption: {
-    color: '#F44336',
-  },
-  modalCancel: {
-    padding: 16,
-    marginTop: 8,
-  },
-  modalCancelText: {
-    fontSize: 16,
-    color: '#666',
-    textAlign: 'center',
-  },
-  modalButtons: {
+  
+  cardFooter: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: 16,
+    alignItems: 'center',
+    marginTop: 12,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: '#F3F4F6',
   },
-  modalButton: {
+  
+  timestamp: {
+    fontSize: 12,
+    color: '#9CA3AF',
+  },
+  
+  price: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#10B981',
+  },
+
+  // Empty State
+  emptyContainer: {
     flex: 1,
-    padding: 12,
-    borderRadius: 6,
-    marginHorizontal: 4,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 40,
   },
-  cancelButton: {
-    backgroundColor: '#f0f0f0',
+  
+  emptyTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#1F2937',
+    marginTop: 16,
+    marginBottom: 8,
   },
-  cancelButtonText: {
+  
+  emptySubtitle: {
+    fontSize: 16,
+    color: '#6B7280',
     textAlign: 'center',
-    color: '#666',
+    lineHeight: 24,
   },
-  deleteButton: {
-    backgroundColor: '#F44336',
-  },
-  deleteButtonText: {
-    textAlign: 'center',
-    color: 'white',
+  
+  bottomPadding: {
+    height: 20,
   },
 });
 

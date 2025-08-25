@@ -1,35 +1,56 @@
-import express from 'express';
+import { Router } from 'express';
+import authMiddleware from '../middleware/authMiddleware.js';
 import {
-  getUserNotifications,
-  markAsRead,
-  markAllAsRead,
+  getAllNotifications,
+  markNotificationAsRead,
+  markAllNotificationsAsRead,
   deleteNotification,
   deleteAllNotifications,
-  getNotificationStats
-} from '../controllers/notificationController.js';
-import { auth } from '../middleware/auth.js';
+  getUnreadCount
+} from '../controllers/notificationsController.js';
 
-const router = express.Router();
+const router = Router();
 
-// Todas las rutas requieren autenticación
-router.use(auth);
+// Obtener todas las notificaciones
+router.get(
+  '/',
+  authMiddleware(['admin']), // Solo admins pueden ver notificaciones
+  getAllNotifications
+);
 
-// Obtener notificaciones del usuario
-router.get('/', getUserNotifications);
-
-// Obtener estadísticas de notificaciones
-router.get('/stats', getNotificationStats);
+// Obtener conteo de no leídas
+router.get(
+  '/unread-count',
+  authMiddleware(['admin']),
+  getUnreadCount
+);
 
 // Marcar notificación como leída
-router.put('/:id/read', markAsRead);
+router.put(
+  '/:id/read',
+  authMiddleware(['admin']),
+  markNotificationAsRead
+);
 
-// Marcar todas las notificaciones como leídas
-router.put('/read-all', markAllAsRead);
+// Marcar todas como leídas
+router.put(
+  '/read-all',
+  authMiddleware(['admin']),
+  markAllNotificationsAsRead
+);
 
-// Eliminar notificación
-router.delete('/:id', deleteNotification);
+// Eliminar notificación específica
+router.delete(
+  '/:id',
+  authMiddleware(['admin']),
+  deleteNotification
+);
 
 // Eliminar todas las notificaciones
-router.delete('/', deleteAllNotifications);
+router.delete(
+  '/',
+  authMiddleware(['admin']),
+  deleteAllNotifications
+);
 
 export default router;

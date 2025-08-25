@@ -1,4 +1,26 @@
+import { v2 as cloudinary } from 'cloudinary';
 import productModel from "../models/Product.js";
+import { config } from '../../config.js';
+
+cloudinary.config({
+  cloud_name: config.cloudinary.cloudinary_name,
+  api_key: config.cloudinary.cloudinary_api_key,
+  api_secret: config.cloudinary.cloudinary_api_secret,
+});
+
+
+export const uploadToCloudinary = (buffer, folder = 'product_images') => {
+  return new Promise((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(
+      { folder },
+      (error, result) => {
+        if (result) resolve(result);
+        else reject(error);
+      }
+    );
+    stream.end(buffer);
+  });
+};
 
 const productController = {};
 
@@ -49,44 +71,76 @@ productController.getPopularProducts = async (req, res) => {
 //  crear un nuevo producto
 productController.insertProduct = async (req, res) => {
   try {
-    const { name, price, stock, description, category, images } = req.body;
+    const { name, price, stock, description, category } = req.body;
 
-    // reviso que no falten los campos principales
     if (!name || price == null || stock == null || !category) {
       return res.status(400).json({ message: "Missing required fields" });
     }
 
-    const newProduct = new productModel({ name, price, stock, description, category, images });
-    await newProduct.save(); // lo guardo en la BD
+    let imageUrls = [];
+
+    if (req.files && req.files.length > 0) {
+      imageUrls = await Promise.all(
+        req.files.map(file => uploadToCloudinary(file.buffer))
+      );
+    }
+
+    const newProduct = new productModel({
+      name,
+      price,
+      stock,
+      description,
+      category,
+      images: imageUrls.map(result => result.secure_url)
+    });
+
+    await newProduct.save();
     res.status(201).json(newProduct);
   } catch (error) {
-    console.error("Error creating product:", error);
-    res.status(500).json({ message: "Error creating product" });
+    console.error('Error creating product:', error);
+    res.status(500).json({ message: 'Error creating product', error });
   }
-};
+};  
 
 //  actualizar un producto existente
 productController.updateProduct = async (req, res) => {
   try {
     const { id } = req.params;
-    const updates = req.body;
+    const { name, price, stock, description, category } = req.body;
 
-    const updated = await productModel.findByIdAndUpdate(
-      id,
-      updates,
-      { new: true, runValidators: true }
-    );
-
-    if (!updated) {
-      return res.status(404).json({ message: "Product not found" });
+    const product = await productModel.findById(id);
+    if (!product) {
+      return res.status(404).json({ message: 'Product not found' });
     }
 
-    res.json(updated);
+    // Actualizar campos básicos
+    if (name !== undefined) product.name = name;
+    if (price !== undefined) product.price = price;
+    if (stock !== undefined) product.stock = stock;
+    if (description !== undefined) product.description = description;
+    if (category !== undefined) product.category = category;
+
+    // Procesar nuevas imágenes si se envían
+    if (req.files && req.files.length > 0) {
+      const uploadedImages = await Promise.all(
+        req.files.map(file => uploadToCloudinary(file.buffer))
+      );
+
+      // REEMPLAZAR imágenes actuales por nuevas
+      product.images = uploadedImages.map(result => result.secure_url);
+
+      // Si quieres conservar las anteriores y agregar las nuevas:
+      // product.images.push(...uploadedImages.map(r => r.secure_url));
+    }
+
+    await product.save();
+    res.json(product);
   } catch (error) {
-    console.error("Error updating product:", error);
-    res.status(500).json({ message: "Error updating product" });
+    console.error('Error updating product:', error);
+    res.status(500).json({ message: 'Error updating product', error });
   }
 };
+
 
 // eliminar un producto por su ID
 productController.deleteProduct = async (req, res) => {

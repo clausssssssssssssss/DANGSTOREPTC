@@ -2,11 +2,14 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // URL base del backend - debe coincidir con AuthContext
-const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://10.0.2.2:3001';
+const API_URL = 'http://192.168.0.8:4000/api';
 
 // Función helper para hacer peticiones autenticadas
 const authenticatedFetch = async (url, options = {}) => {
   const token = await AsyncStorage.getItem('authToken');
+  
+  console.log('Token obtenido:', token ? 'SÍ' : 'NO');
+  console.log(' URL solicitada:', `${API_URL}${url}`);
   
   const headers = {
     'Content-Type': 'application/json',
@@ -15,9 +18,14 @@ const authenticatedFetch = async (url, options = {}) => {
 
   if (token) {
     headers.Authorization = `Bearer ${token}`;
+    console.log(' Token enviado en headers');
+  } else {
+    console.log(' No hay token disponible');
   }
 
-  return fetch(`${API_URL}/api${url}`, {
+  console.log(' Headers enviados:', headers);
+
+  return fetch(`${API_URL}${url}`, {
     ...options,
     headers,
   });
@@ -92,7 +100,12 @@ export const getImageUrl = (imagePath) => {
     return imagePath;
   }
   
-  // Construir URL completa (usa el origen del servidor, no /api)
+  // Si es base64, devolverlo directamente
+  if (imagePath.startsWith('data:')) {
+    return imagePath;
+  }
+  
+  // Construir URL completa para archivos del servidor
   const cleanPath = imagePath.startsWith('/') ? imagePath : `/${imagePath}`;
-  return `${API_URL}${cleanPath}`;
+  return `${API_URL.replace('/api', '')}${cleanPath}`;
 };

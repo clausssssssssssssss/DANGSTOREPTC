@@ -89,6 +89,27 @@ app.use('/api/payments', paymentRoutes);
 // Sistema de reseñas y ratings de productos
 app.use('/api/ratings', ratingsRoutes);
 
+// Health check simple
+app.get('/api/health', (req, res) => {
+  console.log('🔍 Health check solicitado');
+  res.json({ 
+    status: 'OK', 
+    message: 'Backend funcionando correctamente',
+    timestamp: new Date().toISOString(),
+    routes: [
+      '/api/custom-orders',
+      '/api/custom-orders/pending',
+      '/api/admins/login'
+    ]
+  });
+});
+
+// Logging de todas las rutas registradas
+app.use((req, res, next) => {
+  console.log(`🌐 ${req.method} ${req.path}`);
+  next();
+});
+
 /**
  * Exporta la instancia de la aplicación Express
  * para que pueda ser utilizada por el servidor (e.g., server.js).

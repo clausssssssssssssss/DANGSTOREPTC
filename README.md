@@ -18,7 +18,7 @@ Con el objetivo de modernizar su proceso de gestión y ventas, desarrollamos una
 
 ## 🛠️ Tecnologías Utilizadas (Stack MERN)
 - **Frontend Web:** React.js
-- **Frontend Móvil:** Read
+- **Frontend Móvil:** React native
 - **Backend:** Node.js + Express.js
 - **Base de Datos:** MongoDB Atlas
 - **Control de versiones:** Git / GitHub

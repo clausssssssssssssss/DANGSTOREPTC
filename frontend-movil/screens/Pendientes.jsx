@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import {
   View,
   Text,
@@ -15,10 +15,12 @@ import {
   Dimensions,
 } from 'react-native';
 import { customOrdersAPI, getImageUrl } from '../services/customOrders';
+import { AuthContext } from '../src/context/AuthContext';
 
 const { width, height } = Dimensions.get('window');
 
 const Pendientes = ({ navigation }) => {
+  const { authToken, user } = useContext(AuthContext);
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -30,16 +32,31 @@ const Pendientes = ({ navigation }) => {
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    fetchPendingOrders();
-  }, []);
+    if (authToken) {
+      fetchPendingOrders();
+    } else {
+      setLoading(false);
+      Alert.alert('Error', 'No estás autenticado. Por favor inicia sesión.');
+    }
+  }, [authToken]);
 
   const fetchPendingOrders = async () => {
     try {
+      console.log('🔄 Iniciando fetch de órdenes pendientes...');
       const data = await customOrdersAPI.getPendingOrders();
+      console.log('✅ Órdenes obtenidas:', data);
       setOrders(data);
     } catch (error) {
-      console.error('Error fetching pending orders:', error);
-      Alert.alert('Error', 'No se pudieron cargar las órdenes pendientes');
+      console.error('❌ Error fetching pending orders:', error);
+      console.error('Error details:', {
+        message: error.message,
+        stack: error.stack,
+        name: error.name
+      });
+      Alert.alert(
+        'Error de Conexión', 
+        `No se pudieron cargar las órdenes pendientes: ${error.message}`
+      );
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -225,7 +242,11 @@ const Pendientes = ({ navigation }) => {
           <Text style={styles.backButtonText}>←</Text>
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Órdenes Cotizadas</Text>
-        <View style={styles.placeholder} />
+        <View style={styles.authStatus}>
+          <Text style={styles.authStatusText}>
+            {authToken ? '🔐' : '❌'}
+          </Text>
+        </View>
       </View>
 
       <View style={styles.content}>
@@ -369,6 +390,14 @@ const styles = StyleSheet.create({
   },
   placeholder: {
     width: 40,
+  },
+  authStatus: {
+    width: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  authStatusText: {
+    fontSize: 20,
   },
   content: {
     flex: 1,

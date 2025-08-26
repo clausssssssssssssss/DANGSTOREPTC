@@ -1,5 +1,5 @@
 import CustomizedOrder from '../models/CustomOrder.js';
-import Customer from '../models/Customers.js'; // Asumiendo que tienes este modelo
+import Customers from '../models/Customers.js';
 import NotificationService from '../services/NotificationService.js';
 
 /**
@@ -7,12 +7,56 @@ import NotificationService from '../services/NotificationService.js';
  */
 export const createCustomOrder = async (req, res) => {
   try {
-    const { modelType, description, userId } = req.body;
+    console.log(' Creando orden personalizada...');
+    console.log(' Body recibido:', req.body);
+    console.log(' Usuario:', req.user);
+    
+    const { modelType, description } = req.body;
+    const userId = req.user?.id || req.user?.userId;
+    
+    // Validaciones
+    if (!modelType) {
+      return res.status(400).json({
+        success: false,
+        message: 'modelType es requerido'
+      });
+    }
+    
+    if (!description) {
+      return res.status(400).json({
+        success: false,
+        message: 'description es requerido'
+      });
+    }
+    
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: 'Usuario no autenticado'
+      });
+    }
+
     let imageUrl = '';
 
     // Si hay imagen subida
     if (req.file) {
-      imageUrl = `/uploads/${req.file.filename}`;
+      try {
+        // Por ahora, guardamos la imagen como base64
+        const imageBuffer = req.file.buffer;
+        imageUrl = `data:${req.file.mimetype};base64,${imageBuffer.toString('base64')}`;
+        console.log(' Imagen procesada como base64');
+      } catch (imageError) {
+        console.error(' Error procesando imagen:', imageError);
+        return res.status(400).json({
+          success: false,
+          message: 'Error procesando la imagen'
+        });
+      }
+    } else {
+      return res.status(400).json({
+        success: false,
+        message: 'La imagen es requerida'
+      });
     }
 
     // Crear la orden
@@ -24,36 +68,48 @@ export const createCustomOrder = async (req, res) => {
       status: 'pending'
     });
 
+    console.log(' Guardando orden en base de datos...');
     const savedOrder = await customOrder.save();
     
-    // Obtener datos del cliente para la notificación
-    const customer = await Customer.findById(userId);
-    
-    // 🔔 CREAR NOTIFICACIÓN para el admin en la app móvil
-    try {
-      await NotificationService.createOrderNotification({
-        orderId: savedOrder._id,
-        customerName: customer ? customer.name : 'Cliente desconocido',
-        modelType: modelType,
-        imageUrl: imageUrl
-      });
-    } catch (notificationError) {
-      console.error('Error creando notificación:', notificationError);
-      // No fallar la creación de la orden por un error de notificación
-    }
+    console.log(' Orden personalizada creada exitosamente:', savedOrder._id);
 
     res.status(201).json({
       success: true,
       message: 'Orden creada exitosamente',
-      data: savedOrder
+      data: {
+        id: savedOrder._id,
+        modelType: savedOrder.modelType,
+        description: savedOrder.description,
+        status: savedOrder.status,
+        createdAt: savedOrder.createdAt
+      }
     });
 
   } catch (error) {
-    console.error('Error creando orden:', error);
+    console.error('❌ Error creando orden:', error);
+    console.error(' Stack trace:', error.stack);
+    
+    // Error específico de MongoDB
+    if (error.name === 'ValidationError') {
+      return res.status(400).json({
+        success: false,
+        message: 'Datos de validación incorrectos',
+        error: error.message
+      });
+    }
+    
+    if (error.name === 'CastError') {
+      return res.status(400).json({
+        success: false,
+        message: 'ID de usuario inválido',
+        error: error.message
+      });
+    }
+    
     res.status(500).json({
       success: false,
       message: 'Error interno del servidor',
-      error: error.message
+      error: process.env.NODE_ENV === 'production' ? 'Error interno' : error.message
     });
   }
 };

@@ -55,7 +55,7 @@ const PasswordSection = () => {
         throw new Error('No se encontró token de autenticación');
       }
 
-      const response = await fetch(`${API_BASE}/profile/change-password`, {
+      const response = await fetch(`${API_BASE}/profile/password`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -63,7 +63,8 @@ const PasswordSection = () => {
         },
         body: JSON.stringify({
           currentPassword,
-          newPassword
+          newPassword,
+          confirmPassword
         })
       });
 

@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 
 // URL del servidor de producción
-const API_BASE = 'https://dangstoreptc.onrender.com/api';
+const API_BASE = import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/api` : '/api';
 
 const CartContext = createContext();
 

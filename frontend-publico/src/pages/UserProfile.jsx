@@ -39,7 +39,7 @@ const UserProfile = () => {
   useEffect(() => {
     const fetchQuotesStatus = async () => {
       try {
-        const res = await fetch(`${API_URL}https://dangstoreptc-n9km.vercel.app/api/custom-orders/me`, {
+        const res = await fetch(`${API_URL}/api/custom-orders/me`, {
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
         });
         if (!res.ok) return;

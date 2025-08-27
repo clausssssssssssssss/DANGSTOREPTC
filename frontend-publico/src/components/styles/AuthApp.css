@@ -28,7 +28,7 @@
 
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  background: linear-gradient(135deg, #F3F4F6 0%, #E5E7EB 100%);
+  background: linear-gradient(135deg, #F8F4FF 0%, #F0E6FF 100%);
   color: var(--text-primary);
   line-height: 1.5;
   min-height: 100vh;
@@ -44,6 +44,7 @@ body {
   width: 100%;
   margin: 0 auto; /* asegura centrado en contenedores con padding */
   position: relative;
+  background: linear-gradient(135deg, #F8F4FF 0%, #F0E6FF 100%);
 }
 
 .auth-card {
@@ -72,7 +73,7 @@ body {
 .decorative-ring {
   position: absolute;
   border-radius: 50%;
-  background: rgba(139, 92, 246, 0.03);
+  background: rgba(139, 92, 246, 0.08);
 }
 
 .decorative-ring:nth-child(1) {
@@ -160,7 +161,7 @@ body {
 .auth-input:focus {
   outline: none;
   border-color: var(--primary-main);
-  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+  box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.05);
 }
 
 /* ===== PASSWORD INPUT ===== */
@@ -196,7 +197,7 @@ body {
 
 .password-input:focus-within .auth-input {
   border-color: var(--primary-main);
-  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+  box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.05);
 }
 
 /* Ocultar icono nativo de revelar contraseña en algunos navegadores */
@@ -234,7 +235,7 @@ input[type="password"]::-webkit-contacts-auto-fill-button {
 }
 
 .auth-button:disabled {
-  background: #E5E7EB;
+  background: #F0E6FF;
   cursor: not-allowed;
 }
 

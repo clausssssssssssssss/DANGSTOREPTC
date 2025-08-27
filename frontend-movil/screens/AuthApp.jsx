@@ -1,13 +1,13 @@
 import React, { useEffect, useState, useContext, useRef } from 'react';
-import { 
-  View, 
-  Text, 
-  TouchableOpacity, 
-  TextInput, 
-  Alert, 
-  ActivityIndicator, 
-  SafeAreaView, 
-  Dimensions, 
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  TextInput,
+  Alert,
+  ActivityIndicator,
+  SafeAreaView,
+  Dimensions,
   Image, 
   Platform, 
   KeyboardAvoidingView, 
@@ -113,112 +113,112 @@ const AuthApp = ({ navigation }) => {
 
               {/* Campo Email */}
               <Text style={styles.label}>Correo Electrónico</Text>
-              <TextInput
+            <TextInput
                 style={[styles.field, errors.email && styles.inputError]}
                 value={email}
                 onChangeText={setEmail}
                 placeholder="correo@ejemplo.com"
                 placeholderTextColor="#B7B9C9"
-                keyboardType="email-address"
-                autoCapitalize="none"
+              keyboardType="email-address"
+              autoCapitalize="none"
                 autoCorrect={false}
                 autoFocus={true}
                 returnKeyType="next"
                 onSubmitEditing={() => passwordInputRef.current.focus()}
-              />
-              {errors.email && (
+            />
+            {errors.email && (
                 <Text style={styles.errorMessage}>{errors.email}</Text>
               )}
 
               {/* Campo Contraseña */}
               <Text style={[styles.label, { marginTop: 14 }]}>Contraseña</Text>
               <View style={styles.passwordRow}>
-                <TextInput
+              <TextInput
                   ref={passwordInputRef}
                   style={[styles.field, styles.passwordField, errors.password && styles.inputError]}
                   value={password}
                   onChangeText={setPassword}
                   placeholder="••••••••"
                   placeholderTextColor="#B7B9C9"
-                  secureTextEntry={!showPassword}
+                secureTextEntry={!showPassword}
                   returnKeyType="go"
                   onSubmitEditing={handleLogin}
-                />
-                <TouchableOpacity 
+              />
+              <TouchableOpacity
                   style={styles.eyeButton} 
-                  onPress={() => setShowPassword(!showPassword)}
-                >
+                onPress={() => setShowPassword(!showPassword)}
+              >
                   <Text style={styles.eyeText}>{showPassword ? '👁️' : '👁️‍🗨️'}</Text>
-                </TouchableOpacity>
-              </View>
-              {errors.password && (
+              </TouchableOpacity>
+            </View>
+            {errors.password && (
                 <Text style={styles.errorMessage}>{errors.password}</Text>
-              )}
-
+            )}
+          
               {/* Recordar usuario */}
               <View style={styles.rememberRow}>
-                <TouchableOpacity 
+          <TouchableOpacity
                   style={styles.rememberContainer}
                   onPress={() => setRememberMe(!rememberMe)}
                 >
                   <View style={[styles.checkbox, rememberMe && styles.checked]}>
                     {rememberMe && <Text style={styles.checkmark}>✓</Text>}
-                  </View>
-                  <Text style={styles.rememberText}>Recordar mi usuario</Text>
-                </TouchableOpacity>
               </View>
+                  <Text style={styles.rememberText}>Recordar mi usuario</Text>
+          </TouchableOpacity>
+        </View>
 
               {/* Botón de Login */}
-              <TouchableOpacity 
+        <TouchableOpacity
                 style={styles.cta} 
                 activeOpacity={0.9} 
-                onPress={handleLogin}
-                disabled={loading}
+            onPress={handleLogin}
+            disabled={loading}
               >
                 <LinearGradient 
                   colors={["#8A79FF", "#B6A6FF"]} 
                   start={{x:0,y:0}} 
                   end={{x:1,y:0}} 
                   style={[styles.ctaBg, loading && { opacity: 0.8 }]}
-                >
-                  {loading ? (
-                    <ActivityIndicator color="#FFFFFF" size="small" />
-                  ) : (
+          >
+            {loading ? (
+                <ActivityIndicator color="#FFFFFF" size="small" />
+            ) : (
                     <Text style={styles.ctaText}>Iniciar sesión</Text>
-                  )}
+            )}
                 </LinearGradient>
-              </TouchableOpacity>
-            </View>
+          </TouchableOpacity>
+        </View>
           </ScrollView>
         </KeyboardAvoidingView>
-      </LinearGradient>
+    </LinearGradient>
     </SafeAreaView>
   );
 };
 
 const styles = {
   safeArea: { flex: 1 },
-  container: { 
-    flex: 1, 
+  container: {
+    flex: 1,
     position: 'relative',
     paddingBottom: Platform.OS === 'android' ? 20 : 0
   },
-  content: { 
+  content: {
     flexGrow: 1, 
-    justifyContent: 'center', 
-    alignItems: 'center', 
+    justifyContent: 'center',
+    alignItems: 'center',
     paddingHorizontal: Math.max(16, width * 0.05),
     paddingVertical: 20
   },
   pageTitle: { 
     marginTop: 2,
     marginBottom: 25,
-    color: '#FFFFFF', 
+    color: '#FFFFFF',
     fontSize: Math.max(26, width * 0.065), 
     fontWeight: '800', 
-    textAlign: 'center', 
+    textAlign: 'center',
     textShadowColor: 'rgba(0,0,0,0.45)', 
-    textShadowOffset: { width: 0, height: 2 }, 
+    textShadowOffset: { width: 0, height: 2 },
     textShadowRadius: 4,
     fontFamily: Platform.select({ ios: 'HelveticaNeue', android: 'sans-serif-medium' })
   },
@@ -251,12 +251,12 @@ const styles = {
   },
   card: { 
     width: '95%', 
-    backgroundColor: '#FFFFFF', 
+    backgroundColor: '#FFFFFF',
     borderRadius: 16, 
     paddingTop: Math.max(23, height * 0.02),
     paddingBottom: Math.max(36, height * 0.03),
     paddingHorizontal: Math.max(20, width * 0.06), 
-    shadowColor: '#000', 
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 }, 
     shadowOpacity: 0.22, 
     shadowRadius: 34, 
@@ -276,7 +276,7 @@ const styles = {
     marginBottom: 6 
   },
   field: { 
-    width: '100%', 
+    width: '100%',
     height: 50, 
     backgroundColor: '#ECEAF5', 
     borderRadius: 10, 
@@ -354,22 +354,22 @@ const styles = {
   ctaBg: { 
     height: 50, 
     borderRadius: 10, 
-    alignItems: 'center', 
+    alignItems: 'center',
     justifyContent: 'center', 
     shadowColor: '#8A79FF', 
-    shadowOffset: { width: 0, height: 8 }, 
-    shadowOpacity: 0.3, 
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.3,
     shadowRadius: 12, 
     elevation: 6 
   },
   ctaText: { 
-    color: '#FFFFFF', 
+    color: '#FFFFFF',
     fontSize: 16, 
     fontWeight: '700' 
   },
-  errorMessage: { 
-    color: '#EF4444', 
-    fontSize: 12, 
+  errorMessage: {
+    color: '#EF4444',
+    fontSize: 12,
     marginTop: 6,
     fontWeight: '500' 
   },

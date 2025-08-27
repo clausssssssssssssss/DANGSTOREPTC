@@ -1,4 +1,4 @@
-/* About.css - Estilos para la página Acerca de DANGSTORE */
+/* About.css - Estilos para la página Acerca de DANGSTORE - Optimizado para móvil */
 
 /* Reset y configuración base */
 * {
@@ -60,7 +60,6 @@ html, body { background: #ffffff; }
 }
 
 .olas { display: none; }
-
 
 /* Sin olas */
 .ola { display: none; }
@@ -279,7 +278,11 @@ html, body { background: #ffffff; }
   background: linear-gradient(180deg, #ffffff 0%, #fafafa 100%);
 }
 
-.cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; }
+.cards-grid { 
+  display: grid; 
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); 
+  gap: 1.5rem; 
+}
 
 .action-card {
   background: #ffffff;
@@ -291,12 +294,39 @@ html, body { background: #ffffff; }
 
 .action-card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,.08); }
 
-.card-media { height: 200px; display: flex; align-items: center; justify-content: center; background: #f7f7fb; }
-.card-media img { max-height: 160px; width: auto; object-fit: contain; filter: drop-shadow(0 6px 12px rgba(0,0,0,.15)); }
+.card-media { 
+  height: 200px; 
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  background: #f7f7fb; 
+}
 
-.card-body { padding: 1.25rem 1.25rem 1.5rem; text-align: center; }
-.card-body h3 { font-size: 1.25rem; font-weight: 800; color: #1f2937; margin-bottom: .6rem; }
-.card-body p { color: #4a5568; font-size: 1.05rem; line-height: 1.7; }
+.card-media img { 
+  max-height: 160px; 
+  width: auto; 
+  object-fit: contain; 
+  filter: drop-shadow(0 6px 12px rgba(0,0,0,.15)); 
+}
+
+.card-body { 
+  padding: 1.25rem 1.25rem 1.5rem; 
+  text-align: center; 
+}
+
+.card-body h3 { 
+  font-size: 1.25rem; 
+  font-weight: 800; 
+  color: #1f2937; 
+  margin-bottom: .6rem; 
+}
+
+.card-body p { 
+  color: #4a5568; 
+  font-size: 1.05rem; 
+  line-height: 1.7; 
+}
+
 .store-description {
   padding: 6rem 0;
   background: white;
@@ -529,9 +559,15 @@ html, body { background: #ffffff; }
   padding: 4rem 0 2rem;
 }
 
-.footer-grid {
+.footer-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.footer-sections {
   display: grid;
-  grid-template-columns: 2fr 1fr 1fr;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
   gap: 3rem;
   margin-bottom: 2rem;
 }
@@ -559,7 +595,7 @@ html, body { background: #ffffff; }
   margin-bottom: 1rem;
 }
 
-.social-links {
+.footer-social {
   display: flex;
   gap: 1rem;
   margin-top: 1rem;
@@ -645,6 +681,11 @@ html, body { background: #ffffff; }
   margin: 2rem 0;
 }
 
+.footer-bottom {
+  border-top: 1px solid #4a5568;
+  padding-top: 2rem;
+}
+
 .footer-bottom-content {
   display: flex;
   justify-content: space-between;
@@ -686,7 +727,7 @@ html, body { background: #ffffff; }
   transform: translateY(0);
 }
 
-/* RESPONSIVE DESIGN */
+/* RESPONSIVE DESIGN OPTIMIZADO */
 
 /* Tablets */
 @media (max-width: 1024px) {
@@ -710,8 +751,8 @@ html, body { background: #ffffff; }
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   }
   
-  .footer-grid {
-    grid-template-columns: 1fr 1fr 1fr;
+  .footer-sections {
+    grid-template-columns: 1fr 1fr 1fr 1fr;
     gap: 2rem;
   }
 }
@@ -721,15 +762,23 @@ html, body { background: #ffffff; }
   .about-page {
     margin-top: 56px; /* Navbar más pequeño en móvil */
   }
+  
+  .container {
+    padding: 0 1.5rem;
+  }
+  
   .hero-content-grid {
     grid-template-columns: 1fr;
-    gap: 1rem;
+    gap: 2rem;
+    padding: 2rem 0;
   }
-  .hero-text { text-align: center; }
-  .hero-title { font-size: 2.25rem; }
   
-  .hero-title {
-    font-size: 2.5rem;
+  .hero-text { 
+    text-align: center; 
+  }
+  
+  .hero-title { 
+    font-size: 2.5rem; 
     letter-spacing: 1px;
   }
   
@@ -737,13 +786,29 @@ html, body { background: #ffffff; }
     font-size: 1.1rem;
   }
   
-  .store-description,
+  .company-description,
+  .what-cards,
   .mvv-section {
-    padding: 4rem 0;
+    padding: 3rem 0;
+  }
+  
+  .gradient-panel {
+    padding: 2rem 1.5rem;
+    margin: 0 1rem 1.5rem;
   }
   
   .section-title {
     font-size: 2rem;
+    margin-bottom: 2rem;
+  }
+  
+  .cards-grid {
+    gap: 1.5rem;
+    padding: 0 1rem;
+  }
+  
+  .action-card {
+    margin: 0 0.5rem;
   }
   
   .description-grid {
@@ -758,59 +823,88 @@ html, body { background: #ffffff; }
   
   .mvv-grid {
     grid-template-columns: 1fr;
-    gap: 1.5rem;
+    gap: 2rem;
+    padding: 0 1rem;
   }
   
   .mvv-card {
     padding: 2rem;
+    margin: 0 0.5rem;
   }
   
-  .footer-grid {
-    grid-template-columns: 1fr;
+  .footer-sections {
+    grid-template-columns: 1fr 1fr;
     gap: 2rem;
+    padding: 0 1rem;
   }
   
   .footer-bottom-content {
     flex-direction: column;
     text-align: center;
+    padding: 0 1rem;
   }
 }
 
 /* Móviles */
 @media (max-width: 480px) {
   .container {
-    padding: 0 0.5rem;
+    padding: 0 1rem;
   }
   
-  .hero-video-section {
-    height: 50vh;
-    min-height: 350px;
-    border-radius: 0 0 1rem 1rem;
+  .hero-content-grid {
+    gap: 1.5rem;
+    padding: 1.5rem 0;
   }
   
-  .olas-separator { height: 100px; }
-  .hero-title { font-size: 2rem; }
+  .hero-title { 
+    font-size: 2rem; 
+  }
   
   .hero-subtitle {
     font-size: 1rem;
   }
   
-  .hero-decoration {
-    gap: 0.5rem;
-  }
-  
-  .decoration-line {
-    width: 40px;
-  }
-  
-  .store-description,
+  .company-description,
+  .what-cards,
   .mvv-section {
-    padding: 3rem 0;
+    padding: 2.5rem 0;
+  }
+  
+  .gradient-panel {
+    padding: 1.5rem 1rem;
+    margin: 0 0.5rem 1rem;
+    border-radius: 20px;
   }
   
   .section-title {
     font-size: 1.75rem;
-    margin-bottom: 2rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .company-text {
+    font-size: 1rem;
+    line-height: 1.7;
+  }
+  
+  .cards-grid {
+    gap: 1.25rem;
+    padding: 0 0.5rem;
+  }
+  
+  .action-card {
+    margin: 0 0.25rem;
+  }
+  
+  .card-body {
+    padding: 1rem 1rem 1.25rem;
+  }
+  
+  .card-body h3 {
+    font-size: 1.1rem;
+  }
+  
+  .card-body p {
+    font-size: 0.95rem;
   }
   
   .description-text {
@@ -826,24 +920,37 @@ html, body { background: #ffffff; }
     grid-template-columns: 1fr 1fr;
   }
   
+  .mvv-grid {
+    gap: 1.5rem;
+    padding: 0 0.5rem;
+  }
+  
   .mvv-card {
     padding: 1.5rem;
+    margin: 0 0.25rem;
   }
   
   .mvv-icon {
     width: 60px;
     height: 60px;
+    margin-bottom: 1rem;
+  }
+  
+  .mvv-card h3 {
+    font-size: 1.25rem;
   }
   
   .footer {
-    padding: 3rem 0 1.5rem;
+    padding: 2.5rem 0 1.5rem;
   }
   
-  .footer-grid {
+  .footer-sections {
+    grid-template-columns: 1fr;
     gap: 1.5rem;
+    padding: 0 1rem;
   }
   
-  .social-links {
+  .footer-social {
     justify-content: center;
   }
   
@@ -855,6 +962,15 @@ html, body { background: #ffffff; }
 
 /* Móviles muy pequeños */
 @media (max-width: 320px) {
+  .container {
+    padding: 0 0.75rem;
+  }
+  
+  .hero-content-grid {
+    gap: 1.25rem;
+    padding: 1.25rem 0;
+  }
+  
   .hero-title {
     font-size: 1.75rem;
   }
@@ -863,19 +979,72 @@ html, body { background: #ffffff; }
     font-size: 0.9rem;
   }
   
+  .company-description,
+  .what-cards,
+  .mvv-section {
+    padding: 2rem 0;
+  }
+  
+  .gradient-panel {
+    padding: 1.25rem 0.75rem;
+    margin: 0 0.25rem 0.75rem;
+  }
+  
   .section-title {
     font-size: 1.5rem;
+    margin-bottom: 1.25rem;
+  }
+  
+  .company-text {
+    font-size: 0.9rem;
+  }
+  
+  .cards-grid {
+    gap: 1rem;
+    padding: 0 0.25rem;
+  }
+  
+  .action-card {
+    margin: 0 0.125rem;
+  }
+  
+  .card-body {
+    padding: 0.75rem 0.75rem 1rem;
+  }
+  
+  .card-body h3 {
+    font-size: 1rem;
+  }
+  
+  .card-body p {
+    font-size: 0.85rem;
+  }
+  
+  .mvv-grid {
+    gap: 1.25rem;
+    padding: 0 0.25rem;
   }
   
   .mvv-card {
     padding: 1.25rem;
+    margin: 0 0.125rem;
   }
   
   .mvv-icon {
     width: 50px;
     height: 50px;
+    margin-bottom: 0.75rem;
+  }
+  
+  .mvv-card h3 {
+    font-size: 1.1rem;
+  }
+  
+  .footer-sections {
+    padding: 0 0.75rem;
   }
 }
+
 /* Mejoras de accesibilidad */
 @media (prefers-reduced-motion: reduce) {
   .hero-content,

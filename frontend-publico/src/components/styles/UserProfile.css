@@ -826,8 +826,8 @@
   
   .quote-card {
     flex-direction: column;
-  text-align: center;
-}
+    text-align: center;
+  }
 
   .quote-image {
     margin: 0 0 16px 0;
@@ -836,8 +836,8 @@
   
   .quote-decision {
     margin: 16px 0 0 0;
-  justify-content: center;
-}
+    justify-content: center;
+  }
 
   .edit-actions {
     flex-direction: column;
@@ -1795,10 +1795,4 @@
 .form-input.error:focus {
   border-color: #ef4444;
   box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
-}
-.quote-info p {
-  margin: 0;
-
-  font-size: 14px;
-  color: #666;
 }

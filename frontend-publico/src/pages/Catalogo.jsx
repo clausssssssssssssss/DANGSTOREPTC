@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Search, RefreshCw, Heart, ShoppingCart, X, Star, TrendingUp } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth.jsx';
 import { useProducts } from '../components/catalog/hook/useProducts.jsx';
@@ -27,6 +27,22 @@ export default function Catalogo() {
   const [priceRange, setPriceRange] = useState([0, 10]);
   const [selectedProduct, setSelectedProduct] = useState(null);
 
+  // Calcular el rango de precios dinámicamente basado en los productos
+  const priceRangeDynamic = useMemo(() => {
+    if (!products || products.length === 0) return [0, 10];
+    const prices = products.map(p => p.price);
+    const minPrice = Math.floor(Math.min(...prices));
+    const maxPrice = Math.ceil(Math.max(...prices));
+    return [minPrice, maxPrice];
+  }, [products]);
+
+  // Inicializar el rango de precios cuando se cargan los productos
+  useEffect(() => {
+    if (products && products.length > 0) {
+      setPriceRange(priceRangeDynamic);
+    }
+  }, [priceRangeDynamic]);
+
   
   // Hook para manejar reseñas del producto seleccionado
   const { 
@@ -52,8 +68,14 @@ export default function Catalogo() {
   const filteredProducts = useMemo(() => {
     if (!products || products.length === 0) return [];
     return products.filter(product => {
-      const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase());
+      // Filtro por búsqueda de texto
+      const matchesSearch = searchTerm === '' || 
+        product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (product.category && product.category.toLowerCase().includes(searchTerm.toLowerCase()));
+      
+      // Filtro por rango de precios
       const matchesPrice = product.price >= priceRange[0] && product.price <= priceRange[1];
+      
       return matchesSearch && matchesPrice;
     });
   }, [products, searchTerm, priceRange]);
@@ -225,24 +247,43 @@ export default function Catalogo() {
               <div className="price-filter">
                 <label>Precio: ${priceRange[0]} - ${priceRange[1]}</label>
                 <div className="price-slider-container">
-                  <input
-                    type="range"
-                    min="0"
-                    max="10"
-                    step="0.5"
-                    value={priceRange[0]}
-                    onChange={(e) => setPriceRange([Number(e.target.value), priceRange[1]])}
-                    className="price-slider"
-                  />
-                  <input
-                    type="range"
-                    min="0"
-                    max="10"
-                    step="0.5"
-                    value={priceRange[1]}
-                    onChange={(e) => setPriceRange([priceRange[0], Number(e.target.value)])}
-                    className="price-slider"
-                  />
+                  <div className="slider-group">
+                    <label className="slider-label">Mínimo: ${priceRange[0]}</label>
+                    <input
+                      type="range"
+                      min={priceRangeDynamic[0]}
+                      max={priceRangeDynamic[1]}
+                      step="0.5"
+                      value={priceRange[0]}
+                      onChange={(e) => {
+                        const newMin = Number(e.target.value);
+                        if (newMin <= priceRange[1]) {
+                          setPriceRange([newMin, priceRange[1]]);
+                        }
+                      }}
+                      className="price-slider"
+                    />
+                  </div>
+                  <div className="slider-group">
+                    <label className="slider-label">Máximo: ${priceRange[1]}</label>
+                    <input
+                      type="range"
+                      min={priceRangeDynamic[0]}
+                      max={priceRangeDynamic[1]}
+                      step="0.5"
+                      value={priceRange[1]}
+                      onChange={(e) => {
+                        const newMax = Number(e.target.value);
+                        if (newMax >= priceRange[0]) {
+                          setPriceRange([priceRange[0], newMax]);
+                        }
+                      }}
+                      className="price-slider"
+                    />
+                  </div>
+                </div>
+                <div className="price-info">
+                  <span>Rango disponible: ${priceRangeDynamic[0]} - ${priceRangeDynamic[1]}</span>
                 </div>
               </div>
 
@@ -250,7 +291,7 @@ export default function Catalogo() {
                 className="clear-filters-btn"
                 onClick={() => {
                   setSearchTerm('');
-                  setPriceRange([0, 10]);
+                  setPriceRange(priceRangeDynamic);
                   showInfo('Filtros limpiados');
                 }}
               >
@@ -259,6 +300,16 @@ export default function Catalogo() {
               </button>
             </div>
           )}
+        </div>
+
+        {/* Información de filtros */}
+        <div className="filter-info">
+          <p>
+            Mostrando {filteredProducts.length} de {products.length} productos
+            {searchTerm && ` para "${searchTerm}"`}
+            {priceRange[0] !== priceRangeDynamic[0] || priceRange[1] !== priceRangeDynamic[1] ? 
+              ` (Precio: $${priceRange[0]} - $${priceRange[1]})` : ''}
+          </p>
         </div>
 
         {/* Grid de Productos */}

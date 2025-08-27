@@ -1,7 +1,27 @@
 import React, { useEffect, useState } from 'react';
 import { Gift } from 'lucide-react';
+import '../styles/QuotesSection.css';
 
 const API_URL = import.meta.env.VITE_API_URL || '';
+
+// Función helper para construir URLs de imágenes correctamente
+const getImageUrl = (imagePath) => {
+  if (!imagePath) return null;
+  
+  // Si ya es una URL completa, devolverla tal como está
+  if (imagePath.startsWith('http')) {
+    return imagePath;
+  }
+  
+  // Si es base64, devolverlo directamente
+  if (imagePath.startsWith('data:')) {
+    return imagePath;
+  }
+  
+  // Construir URL completa para archivos del servidor
+  const cleanPath = imagePath.startsWith('/') ? imagePath : `/${imagePath}`;
+  return `${API_URL.replace('/api', '')}${cleanPath}`;
+};
 
 const QuotesSection = ({ setHasQuotesFlag, showSuccess, showError, showWarning }) => {
   const [quotes, setQuotes] = useState([]);
@@ -21,21 +41,21 @@ const QuotesSection = ({ setHasQuotesFlag, showSuccess, showError, showWarning }
     
     // Debug info
     console.log('DEBUG - Fetching quotes...');
-          console.log('API_URL:', API_URL);
-          console.log('Token:', localStorage.getItem('token') ? 'EXISTS' : 'MISSING');
-          console.log('Filter:', quotesFilter);
+    console.log('API_URL:', API_URL);
+    console.log('Token:', localStorage.getItem('token') ? 'EXISTS' : 'MISSING');
+    console.log('Filter:', quotesFilter);
     
     try {
       const res = await fetch(`${API_URL}/api/custom-orders/me`, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
       });
       
-              console.log('Response status:', res.status);
+      console.log('Response status:', res.status);
       
       if (!res.ok) throw new Error(`Status ${res.status}`);
       const response = await res.json();
 
-              console.log('Raw data from API:', response);
+      console.log('Raw data from API:', response);
       
       // La API devuelve { success: true, data: [...] }
       const data = response.data;
@@ -47,11 +67,22 @@ const QuotesSection = ({ setHasQuotesFlag, showSuccess, showError, showWarning }
         return;
       }
       
-              console.log('Number of items:', data.length);
+      console.log('Number of items:', data.length);
+      
+      // Debug: mostrar información de imágenes
+      data.forEach((item, index) => {
+        console.log(`Item ${index}:`, {
+          id: item._id,
+          modelType: item.modelType,
+          imageUrl: item.imageUrl,
+          imageUrlType: typeof item.imageUrl,
+          hasImage: !!item.imageUrl
+        });
+      });
       
       // Mostrar todos los estados únicos que existen
       const uniqueStatuses = [...new Set(data.map(item => item.status))];
-              console.log('Unique statuses found:', uniqueStatuses);
+      console.log('Unique statuses found:', uniqueStatuses);
 
       // Debug info para el componente
       setDebugInfo({
@@ -72,15 +103,15 @@ const QuotesSection = ({ setHasQuotesFlag, showSuccess, showError, showWarning }
         filteredQuotes = data; // Cambiado: mostrar todo
       }
 
-              console.log('Filtered quotes:', filteredQuotes);
-              console.log('Filtered count:', filteredQuotes.length);
+      console.log('Filtered quotes:', filteredQuotes);
+      console.log('Filtered count:', filteredQuotes.length);
 
       setQuotes(filteredQuotes);
       // Puntito de notificación si hay alguna 'quoted'
       setHasQuotesFlag(filteredQuotes.some((o) => o.status === 'quoted'));
       
     } catch (err) {
-              console.error('ERROR:', err);
+      console.error('ERROR:', err);
       setErrorQuotes(`Error: ${err.message || err}`);
     } finally {
       setLoadingQuotes(false);
@@ -207,7 +238,27 @@ const QuotesSection = ({ setHasQuotesFlag, showSuccess, showError, showWarning }
         </div>
       </div>
 
-      
+      {/* Debug info - solo mostrar en desarrollo */}
+      {debugInfo && process.env.NODE_ENV === 'development' && (
+        <div className="debug-info" style={{
+          background: '#f3f4f6',
+          padding: '16px',
+          borderRadius: '8px',
+          marginBottom: '24px',
+          fontSize: '14px',
+          fontFamily: 'monospace'
+        }}>
+          <h4>Debug Info:</h4>
+          <p>Total items: {debugInfo.totalItems}</p>
+          <p>Statuses: {debugInfo.uniqueStatuses.join(', ')}</p>
+          <details>
+            <summary>Raw Data</summary>
+            <pre style={{ whiteSpace: 'pre-wrap', fontSize: '12px' }}>
+              {JSON.stringify(debugInfo.rawData, null, 2)}
+            </pre>
+          </details>
+        </div>
+      )}
 
       {quotes.length === 0 ? (
         <div className="empty-state">
@@ -223,76 +274,91 @@ const QuotesSection = ({ setHasQuotesFlag, showSuccess, showError, showWarning }
         </div>
       ) : (
         <div className="quotes-list">
-          {quotes.map((quote) => (
-            <div key={quote._id} className="quote-card">
-              <div className="quote-image">
-                {quote.imageUrl ? (
-                  <img
-                    src={`${API_URL}${quote.imageUrl}`}
-                    alt={quote.modelType}
-                    onError={(e) => {
-                      e.target.style.display = 'none';
-                      e.target.nextSibling.style.display = 'flex';
-                    }}
-                  />
-                ) : null}
-                <div
-                  className="quote-placeholder"
-                  style={{ display: quote.imageUrl ? 'none' : 'flex' }}
-                >
-                  <Gift size={24} />
-                </div>
-              </div>
-
-              <div className="quote-details">
-                <div className="quote-header">
-                  <h4 className="quote-title">{quote.modelType}</h4>
-                  {getStatusBadge(quote.status)}
-                </div>
-                
-               
-                
-               
-                
-                <div className="quote-price-row">
-                  <span className="quote-price">
-                    ${quote.price ? quote.price.toFixed(2) : '0.00'}
-                  </span>
-                  
-                  <div className="quote-actions">
-                    {quote.status === 'quoted' && (
-                      <>
-                        <button
-                          onClick={() => handleDecision(quote._id, 'accept')}
-                          className="btn-quote accept"
-                        >
-                          ACEPTAR
-                        </button>
-                        <button
-                          onClick={() => handleDecision(quote._id, 'reject')}
-                          className="btn-quote reject"
-                        >
-                          RECHAZAR
-                        </button>
-                      </>
-                    )}
+          {quotes.map((quote) => {
+            // Debug: mostrar información de la imagen
+            console.log('Renderizando cotización:', {
+              id: quote._id,
+              modelType: quote.modelType,
+              imageUrl: quote.imageUrl,
+              processedImageUrl: getImageUrl(quote.imageUrl),
+              API_URL: API_URL
+            });
+            
+            return (
+              <div key={quote._id} className="quote-card">
+                <div className="quote-image">
+                  {quote.imageUrl ? (
+                    <img
+                      src={getImageUrl(quote.imageUrl)}
+                      alt={quote.modelType}
+                      onError={(e) => {
+                        console.warn('Error cargando imagen:', quote.imageUrl, 'Error:', e);
+                        e.target.style.display = 'none';
+                        e.target.nextSibling.style.display = 'flex';
+                      }}
+                      onLoad={() => {
+                        console.log('Imagen cargada exitosamente:', quote.imageUrl);
+                      }}
+                    />
+                  ) : null}
+                  <div
+                    className="quote-placeholder"
+                    style={{ display: quote.imageUrl ? 'none' : 'flex' }}
+                  >
+                    <Gift size={24} />
                   </div>
                 </div>
 
-                {quote.status === 'accepted' && (
-                  <p className="status-message success">
-                    Aprobada – En espera de entrega
-                  </p>
-                )}
+                <div className="quote-details">
+                  <div className="quote-header">
+                    <h4 className="quote-title">{quote.modelType}</h4>
+                    {getStatusBadge(quote.status)}
+                  </div>
+                  
+                 
+                  
+                 
+                  
+                  <div className="quote-price-row">
+                    <span className="quote-price">
+                      ${quote.price ? quote.price.toFixed(2) : '0.00'}
+                    </span>
+                    
+                    <div className="quote-actions">
+                      {quote.status === 'quoted' && (
+                        <>
+                          <button
+                            onClick={() => handleDecision(quote._id, 'accept')}
+                            className="btn-quote accept"
+                          >
+                            ACEPTAR
+                          </button>
+                          <button
+                            onClick={() => handleDecision(quote._id, 'reject')}
+                            className="btn-quote reject"
+                          >
+                            RECHAZAR
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  </div>
 
-                {quote.status === 'pending' && (
-                  <p className="status-message pending">
-                    Esperando cotización del administrador...
-                  </p>
-                )}
+                  {quote.status === 'accepted' && (
+                    <p className="status-message success">
+                      Aprobada – En espera de entrega
+                    </p>
+                  )}
+
+                  {quote.status === 'pending' && (
+                    <p className="status-message pending">
+                      Esperando cotización del administrador...
+                    </p>
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>

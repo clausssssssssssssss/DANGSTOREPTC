@@ -33,17 +33,21 @@ const QuotesSection = ({ setHasQuotesFlag, showSuccess, showError, showWarning }
               console.log('Response status:', res.status);
       
       if (!res.ok) throw new Error(`Status ${res.status}`);
-      const data = await res.json();
+      const response = await res.json();
 
-              console.log('Raw data from API:', data);
-              console.log('Number of items:', data.length);
+              console.log('Raw data from API:', response);
+      
+      // La API devuelve { success: true, data: [...] }
+      const data = response.data;
       
       // Validar que data sea un array
       if (!Array.isArray(data)) {
-        console.error('API no devolvió un array:', data);
+        console.error('API no devolvió un array en data:', data);
         setErrorQuotes('Error: La API no devolvió datos válidos');
         return;
       }
+      
+              console.log('Number of items:', data.length);
       
       // Mostrar todos los estados únicos que existen
       const uniqueStatuses = [...new Set(data.map(item => item.status))];

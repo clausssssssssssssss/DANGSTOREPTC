@@ -2,7 +2,6 @@ import React, { useState, useEffect, useContext } from 'react';
 import {
   View,
   Text,
-  StyleSheet,
   TouchableOpacity,
   SafeAreaView,
   FlatList,
@@ -16,6 +15,7 @@ import {
 } from 'react-native';
 import { customOrdersAPI, getImageUrl } from '../services/customOrders';
 import { AuthContext } from '../src/context/AuthContext';
+import { pendientesStyles as styles } from '../components/styles/PendientesStyles';
 
 const { width, height } = Dimensions.get('window');
 
@@ -30,6 +30,7 @@ const Pendientes = ({ navigation }) => {
   const [comment, setComment] = useState('');
   const [priceError, setPriceError] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     if (authToken) {
@@ -42,10 +43,19 @@ const Pendientes = ({ navigation }) => {
 
   const fetchPendingOrders = async () => {
     try {
+      setError(null); // Limpiar errores previos
       console.log('🔄 Iniciando fetch de órdenes pendientes...');
       const data = await customOrdersAPI.getPendingOrders();
       console.log('✅ Órdenes obtenidas:', data);
-      setOrders(data);
+      
+      // Verificar que data sea un array
+      if (Array.isArray(data)) {
+        setOrders(data);
+        console.log(`📊 ${data.length} órdenes cargadas correctamente`);
+      } else {
+        console.error('❌ Data no es un array:', typeof data, data);
+        throw new Error('Formato de datos inesperado del servidor');
+      }
     } catch (error) {
       console.error('❌ Error fetching pending orders:', error);
       console.error('Error details:', {
@@ -53,10 +63,22 @@ const Pendientes = ({ navigation }) => {
         stack: error.stack,
         name: error.name
       });
-      Alert.alert(
-        'Error de Conexión', 
-        `No se pudieron cargar las órdenes pendientes: ${error.message}`
-      );
+      
+      setError(error.message);
+      
+      // Mostrar mensaje de error más específico
+      let errorMessage = 'No se pudieron cargar las órdenes pendientes';
+      if (error.message.includes('401') || error.message.includes('Unauthorized')) {
+        errorMessage = 'Sesión expirada. Por favor inicia sesión nuevamente.';
+      } else if (error.message.includes('403') || error.message.includes('Forbidden')) {
+        errorMessage = 'No tienes permisos para ver las órdenes pendientes.';
+      } else if (error.message.includes('500') || error.message.includes('Internal Server Error')) {
+        errorMessage = 'Error del servidor. Intenta nuevamente más tarde.';
+      } else if (error.message.includes('Network') || error.message.includes('fetch')) {
+        errorMessage = 'Error de conexión. Verifica tu internet.';
+      }
+      
+      Alert.alert('Error de Conexión', errorMessage);
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -153,53 +175,83 @@ const Pendientes = ({ navigation }) => {
   };
 
   const getModelTypeLabel = (modelType) => {
+    if (!modelType) {
+      console.warn('⚠️ modelType no definido en getModelTypeLabel');
+      return 'Tipo no especificado';
+    }
+    
     const labels = {
       'cuadro_chico': 'Cuadro Pequeño',
-      'llavero': 'Llavero',
       'cuadro_grande': 'Cuadro Grande',
+      'llavero': 'Llavero',
+      'tipo_desconocido': 'Tipo no especificado'
     };
-    return labels[modelType] || modelType;
+    
+    const label = labels[modelType];
+    if (!label) {
+      console.warn(`⚠️ Tipo de modelo no reconocido: ${modelType}`);
+      return `Tipo: ${modelType}`;
+    }
+    
+    return label;
   };
 
-  const renderOrderCard = ({ item }) => (
-    <View style={styles.orderCard}>
-      <View style={styles.orderHeader}>
-        <View style={styles.clientInfo}>
-          <Text style={styles.clientName}>{item.user?.name || 'Usuario'}</Text>
-          <Text style={styles.clientContact}>{item.user?.email}</Text>
-          {item.user?.phone && (
-            <Text style={styles.clientContact}>{item.user.phone}</Text>
-          )}
-          <Text style={styles.orderDate}>{formatDate(item.createdAt)}</Text>
-        </View>
-        <View style={styles.statusBadge}>
-          <Text style={styles.statusText}>PENDIENTE</Text>
-        </View>
-      </View>
+  const renderOrderCard = ({ item }) => {
+    // Validar que el item tenga los datos necesarios
+    if (!item || !item._id) {
+      console.warn('⚠️ Item inválido en renderOrderCard:', item);
+      return null;
+    }
 
-      {item.imageUrl && (
-        <Image 
-          source={{ uri: getImageUrl(item.imageUrl) }}
-          style={styles.orderImage}
-          resizeMode="cover"
-        />
-      )}
+    return (
+      <View style={styles.orderCard}>
+        <View style={styles.orderHeader}>
+          <View style={styles.clientInfo}>
+            <Text style={styles.clientName}>
+              {item.user?.name || 'Usuario sin nombre'}
+            </Text>
+            <Text style={styles.clientContact}>
+              {item.user?.email || 'Sin email'}
+            </Text>
+            {item.user?.phone && (
+              <Text style={styles.clientContact}>{item.user.phone}</Text>
+            )}
+            <Text style={styles.orderDate}>
+              {item.createdAt ? formatDate(item.createdAt) : 'Fecha no disponible'}
+            </Text>
+          </View>
+          <View style={styles.statusBadge}>
+            <Text style={styles.statusText}>PENDIENTE</Text>
+          </View>
+        </View>
 
-      <View style={styles.orderDetails}>
-        <Text style={styles.modelType}>{getModelTypeLabel(item.modelType)}</Text>
-        {item.description && (
-          <Text style={styles.description}>{item.description}</Text>
+        {item.imageUrl && (
+          <Image 
+            source={{ uri: getImageUrl(item.imageUrl) }}
+            style={styles.orderImage}
+            resizeMode="cover"
+            onError={(error) => console.warn('Error cargando imagen:', error)}
+          />
         )}
-      </View>
 
-      <TouchableOpacity
-        style={styles.actionButton}
-        onPress={() => openQuoteModal(item)}
-      >
-        <Text style={styles.actionButtonText}>Cotizar</Text>
-      </TouchableOpacity>
-    </View>
-  );
+        <View style={styles.orderDetails}>
+          <Text style={styles.modelType}>
+            {getModelTypeLabel(item.modelType || 'tipo_desconocido')}
+          </Text>
+          {item.description && (
+            <Text style={styles.description}>{item.description}</Text>
+          )}
+        </View>
+
+        <TouchableOpacity
+          style={styles.actionButton}
+          onPress={() => openQuoteModal(item)}
+        >
+          <Text style={styles.actionButtonText}>Cotizar</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  };
 
   const renderEmptyState = () => (
     <View style={styles.emptyContainer}>
@@ -208,6 +260,19 @@ const Pendientes = ({ navigation }) => {
       <Text style={styles.emptyDescription}>
         Cuando los clientes soliciten cotizaciones para productos personalizados, aparecerán aquí.
       </Text>
+    </View>
+  );
+
+  const renderErrorState = () => (
+    <View style={styles.errorContainer}>
+      <Text style={styles.errorIcon}>⚠️</Text>
+      <Text style={styles.errorTitle}>Error al cargar órdenes</Text>
+      <Text style={styles.errorDescription}>
+        {error || 'Ocurrió un error inesperado'}
+      </Text>
+      <TouchableOpacity style={styles.retryButton} onPress={fetchPendingOrders}>
+        <Text style={styles.retryButtonText}>Reintentar</Text>
+      </TouchableOpacity>
     </View>
   );
 
@@ -250,20 +315,24 @@ const Pendientes = ({ navigation }) => {
       </View>
 
       <View style={styles.content}>
-        <FlatList
-          data={orders}
-          renderItem={renderOrderCard}
-          keyExtractor={(item) => item._id}
-          refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={onRefresh}
-              tintColor="#8B5CF6"
-            />
-          }
-          ListEmptyComponent={renderEmptyState}
-          showsVerticalScrollIndicator={false}
-        />
+        {error ? (
+          renderErrorState()
+        ) : (
+          <FlatList
+            data={orders.filter(order => order && order._id)} // Filtrar órdenes válidas
+            renderItem={renderOrderCard}
+            keyExtractor={(item) => item._id}
+            refreshControl={
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={onRefresh}
+                tintColor="#8B5CF6"
+              />
+            }
+            ListEmptyComponent={renderEmptyState}
+            showsVerticalScrollIndicator={false}
+          />
+        )}
       </View>
 
       {/* Modal de cotización */}
@@ -316,11 +385,10 @@ const Pendientes = ({ navigation }) => {
               <Text style={styles.inputLabel}>Comentario (opcional)</Text>
               <TextInput
                 style={styles.commentInput}
-                placeholder="Añade un comentario sobre la cotización"
+                placeholder="Agregar comentario o instrucciones..."
                 value={comment}
                 onChangeText={setComment}
                 multiline
-                textAlignVertical="top"
                 editable={!submitting}
               />
             </View>
@@ -341,14 +409,14 @@ const Pendientes = ({ navigation }) => {
               >
                 <Text style={styles.rejectButtonText}>Rechazar</Text>
               </TouchableOpacity>
-
+              
               <TouchableOpacity
                 style={[styles.modalButton, styles.confirmButton]}
                 onPress={submitQuote}
                 disabled={submitting}
               >
                 <Text style={styles.confirmButtonText}>
-                  {submitting ? 'Enviando...' : 'Enviar'}
+                  {submitting ? 'Enviando...' : 'Enviar Cotización'}
                 </Text>
               </TouchableOpacity>
             </View>
@@ -358,271 +426,5 @@ const Pendientes = ({ navigation }) => {
     </SafeAreaView>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F8FAFC',
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingTop: 20,
-    paddingBottom: 25,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
-    backgroundColor: 'white',
-  },
-  backButton: {
-    padding: 8,
-  },
-  backButtonText: {
-    fontSize: 24,
-    color: '#8B5CF6',
-    fontWeight: 'bold',
-  },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#1F2937',
-  },
-  placeholder: {
-    width: 40,
-  },
-  authStatus: {
-    width: 40,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  authStatusText: {
-    fontSize: 20,
-  },
-  content: {
-    flex: 1,
-    padding: 20,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  loadingText: {
-    marginTop: 10,
-    fontSize: 16,
-    color: '#6B7280',
-  },
-  emptyContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 40,
-  },
-  emptyIcon: {
-    fontSize: 60,
-    marginBottom: 20,
-  },
-  emptyTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#1F2937',
-    marginBottom: 10,
-    textAlign: 'center',
-  },
-  emptyDescription: {
-    fontSize: 16,
-    color: '#6B7280',
-    textAlign: 'center',
-    lineHeight: 24,
-  },
-  orderCard: {
-    backgroundColor: 'white',
-    borderRadius: 12,
-    marginBottom: 16,
-    padding: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3.84,
-    elevation: 5,
-  },
-  orderHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: 12,
-  },
-  clientInfo: {
-    flex: 1,
-    marginRight: 12,
-  },
-  clientName: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#1F2937',
-    marginBottom: 4,
-  },
-  clientContact: {
-    fontSize: 14,
-    color: '#6B7280',
-    marginBottom: 2,
-  },
-  orderDate: {
-    fontSize: 12,
-    color: '#9CA3AF',
-  },
-  statusBadge: {
-    backgroundColor: '#FEF3C7',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
-  },
-  statusText: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#D97706',
-  },
-  orderImage: {
-    width: 80,
-    height: 80,
-    borderRadius: 8,
-    marginBottom: 12,
-  },
-  orderDetails: {
-    marginBottom: 12,
-  },
-  modelType: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#374151',
-    marginBottom: 4,
-  },
-  description: {
-    fontSize: 14,
-    color: '#6B7280',
-    lineHeight: 20,
-  },
-  actionButton: {
-    backgroundColor: '#8B5CF6',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  actionButtonText: {
-    color: 'white',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  modalOverlay: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-  },
-  modalContent: {
-    backgroundColor: 'white',
-    borderRadius: 16,
-    padding: 24,
-    margin: 20,
-    width: '90%',
-    maxWidth: 400,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 10,
-  },
-  modalHeader: {
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  modalImage: {
-    width: 100,
-    height: 100,
-    borderRadius: 12,
-    marginBottom: 12,
-  },
-  modalTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#1F2937',
-    textAlign: 'center',
-    marginBottom: 8,
-  },
-  modalSubtitle: {
-    fontSize: 16,
-    color: '#6B7280',
-    textAlign: 'center',
-  },
-  formSection: {
-    marginBottom: 20,
-  },
-  inputLabel: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#374151',
-    marginBottom: 8,
-  },
-  priceInput: {
-    borderWidth: 2,
-    borderColor: '#E5E7EB',
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 16,
-    backgroundColor: '#F9FAFB',
-  },
-  commentInput: {
-    borderWidth: 2,
-    borderColor: '#E5E7EB',
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 16,
-    backgroundColor: '#F9FAFB',
-    minHeight: 80,
-  },
-  modalActions: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    gap: 12,
-  },
-  modalButton: {
-    flex: 1,
-    paddingVertical: 12,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  cancelButton: {
-    backgroundColor: '#F3F4F6',
-  },
-  cancelButtonText: {
-    color: '#6B7280',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  confirmButton: {
-    backgroundColor: '#8B5CF6',
-  },
-  confirmButtonText: {
-    color: 'white',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  rejectButton: {
-    backgroundColor: '#EF4444',
-  },
-  rejectButtonText: {
-    color: 'white',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  errorText: {
-    color: '#EF4444',
-    fontSize: 14,
-    marginTop: 4,
-    textAlign: 'center',
-  },
-});
 
 export default Pendientes;

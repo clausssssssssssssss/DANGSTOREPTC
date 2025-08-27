@@ -38,7 +38,17 @@ export const customOrdersAPI = {
     try {
       const response = await authenticatedFetch('/custom-orders/pending');
       if (response.ok) {
-        return await response.json();
+        const result = await response.json();
+        console.log('Respuesta completa del API:', result);
+        
+        // Verificar que la respuesta tenga el formato esperado
+        if (result.success && Array.isArray(result.data)) {
+          console.log('Órdenes extraídas correctamente:', result.data.length);
+          return result.data;
+        } else {
+          console.error('Formato de respuesta inesperado:', result);
+          throw new Error('Formato de respuesta inesperado del servidor');
+        }
       }
       throw new Error(`HTTP ${response.status}: ${response.statusText}`);
     } catch (error) {
@@ -59,7 +69,14 @@ export const customOrdersAPI = {
       });
       
       if (response.ok) {
-        return await response.json();
+        const result = await response.json();
+        console.log('Respuesta de cotización:', result);
+        
+        if (result.success) {
+          return result.data;
+        } else {
+          throw new Error(result.message || 'Error desconocido en la cotización');
+        }
       }
       throw new Error(`HTTP ${response.status}: ${response.statusText}`);
     } catch (error) {
@@ -81,7 +98,14 @@ export const customOrdersAPI = {
       });
       
       if (response.ok) {
-        return await response.json();
+        const result = await response.json();
+        console.log('Respuesta de rechazo:', result);
+        
+        if (result.success) {
+          return result.data;
+        } else {
+          throw new Error(result.message || 'Error desconocido al rechazar la orden');
+        }
       }
       throw new Error(`HTTP ${response.status}: ${response.statusText}`);
     } catch (error) {

@@ -43,11 +43,21 @@ const UserProfile = () => {
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
         });
         if (!res.ok) return;
-        const data = await res.json();
-        // Solo mostrar notificación si hay cotizaciones pendientes de decisión
-        if (data.some(o => o.status === 'quoted')) {
-          setHasQuotesFlag(true);
+        const response = await res.json();
+        
+        // La API devuelve { success: true, data: [...] }
+        const data = response.data;
+        
+        // Verificar que data sea un array antes de usar .some()
+        if (Array.isArray(data)) {
+          // Solo mostrar notificación si hay cotizaciones pendientes de decisión
+          if (data.some(o => o.status === 'quoted')) {
+            setHasQuotesFlag(true);
+          } else {
+            setHasQuotesFlag(false);
+          }
         } else {
+          console.warn('API devolvió un objeto en lugar de un array:', data);
           setHasQuotesFlag(false);
         }
       } catch (err) {

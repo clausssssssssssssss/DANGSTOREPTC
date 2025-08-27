@@ -9,7 +9,7 @@ import { useAuth, parseJwt } from '../hooks/useAuth.jsx';
 import { useToast } from '../hooks/useToast';
 import ToastContainer from '../components/ui/ToastContainer';
 
-const API_URL = import.meta.env.VITE_API_URL || '';
+const API_URL = 'https://dangstoreptc.onrender.com';
 
 const AuthApp = () => {
   const navigate = useNavigate();

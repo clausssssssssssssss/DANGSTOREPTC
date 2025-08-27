@@ -14,7 +14,7 @@ import PasswordSection from '../components/profile/PasswordSection';
 import UserSection from '../components/profile/UserSection';
 import QuotesSection from '../components/profile/QuotesSection'; // Importar el componente
 
-const API_URL = import.meta.env.VITE_API_URL || '';
+const API_URL = 'https://dangstoreptc.onrender.com';
 
 const UserProfile = () => {
   const { user, logout } = useAuth();

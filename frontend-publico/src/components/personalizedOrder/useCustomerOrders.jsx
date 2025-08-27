@@ -1,7 +1,7 @@
 // src/components/personalizedOrder/useCustomerOrders.jsx
 import { useState } from 'react';
 
-const API_URL = import.meta.env.VITE_API_URL || '';
+const API_URL = 'https://dangstoreptc.onrender.com';
 
 export default function useCustomerOrders() {
   const [preview, setPreview]         = useState(null);

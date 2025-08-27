@@ -32,7 +32,7 @@ export default function NavBar() {
       const token = localStorage.getItem('token');
       if (!token) return;
       try {
-        const base = import.meta.env.VITE_API_URL || '';
+        const base = 'https://dangstoreptc.onrender.com';
         const res = await fetch(`${base}/api/custom-orders/me`, {
           headers: { Authorization: `Bearer ${token}` }
         });

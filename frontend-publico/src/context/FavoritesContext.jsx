@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 
 // URL del servidor de producción
-const API_BASE = import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/api` : '/api';
+const API_BASE = 'https://dangstoreptc.onrender.com/api';
 
 const FavoritesContext = createContext();
 

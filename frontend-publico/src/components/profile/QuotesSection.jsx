@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Gift } from 'lucide-react';
 import '../styles/QuotesSection.css';
 
-const API_URL = import.meta.env.VITE_API_URL || '';
+const API_URL = 'https://dangstoreptc.onrender.com';
 
 // Función helper para construir URLs de imágenes correctamente
 const getImageUrl = (imagePath) => {

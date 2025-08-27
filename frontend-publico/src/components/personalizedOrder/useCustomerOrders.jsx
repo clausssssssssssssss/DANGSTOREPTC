@@ -53,7 +53,7 @@ export default function useCustomerOrders() {
       form.append('modelType', modelType);
       form.append('description', description);
 
-      const res = await fetch(`${API_URL}https://dangstoreptc.onrender.com/api/custom-orders`, {
+              const res = await fetch(`${API_URL}/api/custom-orders`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` },
         body: form

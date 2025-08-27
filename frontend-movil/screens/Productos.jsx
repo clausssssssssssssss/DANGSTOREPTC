@@ -17,7 +17,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { Picker } from '@react-native-picker/picker';
 
 const { width, height } = Dimensions.get('window');
-const API_URL = 'http://localhost:4000/api/productos'; // Cambia si usas otra URL
+const API_URL = 'https://dangstoreptc.onrender.com/api/products'; // URL consistente con el backend
 
 const Productos = ({ navigation }) => {
   const [productos, setProductos] = useState([]);

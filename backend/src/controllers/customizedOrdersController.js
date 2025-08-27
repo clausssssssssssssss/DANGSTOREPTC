@@ -73,6 +73,18 @@ export const createCustomOrder = async (req, res) => {
     
     console.log(' Orden personalizada creada exitosamente:', savedOrder._id);
 
+    //  Crear notificación de nuevo encargo
+    try {
+      await NotificationService.createNewOrderNotification({
+        orderId: savedOrder._id,
+        modelType: savedOrder.modelType,
+        description: savedOrder.description
+      });
+      console.log(' Notificación de nuevo encargo creada');
+    } catch (notificationError) {
+      console.error(' Error creando notificación de nuevo encargo:', notificationError);
+    }
+
     res.status(201).json({
       success: true,
       message: 'Orden creada exitosamente',

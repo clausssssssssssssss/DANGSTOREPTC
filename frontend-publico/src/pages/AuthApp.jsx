@@ -76,7 +76,7 @@ const AuthApp = () => {
       return;
     }
     try {
-      const res = await fetch(`${API_URL}https://dangstoreptc.onrender.com/api/customers/login`, {
+              const res = await fetch(`${API_URL}/api/customers/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })
@@ -126,7 +126,7 @@ const AuthApp = () => {
       return;
     }
     try {
-      const res = await fetch(`${API_URL}https://dangstoreptc.onrender.com/api/customers`, {
+              const res = await fetch(`${API_URL}/api/customers`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -159,7 +159,7 @@ const AuthApp = () => {
     console.log('📧 Enviando código de recuperación para:', forgotEmail);
     
     try {
-    const res = await fetch(`${API_URL}https://dangstoreptc.onrender.com/api/password-recovery/send-code`, {
+            const res = await fetch(`${API_URL}/api/password-recovery/send-code`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email: forgotEmail }),
@@ -226,7 +226,7 @@ const AuthApp = () => {
       const requestBody = { email: forgotEmail, code };
       console.log('📤 Enviando solicitud:', requestBody);
       
-      const res = await fetch(`${API_URL}https://dangstoreptc.onrender.com/api/password-recovery/verify-code`, {
+              const res = await fetch(`${API_URL}/api/password-recovery/verify-code`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(requestBody)
@@ -287,7 +287,7 @@ const AuthApp = () => {
       
       console.log('📤 Enviando solicitud de restablecimiento:', requestBody);
       
-      const res = await fetch(`${API_URL}https://dangstoreptc.onrender.com/api/password-recovery/reset`, {
+              const res = await fetch(`${API_URL}/api/password-recovery/reset`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(requestBody),

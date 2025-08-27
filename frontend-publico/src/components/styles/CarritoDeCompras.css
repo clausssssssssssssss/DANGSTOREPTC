@@ -50,8 +50,9 @@
 
 .item-count {
   font-size: 1rem;
-  color: #666;
+  color: #6c5ce7;
   font-weight: 500;
+  opacity: 1;
 }
 
 /* Layout */
@@ -74,6 +75,12 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 1.5rem;
+}
+
+.items-header h3 {
+  color: #6c5ce7;
+  font-weight: 600;
+  opacity: 1;
 }
 
 .clear-btn {
@@ -143,9 +150,10 @@
 }
 
 .item-description {
-  color: #666;
+  color: #6c5ce7;
   font-size: 0.9rem;
   margin-bottom: 1rem;
+  opacity: 1;
 }
 
 .item-controls {
@@ -199,8 +207,9 @@
 }
 
 .price {
-  color: #666;
+  color: #6c5ce7;
   font-size: 0.9rem;
+  opacity: 1;
 }
 
 .item-subtotal {
@@ -211,8 +220,9 @@
 }
 
 .subtotal-label {
-  color: #666;
+  color: #6c5ce7;
   font-size: 0.9rem;
+  opacity: 1;
 }
 
 .item-total {
@@ -226,9 +236,10 @@
   right: 1rem;
   background: transparent;
   border: none;
-  color: #666;
+  color: #6c5ce7;
   cursor: pointer;
   transition: all 0.2s ease;
+  opacity: 1;
 }
 
 .remove-btn:hover {
@@ -262,7 +273,8 @@
   display: flex;
   justify-content: space-between;
   margin-bottom: 0.75rem;
-  color: #666;
+  color: #6c5ce7;
+  opacity: 1;
 }
 
 .total-line {
@@ -378,8 +390,9 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  color: #666;
+  color: #6c5ce7;
   font-size: 0.85rem;
+  opacity: 1;
 }
 
 /* Carrito vacío */
@@ -408,8 +421,9 @@
 }
 
 .empty-cart p {
-  color: #666;
+  color: #6c5ce7;
   margin-bottom: 2rem;
+  opacity: 1;
 }
 
 .btn {
@@ -871,7 +885,8 @@
 
 .notice-content p {
   margin: 0;
-  color: #666;
+  color: #6c5ce7;
   font-size: 14px;
   line-height: 1.4;
+  opacity: 1;
 }

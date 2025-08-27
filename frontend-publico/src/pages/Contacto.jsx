@@ -47,7 +47,9 @@ const Contacto = () => {
         {/* Sección de Información */}
         <div className="contact-info-card">
           <h2 className="section-title">
-            <span className="title-icon" role="img" aria-label="Correo">📬</span>
+            <span className="title-icon">
+              <Mail size={24} />
+            </span>
             Información de Contacto
           </h2>
           
@@ -99,7 +101,9 @@ const Contacto = () => {
         {/* Formulario de Contacto */}
         <div className="contact-form-card">
           <h2 className="section-title">
-            <span className="title-icon" role="img" aria-label="Mensaje">✉️</span>
+            <span className="title-icon">
+              <Send size={24} />
+            </span>
             Envíanos un mensaje
           </h2>
 

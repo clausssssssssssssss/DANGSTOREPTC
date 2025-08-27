@@ -32,6 +32,34 @@ class NotificationService {
   }
 
   /**
+   * Crear notificación para nuevo encargo (sin customerName)
+   */
+  static async createNewOrderNotification(orderData) {
+    try {
+      const notification = new Notification({
+        title: '🎨 Nuevo Encargo Personalizado',
+        message: `Se ha recibido un nuevo encargo de ${orderData.modelType}`,
+        type: 'new_order',
+        priority: 'high',
+        data: {
+          orderId: orderData.orderId,
+          modelType: orderData.modelType,
+          description: orderData.description,
+        },
+        icon: '🆕',
+      });
+
+      const savedNotification = await notification.save();
+      console.log('✅ Notificación de nuevo encargo creada:', savedNotification._id);
+      
+      return savedNotification;
+    } catch (error) {
+      console.error('❌ Error creando notificación de nuevo encargo:', error);
+      throw error;
+    }
+  }
+
+  /**
    * Crear notificación para orden cotizada
    */
   static async createQuoteNotification(orderData) {
@@ -97,6 +125,18 @@ class NotificationService {
         .limit(limit);
     } catch (error) {
       console.error('❌ Error obteniendo notificaciones:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Obtener conteo de notificaciones no leídas
+   */
+  static async getUnreadCount() {
+    try {
+      return await Notification.countDocuments({ isRead: false });
+    } catch (error) {
+      console.error('❌ Error obteniendo conteo no leídas:', error);
       throw error;
     }
   }

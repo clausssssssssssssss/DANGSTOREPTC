@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const API_URL = 'http://192.168.1.2:8081/api'; // Cambia por tu URL
+const API_URL = 'https://dangstoreptc.onrender.com/api'; // URL consistente con AuthContext
 
 export const useNotifications = (autoRefresh = 30000) => {
   const [notifications, setNotifications] = useState([]);

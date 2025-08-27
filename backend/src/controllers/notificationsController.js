@@ -132,7 +132,7 @@ export const deleteAllNotifications = async (req, res) => {
  */
 export const getUnreadCount = async (req, res) => {
   try {
-    const count = await Notification.countDocuments({ isRead: false });
+    const count = await NotificationService.getUnreadCount();
     
     res.status(200).json({
       success: true,

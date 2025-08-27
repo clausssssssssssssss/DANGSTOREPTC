@@ -401,31 +401,16 @@ const FormPaymentFake = () => {
               <h3 style={{ margin: '0 0 12px 0', color: '#6c5ce7', fontSize: '18px' }}>
                 📋 Resumen del Carrito
               </h3>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-                <div>
-                  <strong>Productos:</strong> {loading ? 'Cargando...' : `${cart.length} ${cart.length === 1 ? 'producto' : 'productos'}`}
-                </div>
-                <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#6c5ce7' }}>
-                  Total: {loading ? 'Cargando...' : `$${total.toFixed(2)}`}
-                </div>
-              </div>
+                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                 <div style={{ color: '#000000' }}>
+                   <strong style={{ color: '#000000' }}>Productos:</strong> {loading ? 'Cargando...' : `${cart.length} ${cart.length === 1 ? 'producto' : 'productos'}`}
+                 </div>
+                 <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#6c5ce7' }}>
+                   Total: {loading ? 'Cargando...' : `$${total.toFixed(2)}`}
+                 </div>
+               </div>
               
-              {/* Debug info - solo en desarrollo */}
-              {process.env.NODE_ENV === 'development' && (
-                <div style={{ 
-                  background: '#fff3cd', 
-                  border: '1px solid #ffeaa7', 
-                  borderRadius: '4px', 
-                  padding: '8px', 
-                  fontSize: '12px',
-                  color: '#856404'
-                }}>
-                  <strong>Debug:</strong> Cart length: {cart.length} | 
-                  Items: {cart.map(item => `${item.product?.name || 'Sin nombre'} (${item.quantity})`).join(', ')} |
-                  User ID: {userId} |
-                  Loading: {loading}
-                </div>
-              )}
+
             </div>
           )}
 
@@ -790,17 +775,17 @@ const FormPaymentFake = () => {
                   <p>{formData.paisFacturacion || 'No especificado'}</p>
             </div>
 
-                <div className="detail-section" style={{ background: '#f8f9fa', border: '1px solid #e9ecef', borderRadius: '8px', padding: '16px' }}>
-                  <h4 style={{ color: '#6c5ce7', marginBottom: '12px' }}>Resumen de la Compra</h4>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                    <span>Productos:</span>
-                    <strong>{cart.length} {cart.length === 1 ? 'producto' : 'productos'}</strong>
-                  </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                    <span>Total:</span>
-                    <strong style={{ color: '#6c5ce7', fontSize: '18px' }}>${total.toFixed(2)}</strong>
-              </div>
-          </div>
+                                 <div className="detail-section" style={{ background: '#f8f9fa', border: '1px solid #e9ecef', borderRadius: '8px', padding: '16px' }}>
+                   <h4 style={{ color: '#6c5ce7', marginBottom: '12px' }}>Resumen de la Compra</h4>
+                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                     <span style={{ color: '#000000' }}>Productos:</span>
+                     <strong style={{ color: '#000000' }}>{cart.length} {cart.length === 1 ? 'producto' : 'productos'}</strong>
+                   </div>
+                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                     <span style={{ color: '#000000' }}>Total:</span>
+                     <strong style={{ color: '#6c5ce7', fontSize: '18px' }}>${total.toFixed(2)}</strong>
+               </div>
+           </div>
 
                 <div className="form-footer">
               <Button 

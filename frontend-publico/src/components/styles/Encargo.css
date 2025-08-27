@@ -1,4 +1,4 @@
-/* Encargo.css - Aqua/Purple Theme with Animations */
+/* Encargo.css - Sistema Responsive DANGSTORE */
 
 /* ===== BASE STYLES ===== */
 * {
@@ -8,16 +8,16 @@
 }
 
 body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  line-height: 1.6;
+  font-family: var(--font-family-primary, 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif);
+  line-height: var(--line-height-normal, 1.6);
 }
 
 /* ===== MAIN CONTAINER ===== */
 .encargo-container {
   min-height: 100vh;
-  padding: 2rem 1rem;
+  padding: var(--spacing-lg) var(--spacing-sm);
   padding-top: 6rem;
-  background: white; /* Fondo blanco sólido */
+  background: white; /* Mantener fondo blanco original */
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -66,10 +66,11 @@ body {
 /* ===== HEADER STYLES ===== */
 .encargo-header {
   text-align: center;
-  margin-bottom: 2rem;
+  margin-bottom: var(--spacing-lg);
   position: relative;
   z-index: 3;
   animation: headerEntrance 1s ease-out;
+  padding-top: var(--spacing-lg); /* Espacio para el icono */
 }
 
 @keyframes headerEntrance {
@@ -84,59 +85,97 @@ body {
 }
 
 .encargo-title {
-  font-size: 3rem;
-  font-weight: 800;
-  color: #6c5ce7; /* Color morado para coherencia con el resto del sitio */
-  margin-bottom: 0.5rem;
+  font-size: clamp(2rem, 4vw + 1rem, 3rem);
+  font-weight: var(--font-weight-extrabold, 800);
+  background: linear-gradient(135deg, #9C27B0, #4DD0E1);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: var(--spacing-xs);
   position: relative;
+  font-family: var(--font-family-primary, 'Inter', sans-serif);
+}
+
+.encargo-title::after {
+  content: '';
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 4px;
+  background: linear-gradient(135deg, #4DD0E1, #9C27B0);
+  border-radius: 2px;
 }
 
 .encargo-subtitle {
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: #555; /* Texto gris oscuro */
-  margin-bottom: 1rem;
+  font-size: clamp(1rem, 2vw + 0.5rem, 1.25rem);
+  font-weight: var(--font-weight-semibold, 600);
+  background: linear-gradient(135deg, #9C27B0, #4DD0E1);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: var(--spacing-sm);
+  font-family: var(--font-family-primary, 'Inter', sans-serif);
+  position: relative;
+}
+
+.encargo-subtitle::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 3px;
+  background: linear-gradient(135deg, #4DD0E1, #9C27B0);
+  border-radius: 2px;
 }
 
 .encargo-description {
-  font-size: 1rem;
-  color: #666; /* Texto gris */
+  font-size: clamp(0.9rem, 1.5vw + 0.5rem, 1rem);
+  background: linear-gradient(135deg, #9C27B0, #4DD0E1);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
   max-width: 500px;
   margin: 0 auto;
-  line-height: 1.6;
+  line-height: var(--line-height-relaxed, 1.6);
+  font-family: var(--font-family-primary, 'Inter', sans-serif);
 }
 
 /* Header decorations */
 .encargo-header::before {
   content: '✨';
   position: absolute;
-  top: -1rem;
+  top: -2rem;
   left: 50%;
   transform: translateX(-50%);
-  font-size: 2rem;
+  font-size: clamp(1.5rem, 3vw + 1rem, 2.5rem);
   animation: sparkle 2s ease-in-out infinite;
+  z-index: 2;
 }
 
 .encargo-header::after {
   content: '';
   position: absolute;
-  bottom: -1rem;
+  bottom: calc(-1 * var(--spacing-sm));
   left: 50%;
   transform: translateX(-50%);
   width: 0;
   height: 3px;
-  background: linear-gradient(90deg, transparent, #BA68C8, transparent);
-  border-radius: 2px;
+  background: linear-gradient(90deg, transparent, #BA68C8, transparent); /* Restaurar color original */
+  border-radius: var(--border-radius-sm, 2px);
   animation: lineExpand 2s ease-out 1s both;
 }
 
 @keyframes sparkle {
   0%, 100% { 
     transform: translateX(-50%) scale(1) rotate(0deg);
-    opacity: 0.7;
+    opacity: 0.8;
   }
   50% { 
-    transform: translateX(-50%) scale(1.2) rotate(180deg);
+    transform: translateX(-50%) scale(1.3) rotate(180deg);
     opacity: 1;
   }
 }
@@ -714,28 +753,28 @@ body {
 /* Tablets */
 @media (max-width: 1024px) {
   .encargo-container {
-    padding: 1.5rem 1rem;
+    padding: var(--spacing-md) var(--spacing-sm);
     padding-top: 5rem;
   }
   
   .encargo-card {
     max-width: 900px;
-    padding: 1.5rem;
+    padding: var(--spacing-md);
   }
   
   .encargo-title {
-    font-size: 2.5rem;
+    font-size: clamp(2rem, 3.5vw + 1rem, 2.5rem);
   }
   
   .encargo-subtitle {
-    font-size: 1.1rem;
+    font-size: clamp(0.9rem, 1.8vw + 0.5rem, 1.1rem);
   }
 
   .remove-image-btn {
     width: 2.75rem;
     height: 2.75rem;
-    top: 0.75rem;
-    left: 0.75rem;
+    top: var(--spacing-sm);
+    left: var(--spacing-sm);
   }
 
   .remove-image-btn svg {
@@ -747,27 +786,31 @@ body {
 /* Small tablets */
 @media (max-width: 768px) {
   .encargo-container {
-    padding: 1rem 0.5rem;
+    padding: var(--spacing-sm) var(--spacing-xs);
     padding-top: 4rem;
   }
   
   .encargo-card {
     grid-template-columns: 1fr;
-    gap: 1.5rem;
-    padding: 1.5rem;
+    gap: var(--spacing-md);
+    padding: var(--spacing-md);
     min-height: auto;
   }
   
+  .encargo-header {
+    padding-top: var(--spacing-md);
+  }
+  
   .encargo-title {
-    font-size: 2rem;
+    font-size: clamp(1.5rem, 3vw + 1rem, 2rem);
   }
   
   .encargo-subtitle {
-    font-size: 1rem;
+    font-size: clamp(0.8rem, 1.5vw + 0.5rem, 1rem);
   }
   
   .encargo-description {
-    font-size: 0.9rem;
+    font-size: clamp(0.75rem, 1.2vw + 0.5rem, 0.9rem);
   }
   
   .upload-zone {
@@ -775,16 +818,16 @@ body {
   }
   
   .upload-icon {
-    font-size: 2.5rem;
+    font-size: clamp(2rem, 4vw + 1rem, 2.5rem);
   }
   
   .upload-text {
-    font-size: 1rem;
+    font-size: clamp(0.8rem, 1.5vw + 0.5rem, 1rem);
   }
   
   .upload-hint {
-    font-size: 0.8rem;
-    margin-top: 0.4rem;
+    font-size: clamp(0.7rem, 1.2vw + 0.5rem, 0.8rem);
+    margin-top: var(--spacing-xs);
   }
   
   .field-textarea {
@@ -792,15 +835,15 @@ body {
   }
 
   .submit-button {
-    padding: 1rem 2rem;
-    font-size: 1rem;
+    padding: var(--spacing-sm) var(--spacing-lg);
+    font-size: clamp(0.8rem, 1.5vw + 0.5rem, 1rem);
   }
 
   .remove-image-btn {
     width: 2.5rem;
     height: 2.5rem;
-    top: 0.5rem;
-    left: 0.5rem;
+    top: var(--spacing-xs);
+    left: var(--spacing-xs);
   }
 
   .remove-image-btn svg {
@@ -812,58 +855,59 @@ body {
 /* Mobile */
 @media (max-width: 480px) {
   .encargo-container {
-    padding: 0.5rem;
+    padding: var(--spacing-xs);
     padding-top: 3.5rem;
   }
   
   .encargo-card {
-    padding: 1rem;
-    gap: 1rem;
-    border-radius: 1.5rem;
+    padding: var(--spacing-sm);
+    gap: var(--spacing-sm);
+    border-radius: var(--border-radius-lg);
   }
   
   .encargo-header {
-    margin-bottom: 1.5rem;
+    margin-bottom: var(--spacing-md);
+    padding-top: var(--spacing-sm);
   }
   
   .encargo-title {
-    font-size: 1.75rem;
+    font-size: clamp(1.25rem, 2.5vw + 1rem, 1.75rem);
   }
   
   .encargo-subtitle {
-    font-size: 0.95rem;
+    font-size: clamp(0.7rem, 1.3vw + 0.5rem, 0.95rem);
   }
   
   .encargo-description {
-    font-size: 0.85rem;
+    font-size: clamp(0.65rem, 1.1vw + 0.5rem, 0.85rem);
   }
   
   .upload-zone {
     min-height: 200px;
-    border-radius: 1rem;
+    border-radius: var(--border-radius-md);
   }
   
   .upload-icon {
-    font-size: 2rem;
+    font-size: clamp(1.5rem, 3vw + 1rem, 2rem);
   }
   
   .upload-text {
-    font-size: 0.9rem;
+    font-size: clamp(0.7rem, 1.3vw + 0.5rem, 0.9rem);
   }
   
   .upload-hint {
-    font-size: 0.75rem;
-    margin-top: 0.3rem;
+    font-size: clamp(0.6rem, 1vw + 0.5rem, 0.75rem);
+    margin-top: var(--spacing-xs);
   }
   
   .field-label {
-    font-size: 0.9rem;
+    font-size: clamp(0.7rem, 1.3vw + 0.5rem, 0.9rem);
   }
   
   .field-select,
   .field-textarea {
-    padding: 0.875rem 1rem;
-    font-size: 0.9rem;
+    padding: var(--spacing-sm) var(--spacing-sm);
+    font-size: clamp(0.7rem, 1.3vw + 0.5rem, 0.9rem);
   }
   
   .field-textarea {
@@ -871,16 +915,16 @@ body {
   }
   
   .submit-button {
-    padding: 1rem 1.5rem;
-    font-size: 0.95rem;
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: clamp(0.7rem, 1.3vw + 0.5rem, 0.95rem);
   }
   
   .modal-content {
-    margin: 1rem;
+    margin: var(--spacing-sm);
   }
   
   .modal-body {
-    padding: 1.5rem;
+    padding: var(--spacing-md);
   }
 
   .thumbnail-image {
@@ -891,8 +935,8 @@ body {
   .remove-image-btn {
     width: 2.25rem;
     height: 2.25rem;
-    top: 0.5rem;
-    left: 0.5rem;
+    top: var(--spacing-xs);
+    left: var(--spacing-xs);
   }
 
   .remove-image-btn svg {
@@ -904,15 +948,19 @@ body {
 /* Very small mobile */
 @media (max-width: 320px) {
   .encargo-card {
-    padding: 0.75rem;
+    padding: var(--spacing-xs);
+  }
+  
+  .encargo-header {
+    padding-top: var(--spacing-xs);
   }
   
   .encargo-title {
-    font-size: 1.5rem;
+    font-size: clamp(1rem, 2vw + 1rem, 1.5rem);
   }
   
   .encargo-subtitle {
-    font-size: 0.9rem;
+    font-size: clamp(0.6rem, 1.1vw + 0.5rem, 0.9rem);
   }
   
   .upload-zone {
@@ -920,18 +968,18 @@ body {
   }
   
   .upload-icon {
-    font-size: 1.5rem;
+    font-size: clamp(1.25rem, 2.5vw + 1rem, 1.5rem);
   }
   
   .upload-text {
-    font-size: 0.8rem;
+    font-size: clamp(0.6rem, 1vw + 0.5rem, 0.8rem);
   }
 
   .remove-image-btn {
     width: 2rem;
     height: 2rem;
-    top: 0.25rem;
-    left: 0.25rem;
+    top: var(--spacing-xs);
+    left: var(--spacing-xs);
   }
 
   .remove-image-btn svg {

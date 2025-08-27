@@ -876,7 +876,6 @@ html, body { background: #ffffff; }
     height: 50px;
   }
 }
-
 /* Mejoras de accesibilidad */
 @media (prefers-reduced-motion: reduce) {
   .hero-content,

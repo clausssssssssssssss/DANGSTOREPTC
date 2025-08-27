@@ -87,9 +87,9 @@
   padding: 12px 16px;
   border: 1px solid #e9ecef;
   border-radius: 12px;
-  background: white;
+  background: #ffffff !important;
   font-size: 1rem;
-  color: #333;
+  color: #000000 !important;
   transition: all 0.2s ease;
   outline: none;
 }
@@ -100,15 +100,18 @@
 
 .input:hover {
   border-color: #6c5ce7;
+  background: #ffffff !important;
 }
 
 .input:focus {
   border-color: #6c5ce7;
   box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.1);
+  background: #ffffff !important;
 }
 
 .input::placeholder {
-  color: #999;
+  color: #666666 !important;
+  background: #ffffff !important;
 }
 
 /* Estilos para el formulario de pago */

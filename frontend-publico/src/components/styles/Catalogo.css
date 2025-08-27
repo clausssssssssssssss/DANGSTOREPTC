@@ -30,14 +30,46 @@
 .popular-title {
   font-size: 2.5rem;
   font-weight: 800;
-  color: #6c5ce7;
+  background: linear-gradient(135deg, #9C27B0, #4DD0E1);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
   margin-bottom: 0.5rem;
+  position: relative;
+}
+
+.popular-title::after {
+  content: '';
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 4px;
+  background: linear-gradient(135deg, #4DD0E1, #9C27B0);
+  border-radius: 2px;
 }
 
 .popular-subtitle {
   font-size: 1.1rem;
-  color: #666;
+  background: linear-gradient(135deg, #9C27B0, #4DD0E1);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
   font-weight: 500;
+  position: relative;
+}
+
+.popular-subtitle::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 3px;
+  background: linear-gradient(135deg, #4DD0E1, #9C27B0);
+  border-radius: 2px;
 }
 
 /* Sección de Productos Populares */

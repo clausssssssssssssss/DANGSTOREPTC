@@ -11,132 +11,64 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
-const API_URL = 'http://192.168.1.2:4000/api'; // Usa el puerto 4000 de tu server.js
+import { useNotifications } from '../src/hooks/useNotifications.js';
 
 const Notificaciones = ({ navigation }) => {
-  const [notifications, setNotifications] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const {
+    notifications,
+    loading,
+    error,
+    unreadCount,
+    fetchNotifications,
+    fetchUnreadCount,
+    markAsRead,
+    markAllAsRead,
+    deleteNotification,
+    refreshNotifications
+  } = useNotifications();
+
   const [refreshing, setRefreshing] = useState(false);
-  const [unreadCount, setUnreadCount] = useState(0);
 
-  // Obtener token de autenticación
-  const getAuthToken = async () => {
-    try {
-      return await AsyncStorage.getItem('adminToken'); // o el key que uses para admin
-    } catch (error) {
-      console.error('Error obteniendo token:', error);
-      return null;
-    }
-  };
+  // Cargar datos al montar el componente
+  useEffect(() => {
+    fetchNotifications();
+    fetchUnreadCount();
+  }, [fetchNotifications, fetchUnreadCount]);
 
-  // Headers para requests
-  const getHeaders = async () => {
-    const token = await getAuthToken();
-    return {
-      'Content-Type': 'application/json',
-      ...(token && { 'Authorization': `Bearer ${token}` }),
-    };
-  };
-
-  // Cargar notificaciones
-  const fetchNotifications = useCallback(async () => {
-    try {
-      setLoading(true);
-      const headers = await getHeaders();
-      
-      const response = await fetch(`${API_URL}/notifications?limit=50`, {
-        method: 'GET',
-        headers,
-      });
-      
-      if (response.ok) {
-        const data = await response.json();
-        if (data.success) {
-          setNotifications(data.data);
-        }
-      } else {
-        console.error('Error response:', response.status);
-      }
-    } catch (error) {
-      console.error('Error cargando notificaciones:', error);
-      Alert.alert('Error', 'No se pudieron cargar las notificaciones');
-    } finally {
-      setLoading(false);
+  // Manejar refresh manual
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await fetchNotifications();
+    await fetchUnreadCount();
       setRefreshing(false);
-    }
-  }, []);
+  }, [fetchNotifications, fetchUnreadCount]);
 
-  // Cargar conteo no leídas
-  const fetchUnreadCount = useCallback(async () => {
+  // Marcar como leída y actualizar conteo
+  const handleMarkAsRead = async (notificationId) => {
     try {
-      const headers = await getHeaders();
-      const response = await fetch(`${API_URL}/notifications/unread-count`, {
-        method: 'GET',
-        headers,
-      });
-      
-      if (response.ok) {
-        const data = await response.json();
-        if (data.success) {
-          setUnreadCount(data.unreadCount);
-        }
-      }
+      await markAsRead(notificationId);
+      await fetchUnreadCount(); // Actualizar conteo
     } catch (error) {
-      console.error('Error cargando conteo:', error);
-    }
-  }, []);
-
-  // Marcar como leída
-  const markAsRead = async (notificationId) => {
-    try {
-      const headers = await getHeaders();
-      const response = await fetch(`${API_URL}/notifications/${notificationId}/read`, {
-        method: 'PUT',
-        headers,
-      });
-
-      if (response.ok) {
-        setNotifications(prev => 
-          prev.map(notif => 
-            notif._id === notificationId 
-              ? { ...notif, isRead: true }
-              : notif
-          )
-        );
-        setUnreadCount(prev => Math.max(0, prev - 1));
-      }
-    } catch (error) {
-      console.error('Error marcando como leída:', error);
+      Alert.alert('Error', 'No se pudo marcar como leída');
     }
   };
 
   // Marcar todas como leídas
-  const markAllAsRead = async () => {
+  const handleMarkAllAsRead = async () => {
     try {
-      const headers = await getHeaders();
-      const response = await fetch(`${API_URL}/notifications/read-all`, {
-        method: 'PUT',
-        headers,
-      });
-
-      if (response.ok) {
-        setNotifications(prev => 
-          prev.map(notif => ({ ...notif, isRead: true }))
-        );
-        setUnreadCount(0);
-      }
+      await markAllAsRead();
+      await fetchUnreadCount(); // Actualizar conteo
+      Alert.alert('Éxito', 'Todas las notificaciones marcadas como leídas');
     } catch (error) {
-      console.error('Error marcando todas como leídas:', error);
+      Alert.alert('Error', 'No se pudieron marcar todas como leídas');
     }
   };
 
   // Eliminar notificación
-  const deleteNotification = (notificationId) => {
+  const handleDelete = async (notificationId) => {
     Alert.alert(
       'Eliminar Notificación',
-      '¿Estás seguro que deseas eliminar esta notificación?',
+      '¿Estás seguro de que quieres eliminar esta notificación?',
       [
         { text: 'Cancelar', style: 'cancel' },
         {
@@ -144,25 +76,10 @@ const Notificaciones = ({ navigation }) => {
           style: 'destructive',
           onPress: async () => {
             try {
-              const headers = await getHeaders();
-              const response = await fetch(`${API_URL}/notifications/${notificationId}`, {
-                method: 'DELETE',
-                headers,
-              });
-
-              if (response.ok) {
-                const notificationToDelete = notifications.find(n => n._id === notificationId);
-                
-                setNotifications(prev => 
-                  prev.filter(notif => notif._id !== notificationId)
-                );
-                
-                if (notificationToDelete && !notificationToDelete.isRead) {
-                  setUnreadCount(prev => Math.max(0, prev - 1));
-                }
-              }
+              await deleteNotification(notificationId);
+              await fetchUnreadCount(); // Actualizar conteo
             } catch (error) {
-              console.error('Error eliminando notificación:', error);
+              Alert.alert('Error', 'No se pudo eliminar la notificación');
             }
           }
         }
@@ -209,28 +126,7 @@ const Notificaciones = ({ navigation }) => {
     }
   };
 
-  // Refrescar
-  const onRefresh = useCallback(() => {
-    setRefreshing(true);
-    fetchNotifications();
-    fetchUnreadCount();
-  }, [fetchNotifications, fetchUnreadCount]);
 
-  // Efectos
-  useEffect(() => {
-    fetchNotifications();
-    fetchUnreadCount();
-  }, [fetchNotifications, fetchUnreadCount]);
-
-  // Auto-refresh cada 30 segundos
-  useEffect(() => {
-    const interval = setInterval(() => {
-      fetchNotifications();
-      fetchUnreadCount();
-    }, 30000);
-
-    return () => clearInterval(interval);
-  }, [fetchNotifications, fetchUnreadCount]);
 
   // Componente NotificationCard
   const NotificationCard = ({ item, index }) => {
@@ -279,7 +175,7 @@ const Notificaciones = ({ navigation }) => {
           !item.isRead && styles.unreadCard
         ]}
         onPress={() => {
-          if (!item.isRead) markAsRead(item._id);
+          if (!item.isRead) handleMarkAsRead(item._id);
           if (item.data?.orderId) goToOrderDetails(item.data.orderId);
         }}
       >
@@ -308,7 +204,7 @@ const Notificaciones = ({ navigation }) => {
           <View style={styles.cardActions}>
             {!item.isRead && <View style={styles.unreadDot} />}
             <TouchableOpacity
-              onPress={() => deleteNotification(item._id)}
+              onPress={() => handleDelete(item._id)}
               style={styles.deleteButton}
             >
               <Ionicons name="trash-outline" size={20} color="#EF4444" />
@@ -356,7 +252,7 @@ const Notificaciones = ({ navigation }) => {
             </View>
           )}
           
-          <TouchableOpacity onPress={markAllAsRead} style={styles.headerButton}>
+          <TouchableOpacity onPress={handleMarkAllAsRead} style={styles.headerButton}>
             <Ionicons name="checkmark-done-outline" size={24} color="white" />
           </TouchableOpacity>
           

@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { Search, RefreshCw, Heart, ShoppingCart, X, Star, TrendingUp } from 'lucide-react';
+import { Search, RefreshCw, Heart, ShoppingCart, X, Star, TrendingUp, Plus, Check } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth.jsx';
 import { useProducts } from '../components/catalog/hook/useProducts.jsx';
 import { useCart } from '../context/CartContext.jsx';
@@ -107,7 +107,7 @@ export default function Catalogo() {
     }
     try {
       await addToCart({ productId, quantity: 1 });
-      showSuccess('¡Producto añadido al carrito!');
+      showSuccess('Producto añadido al carrito');
     } catch (err) {
       console.error('Error adding to cart:', err);
       showError(err.message || 'Error al añadir producto');
@@ -125,9 +125,9 @@ export default function Catalogo() {
     const result = await toggleFavorite(productId);
     if (result.success) {
       if (result.wasFavorite) {
-        showSuccess('💔 Producto eliminado de favoritos');
+        showSuccess('Producto eliminado de favoritos');
       } else {
-        showSuccess('❤️ Producto agregado a favoritos');
+        showSuccess('Producto agregado a favoritos');
       }
     } else {
       showError('Error al actualizar favoritos');
@@ -211,7 +211,7 @@ export default function Catalogo() {
                         }}
                         aria-label="Añadir al carrito"
                       >
-                        🛒
+                        <ShoppingCart size={18} />
                       </button>
                     </div>
                   </div>
@@ -356,7 +356,7 @@ export default function Catalogo() {
                     }}
                     aria-label="Añadir al carrito"
                   >
-                    🛒
+                    <ShoppingCart size={18} />
                   </button>
                 </div>
               </div>
@@ -428,7 +428,8 @@ export default function Catalogo() {
                     closeDetail();
                   }}
                 >
-                  🛒 Añadir al Carrito
+                  <ShoppingCart size={20} />
+                  <span>Añadir al Carrito</span>
                 </button>
                 <button 
                   className="btn btn-secondary"
@@ -437,7 +438,8 @@ export default function Catalogo() {
                     handleFavoriteClick(e, selectedProduct._id);
                   }}
                 >
-                  ❤️ Favoritos
+                  <Heart size={20} />
+                  <span>Favoritos</span>
                 </button>
               </div>
             </div>

@@ -1,170 +1,215 @@
-import React, { useEffect } from "react";
-import '../components/styles/Contacto.css';
-import useContactForm from '../components/contact/useContactForm';
-import { useAuth } from "../hooks/useAuth";
+// src/pages/Encargo.jsx
+import React, { useEffect } from 'react';
+import { CloudUpload, X, Check, XCircle, Package, Star, Heart } from 'lucide-react';
+import useCustomerOrders from '../components/personalizedOrder/useCustomerOrders';
+import { useAuth } from '../hooks/useAuth';
+import Modal from '../components/ui/Modal';
+import '../components/styles/Encargo.css';
 import { useToast } from '../hooks/useToast';
 import ToastContainer from '../components/ui/ToastContainer';
-import { Mail, Clock, Calendar, Send, Instagram } from 'lucide-react';
 
-const Contacto = () => {
-  const { user } = useAuth();
-  const { toasts, showSuccess, showError, showWarning, removeToast } = useToast();
+export default function Encargo() {
+const { user } = useAuth();
+const { toasts, showSuccess, showError, showWarning, removeToast } = useToast();
 
   const {
-    name, setName,
-    email, setEmail,
-    message, setMessage,
+    preview,
+    modelType,
+    description,
     loading,
-    error,
     success,
-    handleSubmit
-  } = useContactForm();
+    error,
+    setModelType,
+    setDescription,
+    handleImageChange,
+    submit,
+    clearImage
+  } = useCustomerOrders();
 
-  const handleFormSubmit = async (e) => {
-    e.preventDefault();
+  // Efecto para manejar el éxito del encargo
+  useEffect(() => {
+    if (success) {
+      showSuccess('Tu pedido ha sido enviado exitosamente. Te contactaremos pronto.');
+      
+      const timer = setTimeout(() => {
+        window.location.reload();
+      }, 2000);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [success, showSuccess]);
 
+  // Función personalizada para manejar el cambio de imagen con toast
+  const handleImageChangeWithToast = (e) => {
+    // Verificar si el usuario está registrado antes de permitir subir imágenes
     if (!user) {
-      showWarning("Debes iniciar sesión para enviar un mensaje");
+      showWarning("Debes registrarte para poder hacer un encargo personalizado");
+      // Limpiar el input para evitar que se procese la imagen
+      e.target.value = '';
       return;
     }
 
-    await handleSubmit();
+    const file = e.target.files[0];
+    if (file) {
+      handleImageChange(e);
+      showSuccess("Imagen subida exitosamente");
+    }
   };
 
-  useEffect(() => {
-    if (success) showSuccess("Mensaje enviado con éxito 🎉");
-    if (error) showError(error);
-  }, [success, error, showSuccess, showError]);
+  const handleEncargoSubmit = async () => {
+    if (!user) {
+      showWarning("Debes iniciar sesión para enviar un encargo");
+      return;
+    }
+
+    // Validaciones mínimas (opcional, ya están en el botón)
+    if (!preview || !modelType) {
+      showWarning("Completa todos los campos para enviar tu encargo");
+      return;
+    }
+
+    // Si pasa todo, ejecuta el submit original
+    await submit();
+    
+    // Si el submit fue exitoso, mostrar toast
+    if (success) {
+      showSuccess("Encargo enviado exitosamente. Te contactaremos pronto.");
+    }
+  };
+
+  // Nueva función para eliminar la imagen
+  const handleRemoveImage = () => {
+    clearImage();
+    showSuccess("Imagen eliminada");
+  };
 
   return (
-    <div className="contact-page">
-      <header className="contact-header">
-        <h1>DANGSTORE</h1>
-        <p className="header-subtitle">Contáctanos para cualquier consulta</p>
-      </header>
-
-      <div className="contact-container">
-        {/* Sección de Información */}
-        <div className="contact-info-card">
-          <h2 className="section-title">
-            <span className="title-icon">
-              <Mail size={24} />
-            </span>
-            Información de Contacto
-          </h2>
-          
-          <div className="contact-detail">
-            <div className="detail-icon">
-              <Mail size={18} />
-            </div>
-            <div>
-              <p className="detail-label">Correo electrónico:</p>
-              <p className="detail-value">soportedangstore@gmail.com</p>
-            </div>
-          </div>
-          
-          <div className="contact-detail">
-            <div className="detail-icon">
-              <Clock size={18} />
-            </div>
-            <div>
-              <p className="detail-label">Horarios de atención:</p>
-              <div className="schedule-item">
-                <Calendar size={14} />
-                <span>Lunes a Viernes: 9:00 - 18:00</span>
-              </div>
-              <div className="schedule-item">
-                <Calendar size={14} />
-                <span>Sábados: 10:00 - 14:00</span>
-              </div>
-              <div className="schedule-item">
-                <Calendar size={14} />
-                <span>Domingos: Cerrado</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="social-section">
-            <h3 className="social-title">Redes sociales:</h3>
-            <a 
-              href="https://www.instagram.com/dangstore.sv" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="social-tag"
-            >
-              <Instagram size={16} className="social-icon" />
-              <span>DANGSTORE</span>
-            </a>
+    <div className="encargo-container">
+      <div className="encargo-header">
+        {/* Logo/Icono en lugar del gif */}
+        <div className="encargo-logo">
+          <div className="logo-container">
+            <Package size={48} className="logo-icon primary" />
+            <Star size={24} className="logo-icon accent" />
+            <Heart size={20} className="logo-icon secondary" />
           </div>
         </div>
+        
+        <h1 className="encargo-title">Encargo Personalizado</h1>
+        <h2 className="encargo-subtitle">Crea tu llavero o cuadro único</h2>
+        <p className="encargo-description">
+          Sube tu imagen favorita y personaliza tu producto. 
+          Creamos diseños únicos especialmente para ti.
+        </p>
+      </div>
 
-        {/* Formulario de Contacto */}
-        <div className="contact-form-card">
-          <h2 className="section-title">
-            <span className="title-icon">
-              <Send size={24} />
-            </span>
-            Envíanos un mensaje
-          </h2>
-
-          <form onSubmit={handleFormSubmit} className={loading ? 'loading' : ''}>
-            <div className="form-group">
-              <label className="input-label">Nombre</label>
-              <input
-                type="text"
-                name="name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
-                disabled={loading}
-                placeholder="Ingresa tu nombre"
-                className="form-input"
-              />
+      <div className="encargo-card">
+        <div className="upload-zone">
+          {preview ? (
+            <div className="image-preview">
+              {/* Botón para eliminar imagen */}
+              <button 
+                className="remove-image-btn"
+                onClick={handleRemoveImage}
+                type="button"
+                title="Eliminar imagen"
+              >
+                <X size={20} />
+              </button>
+              
+              <img src={preview} alt="Preview" className="preview-image" />
+              <div className="preview-thumbnail">
+                <img src={preview} alt="thumb" className="thumbnail-image" />
+              </div>
             </div>
+          ) : (
+            <label htmlFor="image-upload" className="upload-label">
+              <CloudUpload size={48} className="upload-icon" />
+              <span className="upload-text">
+                {!user ? 'Regístrate para subir imagen' : 'Haz click para subir'}
+              </span>
+              {!user && (
+                <span className="upload-hint">
+                  Necesitas una cuenta para hacer encargos personalizados
+                </span>
+              )}
+            </label>
+          )}
+          <input
+            id="image-upload"
+            type="file"
+            accept="image/*"
+            onChange={handleImageChangeWithToast}
+            className="hidden-input"
+          />
+        </div>
 
-            <div className="form-group">
-              <label className="input-label">Correo Electrónico</label>
-              <input
-                type="email"
-                name="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                disabled={loading}
-                placeholder="Ingresa tu correo"
-                className="form-input"
-              />
-            </div>
-
-            <div className="form-group">
-              <label className="input-label">Mensaje</label>
-              <textarea
-                name="message"
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                required
-                rows={5}
-                disabled={loading}
-                placeholder="Escribe tu mensaje aquí..."
-                className="form-textarea"
-              ></textarea>
-            </div>
-
-            <button 
-              type="submit"
-              className="submit-button"
-              disabled={loading || !name || !email || !message}
+        <div className="form-panel">
+          <div className="field-group">
+            <label className="field-label">Tipo</label>
+            <select
+              value={modelType}
+              onChange={e => setModelType(e.target.value)}
+              className="field-select"
             >
-              <Send size={18} className="button-icon" />
-              {loading ? 'Enviando...' : 'Enviar Mensaje'}
+              <option value="">Selecciona...</option>
+              <option value="llavero">Llavero</option>
+              <option value="cuadro_chico">Cuadro chico</option>
+              <option value="cuadro_grande">Cuadro grande</option>
+            </select>
+          </div>
+          <div className="field-group flex-1">
+            <label className="field-label">Descripción</label>
+            <textarea
+              value={description}
+              onChange={e => setDescription(e.target.value)}
+              rows={6}
+              className="field-textarea"
+              placeholder="Escribe detalles adicionales..."
+            />
+          </div>
+
+          {/* Mostrar mensaje de error si existe */}
+          {error && <p className="error-message">{error}</p>}
+
+          {/* Botón de enviar encargo - solo mostrar si el usuario está logueado */}
+          {user ? (
+            <button
+              onClick={handleEncargoSubmit}
+              disabled={loading || !preview || !modelType}
+              className="submit-button"
+            >
+              <div className="button-content">
+                {loading ? (
+                  <>
+                    <div className="loading-spinner"></div>
+                    <span>Enviando...</span>
+                  </>
+                ) : (
+                  <>
+                    <Check size={20} />
+                    <span>Enviar Encargo</span>
+                  </>
+                )}
+              </div>
             </button>
-          </form>
+          ) : (
+            <button
+              disabled={true}
+              className="submit-button disabled"
+            >
+              <div className="button-content">
+                <XCircle size={20} />
+                <span>Regístrate para enviar</span>
+              </div>
+            </button>
+          )}
         </div>
       </div>
+
       
       <ToastContainer toasts={toasts} removeToast={removeToast} />
     </div>
+    
   );
-};
-
-export default Contacto;
+}

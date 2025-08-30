@@ -106,13 +106,23 @@ const UserProfile = () => {
   const renderSection = () => {
     switch (activeSection) {
       case 'personal':
-        return <PersonalDataSection />;
+        return (
+          <PersonalDataSection 
+            showSuccess={showSuccess}
+            showError={showError}
+          />
+        );
       case 'orders':
         return <OrdersSection />;
       case 'favorites':
         return <FavoritesSection />;
       case 'password':
-        return <PasswordSection />;
+        return (
+          <PasswordSection 
+            showSuccess={showSuccess}
+            showError={showError}
+          />
+        );
       case 'quotes':
         return (
           <QuotesSection 
@@ -186,8 +196,10 @@ const UserProfile = () => {
                 onClick={() => setActiveSection('quotes')}
                 className={`nav-button ${activeSection === 'quotes' ? 'active' : ''}`}
               >
-                <Gift className="nav-icon" />
-                <span>Cotizaciones</span>
+                <div className="nav-content">
+                  <Gift className="nav-icon" />
+                  <span>Cotizaciones</span>
+                </div>
                 {hasQuotesFlag && <span className="notification-dot" />}
               </button>
               

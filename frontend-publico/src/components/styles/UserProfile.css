@@ -11,14 +11,14 @@
 .profile-layout {
   display: flex;
   min-height: 100vh;
-  max-width: 1400px;
+  max-width: 1440px;
   margin: 0 auto;
   gap: 0;
 }
 
 /* ===== SIDEBAR ===== */
 .profile-sidebar {
-  width: 280px;
+  width: 320px;
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(10px);
   border-right: 1px solid rgba(255, 255, 255, 0.2);
@@ -31,7 +31,7 @@
 }
 
 .sidebar-content {
-  padding: 20px;
+  padding: 25px;
   display: flex;
   flex-direction: column;
   gap: 20px;
@@ -42,7 +42,7 @@
 .user-section {
   background: white;
   border-radius: 12px;
-  padding: 20px;
+  padding: 25px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   text-align: center;
 }
@@ -98,13 +98,15 @@
 .profile-navigation {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 15px;
+  flex: 1;
+  justify-content: flex-start;
 }
 
 .nav-button {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 16px;
   padding: 12px 16px;
   background: transparent;
   border: 1px solid #e5e7eb;
@@ -1654,6 +1656,26 @@
   margin-top: 16px;
 }
 
+.password-form .form-grid {
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+.password-form .form-field {
+  width: 100%;
+}
+
+.password-form .form-label {
+  width: 100%;
+}
+
+.password-form .form-input {
+  width: 100%;
+  min-width: 500px;
+  max-width: 700px;
+  padding-right: 40px;
+}
+
 .password-input-container {
   position: relative;
   display: flex;
@@ -1662,18 +1684,21 @@
 
 .password-toggle-btn {
   position: absolute;
-  right: 12px;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
   background: none;
   border: none;
   color: #6b7280;
   cursor: pointer;
-  padding: 4px;
+  padding: 6px;
   border-radius: 4px;
   transition: all 0.2s ease;
   display: flex;
   align-items: center;
-    justify-content: center;
-  }
+  justify-content: center;
+  z-index: 2;
+}
 
 .password-toggle-btn:hover {
   color: #6c5ce7;

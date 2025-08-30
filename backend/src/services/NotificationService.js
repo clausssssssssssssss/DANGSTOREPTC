@@ -130,18 +130,6 @@ class NotificationService {
   }
 
   /**
-   * Obtener conteo de notificaciones no leídas
-   */
-  static async getUnreadCount() {
-    try {
-      return await Notification.countDocuments({ isRead: false });
-    } catch (error) {
-      console.error('❌ Error obteniendo conteo no leídas:', error);
-      throw error;
-    }
-  }
-
-  /**
    * Marcar notificación como leída
    */
   static async markAsRead(notificationId) {

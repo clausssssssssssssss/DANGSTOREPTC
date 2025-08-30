@@ -1,5 +1,6 @@
 // src/services/api.js
-const API_URL = import.meta.env.VITE_API_URL || 'https://dangstoreptc.onrender.com'
+// URL del servidor local para desarrollo
+const API_URL = 'http://localhost:4000/api';
 
 const getAuthHeaders = () => {
   const token = localStorage.getItem('token')

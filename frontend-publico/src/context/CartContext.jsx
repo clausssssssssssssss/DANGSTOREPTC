@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 
-// URL del servidor de producción
-const API_BASE = import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/api` : '/api';
+// URL del servidor local para desarrollo
+const API_BASE = 'http://localhost:4000/api';
 
 const CartContext = createContext();
 
@@ -13,25 +13,34 @@ export const CartProvider = ({ children }) => {
     const token = localStorage.getItem('token');
     if (!token) throw new Error('No estás autenticado');
 
-    const res = await fetch(`${API_BASE}${path}`, {
-      ...opts,
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-        ...(opts.headers || {})
+    try {
+      const res = await fetch(`${API_BASE}${path}`, {
+        ...opts,
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+          ...(opts.headers || {})
+        }
+      });
+
+      if (opts.method == null && res.status === 404) {
+        return { products: [] };
       }
-    });
 
-    if (opts.method == null && res.status === 404) {
-      return { products: [] };
+      if (!res.ok) {
+        const text = await res.text();
+        // Verificar si la respuesta es HTML en lugar de JSON
+        if (text.includes('<!doctype') || text.includes('<html')) {
+          throw new Error('El servidor está devolviendo HTML en lugar de JSON. Verifica que la API esté corriendo correctamente.');
+        }
+        throw new Error(`Error ${res.status}: ${text}`);
+      }
+
+      return res.json();
+    } catch (error) {
+      console.error('Error en authFetch:', error);
+      throw error;
     }
-
-    if (!res.ok) {
-      const text = await res.text();
-      throw new Error(`Error ${res.status}: ${text}`);
-    }
-
-    return res.json();
   }
 
   function sync(cartDoc) {

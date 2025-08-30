@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
-// URL del servidor de producción
-const API_BASE = import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/api` : '/api';
+// URL del servidor local para desarrollo
+const API_BASE = 'http://localhost:4000/api';
 
 export default function useContactForm() {
   const [name, setName] = useState('');

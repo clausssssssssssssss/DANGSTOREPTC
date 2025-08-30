@@ -47,7 +47,8 @@ const profileController = {
       const userData = {
         name: req.user.name || "",
         email: req.user.email || "",
-        telephone: req.user.telephone || ""
+        telephone: req.user.telephone || "",
+        address: req.user.address || ""
       };
       res.json(userData);
     } catch (error) {
@@ -98,7 +99,7 @@ const profileController = {
       }
 
       // Customer existente
-      const { name, telephone, email } = req.body;
+      const { name, telephone, email, address } = req.body;
       if (email) {
         const exists = await Customer.findOne({ email: email.toLowerCase() });
         if (exists && exists._id.toString() !== req.user._id.toString()) {
@@ -108,6 +109,7 @@ const profileController = {
       }
       req.user.name      = name      || req.user.name;
       req.user.telephone = telephone || req.user.telephone;
+      req.user.address   = address   || req.user.address;
       await req.user.save();
       res.json({ message: "Perfil actualizado", user: req.user });
     } catch (err) {

@@ -1,29 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import { User, Mail, Phone, MapPin, Edit, Save, X } from 'lucide-react';
-import { useToast } from '../../hooks/useToast';
 
 // URL del servidor local para desarrollo
 const API_BASE = 'http://localhost:4000/api';
 
-const PersonalDataSection = ({ userId }) => {
+const PersonalDataSection = ({ userId, showSuccess, showError }) => {
   const [personalData, setPersonalData] = useState({
     name: '',
     email: '',
-    phone: '',
+    telephone: '',
     address: ''
   });
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [successMessage, setSuccessMessage] = useState('');
-  const { showSuccess, showError } = useToast();
 
   // Cargar datos personales
   const fetchPersonalData = async () => {
     try {
       setLoading(true);
-      setError(null);
       
       const token = localStorage.getItem('token');
       if (!token) {
@@ -48,13 +43,13 @@ const PersonalDataSection = ({ userId }) => {
       setPersonalData({
         name: data.name || '',
         email: data.email || '',
-        phone: data.phone || '',
+        telephone: data.telephone || '',
         address: data.address || ''
       });
       
     } catch (err) {
       console.error('Error fetching personal data:', err);
-      setError(err.message);
+      showError(err.message);
     } finally {
       setLoading(false);
     }
@@ -64,7 +59,6 @@ const PersonalDataSection = ({ userId }) => {
   const saveChanges = async () => {
     try {
       setLoading(true);
-      setError(null);
       
       const token = localStorage.getItem('token');
       if (!token) {
@@ -87,15 +81,12 @@ const PersonalDataSection = ({ userId }) => {
         throw new Error(`Error ${response.status}: ${response.statusText}`);
       }
 
-      setSuccessMessage('Datos actualizados correctamente');
+      showSuccess('Datos actualizados correctamente');
       setIsEditing(false);
-      
-      // Limpiar mensaje de éxito después de 3 segundos
-      setTimeout(() => setSuccessMessage(''), 3000);
       
     } catch (err) {
       console.error('Error updating personal data:', err);
-      setError(err.message);
+      showError(err.message);
     } finally {
       setLoading(false);
     }
@@ -159,9 +150,9 @@ const PersonalDataSection = ({ userId }) => {
           <label className="form-label">Teléfono</label>
           <input
             className="form-input"
-            value={personalData.phone || ''}
+            value={personalData.telephone || ''}
             disabled={!isEditing}
-            onChange={e => setPersonalData({ ...personalData, phone: e.target.value })}
+            onChange={e => setPersonalData({ ...personalData, telephone: e.target.value })}
             placeholder="Tu número de teléfono"
           />
         </div>
@@ -175,6 +166,17 @@ const PersonalDataSection = ({ userId }) => {
             onChange={e => setPersonalData({ ...personalData, email: e.target.value })}
             placeholder="Tu dirección de email"
             type="email"
+          />
+        </div>
+        
+        <div className="form-field full-width">
+          <label className="form-label">Dirección</label>
+          <input
+            className="form-input"
+            value={personalData.address || ''}
+            disabled={!isEditing}
+            onChange={e => setPersonalData({ ...personalData, address: e.target.value })}
+            placeholder="Tu dirección completa"
           />
         </div>
       </div>

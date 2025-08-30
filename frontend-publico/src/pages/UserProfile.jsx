@@ -106,13 +106,23 @@ const UserProfile = () => {
   const renderSection = () => {
     switch (activeSection) {
       case 'personal':
-        return <PersonalDataSection />;
+        return (
+          <PersonalDataSection 
+            showSuccess={showSuccess}
+            showError={showError}
+          />
+        );
       case 'orders':
         return <OrdersSection />;
       case 'favorites':
         return <FavoritesSection />;
       case 'password':
-        return <PasswordSection />;
+        return (
+          <PasswordSection 
+            showSuccess={showSuccess}
+            showError={showError}
+          />
+        );
       case 'quotes':
         return (
           <QuotesSection 

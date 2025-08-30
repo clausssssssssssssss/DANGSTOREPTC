@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
 import { Lock, Eye, EyeOff, AlertCircle, CheckCircle } from 'lucide-react';
-import { useToast } from '../../hooks/useToast';
 
 // URL del servidor local para desarrollo
 const API_BASE = 'http://localhost:4000/api';
 
-const PasswordSection = () => {
+const PasswordSection = ({ showSuccess, showError }) => {
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -14,7 +13,6 @@ const PasswordSection = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
-  const { showSuccess, showError } = useToast();
 
   const validateForm = () => {
     const newErrors = {};
@@ -76,7 +74,7 @@ const PasswordSection = () => {
         throw new Error(errorData.message || 'Error al cambiar la contraseña');
       }
 
-      showSuccess('Contraseña cambiada correctamente');
+      showSuccess('¡Contraseña actualizada exitosamente!');
       
       // Limpiar formulario
       setCurrentPassword('');
@@ -286,6 +284,8 @@ const PasswordSection = () => {
               </>
             )}
           </button>
+          
+
         </div>
       </form>
     </div>

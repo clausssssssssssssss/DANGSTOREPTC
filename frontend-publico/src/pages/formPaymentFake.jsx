@@ -366,7 +366,7 @@ const FormPaymentFake = () => {
             numeroTarjeta: 'Número de tarjeta',
             nombreTitular: 'Nombre del titular',
             mesVencimiento: 'Mes de vencimiento',
-            anioVencimiento: 'Año de vencimiento',
+            añoVencimiento: 'Año de vencimiento',
             cvv: 'CVV'
           };
           message = `Completa correctamente: ${invalidFields.map(field => fieldNames[field]).join(', ')}`;
@@ -558,9 +558,9 @@ const FormPaymentFake = () => {
                   required 
                 />
                 <InputField 
-                  id="anioVencimiento" 
-                  name="anioVencimiento" 
-                  value={formData.anioVencimiento || ''} 
+                  id="añoVencimiento" 
+                  name="añoVencimiento" 
+                  value={formData.añoVencimiento || ''} 
                   onChange={handleFieldChange} 
                   type="text" 
                   label="Año" 

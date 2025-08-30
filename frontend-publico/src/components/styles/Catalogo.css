@@ -24,7 +24,7 @@
 .catalog-page {
   min-height: 100vh;
   padding: 2rem 1rem;
-  padding-top: 6rem;
+  padding-top: 2rem;
   background: var(--background-color);
   color: var(--text-primary);
   position: relative;
@@ -787,7 +787,7 @@
 @media (max-width: 1023px) and (min-width: 768px) {
   .catalog-page {
     padding: 1.5rem 1rem;
-    padding-top: 5.5rem;
+    padding-top: 2rem;
   }
   
   .container {
@@ -820,7 +820,7 @@
 @media (max-width: 767px) and (min-width: 481px) {
   .catalog-page {
     padding: 1rem 0.75rem;
-    padding-top: 5rem;
+    padding-top: 1.5rem;
   }
   
   .container {
@@ -869,7 +869,7 @@
 @media (max-width: 480px) {
   .catalog-page {
     padding: 0.75rem 0.5rem;
-    padding-top: 4.5rem;
+    padding-top: 1rem;
   }
   
   .container {
@@ -996,7 +996,7 @@
 @media (max-width: 320px) {
   .catalog-page {
     padding: 0.5rem 0.25rem;
-    padding-top: 4rem;
+    padding-top: 0.75rem;
   }
   
   .container {
@@ -1058,7 +1058,7 @@
 /* Orientación horizontal en móviles */
 @media (max-width: 767px) and (orientation: landscape) {
   .catalog-page {
-    padding-top: 3rem;
+    padding-top: 1.5rem;
   }
   
   .popular-banner {

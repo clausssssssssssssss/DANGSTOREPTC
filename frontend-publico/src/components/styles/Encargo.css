@@ -16,11 +16,11 @@ body {
 .encargo-container {
   min-height: 100vh;
   padding: var(--spacing-lg) var(--spacing-sm);
-  padding-top: 6rem;
+  padding-top: 2rem;
   background: white; /* Mantener fondo blanco original */
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
   position: relative;
   overflow: hidden;
@@ -70,7 +70,10 @@ body {
   position: relative;
   z-index: 3;
   animation: headerEntrance 1s ease-out;
-  padding-top: var(--spacing-lg); /* Espacio para el icono */
+  padding-top: var(--spacing-sm);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 @keyframes headerEntrance {
@@ -144,16 +147,24 @@ body {
   font-family: var(--font-family-primary, 'Inter', sans-serif);
 }
 
-/* Header decorations */
-.encargo-header::before {
-  content: '✨';
-  position: absolute;
-  top: -2rem;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: clamp(1.5rem, 3vw + 1rem, 2.5rem);
-  animation: sparkle 2s ease-in-out infinite;
-  z-index: 2;
+/* Logo container */
+.logo-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: var(--spacing-lg);
+  margin-top: var(--spacing-sm);
+}
+
+.header-logo {
+  width: clamp(100px, 18vw, 140px);
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
+  transition: transform 0.3s ease;
+}
+
+.header-logo:hover {
+  transform: scale(1.05);
 }
 
 .encargo-header::after {
@@ -215,6 +226,14 @@ body {
     min-height: auto;
     margin: 0 0.5rem;
   }
+  
+  .header-logo {
+    width: clamp(80px, 20vw, 120px);
+  }
+  
+  .logo-container {
+    margin-bottom: var(--spacing-md);
+  }
 }
 
 @keyframes cardEntrance {
@@ -257,6 +276,14 @@ body {
   .upload-zone {
     min-height: 220px;
     border-radius: 1rem;
+  }
+  
+  .header-logo {
+    width: clamp(70px, 25vw, 100px);
+  }
+  
+  .logo-container {
+    margin-bottom: var(--spacing-sm);
   }
 }
 
@@ -815,7 +842,7 @@ body {
 @media (max-width: 1024px) {
   .encargo-container {
     padding: 2rem 1rem;
-    padding-top: 5rem;
+    padding-top: 2rem;
   }
   
   .encargo-card {
@@ -849,7 +876,7 @@ body {
 @media (max-width: 768px) {
   .encargo-container {
     padding: 1rem 0.5rem;
-    padding-top: 4rem;
+    padding-top: 1.5rem;
   }
   
   .encargo-card {
@@ -861,7 +888,7 @@ body {
   }
   
   .encargo-header {
-    padding-top: 1rem;
+    padding-top: 0.5rem;
     margin-bottom: 2rem;
   }
   
@@ -950,7 +977,7 @@ body {
 @media (max-width: 480px) {
   .encargo-container {
     padding: 0.5rem;
-    padding-top: 3.5rem;
+    padding-top: 1rem;
   }
   
   .encargo-card {
@@ -962,7 +989,7 @@ body {
   
   .encargo-header {
     margin-bottom: 1.5rem;
-    padding-top: 0.5rem;
+    padding-top: 0.25rem;
   }
   
   .encargo-title {
@@ -1064,7 +1091,7 @@ body {
 @media (max-width: 320px) {
   .encargo-container {
     padding: 0.25rem;
-    padding-top: 3rem;
+    padding-top: 0.75rem;
   }
   
   .encargo-card {
@@ -1074,7 +1101,7 @@ body {
   }
   
   .encargo-header {
-    padding-top: 0.25rem;
+    padding-top: 0.125rem;
     margin-bottom: 1rem;
   }
   

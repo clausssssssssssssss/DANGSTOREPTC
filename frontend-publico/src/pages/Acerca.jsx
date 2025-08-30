@@ -201,7 +201,7 @@ const About = () => {
             <div className="footer-section">
               <h3 className="footer-title">Links</h3>
               <ul className="footer-links">
-                <li><a href="/catalogo">Catalogo</a></li>
+                <li><a href="/catalogo">Catálogo</a></li>
                 <li><a href="/encargo">Encargo</a></li>
                 <li><a href="/contacto">Contacto</a></li>
                 <li><a href="/busqueda">Busqueda</a></li>

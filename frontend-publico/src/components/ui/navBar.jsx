@@ -155,7 +155,7 @@ export default function NavBar() {
                 to="/catalogo" 
                 className="nav-link"
               >
-                Catalogo
+                                  Catálogo
               </Link>
               <Link 
                 to="/contacto" 

@@ -28,7 +28,6 @@ const QuotesSection = ({ setHasQuotesFlag, showSuccess, showError, showWarning }
   const [loadingQuotes, setLoadingQuotes] = useState(false);
   const [errorQuotes, setErrorQuotes] = useState('');
   const [quotesFilter, setQuotesFilter] = useState('all');
-  const [debugInfo, setDebugInfo] = useState(null); // Para debug
 
   // --- Carga inicial de cotizaciones ---
   useEffect(() => {
@@ -84,12 +83,7 @@ const QuotesSection = ({ setHasQuotesFlag, showSuccess, showError, showWarning }
       const uniqueStatuses = [...new Set(data.map(item => item.status))];
       console.log('Unique statuses found:', uniqueStatuses);
 
-      // Debug info para el componente
-      setDebugInfo({
-        totalItems: data.length,
-        uniqueStatuses: uniqueStatuses,
-        rawData: data
-      });
+      
 
       // CAMBIO IMPORTANTE: Primero mostrar TODAS las cotizaciones sin filtrar
       let filteredQuotes = [];
@@ -238,27 +232,7 @@ const QuotesSection = ({ setHasQuotesFlag, showSuccess, showError, showWarning }
         </div>
       </div>
 
-      {/* Debug info - solo mostrar en desarrollo */}
-      {debugInfo && process.env.NODE_ENV === 'development' && (
-        <div className="debug-info" style={{
-          background: '#f3f4f6',
-          padding: '16px',
-          borderRadius: '8px',
-          marginBottom: '24px',
-          fontSize: '14px',
-          fontFamily: 'monospace'
-        }}>
-          <h4>Debug Info:</h4>
-          <p>Total items: {debugInfo.totalItems}</p>
-          <p>Statuses: {debugInfo.uniqueStatuses.join(', ')}</p>
-          <details>
-            <summary>Raw Data</summary>
-            <pre style={{ whiteSpace: 'pre-wrap', fontSize: '12px' }}>
-              {JSON.stringify(debugInfo.rawData, null, 2)}
-            </pre>
-          </details>
-        </div>
-      )}
+      
 
       {quotes.length === 0 ? (
         <div className="empty-state">

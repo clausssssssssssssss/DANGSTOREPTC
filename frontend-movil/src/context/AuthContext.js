@@ -11,7 +11,7 @@ export const AuthProvider = ({ children }) => {
   const [authToken, setAuthToken] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  const API_URL = "https://dangstoreptc.onrender.com/api";
+  const API_URL = "https://10.10.0.253:4000/api";
 
   useEffect(() => {
     const loadToken = async () => {

@@ -1,12 +1,7 @@
 import { useState, useEffect } from 'react';
 
-<<<<<<< HEAD
-// URL del servidor de producción
-const API_BASE = 'https://dangstoreptc.onrender.com/api';
-=======
 // URL del servidor local para desarrollo
 const API_BASE = 'http://localhost:4000/api';
->>>>>>> Claudia
 
 export function useProducts() {
   const [products, setProducts] = useState([]);

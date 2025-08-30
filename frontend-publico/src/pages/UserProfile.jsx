@@ -14,12 +14,8 @@ import PasswordSection from '../components/profile/PasswordSection';
 import UserSection from '../components/profile/UserSection';
 import QuotesSection from '../components/profile/QuotesSection'; // Importar el componente
 
-<<<<<<< HEAD
-const API_URL = 'https://dangstoreptc.onrender.com';
-=======
 // URL del servidor local para desarrollo
 const API_URL = 'http://localhost:4000/api';
->>>>>>> Claudia
 
 const UserProfile = () => {
   const { user, logout } = useAuth();

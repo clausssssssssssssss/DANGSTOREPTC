@@ -1,12 +1,8 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { handleAuthError } from '../utils/authUtils';
 
-<<<<<<< HEAD
-// URL del servidor de producción
-const API_BASE = 'https://dangstoreptc.onrender.com/api';
-=======
 // URL del servidor local para desarrollo
 const API_BASE = 'http://localhost:4000/api';
->>>>>>> Claudia
 
 const CartContext = createContext();
 
@@ -83,6 +79,11 @@ export const CartProvider = ({ children }) => {
       })));
     } catch (err) {
       console.error('Global useCart load:', err);
+      // Manejar errores de autenticación
+      if (handleAuthError(err)) {
+        setCart([]);
+        return;
+      }
     } finally {
       setLoading(false);
     }

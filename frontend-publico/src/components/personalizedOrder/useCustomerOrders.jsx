@@ -2,12 +2,8 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 
-<<<<<<< HEAD
-const API_URL = 'https://dangstoreptc.onrender.com';
-=======
 // URL del servidor local para desarrollo
 const API_URL = 'http://localhost:4000/api';
->>>>>>> Claudia
 
 export default function useCustomerOrders() {
   const [preview, setPreview]         = useState(null);

@@ -9,12 +9,8 @@ import { useAuth, parseJwt } from '../hooks/useAuth.jsx';
 import { useToast } from '../hooks/useToast';
 import ToastContainer from '../components/ui/ToastContainer';
 
-<<<<<<< HEAD
-const API_URL = 'https://dangstoreptc.onrender.com';
-=======
 // URL del servidor local para desarrollo
 const API_URL = 'http://localhost:4000/api';
->>>>>>> Claudia
 
 const AuthApp = () => {
   const navigate = useNavigate();

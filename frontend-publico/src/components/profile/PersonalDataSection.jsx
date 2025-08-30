@@ -3,13 +3,8 @@ import { useAuth } from '../../hooks/useAuth';
 import { User, Mail, Phone, MapPin, Edit, Save, X } from 'lucide-react';
 import { useToast } from '../../hooks/useToast';
 
-<<<<<<< HEAD
-// URL del servidor de producción
-const API_BASE = 'https://dangstoreptc.onrender.com/api';
-=======
 // URL del servidor local para desarrollo
 const API_BASE = 'http://localhost:4000/api';
->>>>>>> Claudia
 
 const PersonalDataSection = ({ userId }) => {
   const [personalData, setPersonalData] = useState({

@@ -49,20 +49,11 @@ export default function NavBar() {
   const [hasQuotes, setHasQuotes] = useState(false);
 
   useEffect(() => {
-<<<<<<< HEAD
     async function fetchQuotes() {
       const token = localStorage.getItem('token');
       if (!token) return;
       try {
-        const base = 'https://dangstoreptc.onrender.com';
-        const res = await fetch(`${base}/api/custom-orders/me`, {
-=======
-          async function fetchQuotes() {
-        const token = localStorage.getItem('token');
-        if (!token) return;
-        try {
-          const res = await fetch(`${base}/custom-orders/me`, {
->>>>>>> Claudia
+        const res = await fetch(`${base}/custom-orders/me`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         if (!res.ok) return;

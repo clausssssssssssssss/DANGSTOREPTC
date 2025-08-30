@@ -2,12 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { Gift } from 'lucide-react';
 import '../styles/QuotesSection.css';
 
-<<<<<<< HEAD
-const API_URL = 'https://dangstoreptc.onrender.com';
-=======
 // URL del servidor local para desarrollo
 const API_URL = 'http://localhost:4000/api';
->>>>>>> Claudia
 
 // Función helper para construir URLs de imágenes correctamente
 const getImageUrl = (imagePath) => {

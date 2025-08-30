@@ -1654,6 +1654,26 @@
   margin-top: 16px;
 }
 
+.password-form .form-grid {
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+.password-form .form-field {
+  width: 100%;
+}
+
+.password-form .form-label {
+  width: 100%;
+}
+
+.password-form .form-input {
+  width: 100%;
+  min-width: 500px;
+  max-width: 700px;
+  padding-right: 40px;
+}
+
 .password-input-container {
   position: relative;
   display: flex;
@@ -1662,18 +1682,21 @@
 
 .password-toggle-btn {
   position: absolute;
-  right: 12px;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
   background: none;
   border: none;
   color: #6b7280;
   cursor: pointer;
-  padding: 4px;
+  padding: 6px;
   border-radius: 4px;
   transition: all 0.2s ease;
   display: flex;
   align-items: center;
-    justify-content: center;
-  }
+  justify-content: center;
+  z-index: 2;
+}
 
 .password-toggle-btn:hover {
   color: #6c5ce7;

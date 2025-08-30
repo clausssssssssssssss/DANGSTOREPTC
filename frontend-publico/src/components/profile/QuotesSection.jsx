@@ -2,7 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { Gift } from 'lucide-react';
 import '../styles/QuotesSection.css';
 
+<<<<<<< HEAD
 const API_URL = 'https://dangstoreptc.onrender.com';
+=======
+// URL del servidor local para desarrollo
+const API_URL = 'http://localhost:4000/api';
+>>>>>>> Claudia
 
 // Función helper para construir URLs de imágenes correctamente
 const getImageUrl = (imagePath) => {
@@ -45,7 +50,7 @@ const QuotesSection = ({ setHasQuotesFlag, showSuccess, showError, showWarning }
     console.log('Filter:', quotesFilter);
     
     try {
-      const res = await fetch(`${API_URL}/api/custom-orders/me`, {
+      const res = await fetch(`${API_URL}/custom-orders/me`, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
       });
       
@@ -116,7 +121,7 @@ const QuotesSection = ({ setHasQuotesFlag, showSuccess, showError, showWarning }
           console.log('Handle decision:', { orderId, decision });
     
     try {
-      const res = await fetch(`${API_URL}/api/custom-orders/${orderId}/respond`, {
+      const res = await fetch(`${API_URL}/custom-orders/${orderId}/respond`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

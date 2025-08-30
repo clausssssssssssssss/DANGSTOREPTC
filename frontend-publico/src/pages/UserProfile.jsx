@@ -14,7 +14,12 @@ import PasswordSection from '../components/profile/PasswordSection';
 import UserSection from '../components/profile/UserSection';
 import QuotesSection from '../components/profile/QuotesSection'; // Importar el componente
 
+<<<<<<< HEAD
 const API_URL = 'https://dangstoreptc.onrender.com';
+=======
+// URL del servidor local para desarrollo
+const API_URL = 'http://localhost:4000/api';
+>>>>>>> Claudia
 
 const UserProfile = () => {
   const { user, logout } = useAuth();
@@ -39,7 +44,7 @@ const UserProfile = () => {
   useEffect(() => {
     const fetchQuotesStatus = async () => {
       try {
-        const res = await fetch(`${API_URL}/api/custom-orders/me`, {
+        const res = await fetch(`${API_URL}/custom-orders/me`, {
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
         });
         if (!res.ok) return;

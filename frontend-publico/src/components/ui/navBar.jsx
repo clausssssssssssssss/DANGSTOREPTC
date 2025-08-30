@@ -1,11 +1,32 @@
 // src/components/ui/NavBar.jsx
 import React, { useState, useEffect } from 'react';
-import { NavLink, useLocation, useNavigate } from 'react-router-dom';
-import { Search, ShoppingCart, User, X, Menu, Package, Grid3X3, MessageCircle, Info } from 'lucide-react';
-import { useAuth } from '../../hooks/useAuth.jsx';
-import { useCart } from '../../context/CartContext.jsx';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../hooks/useAuth';
+import { useCart } from '../../context/CartContext';
+import { useFavorites } from '../../context/FavoritesContext';
+import { useToast } from '../../hooks/useToast';
+import { 
+  ShoppingCart, 
+  Heart, 
+  User, 
+  Menu, 
+  X, 
+  Search, 
+  LogOut,
+  Package,
+  MessageSquare,
+  Home,
+  Star,
+  Settings,
+  Grid3X3,
+  Info,
+  MessageCircle
+} from 'lucide-react';
 import '../styles/navBar.css';
 import logo from '../../assets/DANGSTORELOGOPRUEBA__1.png';
+
+// URL del servidor local para desarrollo
+const base = 'http://localhost:4000/api';
 
 export default function NavBar() {
   const location = useLocation();
@@ -28,12 +49,20 @@ export default function NavBar() {
   const [hasQuotes, setHasQuotes] = useState(false);
 
   useEffect(() => {
+<<<<<<< HEAD
     async function fetchQuotes() {
       const token = localStorage.getItem('token');
       if (!token) return;
       try {
         const base = 'https://dangstoreptc.onrender.com';
         const res = await fetch(`${base}/api/custom-orders/me`, {
+=======
+          async function fetchQuotes() {
+        const token = localStorage.getItem('token');
+        if (!token) return;
+        try {
+          const res = await fetch(`${base}/custom-orders/me`, {
+>>>>>>> Claudia
           headers: { Authorization: `Bearer ${token}` }
         });
         if (!res.ok) return;
@@ -112,7 +141,7 @@ export default function NavBar() {
         <div className="navbar-container">
           <div className="navbar-content">
             {/* Logo */}
-            <NavLink to="/acerca" className="logo-link">
+                         <Link to="/acerca" className="logo-link">
               <div className="logo-icon">
                 <img
                   src={logo}
@@ -121,79 +150,79 @@ export default function NavBar() {
                 />
               </div>
               <span className="logo-text">DANGSTORE</span>
-            </NavLink>
+            </Link>
 
             {/* Enlaces de navegación - Solo desktop */}
             <div className="nav-links">
-              <NavLink 
+              <Link 
                 to="/encargo" 
-                className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
+                className="nav-link"
               >
                 Encargo
-              </NavLink>
-              <NavLink 
+              </Link>
+              <Link 
                 to="/catalogo" 
-                className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
+                className="nav-link"
               >
                 Catalogo
-              </NavLink>
-              <NavLink 
+              </Link>
+              <Link 
                 to="/contacto" 
-                className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
+                className="nav-link"
               >
                 Contacto
-              </NavLink>
-              <NavLink 
+              </Link>
+              <Link 
                 to="/acerca" 
-                className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
+                className="nav-link"
               >
                 Acerca
-              </NavLink>
+              </Link>
             </div>
 
             {/* Contenedor derecho con iconos y hamburguesa */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
               {/* Íconos de acción - Desktop */}
               <div className="action-icons desktop-only">
-                <NavLink
+                <Link
                   to="/carrito"
-                  className={({ isActive }) => `icon-link ${isActive ? 'active' : ''}`}
+                  className="icon-link"
                   aria-label="Carrito de compras"
                 >
                   <ShoppingCart size={20} />
                   {itemCount > 0 && <span className="cart-badge">{itemCount}</span>}
-                </NavLink>
+                </Link>
 
                 {user ? (
-                  <NavLink
+                  <Link
                     to="/perfil"
-                    className={({ isActive }) => `icon-link ${isActive ? 'active' : ''}`}
+                    className="icon-link"
                     aria-label="Perfil de usuario"
                   >
                     <User size={20} />
                     {hasQuotes && <span className="notification-dot" />}
-                  </NavLink>
+                  </Link>
                 ) : (
-                  <NavLink
+                  <Link
                     to="/auth"
                     className="login-button-nav"
                     aria-label="Iniciar sesión"
                   >
                     Iniciar Sesión
-                  </NavLink>
+                  </Link>
                 )}
               </div>
 
               {/* Botón de Iniciar Sesión - Solo móvil */}
               {!user && (
                 <div className="mobile-login-only">
-                  <NavLink
+                  <Link
                     to="/auth"
                     className="login-button-nav"
                     aria-label="Iniciar sesión"
                   >
                     Iniciar Sesión
-                  </NavLink>
+                  </Link>
                 </div>
               )}
 
@@ -236,49 +265,49 @@ export default function NavBar() {
 
         {/* Enlaces de navegación móvil */}
         <div className="mobile-nav-links">
-          <NavLink
+          <Link
             to="/encargo"
-            className={({ isActive }) => `mobile-nav-link ${isActive ? 'active' : ''}`}
+            className="mobile-nav-link"
             onClick={(e) => handleMobileNavClick(e, '/encargo')}
           >
             <Package className="mobile-nav-icon" size={20} />
             Encargo Personalizado
-          </NavLink>
+          </Link>
 
-          <NavLink
+          <Link
             to="/catalogo"
-            className={({ isActive }) => `mobile-nav-link ${isActive ? 'active' : ''}`}
+            className="mobile-nav-link"
             onClick={(e) => handleMobileNavClick(e, '/catalogo')}
           >
             <Grid3X3 className="mobile-nav-icon" size={20} />
             Catálogo de Productos
-          </NavLink>
+          </Link>
 
-          <NavLink
+          <Link
             to="/contacto"
-            className={({ isActive }) => `mobile-nav-link ${isActive ? 'active' : ''}`}
+            className="mobile-nav-link"
             onClick={(e) => handleMobileNavClick(e, '/contacto')}
           >
             <MessageCircle className="mobile-nav-icon" size={20} />
             Contacto
-          </NavLink>
+          </Link>
 
-          <NavLink
+          <Link
             to="/acerca"
-            className={({ isActive }) => `mobile-nav-link ${isActive ? 'active' : ''}`}
+            className="mobile-nav-link"
             onClick={(e) => handleMobileNavClick(e, '/acerca')}
           >
             <Info className="mobile-nav-icon" size={20} />
             Acerca de Nosotros
-          </NavLink>
+          </Link>
 
           {/* Separador */}
           <div className="mobile-separator" />
 
           {/* Enlaces adicionales */}
-          <NavLink
+          <Link
             to="/carrito"
-            className={({ isActive }) => `mobile-nav-link ${isActive ? 'active' : ''}`}
+            className="mobile-nav-link"
             onClick={(e) => handleMobileNavClick(e, '/carrito')}
           >
             <ShoppingCart className="mobile-nav-icon" size={20} />
@@ -296,12 +325,12 @@ export default function NavBar() {
                 {itemCount}
               </span>
             )}
-          </NavLink>
+          </Link>
 
           {user ? (
-            <NavLink
+            <Link
               to="/perfil"
-              className={({ isActive }) => `mobile-nav-link ${isActive ? 'active' : ''}`}
+              className="mobile-nav-link"
               onClick={closeMobileMenu}
             >
               <User className="mobile-nav-icon" size={20} />
@@ -315,17 +344,17 @@ export default function NavBar() {
                   borderRadius: '50%' 
                 }} />
               )}
-            </NavLink>
+            </Link>
           ) : (
             <>
-              <NavLink
+              <Link
                 to="/auth"
                 className="mobile-nav-link"
                 onClick={closeMobileMenu}
               >
                 <User className="mobile-nav-icon" size={20} />
                 Iniciar Sesión
-              </NavLink>
+              </Link>
             </>
           )}
         </div>

@@ -9,7 +9,12 @@ import { useAuth, parseJwt } from '../hooks/useAuth.jsx';
 import { useToast } from '../hooks/useToast';
 import ToastContainer from '../components/ui/ToastContainer';
 
+<<<<<<< HEAD
 const API_URL = 'https://dangstoreptc.onrender.com';
+=======
+// URL del servidor local para desarrollo
+const API_URL = 'http://localhost:4000/api';
+>>>>>>> Claudia
 
 const AuthApp = () => {
   const navigate = useNavigate();
@@ -76,7 +81,7 @@ const AuthApp = () => {
       return;
     }
     try {
-              const res = await fetch(`${API_URL}/api/customers/login`, {
+              const res = await fetch(`${API_URL}/customers/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })
@@ -126,7 +131,7 @@ const AuthApp = () => {
       return;
     }
     try {
-              const res = await fetch(`${API_URL}/api/customers`, {
+              const res = await fetch(`${API_URL}/customers`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -159,7 +164,7 @@ const AuthApp = () => {
     console.log('📧 Enviando código de recuperación para:', forgotEmail);
     
     try {
-            const res = await fetch(`${API_URL}/api/password-recovery/send-code`, {
+            const res = await fetch(`${API_URL}/password-recovery/send-code`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email: forgotEmail }),
@@ -226,7 +231,7 @@ const AuthApp = () => {
       const requestBody = { email: forgotEmail, code };
       console.log('📤 Enviando solicitud:', requestBody);
       
-              const res = await fetch(`${API_URL}/api/password-recovery/verify-code`, {
+              const res = await fetch(`${API_URL}/password-recovery/verify-code`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(requestBody)
@@ -287,7 +292,7 @@ const AuthApp = () => {
       
       console.log('📤 Enviando solicitud de restablecimiento:', requestBody);
       
-              const res = await fetch(`${API_URL}/api/password-recovery/reset`, {
+              const res = await fetch(`${API_URL}/password-recovery/reset`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(requestBody),

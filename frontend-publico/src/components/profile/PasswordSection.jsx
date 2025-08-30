@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { Lock, Eye, EyeOff, AlertCircle, CheckCircle } from 'lucide-react';
 import { useToast } from '../../hooks/useToast';
 
-// URL del servidor de producción
-const API_BASE = 'https://dangstoreptc.onrender.com/api';
+// URL del servidor local para desarrollo
+const API_BASE = 'http://localhost:4000/api';
 
 const PasswordSection = () => {
   const [currentPassword, setCurrentPassword] = useState('');

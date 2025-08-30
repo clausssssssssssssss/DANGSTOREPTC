@@ -196,8 +196,10 @@ const UserProfile = () => {
                 onClick={() => setActiveSection('quotes')}
                 className={`nav-button ${activeSection === 'quotes' ? 'active' : ''}`}
               >
-                <Gift className="nav-icon" />
-                <span>Cotizaciones</span>
+                <div className="nav-content">
+                  <Gift className="nav-icon" />
+                  <span>Cotizaciones</span>
+                </div>
                 {hasQuotesFlag && <span className="notification-dot" />}
               </button>
               

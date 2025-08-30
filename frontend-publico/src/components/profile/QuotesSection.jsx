@@ -148,9 +148,23 @@ const QuotesSection = ({ setHasQuotesFlag, showSuccess, showError, showWarning }
       });
 
       if (decision === 'accept') {
-        showSuccess('¡Has aceptado la cotización! El producto se ha agregado a tu carrito. Redirigiendo...');
+        showSuccess('¡Has aceptado la cotización! Redirigiendo al pago...');
         setTimeout(() => {
-          window.location.href = '/carrito';
+          // Crear un item con la información de la cotización aceptada
+          const quoteItem = {
+            product: {
+              _id: quote._id,
+              name: quote.modelType,
+              price: quote.price,
+              type: 'customized',
+              description: quote.description || 'Producto personalizado'
+            },
+            quantity: 1,
+            price: quote.price
+          };
+          
+          // Navegar directamente al pago simulado con la cotización
+          window.location.href = `/form-payment-fake?quote=${encodeURIComponent(JSON.stringify(quoteItem))}`;
         }, 2000);
       } else {
         showSuccess('Cotización rechazada correctamente');

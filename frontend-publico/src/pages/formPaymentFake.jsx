@@ -15,9 +15,13 @@ const FormPaymentFake = () => {
   const navigate = useNavigate();
   const userId = user?.id;
   const { cart, clearCart, loadCart, loading } = useCart(userId);
+  
+  // Estado para manejar cotizaciones aceptadas
+  const [quoteItem, setQuoteItem] = useState(null);
+  const [isQuotePayment, setIsQuotePayment] = useState(false);
 
-  // calcula total y cantidad
-  const total = cart.reduce((sum, item) => sum + (item.product?.price || 0) * (item.quantity || 0), 0);
+  // calcula total y cantidad - incluye cotizaciones
+  const total = quoteItem ? quoteItem.price : cart.reduce((sum, item) => sum + (item.product?.price || 0) * (item.quantity || 0), 0);
 
   // Asegurar que el carrito se cargue cuando el componente se monte
   useEffect(() => {
@@ -26,6 +30,24 @@ const FormPaymentFake = () => {
       loadCart(userId);
     }
   }, [userId]); // Solo depende de userId para evitar bucles infinitos
+
+  // Detectar si hay una cotización en la URL
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const quoteParam = urlParams.get('quote');
+    
+    if (quoteParam) {
+      try {
+        const parsedQuote = JSON.parse(decodeURIComponent(quoteParam));
+        setQuoteItem(parsedQuote);
+        setIsQuotePayment(true);
+        console.log('Cotización detectada:', parsedQuote);
+      } catch (error) {
+        console.error('Error parsing quote:', error);
+        showError('Error al procesar la cotización');
+      }
+    }
+  }, []);
 
   const {
     formData,
@@ -238,15 +260,28 @@ const FormPaymentFake = () => {
 
   const onPay = async () => {
     console.log('Cart items:', cart);
+    console.log('Quote item:', quoteItem);
     console.log('Total calculado:', total);
     
-    const itemsParaOrden = cart.map(item => ({
-      product: item.product?._id || item.product?.id,
-      quantity: item.quantity || 1,
-      price: item.product?.price || 0,
-    }));
-
-    console.log('Items para orden:', itemsParaOrden);
+    let itemsParaOrden;
+    
+    if (isQuotePayment && quoteItem) {
+      // Pago de cotización aceptada
+      itemsParaOrden = [{
+        product: quoteItem.product._id,
+        quantity: quoteItem.quantity,
+        price: quoteItem.price,
+      }];
+      console.log('Items de cotización para orden:', itemsParaOrden);
+    } else {
+      // Pago del carrito normal
+      itemsParaOrden = cart.map(item => ({
+        product: item.product?._id || item.product?.id,
+        quantity: item.quantity || 1,
+        price: item.product?.price || 0,
+      }));
+      console.log('Items del carrito para orden:', itemsParaOrden);
+    }
 
     showInfo('Procesando pago simulado...', 2000);
 
@@ -259,6 +294,14 @@ const FormPaymentFake = () => {
 
     if (result?.success) {
       showSuccess('¡Pago simulado exitoso!', 4000);
+      
+      // Si es pago de cotización, limpiar la URL
+      if (isQuotePayment) {
+        window.history.replaceState({}, document.title, '/form-payment-fake');
+        setQuoteItem(null);
+        setIsQuotePayment(false);
+      }
+      
       // Solo limpiar el carrito después de que la orden se haya guardado exitosamente
       try {
         await clearCart();
@@ -284,7 +327,13 @@ const FormPaymentFake = () => {
         limpiarFormulario();
         setFieldErrors({});
         clearCart();
-        navigate('/catalogo');
+        
+        // Si era pago de cotización, redirigir al perfil
+        if (isQuotePayment) {
+          navigate('/perfil', { state: { activeSection: 'quotes' } });
+        } else {
+          navigate('/catalogo');
+        }
       }, 19000); // 19 segundos
     }
 
@@ -293,7 +342,7 @@ const FormPaymentFake = () => {
         clearTimeout(timeoutId);
       }
     };
-  }, [currentStep, navigate]);
+  }, [currentStep, navigate, isQuotePayment]);
 
   // Función para validar el paso actual antes de continuar
   const validateCurrentStep = () => {
@@ -379,23 +428,45 @@ const FormPaymentFake = () => {
     <div className={`payment-page ${currentStep === 4 ? 'success-active' : ''}`}>
       <div className="payment-wrapper">
         <div className="page-header">
-          <h1 className="page-title gradient-title">Pago Simulado con Tarjeta</h1>
+          <h1 className="page-title gradient-title">
+          {isQuotePayment ? 'Pago de Cotización Aceptada' : 'Pago Simulado con Tarjeta'}
+        </h1>
         </div>
 
         <div className="payment-card">
-          {/* Resumen del carrito - solo visible en pasos 1, 2 y 3 */}
+          {/* Resumen del carrito o cotización - solo visible en pasos 1, 2 y 3 */}
           {currentStep !== 4 && (
             <div className="cart-summary cart-summary-optimized">
               <h3 className="cart-summary-title">
-                📋 Resumen del Carrito
+                {isQuotePayment ? '📋 Resumen de Cotización' : '📋 Resumen del Carrito'}
               </h3>
               <div className="cart-summary-content">
-                 <div className="cart-summary-products">
-                  <strong>Productos:</strong> {loading ? 'Cargando...' : `${cart.length} ${cart.length === 1 ? 'producto' : 'productos'}`}
-                </div>
-                <div className="cart-summary-total">
-                  Total: {loading ? 'Cargando...' : `$${total.toFixed(2)}`}
-                </div>
+                {isQuotePayment && quoteItem ? (
+                  <>
+                    <div className="cart-summary-content-row">
+                      <div className="cart-summary-products">
+                        <strong>Producto:</strong> {quoteItem.product.name}
+                      </div>
+                      <div className="cart-summary-total">
+                        Total: ${total.toFixed(2)}
+                      </div>
+                    </div>
+                    <div className="cart-summary-content-row">
+                      <div className="cart-summary-description">
+                        <strong>Tipo:</strong> Producto personalizado
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <div className="cart-summary-content-row">
+                    <div className="cart-summary-products">
+                      <strong>Productos:</strong> {loading ? 'Cargando...' : `${cart.length} ${cart.length === 1 ? 'producto' : 'productos'}`}
+                    </div>
+                    <div className="cart-summary-total">
+                      Total: {loading ? 'Cargando...' : `$${total.toFixed(2)}`}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           )}

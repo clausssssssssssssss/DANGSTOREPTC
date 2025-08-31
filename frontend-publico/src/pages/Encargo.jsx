@@ -7,6 +7,7 @@ import Modal from '../components/ui/Modal';
 import '../components/styles/Encargo.css';
 import { useToast } from '../hooks/useToast';
 import ToastContainer from '../components/ui/ToastContainer';
+import logo from '../assets/DANGSTORELOGOPRUEBA.PNG';
 
 export default function Encargo() {
 const { user } = useAuth();
@@ -86,6 +87,9 @@ const { toasts, showSuccess, showError, showWarning, removeToast } = useToast();
   return (
     <div className="encargo-container">
       <div className="encargo-header">
+        <div className="logo-container">
+          <img src={logo} alt="DANGSTORE Logo" className="header-logo" />
+        </div>
         <h1 className="encargo-title">Encargo Personalizado</h1>
         <h2 className="encargo-subtitle">Crea tu llavero o cuadro único</h2>
         <p className="encargo-description">

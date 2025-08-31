@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
 import { Lock, Eye, EyeOff, AlertCircle, CheckCircle } from 'lucide-react';
-import { useToast } from '../../hooks/useToast';
 
-// URL del servidor de producción
-const API_BASE = 'https://dangstoreptc.onrender.com/api';
+// URL del servidor local para desarrollo
+const API_BASE = 'http://localhost:4000/api';
 
-const PasswordSection = () => {
+const PasswordSection = ({ showSuccess, showError }) => {
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -14,7 +13,6 @@ const PasswordSection = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
-  const { showSuccess, showError } = useToast();
 
   const validateForm = () => {
     const newErrors = {};
@@ -55,7 +53,7 @@ const PasswordSection = () => {
         throw new Error('No se encontró token de autenticación');
       }
 
-      const response = await fetch(`${API_BASE}/profile/change-password`, {
+      const response = await fetch(`${API_BASE}/profile/password`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -63,7 +61,8 @@ const PasswordSection = () => {
         },
         body: JSON.stringify({
           currentPassword,
-          newPassword
+          newPassword,
+          confirmPassword
         })
       });
 
@@ -75,7 +74,7 @@ const PasswordSection = () => {
         throw new Error(errorData.message || 'Error al cambiar la contraseña');
       }
 
-      showSuccess('Contraseña cambiada correctamente');
+      showSuccess('¡Contraseña actualizada exitosamente!');
       
       // Limpiar formulario
       setCurrentPassword('');
@@ -285,6 +284,8 @@ const PasswordSection = () => {
               </>
             )}
           </button>
+          
+
         </div>
       </form>
     </div>

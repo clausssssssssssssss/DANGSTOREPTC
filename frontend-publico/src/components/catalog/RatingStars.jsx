@@ -22,14 +22,14 @@ const RatingStars = ({ rating, size = 20, showNumber = false, interactive = fals
   // Generar media estrella si es necesario
   if (hasHalfStar) {
     stars.push(
-      <div key="half" className="relative">
+      <div key="half" className="star-half-container">
         <Star
           size={size}
           fill="none"
-          className={`star ${interactive ? 'cursor-pointer hover:scale-110' : ''}`}
+          className={`star star-outline ${interactive ? 'cursor-pointer hover:scale-110' : ''}`}
           onClick={() => interactive && onRatingChange && onRatingChange(fullStars + 1)}
         />
-        <div className="absolute inset-0 overflow-hidden">
+        <div className="star-half-fill">
           <Star
             size={size}
             fill="currentColor"

@@ -1,0 +1,571 @@
+/* Estilos para la sección de cotizaciones - Sistema Responsive DANGSTORE */
+
+/* ===== BASE STYLES ===== */
+.quotes-section {
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e5e7eb;
+}
+
+.quotes-header {
+  margin-bottom: 24px;
+}
+
+.quotes-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 16px;
+}
+
+.quotes-tabs {
+  display: flex;
+  gap: 8px;
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.quotes-tab {
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  background: transparent;
+  color: #6b7280;
+  white-space: nowrap;
+}
+
+.quotes-tab:hover {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.quotes-tab.active {
+  background: #8b5cf6;
+  color: white;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 48px 24px;
+  color: #6b7280;
+}
+
+.empty-icon {
+  color: #d1d5db;
+  margin-bottom: 16px;
+}
+
+/* ===== QUOTES LIST ===== */
+.quotes-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 24px;
+}
+
+/* ===== QUOTE CARD ===== */
+.quote-card {
+  background: white !important;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  display: flex;
+  flex-direction: column;
+  min-height: 280px;
+}
+
+.quote-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+  border-color: #6c5ce7;
+}
+
+/* ===== QUOTE IMAGE ===== */
+.quote-image {
+  width: 100%;
+  height: 180px;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: 12px 12px 0 0;
+  border-bottom: 1px solid #e5e7eb;
+  padding: 12px;
+  position: relative;
+}
+
+.quote-image img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  display: block;
+  transition: transform 0.3s ease;
+  border-radius: 8px;
+}
+
+.quote-card:hover .quote-image img {
+  transform: scale(1.05);
+}
+
+.quote-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #9ca3af;
+  background: #f9fafb;
+  border-radius: 8px;
+}
+
+/* ===== QUOTE DETAILS ===== */
+.quote-details {
+  padding: 20px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  background: white !important;
+}
+
+.quote-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.quote-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0;
+  text-transform: capitalize;
+  flex: 1;
+  min-width: 0;
+  word-wrap: break-word;
+}
+
+/* ===== STATUS BADGES ===== */
+.status-badge {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.status-badge.quoted {
+  background: #8b5cf6;
+  color: white;
+}
+
+.status-badge.pending {
+  background: #f59e0b;
+  color: white;
+}
+
+.status-badge.accepted {
+  background: #10b981;
+  color: white;
+}
+
+.status-badge.rejected {
+  background: #ef4444;
+  color: white;
+}
+
+.status-badge.unknown {
+  background: #6b7280;
+  color: white;
+}
+
+/* ===== QUOTE PRICE ROW ===== */
+.quote-price-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  background: white !important;
+  border-radius: 12px;
+  border: 2px solid #e5e7eb;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.quote-price {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1f2937;
+  background: #f9fafb;
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: 2px solid #d1d5db;
+  min-width: 80px;
+  text-align: center;
+}
+
+/* ===== QUOTE ACTIONS ===== */
+.quote-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  flex: 1;
+}
+
+.btn-quote {
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  min-width: 80px;
+  white-space: nowrap;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.btn-quote.accept {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+}
+
+.btn-quote.accept:hover {
+  background: linear-gradient(135deg, #059669, #047857);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(16, 185, 129, 0.3);
+}
+
+.btn-quote.reject {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: white;
+}
+
+.btn-quote.reject:hover {
+  background: linear-gradient(135deg, #dc2626, #b91c1c);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(239, 68, 68, 0.3);
+}
+
+/* ===== STATUS MESSAGES ===== */
+.status-message {
+  margin: 0;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-align: center;
+  border: 1px solid transparent;
+}
+
+.status-message.success {
+  background: #d1fae5;
+  color: #065f46;
+  border-color: #a7f3d0;
+}
+
+.status-message.pending {
+  background: #fef3c7;
+  color: #92400e;
+  border-color: #fde68a;
+}
+
+/* ===== RESPONSIVE STYLES ===== */
+
+/* Tablets */
+@media (max-width: 1024px) {
+  .quotes-list {
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+  }
+  
+  .quote-card {
+    min-height: 260px;
+  }
+  
+  .quote-image {
+    height: 160px;
+  }
+  
+  .quote-details {
+    padding: 18px;
+    gap: 14px;
+  }
+  
+  .quote-title {
+    font-size: 1.2rem;
+  }
+  
+  .quote-price {
+    font-size: 1.1rem;
+    padding: 6px 14px;
+  }
+  
+  .btn-quote {
+    padding: 8px 16px;
+    font-size: 0.8rem;
+    min-width: 70px;
+  }
+}
+
+/* Small tablets */
+@media (max-width: 768px) {
+  .quotes-section {
+    padding: 16px;
+  }
+  
+  .quotes-list {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  .quotes-tabs {
+    gap: 6px;
+    padding-bottom: 12px;
+  }
+  
+  .quotes-tab {
+    padding: 8px 14px;
+    font-size: 0.8rem;
+  }
+  
+  .quote-card {
+    min-height: auto;
+  }
+  
+  .quote-image {
+    height: 140px;
+    padding: 10px;
+  }
+  
+  .quote-details {
+    padding: 16px;
+    gap: 12px;
+  }
+  
+  .quote-header {
+    gap: 10px;
+  }
+  
+  .quote-title {
+    font-size: 1.1rem;
+  }
+  
+  .quote-price-row {
+    padding: 14px;
+    gap: 12px;
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .quote-price {
+    text-align: center;
+    align-self: center;
+  }
+  
+  .quote-actions {
+    justify-content: center;
+    gap: 10px;
+  }
+  
+  .btn-quote {
+    padding: 12px 20px;
+    font-size: 0.85rem;
+    min-width: 100px;
+    flex: 1;
+    max-width: 120px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+  .quotes-section {
+    padding: 12px;
+    border-radius: 12px;
+  }
+  
+  .quotes-header {
+    margin-bottom: 20px;
+  }
+  
+  .quotes-title {
+    font-size: 1.3rem;
+    margin-bottom: 12px;
+  }
+  
+  .quotes-tabs {
+    gap: 4px;
+    padding-bottom: 10px;
+  }
+  
+  .quotes-tab {
+    padding: 6px 10px;
+    font-size: 0.75rem;
+    border-radius: 6px;
+  }
+  
+  .quotes-list {
+    gap: 12px;
+  }
+  
+  .quote-card {
+    border-radius: 12px;
+  }
+  
+  .quote-image {
+    height: 120px;
+    padding: 8px;
+    border-radius: 8px 8px 0 0;
+  }
+  
+  .quote-details {
+    padding: 14px;
+    gap: 10px;
+  }
+  
+  .quote-header {
+    gap: 8px;
+  }
+  
+  .quote-title {
+    font-size: 1rem;
+  }
+  
+  .status-badge {
+    padding: 4px 8px;
+    font-size: 0.7rem;
+  }
+  
+  .quote-price-row {
+    padding: 12px;
+    gap: 10px;
+    border-radius: 8px;
+  }
+  
+  .quote-price {
+    font-size: 1rem;
+    padding: 6px 12px;
+    border-radius: 6px;
+    min-width: 70px;
+  }
+  
+  .quote-actions {
+    gap: 8px;
+  }
+  
+  .btn-quote {
+    padding: 10px 16px;
+    font-size: 0.8rem;
+    min-width: 90px;
+    max-width: 110px;
+    border-radius: 6px;
+  }
+  
+  .status-message {
+    padding: 10px 12px;
+    font-size: 0.8rem;
+    border-radius: 6px;
+  }
+}
+
+/* Very small mobile */
+@media (max-width: 320px) {
+  .quotes-section {
+    padding: 8px;
+  }
+  
+  .quotes-title {
+    font-size: 1.2rem;
+  }
+  
+  .quotes-tab {
+    padding: 5px 8px;
+    font-size: 0.7rem;
+  }
+  
+  .quote-image {
+    height: 100px;
+    padding: 6px;
+  }
+  
+  .quote-details {
+    padding: 12px;
+    gap: 8px;
+  }
+  
+  .quote-title {
+    font-size: 0.95rem;
+  }
+  
+  .quote-price-row {
+    padding: 10px;
+    gap: 8px;
+  }
+  
+  .quote-price {
+    font-size: 0.9rem;
+    padding: 5px 10px;
+    min-width: 60px;
+  }
+  
+  .btn-quote {
+    padding: 8px 12px;
+    font-size: 0.75rem;
+    min-width: 80px;
+    max-width: 100px;
+  }
+}
+
+/* ===== ACCESSIBILITY ===== */
+@media (prefers-reduced-motion: reduce) {
+  .quote-card,
+  .quote-image img,
+  .btn-quote {
+    transition: none;
+  }
+  
+  .quote-card:hover {
+    transform: none;
+  }
+}
+
+/* ===== DARK MODE SUPPORT ===== */
+@media (prefers-color-scheme: dark) {
+  .quote-card {
+    background: #1f2937;
+    border-color: #374151;
+    color: #f9fafb;
+  }
+  
+  .quote-title {
+    color: #f9fafb;
+  }
+  
+  .quote-price-row {
+    background: #374151;
+    border-color: #4b5563;
+  }
+  
+  .quote-price {
+    background: #374151;
+    color: #f9fafb;
+    border-color: #6b7280;
+  }
+}

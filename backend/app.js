@@ -1,5 +1,3 @@
-// backend/app.js
-
 import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
@@ -17,6 +15,7 @@ import adminAuthRoutes        from './src/routes/adminAuth.js';
 import logoutRoutes           from './src/routes/logout.js';
 import paymentRoutes          from './src/routes/paymentRoutes.js';
 import ratingsRoutes          from './src/routes/ratings.js';
+import notificationsRoutes    from './src/routes/notifications.js';
 
 import swaggerUi from "swagger-ui-express";
 import fs from "fs";
@@ -90,6 +89,43 @@ app.use('/api/payments', paymentRoutes);
 
 // Sistema de reseñas y ratings de productos
 app.use('/api/ratings', ratingsRoutes);
+
+// Sistema de notificaciones
+app.use('/api/notifications', notificationsRoutes);
+
+// Health check simple
+app.get('/api/health', (req, res) => {
+  console.log('🔍 Health check solicitado');
+  res.json({ 
+    status: 'OK', 
+    message: 'Backend funcionando correctamente',
+    timestamp: new Date().toISOString(),
+    routes: [
+      '/api/custom-orders',
+      '/api/custom-orders/pending',
+      '/api/admins/login',
+      '/api/notifications',
+      '/api/notifications/unread-count'
+    ],
+    notifications: {
+      available: true,
+      endpoints: [
+        'GET /api/notifications',
+        'GET /api/notifications/unread-count',
+        'PUT /api/notifications/:id/read',
+        'PUT /api/notifications/read-all',
+        'DELETE /api/notifications/:id',
+        'DELETE /api/notifications'
+      ]
+    }
+  });
+});
+
+// Logging de todas las rutas registradas
+app.use((req, res, next) => {
+  console.log(`🌐 ${req.method} ${req.path}`);
+  next();
+});
 
 /**
  * Exporta la instancia de la aplicación Express

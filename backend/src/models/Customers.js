@@ -37,6 +37,13 @@ const customerSchema = new Schema({
     trim: true,
   },
 
+  /** Dirección del cliente */
+  address: {
+    type: String,
+    trim: true,
+    maxLength: 500,
+  },
+
   /** Indica si el email ha sido verificado */
   isVerified: {
     type: Boolean,

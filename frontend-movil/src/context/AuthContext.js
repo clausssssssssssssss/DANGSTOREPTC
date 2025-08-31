@@ -11,7 +11,7 @@ export const AuthProvider = ({ children }) => {
   const [authToken, setAuthToken] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  const API_URL = "http://192.168.0.11:4000/api";
+  const API_URL = "http://192.168.0.3:4000/api";
 
   useEffect(() => {
     const loadToken = async () => {
@@ -31,7 +31,7 @@ export const AuthProvider = ({ children }) => {
 
   const logout = useCallback(async () => {
     try {
-      await fetch(`${API_URL}/api/logout`, {
+      await fetch(`${API_URL}/logout`, {
         method: 'POST',
         headers: authToken ? { Authorization: `Bearer ${authToken}` } : undefined,
       });
@@ -96,7 +96,7 @@ export const AuthProvider = ({ children }) => {
 
   const register = async (userData) => {
     try {
-      const response = await fetch(`${API_URL}/api/customers`, {
+      const response = await fetch(`${API_URL}/customers`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(userData),

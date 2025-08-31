@@ -181,7 +181,7 @@ const usePaymentForm = () => {
 
       console.log("Enviando orden al backend:", orderData);
 
-      const base = import.meta.env.VITE_API_URL || '';
+      const base = 'https://dangstoreptc.onrender.com';
       const response = await fetch(`${base}/api/cart/order`, {
         method: "POST",
         headers: {

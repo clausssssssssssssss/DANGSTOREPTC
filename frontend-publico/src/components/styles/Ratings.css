@@ -11,11 +11,72 @@
   display: flex;
   align-items: center;
   gap: 2px;
+  flex-wrap: nowrap;
+  overflow: visible;
+  min-height: 1em;
+  justify-content: flex-start;
+}
+
+/* Asegurar que todas las estrellas estén alineadas */
+.stars-container > * {
+  display: inline-block;
+  vertical-align: middle;
+  line-height: 1;
+  flex-shrink: 0;
 }
 
 .star {
   color: #fbbf24;
   transition: all 0.2s ease;
+  flex-shrink: 0;
+  display: block;
+  line-height: 1;
+  width: auto;
+  height: auto;
+  overflow: visible;
+}
+
+/* Estilos específicos para estrellas en tarjetas de productos */
+.product-rating .star,
+.rating-stars-small .star {
+  display: inline-block;
+  flex-shrink: 0;
+  width: auto;
+  height: auto;
+  line-height: 1;
+  vertical-align: middle;
+  overflow: visible;
+}
+
+/* Estilos específicos para la media estrella */
+.star-half-container {
+  position: relative;
+  display: inline-block;
+  vertical-align: middle;
+  line-height: 1;
+  width: auto;
+  height: auto;
+  flex-shrink: 0;
+}
+
+.star-half-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  overflow: hidden;
+  line-height: 1;
+  width: 100%;
+  height: 100%;
+}
+
+.star-outline {
+  position: relative;
+  z-index: 1;
+}
+
+.star-half-fill .star {
+  position: relative;
+  z-index: 2;
 }
 
 .star.cursor-pointer:hover {
@@ -357,20 +418,55 @@
   align-items: center;
   gap: 0.5rem;
   margin: 0.5rem 0;
+  width: 100%;
+  justify-content: flex-start;
+  flex-wrap: nowrap;
+  overflow: visible;
 }
 
 .rating-stars-small {
   display: flex;
   align-items: center;
+  gap: 1px;
+  flex-wrap: nowrap;
+  overflow: visible;
+  width: auto;
+  min-width: fit-content;
+  justify-content: flex-start;
+}
+
+/* Asegurar que las estrellas pequeñas estén perfectamente alineadas */
+.rating-stars-small .stars-container {
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.rating-stars-small .star,
+.rating-stars-small .star-half-container {
+  display: inline-block;
+  vertical-align: middle;
+  line-height: 1;
+  flex-shrink: 0;
 }
 
 .rating-count {
   font-size: 0.75rem;
   color: #6b7280;
+  white-space: nowrap;
+  flex-shrink: 0;
+  margin-left: 0.25rem;
 }
 
 /* Responsive */
 @media (max-width: 768px) {
+  .rating-stars-small {
+    gap: 0.5px;
+  }
+  
+  .stars-container {
+    gap: 1px;
+  }
+  
   .product-ratings-section {
     padding: 1rem;
     margin: 1rem 0;
@@ -394,6 +490,21 @@
     flex-direction: column;
     align-items: flex-start;
     gap: 0.5rem;
+  }
+}
+
+/* Estilos específicos para móviles pequeños */
+@media (max-width: 480px) {
+  .rating-stars-small {
+    gap: 0.25px;
+  }
+  
+  .stars-container {
+    gap: 0.5px;
+  }
+  
+  .star {
+    font-size: 14px;
   }
 }
 

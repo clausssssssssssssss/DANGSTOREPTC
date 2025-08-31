@@ -1,4 +1,4 @@
-/* Encargo.css - Aqua/Purple Theme with Animations */
+/* Encargo.css - Sistema Responsive DANGSTORE */
 
 /* ===== BASE STYLES ===== */
 * {
@@ -8,19 +8,19 @@
 }
 
 body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  line-height: 1.6;
+  font-family: var(--font-family-primary, 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif);
+  line-height: var(--line-height-normal, 1.6);
 }
 
 /* ===== MAIN CONTAINER ===== */
 .encargo-container {
   min-height: 100vh;
-  padding: 2rem 1rem;
-  padding-top: 6rem;
-  background: white; /* Fondo blanco sólido */
+  padding: var(--spacing-lg) var(--spacing-sm);
+  padding-top: 2rem;
+  background: white; /* Mantener fondo blanco original */
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
   position: relative;
   overflow: hidden;
@@ -66,10 +66,14 @@ body {
 /* ===== HEADER STYLES ===== */
 .encargo-header {
   text-align: center;
-  margin-bottom: 2rem;
+  margin-bottom: var(--spacing-lg);
   position: relative;
   z-index: 3;
   animation: headerEntrance 1s ease-out;
+  padding-top: var(--spacing-sm);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 @keyframes headerEntrance {
@@ -84,59 +88,105 @@ body {
 }
 
 .encargo-title {
-  font-size: 3rem;
-  font-weight: 800;
-  color: #6c5ce7; /* Color morado para coherencia con el resto del sitio */
-  margin-bottom: 0.5rem;
+  font-size: clamp(2rem, 4vw + 1rem, 3rem);
+  font-weight: var(--font-weight-extrabold, 800);
+  background: linear-gradient(135deg, #9C27B0, #4DD0E1);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: var(--spacing-xs);
   position: relative;
+  font-family: var(--font-family-primary, 'Inter', sans-serif);
+}
+
+.encargo-title::after {
+  content: '';
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 4px;
+  background: linear-gradient(135deg, #4DD0E1, #9C27B0);
+  border-radius: 2px;
 }
 
 .encargo-subtitle {
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: #555; /* Texto gris oscuro */
-  margin-bottom: 1rem;
+  font-size: clamp(1rem, 2vw + 0.5rem, 1.25rem);
+  font-weight: var(--font-weight-semibold, 600);
+  background: linear-gradient(135deg, #9C27B0, #4DD0E1);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: var(--spacing-sm);
+  font-family: var(--font-family-primary, 'Inter', sans-serif);
+  position: relative;
+}
+
+.encargo-subtitle::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 3px;
+  background: linear-gradient(135deg, #4DD0E1, #9C27B0);
+  border-radius: 2px;
 }
 
 .encargo-description {
-  font-size: 1rem;
-  color: #666; /* Texto gris */
+  font-size: clamp(0.9rem, 1.5vw + 0.5rem, 1rem);
+  background: linear-gradient(135deg, #9C27B0, #4DD0E1);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
   max-width: 500px;
   margin: 0 auto;
-  line-height: 1.6;
+  line-height: var(--line-height-relaxed, 1.6);
+  font-family: var(--font-family-primary, 'Inter', sans-serif);
 }
 
-/* Header decorations */
-.encargo-header::before {
-  content: '✨';
-  position: absolute;
-  top: -1rem;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 2rem;
-  animation: sparkle 2s ease-in-out infinite;
+/* Logo container */
+.logo-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: var(--spacing-lg);
+  margin-top: var(--spacing-sm);
+}
+
+.header-logo {
+  width: clamp(100px, 18vw, 140px);
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
+  transition: transform 0.3s ease;
+}
+
+.header-logo:hover {
+  transform: scale(1.05);
 }
 
 .encargo-header::after {
   content: '';
   position: absolute;
-  bottom: -1rem;
+  bottom: calc(-1 * var(--spacing-sm));
   left: 50%;
   transform: translateX(-50%);
   width: 0;
   height: 3px;
-  background: linear-gradient(90deg, transparent, #BA68C8, transparent);
-  border-radius: 2px;
+  background: linear-gradient(90deg, transparent, #BA68C8, transparent); /* Restaurar color original */
+  border-radius: var(--border-radius-sm, 2px);
   animation: lineExpand 2s ease-out 1s both;
 }
 
 @keyframes sparkle {
   0%, 100% { 
     transform: translateX(-50%) scale(1) rotate(0deg);
-    opacity: 0.7;
+    opacity: 0.8;
   }
   50% { 
-    transform: translateX(-50%) scale(1.2) rotate(180deg);
+    transform: translateX(-50%) scale(1.3) rotate(180deg);
     opacity: 1;
   }
 }
@@ -167,6 +217,25 @@ body {
   animation: cardEntrance 0.8s ease-out 0.3s both;
 }
 
+/* Mobile-first adjustments */
+@media (max-width: 768px) {
+  .encargo-card {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    padding: 1.5rem;
+    min-height: auto;
+    margin: 0 0.5rem;
+  }
+  
+  .header-logo {
+    width: clamp(80px, 20vw, 120px);
+  }
+  
+  .logo-container {
+    margin-bottom: var(--spacing-md);
+  }
+}
+
 @keyframes cardEntrance {
   0% {
     opacity: 0;
@@ -192,6 +261,30 @@ body {
   background: rgba(255, 255, 255, 0.9);
   cursor: pointer;
   overflow: hidden;
+}
+
+/* Mobile upload zone improvements */
+@media (max-width: 768px) {
+  .upload-zone {
+    min-height: 250px;
+    border-radius: 1.25rem;
+    margin-bottom: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .upload-zone {
+    min-height: 220px;
+    border-radius: 1rem;
+  }
+  
+  .header-logo {
+    width: clamp(70px, 25vw, 100px);
+  }
+  
+  .logo-container {
+    margin-bottom: var(--spacing-sm);
+  }
 }
 
 .upload-zone::before {
@@ -423,6 +516,20 @@ body {
   animation: formSlideIn 0.6s ease-out 0.2s both;
 }
 
+/* Mobile form improvements */
+@media (max-width: 768px) {
+  .form-panel {
+    gap: 1.5rem;
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 480px) {
+  .form-panel {
+    gap: 1.25rem;
+  }
+}
+
 @keyframes formSlideIn {
   0% {
     opacity: 0;
@@ -560,6 +667,26 @@ body {
   margin-top: 1.5rem;
   text-transform: uppercase;
   letter-spacing: 1px;
+}
+
+/* Mobile button improvements */
+@media (max-width: 768px) {
+  .submit-button {
+    width: 100%;
+    padding: 1.5rem 2rem;
+    font-size: 1rem;
+    margin-top: 2rem;
+    border-radius: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .submit-button {
+    padding: 1.25rem 1.5rem;
+    font-size: 0.95rem;
+    margin-top: 1.5rem;
+    border-radius: 1.25rem;
+  }
 }
 
 .submit-button::before {
@@ -714,28 +841,29 @@ body {
 /* Tablets */
 @media (max-width: 1024px) {
   .encargo-container {
-    padding: 1.5rem 1rem;
-    padding-top: 5rem;
+    padding: 2rem 1rem;
+    padding-top: 2rem;
   }
   
   .encargo-card {
     max-width: 900px;
-    padding: 1.5rem;
+    padding: 2rem;
+    gap: 2rem;
   }
   
   .encargo-title {
-    font-size: 2.5rem;
+    font-size: clamp(2rem, 3.5vw + 1rem, 2.5rem);
   }
   
   .encargo-subtitle {
-    font-size: 1.1rem;
+    font-size: clamp(0.9rem, 1.8vw + 0.5rem, 1.1rem);
   }
 
   .remove-image-btn {
     width: 2.75rem;
     height: 2.75rem;
-    top: 0.75rem;
-    left: 0.75rem;
+    top: 1rem;
+    left: 1rem;
   }
 
   .remove-image-btn svg {
@@ -748,64 +876,100 @@ body {
 @media (max-width: 768px) {
   .encargo-container {
     padding: 1rem 0.5rem;
-    padding-top: 4rem;
+    padding-top: 1.5rem;
   }
   
   .encargo-card {
     grid-template-columns: 1fr;
-    gap: 1.5rem;
-    padding: 1.5rem;
+    gap: 2rem;
+    padding: 2rem;
     min-height: auto;
+    margin: 0 0.5rem;
+  }
+  
+  .encargo-header {
+    padding-top: 0.5rem;
+    margin-bottom: 2rem;
   }
   
   .encargo-title {
-    font-size: 2rem;
+    font-size: clamp(1.75rem, 4vw + 1rem, 2.25rem);
+    margin-bottom: 1rem;
   }
   
   .encargo-subtitle {
-    font-size: 1rem;
+    font-size: clamp(1rem, 2vw + 0.5rem, 1.25rem);
+    margin-bottom: 1rem;
   }
   
   .encargo-description {
-    font-size: 0.9rem;
+    font-size: clamp(0.9rem, 1.5vw + 0.5rem, 1.1rem);
+    max-width: 100%;
+    padding: 0 1rem;
   }
   
   .upload-zone {
-    min-height: 250px;
+    min-height: 280px;
+    margin-bottom: 1rem;
   }
   
   .upload-icon {
-    font-size: 2.5rem;
+    font-size: clamp(2.5rem, 5vw + 1rem, 3rem);
+    margin-bottom: 1.5rem;
   }
   
   .upload-text {
-    font-size: 1rem;
+    font-size: clamp(1rem, 2vw + 0.5rem, 1.25rem);
+    margin-bottom: 0.5rem;
   }
   
   .upload-hint {
-    font-size: 0.8rem;
-    margin-top: 0.4rem;
+    font-size: clamp(0.8rem, 1.5vw + 0.5rem, 1rem);
+    margin-top: 0.75rem;
+    padding: 0 1rem;
+  }
+  
+  .form-panel {
+    gap: 2rem;
+  }
+  
+  .field-group {
+    margin-bottom: 1rem;
+  }
+  
+  .field-label {
+    font-size: clamp(1rem, 2vw + 0.5rem, 1.25rem);
+    margin-bottom: 0.75rem;
+  }
+  
+  .field-select,
+  .field-textarea {
+    padding: 1.25rem;
+    font-size: clamp(1rem, 2vw + 0.5rem, 1.1rem);
+    border-radius: 1.25rem;
   }
   
   .field-textarea {
-    min-height: 100px;
+    min-height: 120px;
   }
 
   .submit-button {
-    padding: 1rem 2rem;
-    font-size: 1rem;
+    padding: 1.5rem 3rem;
+    font-size: clamp(1rem, 2vw + 0.5rem, 1.25rem);
+    margin-top: 2rem;
+    width: 100%;
   }
 
   .remove-image-btn {
-    width: 2.5rem;
-    height: 2.5rem;
-    top: 0.5rem;
-    left: 0.5rem;
+    width: 3rem;
+    height: 3rem;
+    top: 1rem;
+    left: 1rem;
   }
 
   .remove-image-btn svg {
-    width: 16px;
-    height: 16px;
+    width: 18px;
+    height: 18px;
   }
 }
 
@@ -813,66 +977,88 @@ body {
 @media (max-width: 480px) {
   .encargo-container {
     padding: 0.5rem;
-    padding-top: 3.5rem;
+    padding-top: 1rem;
   }
   
   .encargo-card {
-    padding: 1rem;
-    gap: 1rem;
+    padding: 1.5rem;
+    gap: 1.5rem;
     border-radius: 1.5rem;
+    margin: 0 0.25rem;
   }
   
   .encargo-header {
     margin-bottom: 1.5rem;
+    padding-top: 0.25rem;
   }
   
   .encargo-title {
-    font-size: 1.75rem;
+    font-size: clamp(1.5rem, 4vw + 1rem, 2rem);
+    margin-bottom: 1rem;
   }
   
   .encargo-subtitle {
-    font-size: 0.95rem;
+    font-size: clamp(0.9rem, 2vw + 0.5rem, 1.1rem);
+    margin-bottom: 0.75rem;
   }
   
   .encargo-description {
-    font-size: 0.85rem;
+    font-size: clamp(0.8rem, 1.8vw + 0.5rem, 1rem);
+    padding: 0 0.5rem;
+    line-height: 1.5;
   }
   
   .upload-zone {
-    min-height: 200px;
-    border-radius: 1rem;
+    min-height: 250px;
+    border-radius: 1.25rem;
+    margin-bottom: 1rem;
   }
   
   .upload-icon {
-    font-size: 2rem;
+    font-size: clamp(2rem, 4vw + 1rem, 2.5rem);
+    margin-bottom: 1.25rem;
   }
   
   .upload-text {
-    font-size: 0.9rem;
+    font-size: clamp(0.9rem, 2vw + 0.5rem, 1.1rem);
+    margin-bottom: 0.5rem;
   }
   
   .upload-hint {
-    font-size: 0.75rem;
-    margin-top: 0.3rem;
+    font-size: clamp(0.75rem, 1.5vw + 0.5rem, 0.9rem);
+    margin-top: 0.75rem;
+    padding: 0 1rem;
+  }
+  
+  .form-panel {
+    gap: 1.5rem;
+  }
+  
+  .field-group {
+    margin-bottom: 1rem;
   }
   
   .field-label {
-    font-size: 0.9rem;
+    font-size: clamp(0.9rem, 2vw + 0.5rem, 1.1rem);
+    margin-bottom: 0.75rem;
   }
   
   .field-select,
   .field-textarea {
-    padding: 0.875rem 1rem;
-    font-size: 0.9rem;
+    padding: 1rem;
+    font-size: clamp(0.9rem, 2vw + 0.5rem, 1rem);
+    border-radius: 1rem;
   }
   
   .field-textarea {
-    min-height: 80px;
+    min-height: 100px;
   }
   
   .submit-button {
-    padding: 1rem 1.5rem;
-    font-size: 0.95rem;
+    padding: 1.25rem 2rem;
+    font-size: clamp(0.9rem, 2vw + 0.5rem, 1.1rem);
+    margin-top: 1.5rem;
+    width: 100%;
   }
   
   .modal-content {
@@ -884,13 +1070,103 @@ body {
   }
 
   .thumbnail-image {
-    width: 3rem;
-    height: 3rem;
+    width: 3.5rem;
+    height: 3.5rem;
   }
 
   .remove-image-btn {
-    width: 2.25rem;
-    height: 2.25rem;
+    width: 2.75rem;
+    height: 2.75rem;
+    top: 0.75rem;
+    left: 0.75rem;
+  }
+
+  .remove-image-btn svg {
+    width: 16px;
+    height: 16px;
+  }
+}
+
+/* Very small mobile */
+@media (max-width: 320px) {
+  .encargo-container {
+    padding: 0.25rem;
+    padding-top: 0.75rem;
+  }
+  
+  .encargo-card {
+    padding: 1rem;
+    gap: 1rem;
+    margin: 0 0.125rem;
+  }
+  
+  .encargo-header {
+    padding-top: 0.125rem;
+    margin-bottom: 1rem;
+  }
+  
+  .encargo-title {
+    font-size: clamp(1.25rem, 3.5vw + 1rem, 1.75rem);
+    margin-bottom: 0.75rem;
+  }
+  
+  .encargo-subtitle {
+    font-size: clamp(0.8rem, 1.8vw + 0.5rem, 1rem);
+    margin-bottom: 0.5rem;
+  }
+  
+  .encargo-description {
+    font-size: clamp(0.75rem, 1.6vw + 0.5rem, 0.9rem);
+    padding: 0 0.25rem;
+  }
+  
+  .upload-zone {
+    min-height: 200px;
+    border-radius: 1rem;
+  }
+  
+  .upload-icon {
+    font-size: clamp(1.75rem, 3.5vw + 1rem, 2rem);
+    margin-bottom: 1rem;
+  }
+  
+  .upload-text {
+    font-size: clamp(0.8rem, 1.8vw + 0.5rem, 1rem);
+  }
+  
+  .form-panel {
+    gap: 1rem;
+  }
+  
+  .field-group {
+    margin-bottom: 0.75rem;
+  }
+  
+  .field-label {
+    font-size: clamp(0.8rem, 1.8vw + 0.5rem, 1rem);
+    margin-bottom: 0.5rem;
+  }
+  
+  .field-select,
+  .field-textarea {
+    padding: 0.75rem;
+    font-size: clamp(0.8rem, 1.8vw + 0.5rem, 0.95rem);
+    border-radius: 0.75rem;
+  }
+  
+  .field-textarea {
+    min-height: 80px;
+  }
+  
+  .submit-button {
+    padding: 1rem 1.5rem;
+    font-size: clamp(0.8rem, 1.8vw + 0.5rem, 1rem);
+    margin-top: 1rem;
+  }
+
+  .remove-image-btn {
+    width: 2.5rem;
+    height: 2.5rem;
     top: 0.5rem;
     left: 0.5rem;
   }
@@ -898,45 +1174,6 @@ body {
   .remove-image-btn svg {
     width: 14px;
     height: 14px;
-  }
-}
-
-/* Very small mobile */
-@media (max-width: 320px) {
-  .encargo-card {
-    padding: 0.75rem;
-  }
-  
-  .encargo-title {
-    font-size: 1.5rem;
-  }
-  
-  .encargo-subtitle {
-    font-size: 0.9rem;
-  }
-  
-  .upload-zone {
-    min-height: 150px;
-  }
-  
-  .upload-icon {
-    font-size: 1.5rem;
-  }
-  
-  .upload-text {
-    font-size: 0.8rem;
-  }
-
-  .remove-image-btn {
-    width: 2rem;
-    height: 2rem;
-    top: 0.25rem;
-    left: 0.25rem;
-  }
-
-  .remove-image-btn svg {
-    width: 12px;
-    height: 12px;
   }
 }
 

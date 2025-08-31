@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 
-// URL del servidor de producción
-const API_BASE = 'https://dangstoreptc.onrender.com/api';
+// URL del servidor local para desarrollo
+const API_BASE = 'http://localhost:4000/api';
 
 const FavoritesContext = createContext();
 
@@ -10,16 +10,36 @@ export const FavoritesProvider = ({ children }) => {
 
   async function fetchFavorites() {
     const token = localStorage.getItem("token");
-    if (!token) return;
+    if (!token) {
+      setFavorites([]);
+      return;
+    }
+    
     try {
       const res = await fetch(`${API_BASE}/profile/favorites`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      const data = await res.json();
+      
       if (!res.ok) {
-        console.error("Error al obtener favoritos:", data);
+        const errorText = await res.text();
+        // Verificar si la respuesta es HTML en lugar de JSON
+        if (errorText.includes('<!doctype') || errorText.includes('<html')) {
+          console.error("Error: El servidor está devolviendo HTML en lugar de JSON");
+          return;
+        }
+        
+        // Si hay error de autenticación, limpiar favoritos y token
+        if (res.status === 401) {
+          setFavorites([]);
+          localStorage.removeItem('token');
+          return;
+        }
+        
+        console.error("Error al obtener favoritos:", res.status, errorText);
         return;
       }
+      
+      const data = await res.json();
       if (Array.isArray(data)) {
         setFavorites(data.map((id) => id));
       } else {
@@ -28,6 +48,7 @@ export const FavoritesProvider = ({ children }) => {
       }
     } catch (err) {
       console.error("Error de red al obtener favoritos:", err);
+      setFavorites([]);
     }
   }
 

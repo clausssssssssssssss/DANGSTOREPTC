@@ -13,13 +13,16 @@ import { AuthProvider } from './hooks/useAuth'
 import { FavoritesProvider } from './context/FavoritesContext'
 import { CartProvider } from './context/CartContext'
 
+// Importar estilos globales
+import './index.css'
+import './components/styles/GlobalComponents.css'
 import './App.css'
 
 // Spinner para carga inicial
 const LoadingSpinner = () => (
   <div className="loading-spinner">
-    <div className="spinner"></div>
-    <p>Cargando aplicación...</p>
+    <div className="spinner spinner-lg"></div>
+    <p className="text-center text-lg font-medium mt-md">Cargando aplicación...</p>
   </div>
 )
 
@@ -27,17 +30,17 @@ const ErrorFallback = ({ error, resetError }) => (
   <div className="error-boundary">
     <div className="error-content">
       <div className="error-icon">⚠</div>
-      <h1>Error de Aplicación</h1>
-      <p>Algo salió mal. Por favor, intenta recargar la página.</p>
+      <h1 className="text-2xl font-bold mb-md">Error de Aplicación</h1>
+      <p className="text-base mb-lg">Algo salió mal. Por favor, intenta recargar la página.</p>
       <details className="error-details">
         <summary>Detalles del error</summary>
         <pre>{error.stack || error.message}</pre>
       </details>
       <div className="error-actions">
-        <button onClick={resetError} className="btn btn-primary">
+        <button onClick={resetError} className="btn-primary">
           Reintentar
         </button>
-        <button onClick={() => window.location.reload()} className="btn btn-secondary">
+        <button onClick={() => window.location.reload()} className="btn-secondary">
           Recargar
         </button>
       </div>
@@ -100,20 +103,20 @@ const App = () => {
                 <Route element={<MainLayout />}>
                   <Route path="/" element={<Acerca />} />
                   <Route path="/auth/*" element={<AuthApp />} />
-                <Route path="/encargo" element={<Encargo />} />
-                <Route path="/catalogo" element={<Catalogo />} />
-                <Route path="/carrito" element={<CarritoDeCompras />} />
-                <Route path="/form-payment" element={<FormPaymentFake />} />
-                <Route path="/contacto" element={<Contacto />} />
-                <Route path="/acerca" element={<Acerca />} />
-                <Route path="/perfil" element={<UserProfile />} />
-                <Route path="*" element={<Navigate to="/" replace />} />
-              </Route>
-            </Routes>
-          </Suspense>
-        </AppErrorBoundary>
-      </FavoritesProvider>
-        </CartProvider>
+                  <Route path="/encargo" element={<Encargo />} />
+                  <Route path="/catalogo" element={<Catalogo />} />
+                  <Route path="/carrito" element={<CarritoDeCompras />} />
+                  <Route path="/form-payment" element={<FormPaymentFake />} />
+                  <Route path="/contacto" element={<Contacto />} />
+                  <Route path="/acerca" element={<Acerca />} />
+                  <Route path="/perfil" element={<UserProfile />} />
+                  <Route path="*" element={<Navigate to="/" replace />} />
+                </Route>
+              </Routes>
+            </Suspense>
+          </AppErrorBoundary>
+        </FavoritesProvider>
+      </CartProvider>
     </AuthProvider>
   )
 }

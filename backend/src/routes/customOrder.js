@@ -27,18 +27,18 @@ router.get(
   getMyCustomOrders
 );
 
-// Obtener una solicitud personalizada por ID
-router.get(
-  '/:id',
-  authMiddleware(),
-  getCustomOrderById
-);
-
-// Ver todas las órdenes pendientes (admin)
+// Ver todas las órdenes pendientes (admin) - DEBE ESTAR ANTES QUE /:id
 router.get(
   '/pending',
   authMiddleware(['admin']),
   getAllPendingOrders
+);
+
+// Obtener una solicitud personalizada por ID - DEBE ESTAR DESPUÉS
+router.get(
+  '/:id',
+  authMiddleware(),
+  getCustomOrderById
 );
 
 // Cotizar (admin)

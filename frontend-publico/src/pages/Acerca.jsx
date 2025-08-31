@@ -179,22 +179,71 @@ const About = () => {
 
 
       <footer className="footer">
-      <div className="footer-container">
-        <h3 className="footer-title">DANGSTORE</h3>
-        <p className="footer-text">© {new Date().getFullYear()} Todos los derechos reservados.</p>
-        <p className="footer-text">Creado por estudiantes del Instituto Técnico Ricaldone</p>
+        <div className="footer-container">
+          <div className="footer-sections">
+            {/* Columna 1: DANGSTORE */}
+            <div className="footer-section">
+              <h3 className="footer-title">DANGSTORE</h3>
+              <p className="footer-text">
+                El pixel art moderno<br />
+                cobra vida.<br />
+                Llaveros de Hama<br />
+                Beads hechos a mano<br />
+                inspirados en<br />
+                videojuegos, anime y<br />
+                nostalgia.<br />
+                Cada pieza está hecha<br />
+                con precisión y cariño.
+              </p>
+            </div>
 
-        <a
-          href="https://www.instagram.com/dangstore.sv?igsh=Nm1rdGF0cG9jMXgz"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="footer-link"
-        >
-          <Instagram size={20} className="instagram-icon" />
-          <span>Síguenos en Instagram</span>
-        </a>
-      </div>
-    </footer>
+            {/* Columna 2: Links */}
+            <div className="footer-section">
+              <h3 className="footer-title">Links</h3>
+              <ul className="footer-links">
+                <li><a href="/catalogo">Catálogo</a></li>
+                <li><a href="/encargo">Encargo</a></li>
+                <li><a href="/contacto">Contacto</a></li>
+                <li><a href="/busqueda">Busqueda</a></li>
+                <li><a href="/carrito">Carrito de compras</a></li>
+                <li><a href="/perfil">Perfil</a></li>
+                <li><a href="/acerca">Acerca</a></li>
+              </ul>
+            </div>
+
+            {/* Columna 3: Contacto */}
+            <div className="footer-section">
+              <h3 className="footer-title">Contacto</h3>
+              <p className="footer-text">
+                @dangshop2024@gmail.com
+              </p>
+            </div>
+
+            {/* Columna 4: Siganos */}
+            <div className="footer-section">
+              <h3 className="footer-title">Siganos</h3>
+              <div className="footer-social">
+                <a
+                  href="https://www.instagram.com/dangstore.sv?igsh=Nm1rdGF0cG9jMXgz"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="social-link"
+                >
+                  <Instagram size={20} className="instagram-icon" />
+                </a>
+              </div>
+            </div>
+          </div>
+
+          {/* Footer bottom */}
+          <div className="footer-bottom">
+            <div className="footer-bottom-content">
+              <p className="footer-copyright">© {new Date().getFullYear()} Todos los derechos reservados.</p>
+              <p className="footer-copyright">Creado por estudiantes del Instituto Técnico Ricaldone</p>
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
     
   );

@@ -14,7 +14,8 @@ import PasswordSection from '../components/profile/PasswordSection';
 import UserSection from '../components/profile/UserSection';
 import QuotesSection from '../components/profile/QuotesSection'; // Importar el componente
 
-const API_URL = import.meta.env.VITE_API_URL || '';
+// URL del servidor local para desarrollo
+const API_URL = 'http://localhost:4000/api';
 
 const UserProfile = () => {
   const { user, logout } = useAuth();
@@ -39,15 +40,25 @@ const UserProfile = () => {
   useEffect(() => {
     const fetchQuotesStatus = async () => {
       try {
-        const res = await fetch(`${API_URL}https://dangstoreptc-n9km.vercel.app/api/custom-orders/me`, {
+        const res = await fetch(`${API_URL}/custom-orders/me`, {
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
         });
         if (!res.ok) return;
-        const data = await res.json();
-        // Solo mostrar notificación si hay cotizaciones pendientes de decisión
-        if (data.some(o => o.status === 'quoted')) {
-          setHasQuotesFlag(true);
+        const response = await res.json();
+        
+        // La API devuelve { success: true, data: [...] }
+        const data = response.data;
+        
+        // Verificar que data sea un array antes de usar .some()
+        if (Array.isArray(data)) {
+          // Solo mostrar notificación si hay cotizaciones pendientes de decisión
+          if (data.some(o => o.status === 'quoted')) {
+            setHasQuotesFlag(true);
+          } else {
+            setHasQuotesFlag(false);
+          }
         } else {
+          console.warn('API devolvió un objeto en lugar de un array:', data);
           setHasQuotesFlag(false);
         }
       } catch (err) {
@@ -95,13 +106,23 @@ const UserProfile = () => {
   const renderSection = () => {
     switch (activeSection) {
       case 'personal':
-        return <PersonalDataSection />;
+        return (
+          <PersonalDataSection 
+            showSuccess={showSuccess}
+            showError={showError}
+          />
+        );
       case 'orders':
         return <OrdersSection />;
       case 'favorites':
         return <FavoritesSection />;
       case 'password':
-        return <PasswordSection />;
+        return (
+          <PasswordSection 
+            showSuccess={showSuccess}
+            showError={showError}
+          />
+        );
       case 'quotes':
         return (
           <QuotesSection 
@@ -175,8 +196,10 @@ const UserProfile = () => {
                 onClick={() => setActiveSection('quotes')}
                 className={`nav-button ${activeSection === 'quotes' ? 'active' : ''}`}
               >
-                <Gift className="nav-icon" />
-                <span>Cotizaciones</span>
+                <div className="nav-content">
+                  <Gift className="nav-icon" />
+                  <span>Cotizaciones</span>
+                </div>
                 {hasQuotesFlag && <span className="notification-dot" />}
               </button>
               

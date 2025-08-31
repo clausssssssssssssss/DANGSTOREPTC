@@ -1,15 +1,16 @@
 // src/main.jsx
-import React from "react";
-import ReactDOM from "react-dom/client";
-import { BrowserRouter } from "react-router-dom";
-import App from "./App.jsx";
-import { CartProvider } from "./context/CartContext.jsx";
-import "./index.css";
+import React from 'react'
+import ReactDOM from 'react-dom/client'
+import { BrowserRouter } from 'react-router-dom'
+import App from './App.jsx'
 
-ReactDOM.createRoot(document.getElementById("root")).render(
-  <BrowserRouter>
-    <CartProvider>
+// Importar estilos globales
+import './index.css'
+
+ReactDOM.createRoot(document.getElementById('root')).render(
+  <React.StrictMode>
+    <BrowserRouter>
       <App />
-    </CartProvider>
-  </BrowserRouter>
-);
+    </BrowserRouter>
+  </React.StrictMode>,
+)

@@ -51,7 +51,7 @@ const authMiddleware = (allowedRoles = []) => {
         }
       } else if (userType === "admin") {
         userData = {
-          userId: decoded.userId,
+          userId: decoded.userId || decoded.email, // Usar email como fallback si userId no existe
           userType: "admin",
           email: decoded.email,
         };

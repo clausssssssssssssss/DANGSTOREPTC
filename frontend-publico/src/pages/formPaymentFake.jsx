@@ -15,9 +15,13 @@ const FormPaymentFake = () => {
   const navigate = useNavigate();
   const userId = user?.id;
   const { cart, clearCart, loadCart, loading } = useCart(userId);
+  
+  // Estado para manejar cotizaciones aceptadas
+  const [quoteItem, setQuoteItem] = useState(null);
+  const [isQuotePayment, setIsQuotePayment] = useState(false);
 
-  // calcula total y cantidad
-  const total = cart.reduce((sum, item) => sum + (item.product?.price || 0) * (item.quantity || 0), 0);
+  // calcula total y cantidad - incluye cotizaciones
+  const total = quoteItem ? quoteItem.price : cart.reduce((sum, item) => sum + (item.product?.price || 0) * (item.quantity || 0), 0);
 
   // Asegurar que el carrito se cargue cuando el componente se monte
   useEffect(() => {
@@ -26,6 +30,24 @@ const FormPaymentFake = () => {
       loadCart(userId);
     }
   }, [userId]); // Solo depende de userId para evitar bucles infinitos
+
+  // Detectar si hay una cotización en la URL
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const quoteParam = urlParams.get('quote');
+    
+    if (quoteParam) {
+      try {
+        const parsedQuote = JSON.parse(decodeURIComponent(quoteParam));
+        setQuoteItem(parsedQuote);
+        setIsQuotePayment(true);
+        console.log('Cotización detectada:', parsedQuote);
+      } catch (error) {
+        console.error('Error parsing quote:', error);
+        showError('Error al procesar la cotización');
+      }
+    }
+  }, []);
 
   const {
     formData,
@@ -238,15 +260,28 @@ const FormPaymentFake = () => {
 
   const onPay = async () => {
     console.log('Cart items:', cart);
+    console.log('Quote item:', quoteItem);
     console.log('Total calculado:', total);
     
-    const itemsParaOrden = cart.map(item => ({
-      product: item.product?._id || item.product?.id,
-      quantity: item.quantity || 1,
-      price: item.product?.price || 0,
-    }));
-
-    console.log('Items para orden:', itemsParaOrden);
+    let itemsParaOrden;
+    
+    if (isQuotePayment && quoteItem) {
+      // Pago de cotización aceptada
+      itemsParaOrden = [{
+        product: quoteItem.product._id,
+        quantity: quoteItem.quantity,
+        price: quoteItem.price,
+      }];
+      console.log('Items de cotización para orden:', itemsParaOrden);
+    } else {
+      // Pago del carrito normal
+      itemsParaOrden = cart.map(item => ({
+        product: item.product?._id || item.product?.id,
+        quantity: item.quantity || 1,
+        price: item.product?.price || 0,
+      }));
+      console.log('Items del carrito para orden:', itemsParaOrden);
+    }
 
     showInfo('Procesando pago simulado...', 2000);
 
@@ -259,6 +294,14 @@ const FormPaymentFake = () => {
 
     if (result?.success) {
       showSuccess('¡Pago simulado exitoso!', 4000);
+      
+      // Si es pago de cotización, limpiar la URL
+      if (isQuotePayment) {
+        window.history.replaceState({}, document.title, '/form-payment-fake');
+        setQuoteItem(null);
+        setIsQuotePayment(false);
+      }
+      
       // Solo limpiar el carrito después de que la orden se haya guardado exitosamente
       try {
         await clearCart();
@@ -284,7 +327,13 @@ const FormPaymentFake = () => {
         limpiarFormulario();
         setFieldErrors({});
         clearCart();
-        navigate('/catalogo');
+        
+        // Si era pago de cotización, redirigir al perfil
+        if (isQuotePayment) {
+          navigate('/perfil', { state: { activeSection: 'quotes' } });
+        } else {
+          navigate('/catalogo');
+        }
       }, 19000); // 19 segundos
     }
 
@@ -293,7 +342,7 @@ const FormPaymentFake = () => {
         clearTimeout(timeoutId);
       }
     };
-  }, [currentStep, navigate]);
+  }, [currentStep, navigate, isQuotePayment]);
 
   // Función para validar el paso actual antes de continuar
   const validateCurrentStep = () => {
@@ -317,7 +366,7 @@ const FormPaymentFake = () => {
             numeroTarjeta: 'Número de tarjeta',
             nombreTitular: 'Nombre del titular',
             mesVencimiento: 'Mes de vencimiento',
-            anioVencimiento: 'Año de vencimiento',
+            añoVencimiento: 'Año de vencimiento',
             cvv: 'CVV'
           };
           message = `Completa correctamente: ${invalidFields.map(field => fieldNames[field]).join(', ')}`;
@@ -376,153 +425,78 @@ const FormPaymentFake = () => {
   };
 
   return (
-    <div className="payment-page">
+    <div className={`payment-page ${currentStep === 4 ? 'success-active' : ''}`}>
       <div className="payment-wrapper">
         <div className="page-header">
-          <h1 className="page-title">Pago Simulado con Tarjeta</h1>
+          <h1 className="page-title gradient-title">
+          {isQuotePayment ? 'Pago de Cotización Aceptada' : 'Pago Simulado con Tarjeta'}
+        </h1>
         </div>
 
         <div className="payment-card">
-          {/* Resumen del carrito - solo visible en pasos 1, 2 y 3 */}
+          {/* Resumen del carrito o cotización - solo visible en pasos 1, 2 y 3 */}
           {currentStep !== 4 && (
-            <div className="cart-summary" style={{ 
-              background: '#f8f9fa', 
-              padding: '16px', 
-              borderRadius: '8px', 
-              marginBottom: '20px',
-              border: '1px solid #e9ecef',
-              position: 'static',
-              top: 'auto',
-              left: 'auto',
-              right: 'auto',
-              bottom: 'auto',
-              zIndex: 'auto'
-            }}>
-              <h3 style={{ margin: '0 0 12px 0', color: '#6c5ce7', fontSize: '18px' }}>
-                📋 Resumen del Carrito
+            <div className="cart-summary cart-summary-optimized">
+              <h3 className="cart-summary-title">
+                {isQuotePayment ? '📋 Resumen de Cotización' : '📋 Resumen del Carrito'}
               </h3>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-                <div>
-                  <strong>Productos:</strong> {loading ? 'Cargando...' : `${cart.length} ${cart.length === 1 ? 'producto' : 'productos'}`}
-                </div>
-                <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#6c5ce7' }}>
-                  Total: {loading ? 'Cargando...' : `$${total.toFixed(2)}`}
-                </div>
+              <div className="cart-summary-content">
+                {isQuotePayment && quoteItem ? (
+                  <>
+                    <div className="cart-summary-content-row">
+                      <div className="cart-summary-products">
+                        <strong>Producto:</strong> {quoteItem.product.name}
+                      </div>
+                      <div className="cart-summary-total">
+                        Total: ${total.toFixed(2)}
+                      </div>
+                    </div>
+                    <div className="cart-summary-content-row">
+                      <div className="cart-summary-description">
+                        <strong>Tipo:</strong> Producto personalizado
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <div className="cart-summary-content-row">
+                    <div className="cart-summary-products">
+                      <strong>Productos:</strong> {loading ? 'Cargando...' : `${cart.length} ${cart.length === 1 ? 'producto' : 'productos'}`}
+                    </div>
+                    <div className="cart-summary-total">
+                      Total: {loading ? 'Cargando...' : `$${total.toFixed(2)}`}
+                    </div>
+                  </div>
+                )}
               </div>
-              
-              {/* Debug info - solo en desarrollo */}
-              {process.env.NODE_ENV === 'development' && (
-                <div style={{ 
-                  background: '#fff3cd', 
-                  border: '1px solid #ffeaa7', 
-                  borderRadius: '4px', 
-                  padding: '8px', 
-                  fontSize: '12px',
-                  color: '#856404'
-                }}>
-                  <strong>Debug:</strong> Cart length: {cart.length} | 
-                  Items: {cart.map(item => `${item.product?.name || 'Sin nombre'} (${item.quantity})`).join(', ')} |
-                  User ID: {userId} |
-                  Loading: {loading}
-                </div>
-              )}
             </div>
           )}
 
           {/* Indicador de pasos - solo visible en pasos 1, 2 y 3 */}
           {currentStep !== 4 && (
-            <div className="step-indicator" style={{ 
-              display: 'flex', 
-              justifyContent: 'center', 
-              alignItems: 'center', 
-              gap: '20px', 
-              marginBottom: '30px',
-              padding: '20px',
-              background: '#f8f9fa',
-              borderRadius: '12px',
-              border: '1px solid #e9ecef',
-              flexWrap: 'wrap'
-            }}>
-            <div style={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              gap: '8px',
-              color: currentStep >= 1 ? '#6c5ce7' : '#999',
-              fontWeight: currentStep >= 1 ? 'bold' : 'normal',
-              minWidth: '120px',
-              justifyContent: 'center'
-            }}>
-              <div style={{ 
-                width: '30px', 
-                height: '30px', 
-                borderRadius: '50%', 
-                background: currentStep >= 1 ? '#6c5ce7' : '#e9ecef',
-                color: 'white',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '14px',
-                fontWeight: 'bold'
-              }}>
+            <div className="step-indicator step-indicator-optimized">
+            <div className={`step-item-optimized ${currentStep >= 1 ? 'step-item-active' : 'step-item-inactive'}`}>
+              <div className={`step-number-optimized ${currentStep >= 1 ? 'step-number-active' : 'step-number-inactive'}`}>
                 1
               </div>
-              <span style={{ fontSize: '14px' }}>Tarjeta</span>
+              <span className="step-text-optimized">Tarjeta</span>
             </div>
             
             <ArrowRight size={20} color="#999" style={{ display: window.innerWidth <= 768 ? 'none' : 'block' }} />
             
-            <div style={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              gap: '8px',
-              color: currentStep >= 2 ? '#6c5ce7' : '#999',
-              fontWeight: currentStep >= 2 ? 'bold' : 'normal',
-              minWidth: '120px',
-              justifyContent: 'center'
-            }}>
-              <div style={{ 
-                width: '30px', 
-                height: '30px', 
-                borderRadius: '50%', 
-                background: currentStep >= 2 ? '#6c5ce7' : '#e9ecef',
-                color: 'white',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '14px',
-                fontWeight: 'bold'
-              }}>
+            <div className={`step-item-optimized ${currentStep >= 2 ? 'step-item-active' : 'step-item-inactive'}`}>
+              <div className={`step-number-optimized ${currentStep >= 2 ? 'step-number-active' : 'step-number-inactive'}`}>
                 2
               </div>
-              <span style={{ fontSize: '14px' }}>Facturación</span>
+              <span className="step-text-optimized">Facturación</span>
             </div>
             
             <ArrowRight size={20} color="#999" style={{ display: window.innerWidth <= 768 ? 'none' : 'block' }} />
             
-            <div style={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              gap: '8px',
-              color: currentStep >= 3 ? '#6c5ce7' : '#999',
-              fontWeight: currentStep >= 3 ? 'bold' : 'normal',
-              minWidth: '120px',
-              justifyContent: 'center'
-            }}>
-              <div style={{ 
-                width: '30px', 
-                height: '30px', 
-                borderRadius: '50%', 
-                background: currentStep >= 3 ? '#6c5ce7' : '#e9ecef',
-                color: 'white',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '14px',
-                fontWeight: 'bold'
-              }}>
+            <div className={`step-item-optimized ${currentStep >= 3 ? 'step-item-active' : 'step-item-inactive'}`}>
+              <div className={`step-number-optimized ${currentStep >= 3 ? 'step-number-active' : 'step-number-inactive'}`}>
                 3
               </div>
-              <span style={{ fontSize: '14px' }}>Confirmar</span>
+              <span className="step-text-optimized">Confirmar</span>
             </div>
           </div>
         )}
@@ -584,9 +558,9 @@ const FormPaymentFake = () => {
                   required 
                 />
                 <InputField 
-                  id="anioVencimiento" 
-                  name="anioVencimiento" 
-                  value={formData.anioVencimiento || ''} 
+                  id="añoVencimiento" 
+                  name="añoVencimiento" 
+                  value={formData.añoVencimiento || ''} 
                   onChange={handleFieldChange} 
                   type="text" 
                   label="Año" 
@@ -790,15 +764,15 @@ const FormPaymentFake = () => {
                   <p>{formData.paisFacturacion || 'No especificado'}</p>
             </div>
 
-                <div className="detail-section" style={{ background: '#f8f9fa', border: '1px solid #e9ecef', borderRadius: '8px', padding: '16px' }}>
-                  <h4 style={{ color: '#6c5ce7', marginBottom: '12px' }}>Resumen de la Compra</h4>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                    <span>Productos:</span>
-                    <strong>{cart.length} {cart.length === 1 ? 'producto' : 'productos'}</strong>
+                <div className="detail-section confirmation-summary">
+                  <h4 className="confirmation-summary-title">Resumen de la Compra</h4>
+                  <div className="confirmation-summary-row">
+                     <span className="confirmation-summary-label">Productos:</span>
+                     <strong className="confirmation-summary-value">{cart.length} {cart.length === 1 ? 'producto' : 'productos'}</strong>
                   </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                    <span>Total:</span>
-                    <strong style={{ color: '#6c5ce7', fontSize: '18px' }}>${total.toFixed(2)}</strong>
+                  <div className="confirmation-summary-row">
+                     <span className="confirmation-summary-label">Total:</span>
+                    <strong className="confirmation-summary-total">${total.toFixed(2)}</strong>
               </div>
           </div>
 
@@ -824,14 +798,14 @@ const FormPaymentFake = () => {
           {currentStep === 4 && (
             <div className="card-form">
             <div className="section-header">
-                <h2 className="section-title" style={{ color: '#00b894' }}>
+                <h2 className="section-title success-title">
                   <CheckCircle size={24} />
                   ¡Pago Exitoso!
                 </h2>
                 <p className="section-subtitle">
                   Tu pedido ha sido procesado correctamente y guardado en nuestra base de datos. Recibirás un correo de confirmación con los detalles de tu compra.
                 </p>
-                <p className="section-subtitle" style={{ fontSize: '14px', color: '#666', marginTop: '10px' }}>
+                <p className="section-subtitle redirect-notice">
                   ⏰ Serás redirigido al catálogo en 19 segundos...
                 </p>
             </div>

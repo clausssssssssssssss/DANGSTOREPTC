@@ -1,7 +1,9 @@
 // src/components/personalizedOrder/useCustomerOrders.jsx
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useAuth } from '../../hooks/useAuth';
 
-const API_URL = import.meta.env.VITE_API_URL || '';
+// URL del servidor local para desarrollo
+const API_URL = 'http://localhost:4000/api';
 
 export default function useCustomerOrders() {
   const [preview, setPreview]         = useState(null);
@@ -53,7 +55,7 @@ export default function useCustomerOrders() {
       form.append('modelType', modelType);
       form.append('description', description);
 
-      const res = await fetch(`${API_URL}https://dangstoreptc.onrender.com/api/custom-orders`, {
+              const res = await fetch(`${API_URL}/custom-orders`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` },
         body: form

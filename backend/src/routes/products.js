@@ -1,25 +1,24 @@
-import { Router } from "express";
-import productController from "../controllers/productController.js";
-import upload from "../middleware/multer.js";
+import express from 'express';
+import multer from 'multer';
+import { createProduct, getProducts } from '../controllers/productsController';
 
-const router = Router();
+const router = express.Router();
 
-// Obtener todos los productos
-router.get("/", productController.getProducts);
+// Configuración de multer para subir imágenes
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'uploads/');
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + '-' + file.originalname);
+  }
+});
+const upload = multer({ storage });
 
-// Obtener productos populares
-router.get("/popular", productController.getPopularProducts);
+// Obtener productos
+router.get('/', getProducts);
 
-// Obtener un producto por su ID
-router.get("/:id", productController.getProductById);
-
-// Crear un nuevo producto con imágenes
-router.post("/", upload.array('images', 5), productController.insertProduct);
-
-// Actualizar un producto (opcionalmente con imágenes)
-router.put("/:id", upload.array('images', 5), productController.updateProduct);
-
-// Eliminar un producto
-router.delete("/:id", productController.deleteProduct);
+// Crear producto
+router.post('/', upload.single('imagen'), createProduct);
 
 export default router;

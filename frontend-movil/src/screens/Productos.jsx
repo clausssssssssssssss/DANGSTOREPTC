@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import {
   View,
   Text,
@@ -15,9 +15,10 @@ import {
 import axios from 'axios';
 import * as ImagePicker from 'expo-image-picker';
 import { Picker } from '@react-native-picker/picker';
+import { AuthContext } from '../context/AuthContext';
 
 const { width, height } = Dimensions.get('window');
-const API_URL = 'https://dangstoreptc.onrender.com/api/products'; // URL consistente con el backend
+const API_URL = 'http://192.168.0.9:4000/api/products'; // Cambia a tu IP local si usas backend local
 
 const Productos = ({ navigation }) => {
   const [productos, setProductos] = useState([]);
@@ -28,11 +29,12 @@ const Productos = ({ navigation }) => {
     descripcion: '',
     precio: '',
     disponibles: '',
-    categoria: 'Realizado',
+    categoria: 'Llavero',
     imagen: null,
   });
   const [disponiblesError, setDisponiblesError] = useState('');
   const [precioError, setPrecioError] = useState('');
+  const { authToken } = useContext(AuthContext);
 
   useEffect(() => {
     obtenerProductos();
@@ -63,7 +65,10 @@ const Productos = ({ navigation }) => {
         });
       }
       await axios.post(API_URL, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
+        },
       });
       setModalVisible(false);
       obtenerProductos();
@@ -72,7 +77,7 @@ const Productos = ({ navigation }) => {
         descripcion: '',
         precio: '',
         disponibles: '',
-        categoria: 'Realizado',
+        categoria: 'Llavero',
         imagen: null,
       });
     } catch (error) {

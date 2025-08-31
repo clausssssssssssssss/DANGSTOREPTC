@@ -14,6 +14,7 @@ import {
   ScrollView 
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { Ionicons } from '@expo/vector-icons';
 import { AuthContext } from '../context/AuthContext.js';
 
 const { width, height } = Dimensions.get('window');
@@ -26,7 +27,7 @@ const AuthApp = ({ navigation }) => {
   const [errors, setErrors] = useState({});
   const [rememberMe, setRememberMe] = useState(false);
   const passwordInputRef = useRef(null);
-  const { user, login, parseJwt, setUser } = useContext(AuthContext);
+  const { user, login, parseJwt, setUser, savedCredentials, clearSavedCredentials } = useContext(AuthContext);
 
   // Validaciones
   const validateEmail = (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
@@ -53,7 +54,7 @@ const AuthApp = ({ navigation }) => {
     
     setLoading(true);
     try {
-      const success = await login(email, password);
+      const success = await login(email, password, rememberMe);
       if (success) {
         navigation.replace('MainApp');
       }
@@ -65,12 +66,30 @@ const AuthApp = ({ navigation }) => {
     }
   };
 
+  const handleRememberMeChange = async (value) => {
+    setRememberMe(value);
+    
+    // Si se desmarca "Recordar mi usuario" y hay credenciales guardadas, limpiarlas
+    if (!value && savedCredentials) {
+      await clearSavedCredentials();
+    }
+  };
+
   // Si ya existe sesión en contexto, entrar directo
   useEffect(() => {
     if (user?.token) {
       navigation.replace('MainApp');
     }
   }, [user?.token]);
+
+  // Cargar credenciales guardadas al abrir la app
+  useEffect(() => {
+    if (savedCredentials) {
+      setEmail(savedCredentials.email);
+      setPassword(savedCredentials.password);
+      setRememberMe(true);
+    }
+  }, [savedCredentials]);
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -148,7 +167,11 @@ const AuthApp = ({ navigation }) => {
                   style={styles.eyeButton} 
                 onPress={() => setShowPassword(!showPassword)}
               >
-                  <Text style={styles.eyeText}>{showPassword ? '👁️' : '👁️‍🗨️'}</Text>
+                  <Ionicons 
+                    name={showPassword ? 'eye-off' : 'eye'} 
+                    size={20} 
+                    color="#6B7280" 
+                  />
               </TouchableOpacity>
             </View>
             {errors.password && (
@@ -159,7 +182,7 @@ const AuthApp = ({ navigation }) => {
               <View style={styles.rememberRow}>
           <TouchableOpacity
                   style={styles.rememberContainer}
-                  onPress={() => setRememberMe(!rememberMe)}
+                  onPress={() => handleRememberMeChange(!rememberMe)}
                 >
                   <View style={[styles.checkbox, rememberMe && styles.checked]}>
                     {rememberMe && <Text style={styles.checkmark}>✓</Text>}
@@ -167,6 +190,8 @@ const AuthApp = ({ navigation }) => {
                   <Text style={styles.rememberText}>Recordar mi usuario</Text>
           </TouchableOpacity>
         </View>
+        
+
 
               {/* Botón de Login */}
         <TouchableOpacity
@@ -305,10 +330,6 @@ const styles = {
     alignItems: 'center', 
     justifyContent: 'center' 
   },
-  eyeText: { 
-    fontSize: 16, 
-    color: '#6B7280' 
-  },
   rememberRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -372,6 +393,17 @@ const styles = {
     fontSize: 12,
     marginTop: 6,
     fontWeight: '500' 
+  },
+  savedCredentialsInfo: {
+    marginTop: 8,
+    marginBottom: 16,
+    alignItems: 'center',
+  },
+  savedCredentialsText: {
+    color: '#10B981',
+    fontSize: 12,
+    fontWeight: '500',
+    textAlign: 'center',
   },
 };
 

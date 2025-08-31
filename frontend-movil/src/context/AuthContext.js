@@ -10,23 +10,59 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [authToken, setAuthToken] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [savedCredentials, setSavedCredentials] = useState(null);
 
   const API_URL = "http://192.168.0.3:4000/api";
 
   useEffect(() => {
-    const loadToken = async () => {
-      const token = await AsyncStorage.getItem('authToken');
-      if (token) {
-        setAuthToken(token);
+    const loadStoredData = async () => {
+      try {
+        const [token, credentials] = await Promise.all([
+          AsyncStorage.getItem('authToken'),
+          AsyncStorage.getItem('savedCredentials')
+        ]);
+        
+        if (token) {
+          setAuthToken(token);
+        }
+        
+        if (credentials) {
+          setSavedCredentials(JSON.parse(credentials));
+        }
+      } catch (error) {
+        console.error('Error loading stored data:', error);
       }
     };
-    loadToken();
+    loadStoredData();
   }, []);
 
   const clearSession = async () => {
     await AsyncStorage.removeItem('authToken');
     setUser(null);
     setAuthToken(null);
+  };
+
+  const saveCredentials = async (email, password) => {
+    try {
+      const credentials = { email, password };
+      await AsyncStorage.setItem('savedCredentials', JSON.stringify(credentials));
+      setSavedCredentials(credentials);
+      ToastAndroid.show('Usuario guardado', ToastAndroid.SHORT);
+    } catch (error) {
+      console.error('Error saving credentials:', error);
+      ToastAndroid.show('Error al guardar usuario', ToastAndroid.SHORT);
+    }
+  };
+
+  const clearSavedCredentials = async () => {
+    try {
+      await AsyncStorage.removeItem('savedCredentials');
+      setSavedCredentials(null);
+      ToastAndroid.show('Usuario eliminado', ToastAndroid.SHORT);
+    } catch (error) {
+      console.error('Error clearing credentials:', error);
+      ToastAndroid.show('Error al eliminar usuario', ToastAndroid.SHORT);
+    }
   };
 
   const logout = useCallback(async () => {
@@ -58,7 +94,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const login = async (email, password) => {
+  const login = async (email, password, rememberMe = false) => {
     try {
       const response = await fetch(`${API_URL}/admins/login`, {
         method: 'POST',
@@ -81,6 +117,12 @@ export const AuthProvider = ({ children }) => {
         await AsyncStorage.setItem('authToken', data.token);
         setAuthToken(data.token);
         setUser(data.user || { email: data.email, userType: data.userType });
+        
+        // Guardar credenciales si se marca "Recordar mi usuario"
+        if (rememberMe) {
+          await saveCredentials(email, password);
+        }
+        
         ToastAndroid.show('Inicio de sesión exitoso', ToastAndroid.SHORT);
         return true;
       } else {
@@ -123,10 +165,13 @@ export const AuthProvider = ({ children }) => {
         user,
         authToken,
         loading,
+        savedCredentials,
         login,
         logout,
         register,
         parseJwt,
+        saveCredentials,
+        clearSavedCredentials,
         API: API_URL,
       }}
     >

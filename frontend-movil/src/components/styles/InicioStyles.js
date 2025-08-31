@@ -153,7 +153,6 @@ export const inicioStyles = StyleSheet.create({
            borderRadius: 25,
            borderWidth: 1,
            borderColor: 'rgba(255, 255, 255, 0.3)',
-           marginTop: 15,
            shadowColor: '#000',
            shadowOffset: {
              width: 0,

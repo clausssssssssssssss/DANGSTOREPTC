@@ -1,79 +1,55 @@
-import React, { useEffect } from 'react';
-import { StyleSheet, Animated, Dimensions, View, Image, Text } from 'react-native';
+import React from 'react';
+import { StyleSheet, Dimensions, View, Image, Text, TouchableOpacity } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 
 const { width, height } = Dimensions.get('window');
 
-export default function SplashScreen({ onFinish }) {
-  const fadeAnim = React.useRef(new Animated.Value(0)).current;
-  const slideUpAnim = React.useRef(new Animated.Value(30)).current;
-  const scaleAnim = React.useRef(new Animated.Value(0.8)).current;
+export default function SplashScreen({ navigation }) {
+  
 
-  useEffect(() => {
-    Animated.parallel([
-      Animated.timing(fadeAnim, {
-        toValue: 1,
-        duration: 1200,
-        useNativeDriver: true,
-      }),
-      Animated.timing(slideUpAnim, {
-        toValue: 0,
-        duration: 1000,
-        useNativeDriver: true,
-      }),
-      Animated.spring(scaleAnim, {
-        toValue: 1,
-        friction: 4,
-        useNativeDriver: true,
-      })
-    ]).start();
+  
 
-    const timeout = setTimeout(() => {
-      onFinish && onFinish();
-    }, 3000);
-    return () => clearTimeout(timeout);
-  }, []);
 
-  return (
+
+
+    return (
     <LinearGradient
-      colors={['#6D28D9', '#8B5CF6', '#C4B5FD']}
-      start={{ x: 0.5, y: 0 }}
-      end={{ x: 0.5, y: 1 }}
+      colors={['#604BC2', '#999999']}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 0, y: 1 }}
       style={styles.container}
     >
-      {/* Imagen superior */}
-      <Animated.View style={[styles.topImageContainer, { opacity: fadeAnim }]}>
+      {/* Llavero centrado - IMAGEN PRINCIPAL */}
+      <View style={styles.keychainContainer}>
         <Image
-          source={require('../assets/image-removebg-preview.png')}
-          style={styles.topImage}
+          source={require('../assets/splashscreen.png')}
+          style={styles.keychainImage}
           resizeMode="contain"
         />
-      </Animated.View>
+      </View>
 
-      {/* Contenido principal */}
-      <Animated.View style={[styles.content, {
-        opacity: fadeAnim,
-        transform: [
-          { translateY: slideUpAnim },
-          { scale: scaleAnim }
-        ]
-      }]}>
-        <Image
-          source={require('../assets/image-removebg-preview (1).png')}
-          style={styles.mainImage}
-          resizeMode="contain"
-        />
-
+      {/* Slogan principal */}
+      <View style={styles.sloganContainer}>
         <Text style={styles.title}>No soy yo, es el</Text>
         <Text style={styles.brand}>DANG que brilla</Text>
-        <Text style={styles.subtitle}>El accesorio perfecto para destacar</Text>
-      </Animated.View>
+        <Text style={styles.subtitle}>El llavero perfecto para ti</Text>
+      </View>
 
-      {/* Footer animado */}
-      <Animated.View style={[styles.footer, { opacity: fadeAnim }]}>
-        <Text style={styles.arrow}>↓</Text>
-        <Text style={styles.startText}>Desliza para comenzar</Text>
-      </Animated.View>
+      {/* Botón simple "Empezar" */}
+      <View style={styles.buttonWrapper}>
+        <TouchableOpacity
+          style={styles.startButton}
+          onPress={() => {
+            if (navigation && navigation.navigate) {
+              navigation.navigate('AuthApp');
+            }
+          }}
+          activeOpacity={0.8}
+        >
+          <Text style={styles.buttonText}>Empezar</Text>
+          <Text style={styles.buttonIcon}>→</Text>
+        </TouchableOpacity>
+      </View>
     </LinearGradient>
   );
 }
@@ -87,69 +63,84 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     position: 'relative',
   },
-  topImageContainer: {
-    position: 'absolute',
-    top: height * 0.1,
-    alignItems: 'center',
-  },
-  topImage: {
-    width: width * 0.4,
-    height: height * 0.2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 10,
-  },
-  content: {
+  keychainContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: height * 0.15,
+    marginTop: height * 0.02,
+    marginBottom: 390,
+    zIndex: 2,
   },
-  mainImage: {
-    width: width * 0.7,
-    height: height * 0.3,
-    marginBottom: 20,
+  keychainImage: {
+    width: width * 1.3,
+    height: height * 0.7,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.2,
-    shadowRadius: 15,
+    shadowOffset: { width: 1, height: 10 },
+    shadowOpacity: 0.10,
+    shadowRadius: 20,
+  },
+  sloganContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'absolute',
+    top: height * 0.7,
+    left: 0,
+    right: 0,
+    zIndex: 2,
   },
   title: {
-    fontSize: 22,
-    fontWeight: '300',
+    fontSize: 24,
+    fontWeight: '600',
     color: '#fff',
     letterSpacing: 1,
-    marginTop: 10,
+    marginBottom: 8,
+    textAlign: 'center',
   },
   brand: {
-    fontSize: 32,
+    fontSize: 36,
     fontWeight: 'bold',
     color: '#fff',
-    marginTop: 5,
-    textShadowColor: 'rgba(0, 0, 0, 0.2)',
-    textShadowOffset: { width: 1, height: 2 },
-    textShadowRadius: 3,
+    marginBottom: 8,
+    textAlign: 'center',
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
   },
   subtitle: {
-    fontSize: 16,
-    color: 'rgba(255, 255, 255, 0.8)',
-    marginTop: 10,
-    fontWeight: '300',
+    fontSize: 18,
+    color: '#666',
+    fontWeight: '500',
     letterSpacing: 0.5,
+    textAlign: 'center',
   },
-  footer: {
+  buttonWrapper: {
     position: 'absolute',
-    bottom: 40,
+    bottom: 80,
+    left: 0,
+    right: 0,
     alignItems: 'center',
+    zIndex: 999,
   },
-  arrow: {
-    fontSize: 28,
-    color: 'rgba(255, 255, 255, 0.7)',
-    marginBottom: 5,
+  startButton: {
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    borderWidth: 2,
+    borderColor: 'rgba(255, 255, 255, 0.5)',
+    borderRadius: 30,
+    paddingHorizontal: 40,
+    paddingVertical: 15,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    minWidth: 200,
   },
-  startText: {
-    fontSize: 14,
-    color: 'rgba(255, 255, 255, 0.7)',
-    letterSpacing: 1,
+  buttonText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginRight: 10,
+  },
+  buttonIcon: {
+    color: '#fff',
+    fontSize: 20,
+    fontWeight: 'bold',
   },
 });

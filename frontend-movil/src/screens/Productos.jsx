@@ -113,7 +113,7 @@ const Productos = ({ navigation }) => {
   };
 
   const productosFiltrados = productos.filter(p =>
-    p.nombre.toLowerCase().includes(busqueda.toLowerCase())
+    p.nombre && p.nombre.toLowerCase().includes(busqueda.toLowerCase())
   );
 
   const renderProducto = ({ item }) => (

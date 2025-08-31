@@ -96,17 +96,17 @@ const AuthApp = ({ navigation }) => {
       <LinearGradient colors={["#6E59A4", "#3B3B3B"]} style={styles.container}>
         {/* Imágenes decorativas */}
         <Image 
-          source={require('../assets/image-removebg-preview (1).png')} 
+          source={require('../assets/logo.png')} 
           style={styles.cornerTopLeft} 
           resizeMode="contain" 
         />
         <Image 
-          source={require('../assets/image-removebg-preview (1).png')} 
+          source={require('../assets/logo.png')} 
           style={styles.cornerBottomRight} 
           resizeMode="contain" 
         />
         <Image
-          source={require('../assets/image-removebg-preview.png')}
+          source={require('../assets/logo2.png')}
           style={styles.cornerTopRight}
           resizeMode="contain"
         />

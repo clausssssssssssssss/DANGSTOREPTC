@@ -1,4 +1,4 @@
-import SalesModel from "../models/Sales.js";
+import SalesModel from "../models/Sale.js";
 
 const salesController = {};
 

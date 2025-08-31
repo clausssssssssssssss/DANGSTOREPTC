@@ -394,17 +394,6 @@ const styles = {
     marginTop: 6,
     fontWeight: '500' 
   },
-  savedCredentialsInfo: {
-    marginTop: 8,
-    marginBottom: 16,
-    alignItems: 'center',
-  },
-  savedCredentialsText: {
-    color: '#10B981',
-    fontSize: 12,
-    fontWeight: '500',
-    textAlign: 'center',
-  },
 };
 
 export default AuthApp;

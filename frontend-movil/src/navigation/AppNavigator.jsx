@@ -5,6 +5,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 
 // Importar pantallas
+import SplashScreen from '../components/SplashScreen';
 import AuthApp from '../screens/AuthApp';
 import Inicio from '../screens/Inicio';
 import Productos from '../screens/Productos';
@@ -132,9 +133,16 @@ const AppNavigator = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator 
-        initialRouteName="AuthApp"
+        initialRouteName="SplashScreen"
         screenOptions={{ headerShown: false }}
       >
+        <Stack.Screen 
+          name="SplashScreen" 
+          component={({ navigation }) => <SplashScreen navigation={navigation} />}
+          options={{
+            headerShown: false,
+          }}
+        />
         <Stack.Screen 
           name="AuthApp" 
           component={AuthApp}

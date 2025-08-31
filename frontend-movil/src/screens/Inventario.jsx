@@ -14,8 +14,8 @@ import {
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { AuthContext } from '../src/context/AuthContext.js';
-import { getMaterials, searchMaterials, createMaterial, updateMaterial, deleteMaterial } from '../src/services/materialService.js';
+import { AuthContext } from '../context/AuthContext.js';
+import { getMaterials, searchMaterials, createMaterial, updateMaterial, deleteMaterial } from '../services/materialService.js';
 
 const { width, height } = Dimensions.get('window');
 

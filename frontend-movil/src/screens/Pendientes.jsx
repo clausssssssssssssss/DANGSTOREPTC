@@ -14,7 +14,7 @@ import {
   Dimensions,
 } from 'react-native';
 import { customOrdersAPI, getImageUrl } from '../services/customOrders';
-import { AuthContext } from '../src/context/AuthContext';
+import { AuthContext } from '../context/AuthContext';
 import { pendientesStyles as styles } from '../components/styles/PendientesStyles';
 
 const { width, height } = Dimensions.get('window');

@@ -11,7 +11,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useNotifications } from '../src/hooks/useNotifications.js';
+import { useNotifications } from '../hooks/useNotifications.js';
 
 const Notificaciones = ({ navigation }) => {
   const {

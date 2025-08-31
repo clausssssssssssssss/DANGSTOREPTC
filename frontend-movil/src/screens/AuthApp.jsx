@@ -14,7 +14,7 @@ import {
   ScrollView 
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { AuthContext } from '../src/context/AuthContext.js';
+import { AuthContext } from '../context/AuthContext.js';
 
 const { width, height } = Dimensions.get('window');
 

@@ -4,7 +4,7 @@
 .cart-container {
   min-height: 100vh;
   padding: 1rem 0.5rem;
-  padding-top: 5rem;
+  padding-top: 2rem;
   background: #ffffff;
 }
 
@@ -840,7 +840,7 @@
 @media (min-width: 768px) {
   .cart-container {
     padding: 2rem 1rem;
-    padding-top: 6rem;
+    padding-top: 2rem;
   }
   
   .cart-content {
@@ -959,7 +959,7 @@
 @media (max-width: 360px) {
   .cart-container {
     padding: 0.75rem 0.25rem;
-    padding-top: 4.5rem;
+    padding-top: 1rem;
   }
   
   .cart-content {

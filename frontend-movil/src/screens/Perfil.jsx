@@ -15,7 +15,7 @@ import {
   Alert,
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
-import { AuthContext } from '../src/context/AuthContext.js';
+import { AuthContext } from '../context/AuthContext.js';
 import { useFocusEffect } from '@react-navigation/native';
 
 const { width, height } = Dimensions.get('window');

@@ -7,55 +7,89 @@ import VentasTable from '../components/Ventas/VentasTable';
 
 const Ventas = ({ navigation }) => {
   const [activeTab, setActiveTab] = useState('reporte');
+  const [selectedReporte, setSelectedReporte] = useState('mensual'); // 👈 Nuevo estado
 
   const handleTabPress = (tabId) => {
     setActiveTab(tabId);
   };
 
-  const renderReporteContent = () => (
-    <>
-      {/* Cards de totales */}
-      <View style={styles.cardsContainer}>
-        <VentasCard title="Ventas Diarias" amount="150.00" />
-        <VentasCard title="Ventas Mensuales" amount="150.00" isActive={true} />
-        <VentasCard title="Ventas Anuales" amount="150.00" />
-      </View>
-
-      {/* Filtros */}
-      <View style={styles.filtersContainer}>
-        <TouchableOpacity style={styles.filterButton}>
-          <Text style={styles.filterText}>Categorías</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={[styles.filterButton, styles.activeFilter]}>
-          <Text style={[styles.filterText, styles.activeFilterText]}>Productos</Text>
+const renderReporteContent = () => (
+  <>
+    {/* Cards de totales */}
+    <View style={styles.cardsContainer}>
+      <View style={styles.cardWrapper}>
+        <TouchableOpacity onPress={() => setSelectedReporte('diario')}>
+          <VentasCard title="Ventas Diarias" amount="150.00" isActive={selectedReporte === 'diario'} />
         </TouchableOpacity>
       </View>
-
-      {/* Total */}
-      <View style={styles.totalContainer}>
-        <Text style={styles.totalLabel}>Ventas Diarias</Text>
-        <Text style={styles.totalLabel}>Ventas Mensuales</Text>
-        <Text style={styles.totalAmount}>$1500000</Text>
+      
+      <View style={styles.cardWrapper}>
+        <TouchableOpacity onPress={() => setSelectedReporte('mensual')}>
+          <VentasCard title="Ventas Mensuales" amount="150.00" isActive={selectedReporte === 'mensual'} />
+        </TouchableOpacity>
       </View>
+      
+      <View style={styles.cardWrapper}>
+        <TouchableOpacity onPress={() => setSelectedReporte('anual')}>
+          <VentasCard title="Ventas Anuales" amount="150.00" isActive={selectedReporte === 'anual'} />
+        </TouchableOpacity>
+      </View>
+    </View>
 
-      {/* Gráfica */}
-      <VentasChart />
-    </>
-  );
+    {/* Filtros */}
+    <View style={styles.filtersContainer}>
+      <TouchableOpacity style={styles.filterButton}>
+        <Text style={styles.filterText}>Categorías</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={[styles.filterButton, styles.activeFilter]}>
+        <Text style={[styles.filterText, styles.activeFilterText]}>Productos</Text>
+      </TouchableOpacity>
+    </View>
+
+    {/* Total */}
+    <View style={styles.totalContainer}>
+      <Text style={styles.totalLabel}>Reporte seleccionado: {selectedReporte}</Text>
+      <Text style={styles.totalAmount}>$1500</Text>
+    </View>
+
+    {/* Contenedor de la Gráfica con scroll horizontal */}
+    <View style={styles.chartContainer}>
+      <ScrollView 
+        horizontal={true}
+        showsHorizontalScrollIndicator={true}
+        scrollIndicatorInsets={{ bottom: 2 }}
+        contentContainerStyle={styles.chartScrollContent}
+      >
+        <VentasChart tipo={selectedReporte} />
+      </ScrollView>
+    </View>
+  </>
+);
 
   const renderIngresosContent = () => (
-    <>
-      <View style={styles.ingresosHeader}>
-        <Text style={styles.ingresosTitle}>Ingresos por Productos</Text>
-        <Text style={styles.ingresosDate}>15/05/2025 - 20/05/2025</Text>
-        <View style={styles.ingresosTotal}>
-          <Text style={styles.ingresosTotalLabel}>Ingresos Totales</Text>
-          <Text style={styles.ingresosTotalAmount}>$0.00000</Text>
-        </View>
+  <>
+    <View style={styles.ingresosHeader}>
+      <Text style={styles.ingresosTitle}>Ingresos por Productos</Text>
+      <Text style={styles.ingresosDate}>15/05/2025 - 20/05/2025</Text>
+      <View style={styles.ingresosTotal}>
+        <Text style={styles.ingresosTotalLabel}>Ingresos Totales</Text>
+        <Text style={styles.ingresosTotalAmount}>$0.00000</Text>
       </View>
-      <VentasChart />
-    </>
-  );
+    </View>
+    
+    {/* Gráfica con scroll horizontal */}
+    <View style={styles.chartContainer}>
+      <ScrollView 
+        horizontal={true}
+        showsHorizontalScrollIndicator={true}
+        scrollIndicatorInsets={{ bottom: 2 }}
+        contentContainerStyle={styles.chartScrollContent}
+      >
+        <VentasChart tipo="ingresos" />
+      </ScrollView>
+    </View>
+  </>
+);
 
   const renderPedidosContent = () => (
     <>
@@ -136,10 +170,16 @@ const styles = StyleSheet.create({
     paddingTop: 20,
   },
   cardsContainer: {
-    flexDirection: 'row',
-    marginHorizontal: 20,
-    marginBottom: 20,
-  },
+  flexDirection: 'row',
+  marginHorizontal: 20,
+  marginBottom: 20,
+  justifyContent: 'space-between', 
+  alignItems: 'center',
+},
+  cardWrapper: {
+  flex: 1,
+  marginHorizontal: 4,
+},
   filtersContainer: {
     flexDirection: 'row',
     marginHorizontal: 20,
@@ -227,6 +267,28 @@ const styles = StyleSheet.create({
     color: '#8B7CF6',
     fontWeight: '500',
   },
+   chartContainer: {
+    marginHorizontal: 20,
+    marginBottom: 20,
+    backgroundColor: '#FFF',
+    borderRadius: 15,
+    paddingVertical: 16,
+    // Sombra opcional para darle mejor apariencia
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  
+  chartScrollContent: {
+    paddingHorizontal: 16,
+    minWidth: '100%', // Asegura que ocupe al menos todo el ancho disponible
+  },
+  
 });
 
 export default Ventas;

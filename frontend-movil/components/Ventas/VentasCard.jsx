@@ -4,7 +4,7 @@ import { View, Text, StyleSheet } from 'react-native';
 const VentasCard = ({ title, amount, isActive = false }) => {
   return (
     <View style={[styles.card, isActive && styles.activeCard]}>
-      <Text style={[styles.title, isActive && styles.activeTitle]}>
+      <Text style={[styles.title, isActive && styles.activeTitle]} numberOfLines={2}>
         {title}
       </Text>
       <Text style={[styles.amount, isActive && styles.activeAmount]}>

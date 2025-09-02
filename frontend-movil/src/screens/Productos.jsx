@@ -16,6 +16,7 @@ import axios from 'axios';
 import * as ImagePicker from 'expo-image-picker';
 import { Picker } from '@react-native-picker/picker';
 import { AuthContext } from '../context/AuthContext';
+import { getProducts } from '../controllers/productsController.js';
 
 const { width, height } = Dimensions.get('window');
 const API_URL = 'http://192.168.0.9:4000/api/products'; // Cambia a tu IP local si usas backend local

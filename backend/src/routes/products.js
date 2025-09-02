@@ -1,6 +1,6 @@
 import express from 'express';
 import multer from 'multer';
-import { createProduct, getProducts } from '../controllers/productsController';
+import { getProducts, createProduct } from '../controllers/productsController.js';
 
 const router = express.Router();
 
@@ -13,12 +13,11 @@ const storage = multer.diskStorage({
     cb(null, Date.now() + '-' + file.originalname);
   }
 });
-const upload = multer({ storage });
 
-// Obtener productos
+const upload = multer({ storage: storage });
+
+// Rutas
 router.get('/', getProducts);
-
-// Crear producto
 router.post('/', upload.single('imagen'), createProduct);
 
 export default router;

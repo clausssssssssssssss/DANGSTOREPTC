@@ -1,25 +1,32 @@
-const Product = require('../models/Product');
+import Product from '../models/Product.js';
 
-exports.getProducts = async (req, res) => {
-  const productos = await Product.find();
-  res.json(productos);
+export const getProducts = async (req, res) => {
+  try {
+    const productos = await Product.find();
+    res.json(productos);
+  } catch (error) {
+    res.status(500).json({ error: 'Error al obtener productos' });
+  }
 };
 
-exports.createProduct = async (req, res) => {
+export const createProduct = async (req, res) => {
   try {
     const { nombre, descripcion, precio, disponibles, categoria } = req.body;
     const imagen = req.file ? req.file.path : null;
+    
     const producto = new Product({
       nombre,
       descripcion,
-      precio,
-      disponibles,
+      precio: parseFloat(precio),
+      disponibles: parseInt(disponibles),
       categoria,
       imagen,
     });
+    
     await producto.save();
     res.status(201).json(producto);
   } catch (error) {
+    console.error('Error al crear producto:', error);
     res.status(500).json({ error: 'Error al crear producto' });
   }
 };

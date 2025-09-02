@@ -16,10 +16,9 @@ import axios from 'axios';
 import * as ImagePicker from 'expo-image-picker';
 import { Picker } from '@react-native-picker/picker';
 import { AuthContext } from '../context/AuthContext';
-import { getProducts } from '../controllers/productsController.js';
 
 const { width, height } = Dimensions.get('window');
-const API_URL = 'http://192.168.0.9:4000/api/products'; // Cambia a tu IP local si usas backend local
+const API_URL = 'http://192.168.0.9:4000/api/products'; // Cambia la IP si es necesario
 
 const Productos = ({ navigation }) => {
   const [productos, setProductos] = useState([]);
@@ -46,9 +45,10 @@ const Productos = ({ navigation }) => {
       const res = await axios.get(API_URL);
       setProductos(res.data);
     } catch (error) {
-      console.log(error);
+      console.log('Error obteniendo productos:', error);
     }
   };
+
 
   const agregarProducto = async () => {
     try {

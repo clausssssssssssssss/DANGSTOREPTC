@@ -1,102 +1,167 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
-  StyleSheet,
   TouchableOpacity,
   SafeAreaView,
-  Dimensions,
   TextInput,
-  ScrollView,
+  FlatList,
   Image,
   Modal,
+  ScrollView,
   Alert,
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
-import DateTimePicker from '@react-native-community/datetimepicker';
-import { AuthContext } from '../context/AuthContext.js';
-import { getMaterials, searchMaterials, createMaterial, updateMaterial, deleteMaterial } from '../services/materialService.js';
-
-const { width, height } = Dimensions.get('window');
+import { Picker } from '@react-native-picker/picker';
+import { InventarioStyles } from '../components/styles/InventarioStyles';
 
 const Inventario = ({ navigation }) => {
   const [materials, setMaterials] = useState([]);
-  const [query, setQuery] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [showCreate, setShowCreate] = useState(false);
+  const [busqueda, setBusqueda] = useState('');
+  const [modalVisible, setModalVisible] = useState(false);
   const [editItem, setEditItem] = useState(null);
-  const [form, setForm] = useState({ name: '', type: '', quantity: '', investment: '', dateOfEntry: '' , image: ''});
-  const [showDate, setShowDate] = useState(false);
+  const [nuevoMaterial, setNuevoMaterial] = useState({
+    name: '',
+    type: '',
+    quantity: '',
+    investment: '',
+    dateOfEntry: new Date().toISOString().split('T')[0],
+    image: null,
+  });
+  const [quantityError, setQuantityError] = useState('');
+  const [investmentError, setInvestmentError] = useState('');
 
-  const API_BASE = 'http://192.168.0.8:4000/api';
+  const API_URL = 'https://dangstoreptc.onrender.com/api/material';
+  const API_URL_WITHOUT_IMAGE = 'https://dangstoreptc.onrender.com/api/material/without-image';
 
-  const load = async () => {
-    setLoading(true);
-    setError('');
+  useEffect(() => {
+    obtenerMateriales();
+  }, []);
+
+  const obtenerMateriales = async () => {
     try {
-      const data = query.trim() ? await searchMaterials(API_BASE, query.trim()) : await getMaterials(API_BASE);
-      setMaterials(Array.isArray(data) ? data : []);
-    } catch (e) {
-      setError('No se pudieron cargar materiales');
-    } finally {
-      setLoading(false);
+      const response = await fetch(API_URL);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      setMaterials(data);
+    } catch (error) {
+      console.error('Error obteniendo materiales:', error);
     }
   };
 
-  useEffect(() => { load(); }, []);
-  useEffect(() => { const t = setTimeout(load, 350); return () => clearTimeout(t); }, [query]);
-
-  const handlePickImage = async () => {
-    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (status !== 'granted') return null;
-    const result = await ImagePicker.launchImageLibraryAsync({ allowsEditing: true, aspect: [1,1], quality: 0.8, base64: true });
-    if (result.canceled) return null;
-    const asset = result.assets?.[0];
-    if (!asset?.base64) return null;
-    return `data:image/jpeg;base64,${asset.base64}`;
+  const seleccionarImagen = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.7,
+    });
+    if (!result.canceled) {
+      setNuevoMaterial({ ...nuevoMaterial, image: result.assets[0].uri });
+    }
   };
 
-  const resetForm = () => setForm({ name: '', type: '', quantity: '', investment: '', dateOfEntry: '', image: '' });
+  const resetForm = () => setNuevoMaterial({
+    name: '',
+    type: '',
+    quantity: '',
+    investment: '',
+    dateOfEntry: new Date().toISOString().split('T')[0],
+    image: null,
+  });
 
-  const submitCreate = async () => {
-    try {
-      setLoading(true);
-      await createMaterial(API_BASE, {
-        name: form.name,
-        type: form.type,
-        quantity: Number(form.quantity || 0),
-        investment: Number(form.investment || 0),
-        dateOfEntry: form.dateOfEntry || new Date().toISOString(),
-        ...(form.image ? { image: { uri: form.image, name: 'image.jpg', type: 'image/jpeg' } } : {}),
-      });
-      setShowCreate(false);
-      resetForm();
-      await load();
-    } catch (e) {
-      Alert.alert('Error', 'No se pudo crear el material');
-    } finally { setLoading(false); }
+  const handleQuantityChange = (text) => {
+    if (/^\d*$/.test(text)) {
+      setNuevoMaterial({ ...nuevoMaterial, quantity: text });
+      setQuantityError('');
+    } else {
+      setQuantityError('Solo se pueden usar números');
+      setTimeout(() => setQuantityError(''), 1500);
+    }
   };
 
-  const submitUpdate = async () => {
-    if (!editItem) return;
+  const handleInvestmentChange = (text) => {
+    if (/^\d*\.?\d*$/.test(text)) {
+      setNuevoMaterial({ ...nuevoMaterial, investment: text });
+      setInvestmentError('');
+    } else {
+      setInvestmentError('Solo se pueden usar números');
+      setTimeout(() => setInvestmentError(''), 1500);
+    }
+  };
+
+  const agregarMaterial = async () => {
+    // Validar campos obligatorios
+    if (!nuevoMaterial.name.trim()) {
+      Alert.alert('Error', 'El nombre del material es obligatorio');
+      return;
+    }
+    if (!nuevoMaterial.type.trim()) {
+      Alert.alert('Error', 'El tipo de material es obligatorio');
+      return;
+    }
+    if (!nuevoMaterial.quantity.trim()) {
+      Alert.alert('Error', 'El stock es obligatorio');
+      return;
+    }
+    if (!nuevoMaterial.investment.trim()) {
+      Alert.alert('Error', 'La inversión es obligatoria');
+      return;
+    }
+    // Temporalmente hacer la imagen opcional para debugging
+    if (!nuevoMaterial.image) {
+      console.log('⚠️ Imagen no seleccionada - continuando sin imagen para debug');
+      // Alert.alert('Error', 'La imagen es obligatoria');
+      // return;
+    }
+
     try {
-      setLoading(true);
-      const updated = await updateMaterial(API_BASE, editItem._id, {
-        name: form.name,
-        type: form.type,
-        quantity: Number(form.quantity || 0),
-        investment: Number(form.investment || 0),
-        dateOfEntry: form.dateOfEntry || editItem.dateOfEntry,
-        ...(form.image ? { image: { uri: form.image, name: 'image.jpg', type: 'image/jpeg' } } : {}),
+      // PRUEBA 1: Enviar solo datos básicos sin imagen
+      const materialData = {
+        name: nuevoMaterial.name.trim(),
+        type: nuevoMaterial.type.trim(),
+        quantity: parseInt(nuevoMaterial.quantity),
+        investment: parseFloat(nuevoMaterial.investment),
+        dateOfEntry: nuevoMaterial.dateOfEntry,
+      };
+
+      console.log('Enviando datos básicos:', materialData);
+
+      const response = await fetch(API_URL_WITHOUT_IMAGE, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(materialData),
       });
-      Alert.alert('Material actualizado');
-      setEditItem(null);
+
+      // Remover logs antiguos que ya no aplican
+
+      if (!response.ok) {
+        let errorMessage = `HTTP error! status: ${response.status}`;
+        try {
+          const errorData = await response.json();
+          errorMessage += `, message: ${errorData.message || 'Error desconocido'}`;
+          console.error('Error completo del servidor:', errorData);
+        } catch (parseError) {
+          console.error('No se pudo parsear el error del servidor:', parseError);
+        }
+        throw new Error(errorMessage);
+      }
+
+      const responseData = await response.json();
+      console.log('Respuesta del servidor:', responseData);
+      
+      Alert.alert('Éxito', 'Material agregado correctamente');
+      setModalVisible(false);
+      obtenerMateriales();
       resetForm();
-      await load();
-    } catch (e) {
-      Alert.alert('Error', e?.message || 'No se pudo actualizar');
-    } finally { setLoading(false); }
+    } catch (error) {
+      console.error('Error al agregar material:', error);
+      Alert.alert('Error', error.message || 'Error al procesar la solicitud');
+    }
   };
 
   const confirmDelete = async (id) => {
@@ -104,133 +169,230 @@ const Inventario = ({ navigation }) => {
       { text: 'Cancelar', style: 'cancel' },
       { text: 'Eliminar', style: 'destructive', onPress: async () => {
         try { 
-          setLoading(true); 
-          await deleteMaterial(API_BASE, id); 
-          // Cerrar modal de edición y limpiar formulario
-          setEditItem(null);
-          resetForm();
+          const response = await fetch(`${API_URL}/${id}`, {
+            method: 'DELETE',
+          });
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
           Alert.alert('Material eliminado');
-          await load(); 
+          obtenerMateriales(); 
         }
         catch { Alert.alert('Error', 'No se pudo eliminar'); }
-        finally { setLoading(false); }
       }}
     ]);
   };
 
+  const materialesFiltrados = materials.filter(m =>
+    m.name && m.name.toLowerCase().includes(busqueda.toLowerCase())
+  );
+
+  const renderMaterial = ({ item }) => (
+    <View style={InventarioStyles.card}>
+      <Image source={{ uri: item.image }} style={InventarioStyles.cardImage} />
+      <Text style={InventarioStyles.cardTitle}>{item.name}</Text>
+      <Text style={InventarioStyles.cardText}>Tipo: {item.type}</Text>
+      <Text style={InventarioStyles.cardText}>Stock: {item.quantity}</Text>
+      <Text style={InventarioStyles.cardText}>Inversión: ${item.investment}</Text>
+      <Text style={InventarioStyles.cardText}>Fecha: {new Date(item.dateOfEntry).toLocaleDateString()}</Text>
+    </View>
+  );
+
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-      <TouchableOpacity 
+    <SafeAreaView style={InventarioStyles.container}>
+      <View style={InventarioStyles.header}>
+        <TouchableOpacity
           onPress={() => navigation.goBack()}
-          style={styles.backButton}
+          style={InventarioStyles.backButton}
         >
-          <Text style={styles.backButtonText}>←</Text>
+          <Text style={InventarioStyles.backButtonText}>←</Text>
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Inventario</Text>
-        <View style={styles.placeholder} />
+        <Text style={InventarioStyles.headerTitle}>Inventario</Text>
+        <View style={InventarioStyles.placeholder} />
       </View>
 
-      <View style={{ paddingHorizontal: width * 0.05, paddingTop: 12, flex: 1 }}>
-        {/* Buscador y botón nuevo */}
-        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
-          <View style={{ flex: 1, backgroundColor: '#fff', borderRadius: 12, borderWidth: 1, borderColor: '#E5E7EB', paddingHorizontal: 12, height: 44, justifyContent: 'center' }}>
-            <Text style={{ color: '#9CA3AF', position: 'absolute', left: 12 }}>🔎</Text>
-            <TextInput
-              value={query}
-              onChangeText={setQuery}
-              placeholder="Buscar materiales..."
-              placeholderTextColor="#9CA3AF"
-              style={{ paddingLeft: 28, color: '#111827' }}
-            />
-          </View>
-          <TouchableOpacity onPress={() => setShowCreate(true)} style={{ marginLeft: 10, backgroundColor: '#8B5CF6', paddingHorizontal: 12, height: 44, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }}>
-            <Text style={{ color: 'white', fontWeight: '700' }}>Nuevo</Text>
-          </TouchableOpacity>
-        </View>
+      <View style={InventarioStyles.searchContainer}>
+        <TextInput
+          style={InventarioStyles.searchInput}
+          placeholder="Buscar material"
+          value={busqueda}
+          onChangeText={setBusqueda}
+        />
+      </View>
 
-        {/* Listado */}
-        {loading ? (
-          <Text style={{ textAlign: 'center', color: '#6B7280' }}>Cargando...</Text>
-        ) : error ? (
-          <Text style={{ textAlign: 'center', color: '#EF4444' }}>{error}</Text>
-        ) : (
-          <ScrollView contentContainerStyle={{ paddingBottom: 120 }}>
-            <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' }}>
-              {materials.map((m) => (
-                <TouchableOpacity key={m._id} style={styles.card} onPress={() => { setEditItem(m); setForm({ name: m.name, type: m.type, quantity: String(m.quantity), investment: String(m.investment), dateOfEntry: m.dateOfEntry?.slice(0,10) || '', image: '' }); }}>
-                  <Image source={{ uri: m.image }} style={styles.cardImage} />
-                  <View style={{ padding: 10 }}>
-                    <Text style={styles.cardTitle}>{m.name}</Text>
-                    <Text style={styles.cardMeta}>Tipo: {m.type}</Text>
-                    <Text style={styles.cardMeta}>Stock: {m.quantity} • Inversión: {m.investment}</Text>
+      <View style={InventarioStyles.buttonContainer}>
+        <TouchableOpacity
+          style={InventarioStyles.nuevoBtn}
+          onPress={() => setModalVisible(true)}
+        >
+          <Text style={InventarioStyles.nuevoBtnText}>+ Nuevo material</Text>
+        </TouchableOpacity>
+        
+                 <TouchableOpacity
+           style={InventarioStyles.testBtn}
+           onPress={async () => {
+             try {
+               const response = await fetch(API_URL);
+               if (!response.ok) {
+                 throw new Error(`HTTP error! status: ${response.status}`);
+               }
+               const data = await response.json();
+               Alert.alert('Conexión exitosa', `Conectado al backend. Materiales disponibles: ${data.length}`);
+             } catch (error) {
+               Alert.alert('Error de conexión', 'No se pudo conectar con el backend');
+               console.error('Error de conexión:', error);
+             }
+           }}
+         >
+           <Text style={InventarioStyles.testBtnText}>🔍 Probar conexión</Text>
+         </TouchableOpacity>
+         
+         <TouchableOpacity
+           style={[InventarioStyles.testBtn, { backgroundColor: '#F59E0B' }]}
+           onPress={async () => {
+             try {
+               const testData = {
+                 name: 'Material de Prueba',
+                 type: 'Test',
+                 quantity: 1,
+                 investment: 10.50,
+                 dateOfEntry: new Date().toISOString().split('T')[0],
+               };
+               
+               console.log('Probando con datos básicos:', testData);
+               
+                               const response = await fetch(API_URL_WITHOUT_IMAGE, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify(testData),
+                });
+               
+               if (!response.ok) {
+                 const errorData = await response.json().catch(() => ({}));
+                 throw new Error(`Error ${response.status}: ${errorData.message || 'Error desconocido'}`);
+               }
+               
+               const result = await response.json();
+               Alert.alert('Prueba exitosa', 'Material de prueba creado correctamente');
+               console.log('Resultado de prueba:', result);
+               obtenerMateriales();
+             } catch (error) {
+               Alert.alert('Error en prueba', error.message);
+               console.error('Error en prueba:', error);
+             }
+           }}
+         >
+           <Text style={InventarioStyles.testBtnText}>🧪 Probar sin imagen</Text>
+         </TouchableOpacity>
+      </View>
+
+      <FlatList
+        data={materialesFiltrados}
+        keyExtractor={item => item._id}
+        renderItem={renderMaterial}
+        numColumns={2}
+        contentContainerStyle={InventarioStyles.listContainer}
+      />
+
+      {/* Modal para agregar material */}
+      <Modal
+        visible={modalVisible}
+        animationType="fade"
+        transparent
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={InventarioStyles.modalOverlay}>
+          <View style={InventarioStyles.modalBox}>
+            <TouchableOpacity
+              style={InventarioStyles.modalBack}
+              onPress={() => setModalVisible(false)}
+            >
+              <Text style={InventarioStyles.backButtonText}>←</Text>
+            </TouchableOpacity>
+            <ScrollView contentContainerStyle={InventarioStyles.modalContent}>
+              <TouchableOpacity
+                style={[
+                  InventarioStyles.imagePicker,
+                  !nuevoMaterial.image && InventarioStyles.imagePickerRequired
+                ]}
+                onPress={seleccionarImagen}
+              >
+                {nuevoMaterial.image ? (
+                  <Image
+                    source={{ uri: nuevoMaterial.image }}
+                    style={InventarioStyles.previewImage}
+                  />
+                ) : (
+                  <View style={InventarioStyles.imagePickerEmpty}>
+                    <Text style={InventarioStyles.imagePickerText}>📷</Text>
+                    <Text style={InventarioStyles.imagePickerSubtext}>Subir imagen</Text>
+                    <Text style={InventarioStyles.imagePickerRequired}>*Obligatorio</Text>
                   </View>
-                </TouchableOpacity>
-              ))}
-            </View>
-          </ScrollView>
-        )}
-      </View>
-
-      {/* Modal Crear */}
-      <Modal visible={showCreate} animationType="slide" transparent>
-        <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'center', padding: 16 }}>
-          <View style={{ backgroundColor: 'white', borderRadius: 16, padding: 16 }}>
-            <Text style={{ fontSize: 18, fontWeight: '700', marginBottom: 12 }}>Nuevo material</Text>
-            <TouchableOpacity onPress={async () => { const img = await handlePickImage(); if (img) setForm({ ...form, image: img }); }} style={{ alignSelf: 'center', marginBottom: 12 }}>
-              <Image source={{ uri: form.image || 'https://via.placeholder.com/120' }} style={{ width: 120, height: 120, borderRadius: 12, backgroundColor: '#F3F4F6' }} />
-            </TouchableOpacity>
-            <TextInput placeholder="Nombre" value={form.name} onChangeText={(t)=>setForm({ ...form, name: t })} style={styles.input} />
-            <TextInput placeholder="Tipo" value={form.type} onChangeText={(t)=>setForm({ ...form, type: t })} style={styles.input} />
-            <TextInput placeholder="Stock" keyboardType="numeric" value={form.quantity} onChangeText={(t)=>setForm({ ...form, quantity: t })} style={styles.input} />
-            <TextInput placeholder="Inversión" keyboardType="numeric" value={form.investment} onChangeText={(t)=>setForm({ ...form, investment: t })} style={styles.input} />
-            <TouchableOpacity onPress={() => setShowDate(true)}>
-              <Text style={[styles.input, { textAlignVertical: 'center', paddingTop: 12 }]}>Fecha: {form.dateOfEntry || 'Seleccionar'}</Text>
-            </TouchableOpacity>
-            {showDate && (
-              <DateTimePicker
-                value={form.dateOfEntry ? new Date(form.dateOfEntry) : new Date()}
-                mode="date"
-                onChange={(e, d) => { setShowDate(false); if (d) setForm({ ...form, dateOfEntry: d.toISOString().slice(0,10) }); }}
-              />
-            )}
-            <View style={{ flexDirection: 'row', justifyContent: 'flex-end', marginTop: 8 }}>
-              <TouchableOpacity onPress={() => { setShowCreate(false); resetForm(); }} style={styles.secondaryBtn}><Text style={styles.secondaryBtnText}>Cancelar</Text></TouchableOpacity>
-              <TouchableOpacity onPress={submitCreate} style={styles.primaryBtn}><Text style={styles.primaryBtnText}>Guardar</Text></TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      </Modal>
-
-      {/* Modal Editar */}
-      <Modal visible={!!editItem} animationType="slide" transparent>
-        <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'center', padding: 16 }}>
-          <View style={{ backgroundColor: 'white', borderRadius: 16, padding: 16 }}>
-            <Text style={{ fontSize: 18, fontWeight: '700', marginBottom: 12 }}>Editar material</Text>
-            <TouchableOpacity onPress={async () => { const img = await handlePickImage(); if (img) setForm({ ...form, image: img }); }} style={{ alignSelf: 'center', marginBottom: 12 }}>
-              <Image source={{ uri: form.image || editItem?.image || 'https://via.placeholder.com/120' }} style={{ width: 120, height: 120, borderRadius: 12, backgroundColor: '#F3F4F6' }} />
-            </TouchableOpacity>
-            <TextInput placeholder="Nombre" value={form.name} onChangeText={(t)=>setForm({ ...form, name: t })} style={styles.input} />
-            <TextInput placeholder="Tipo" value={form.type} onChangeText={(t)=>setForm({ ...form, type: t })} style={styles.input} />
-            <TextInput placeholder="Stock" keyboardType="numeric" value={form.quantity} onChangeText={(t)=>setForm({ ...form, quantity: t })} style={styles.input} />
-            <TextInput placeholder="Inversión" keyboardType="numeric" value={form.investment} onChangeText={(t)=>setForm({ ...form, investment: t })} style={styles.input} />
-            <TouchableOpacity onPress={() => setShowDate(true)}>
-              <Text style={[styles.input, { textAlignVertical: 'center', paddingTop: 12 }]}>Fecha: {form.dateOfEntry || 'Seleccionar'}</Text>
-            </TouchableOpacity>
-            {showDate && (
-              <DateTimePicker
-                value={form.dateOfEntry ? new Date(form.dateOfEntry) : new Date()}
-                mode="date"
-                onChange={(e, d) => { setShowDate(false); if (d) setForm({ ...form, dateOfEntry: d.toISOString().slice(0,10) }); }}
-              />
-            )}
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 8 }}>
-              <TouchableOpacity onPress={() => { setEditItem(null); resetForm(); }} style={styles.secondaryBtn}><Text style={styles.secondaryBtnText}>Cerrar</Text></TouchableOpacity>
-              <View style={{ flexDirection: 'row' }}>
-                <TouchableOpacity onPress={() => confirmDelete(editItem._id)} style={[styles.secondaryBtn, { marginRight: 8 }]}><Text style={[styles.secondaryBtnText, { color: '#EF4444' }]}>Eliminar</Text></TouchableOpacity>
-                <TouchableOpacity onPress={submitUpdate} style={styles.primaryBtn}><Text style={styles.primaryBtnText}>Actualizar</Text></TouchableOpacity>
+                )}
+              </TouchableOpacity>
+              <View style={InventarioStyles.inputWrapper}>
+                <TextInput
+                  style={InventarioStyles.input}
+                  placeholder="Nombre del material *"
+                  value={nuevoMaterial.name}
+                  onChangeText={text => setNuevoMaterial({ ...nuevoMaterial, name: text })}
+                />
+                {!nuevoMaterial.name.trim() && (
+                  <Text style={InventarioStyles.fieldRequired}>Campo obligatorio</Text>
+                )}
               </View>
-            </View>
+              <View style={InventarioStyles.inputWrapper}>
+                <TextInput
+                  style={InventarioStyles.input}
+                  placeholder="Tipo de material *"
+                  value={nuevoMaterial.type}
+                  onChangeText={text => setNuevoMaterial({ ...nuevoMaterial, type: text })}
+                />
+                {!nuevoMaterial.type.trim() && (
+                  <Text style={InventarioStyles.fieldRequired}>Campo obligatorio</Text>
+                )}
+              </View>
+              <View style={InventarioStyles.row}>
+                <View style={{ flex: 1, marginRight: 8 }}>
+                  <TextInput
+                    style={InventarioStyles.input}
+                    placeholder="Stock disponible"
+                    keyboardType="numeric"
+                    value={nuevoMaterial.quantity}
+                    onChangeText={handleQuantityChange}
+                    maxLength={5}
+                  />
+                  {quantityError ? (
+                    <Text style={InventarioStyles.errorText}>{quantityError}</Text>
+                  ) : null}
+                </View>
+                <View style={{ flex: 1, marginLeft: 8 }}>
+                  <View style={InventarioStyles.inputContainer}>
+                    <Text style={InventarioStyles.precioSimbolo}>$</Text>
+                    <TextInput
+                      style={InventarioStyles.inputPrecio}
+                      placeholder="Inversión"
+                      keyboardType="numeric"
+                      value={nuevoMaterial.investment}
+                      onChangeText={handleInvestmentChange}
+                      maxLength={8}
+                    />
+                  </View>
+                  {investmentError ? (
+                    <Text style={InventarioStyles.errorText}>{investmentError}</Text>
+                  ) : null}
+                </View>
+              </View>
+              <TextInput
+                style={InventarioStyles.input}
+                placeholder="Fecha de entrada (YYYY-MM-DD)"
+                value={nuevoMaterial.dateOfEntry}
+                onChangeText={text => setNuevoMaterial({ ...nuevoMaterial, dateOfEntry: text })}
+              />
+              <TouchableOpacity style={InventarioStyles.agregarBtn} onPress={agregarMaterial}>
+                <Text style={InventarioStyles.agregarBtnText}>Agregar</Text>
+              </TouchableOpacity>
+            </ScrollView>
           </View>
         </View>
       </Modal>
@@ -238,96 +400,6 @@ const Inventario = ({ navigation }) => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F8FAFC',
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: width * 0.05,
-    paddingTop: height * 0.02,
-    paddingBottom: height * 0.025,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
-    backgroundColor: 'white',
-  },
-  backButton: {
-    padding: 8,
-  },
-  backButtonText: {
-    fontSize: Math.max(20, width * 0.06),
-    color: '#8B5CF6',
-    fontWeight: 'bold',
-  },
-  headerTitle: {
-    fontSize: Math.max(18, width * 0.045),
-    fontWeight: 'bold',
-    color: '#1F2937',
-  },
-  placeholder: {
-    width: 40,
-  },
-  input: {
-    backgroundColor: '#F3F4F6',
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
-    paddingHorizontal: 12,
-    height: 44,
-    marginBottom: 10,
-    color: '#111827',
-  },
-  primaryBtn: {
-    backgroundColor: '#8B5CF6',
-    paddingHorizontal: 16,
-    height: 44,
-    borderRadius: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  primaryBtnText: {
-    color: '#fff',
-    fontWeight: '700',
-  },
-  secondaryBtn: {
-    backgroundColor: '#F3F4F6',
-    paddingHorizontal: 16,
-    height: 44,
-    borderRadius: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 8,
-  },
-  secondaryBtnText: {
-    color: '#374151',
-    fontWeight: '700',
-  },
-  card: {
-    width: (width * 0.9 - 12) / 2,
-    backgroundColor: '#fff',
-    borderRadius: 14,
-    overflow: 'hidden',
-    marginBottom: 12,
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
-  },
-  cardImage: {
-    width: '100%',
-    height: 120,
-    backgroundColor: '#F3F4F6',
-  },
-  cardTitle: {
-    fontWeight: '700',
-    color: '#1F2937',
-    marginBottom: 4,
-  },
-  cardMeta: {
-    color: '#6B7280',
-    fontSize: 12,
-  },
-});
+
 
 export default Inventario;  

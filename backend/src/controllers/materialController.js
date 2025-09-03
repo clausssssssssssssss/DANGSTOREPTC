@@ -67,6 +67,36 @@ materialController.insertMaterial = async (req, res) => {
   }
 };
 
+//  insertar un material SIN imagen (nuevo endpoint)
+materialController.insertMaterialWithoutImage = async (req, res) => {
+  try {
+    const { name, type, quantity, dateOfEntry, investment } = req.body;
+
+    // Validar campos obligatorios
+    if (!name || !type || !quantity || !dateOfEntry || !investment) {
+      return res.status(400).json({ 
+        message: 'Todos los campos son obligatorios excepto la imagen' 
+      });
+    }
+
+    // Crear material sin imagen
+    const newMaterial = new Material({
+      name,
+      type,
+      quantity: Number(quantity),
+      dateOfEntry,
+      investment: Number(investment),
+      image: null, // Sin imagen
+    });
+
+    await newMaterial.save();
+    res.status(201).json(newMaterial);
+  } catch (error) {
+    console.error('Error creando material sin imagen:', error);
+    res.status(500).json({ message: 'Error al crear material', error });
+  }
+};
+
 //  obtener todos los materiales
 materialController.getAllMaterials = async (req, res) => {
   try {

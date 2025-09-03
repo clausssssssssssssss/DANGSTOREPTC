@@ -11,18 +11,21 @@ import {
   Image,
   Modal,
   ScrollView,
+  Alert,
 } from 'react-native';
-import axios from 'axios';
+
 import * as ImagePicker from 'expo-image-picker';
 import { Picker } from '@react-native-picker/picker';
 
 const { width, height } = Dimensions.get('window');
-const API_URL = 'https://dangstoreptc.onrender.com/api/products'; // URL consistente con el backend
+const API_URL = 'http://192.168.0.3:4000/api/products'; // URL consistente con el backend
 
 const Productos = ({ navigation }) => {
   const [productos, setProductos] = useState([]);
   const [busqueda, setBusqueda] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
+  const [modalEditarVisible, setModalEditarVisible] = useState(false);
+  const [productoSeleccionado, setProductoSeleccionado] = useState(null);
   const [nuevoProducto, setNuevoProducto] = useState({
     nombre: '',
     descripcion: '',
@@ -40,31 +43,45 @@ const Productos = ({ navigation }) => {
 
   const obtenerProductos = async () => {
     try {
-      const res = await axios.get(API_URL);
-      setProductos(res.data);
+      const response = await fetch(API_URL);
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status} ${response.statusText}`);
+      }
+      const data = await response.json();
+      setProductos(data);
     } catch (error) {
-      console.log(error);
+      console.log('Error obteniendo productos:', error);
     }
   };
 
   const agregarProducto = async () => {
     try {
       const formData = new FormData();
-      formData.append('nombre', nuevoProducto.nombre);
-      formData.append('descripcion', nuevoProducto.descripcion);
-      formData.append('precio', nuevoProducto.precio);
-      formData.append('disponibles', nuevoProducto.disponibles);
-      formData.append('categoria', nuevoProducto.categoria);
+      formData.append('name', nuevoProducto.nombre);
+      formData.append('description', nuevoProducto.descripcion);
+      formData.append('price', nuevoProducto.precio);
+      formData.append('stock', nuevoProducto.disponibles);
+      formData.append('category', nuevoProducto.categoria);
       if (nuevoProducto.imagen) {
-        formData.append('imagen', {
+        formData.append('images', {
           uri: nuevoProducto.imagen,
           name: 'producto.jpg',
           type: 'image/jpeg',
         });
       }
-      await axios.post(API_URL, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
+      
+      const response = await fetch(API_URL, {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
       });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status} ${response.statusText}`);
+      }
+      
       setModalVisible(false);
       obtenerProductos();
       setNuevoProducto({
@@ -76,7 +93,7 @@ const Productos = ({ navigation }) => {
         imagen: null,
       });
     } catch (error) {
-      console.log(error);
+      console.log('Error agregando producto:', error);
     }
   };
 
@@ -90,6 +107,101 @@ const Productos = ({ navigation }) => {
     if (!result.canceled) {
       setNuevoProducto({ ...nuevoProducto, imagen: result.assets[0].uri });
     }
+  };
+
+  const seleccionarImagenEditar = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.7,
+    });
+    if (!result.canceled) {
+      setProductoSeleccionado({ ...productoSeleccionado, imagen: result.assets[0].uri });
+    }
+  };
+
+  const eliminarProducto = async (productId) => {
+    Alert.alert(
+      'Confirmar eliminación',
+      '¿Estás seguro de que quieres eliminar este producto? Esta acción no se puede deshacer.',
+      [
+        {
+          text: 'Cancelar',
+          style: 'cancel',
+        },
+        {
+          text: 'Eliminar',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              const response = await fetch(`${API_URL}/${productId}`, {
+                method: 'DELETE',
+              });
+              
+              if (!response.ok) {
+                throw new Error(`HTTP ${response.status} ${response.statusText}`);
+              }
+              
+              obtenerProductos(); // Recargar la lista
+            } catch (error) {
+              console.log('Error eliminando producto:', error);
+            }
+          },
+        },
+      ]
+    );
+  };
+
+  const editarProducto = async () => {
+    try {
+      const formData = new FormData();
+      formData.append('name', productoSeleccionado.nombre);
+      formData.append('description', productoSeleccionado.descripcion);
+      formData.append('price', productoSeleccionado.precio);
+      formData.append('stock', productoSeleccionado.disponibles);
+      formData.append('category', productoSeleccionado.categoria);
+      
+      // Solo agregar imagen si se seleccionó una nueva
+      if (productoSeleccionado.imagen && typeof productoSeleccionado.imagen === 'string' && productoSeleccionado.imagen.startsWith('file://')) {
+        formData.append('images', {
+          uri: productoSeleccionado.imagen,
+          name: 'producto.jpg',
+          type: 'image/jpeg',
+        });
+      }
+      
+      const response = await fetch(`${API_URL}/${productoSeleccionado._id}`, {
+        method: 'PUT',
+        body: formData,
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status} ${response.statusText}`);
+      }
+      
+      setModalEditarVisible(false);
+      setProductoSeleccionado(null);
+      obtenerProductos();
+    } catch (error) {
+      console.log('Error editando producto:', error);
+    }
+  };
+
+  const abrirModalEditar = (producto) => {
+    setProductoSeleccionado({
+      _id: producto._id,
+      nombre: producto.name,
+      descripcion: producto.description || '',
+      precio: producto.price.toString(),
+      disponibles: producto.stock.toString(),
+      categoria: producto.category,
+      imagen: null, // No cargar imagen existente, solo permitir nueva
+    });
+    setModalEditarVisible(true);
   };
 
   const handleDisponiblesChange = (text) => {
@@ -112,16 +224,55 @@ const Productos = ({ navigation }) => {
     }
   };
 
+  const handleDisponiblesChangeEditar = (text) => {
+    if (/^\d*$/.test(text)) {
+      setProductoSeleccionado({ ...productoSeleccionado, disponibles: text });
+      setDisponiblesError('');
+    } else {
+      setDisponiblesError('Solo se pueden usar números');
+      setTimeout(() => setDisponiblesError(''), 1500);
+    }
+  };
+
+  const handlePrecioChangeEditar = (text) => {
+    if (/^\d*\.?\d*$/.test(text)) {
+      setProductoSeleccionado({ ...productoSeleccionado, precio: text });
+      setPrecioError('');
+    } else {
+      setPrecioError('Solo se pueden usar números');
+      setTimeout(() => setPrecioError(''), 1500);
+    }
+  };
+
   const productosFiltrados = productos.filter(p =>
-    p.nombre && p.nombre.toLowerCase().includes(busqueda.toLowerCase())
+    p.name && p.name.toLowerCase().includes(busqueda.toLowerCase())
   );
 
   const renderProducto = ({ item }) => (
     <View style={styles.card}>
-      <Image source={{ uri: item.imagen }} style={styles.cardImage} />
-      <Text style={styles.cardTitle}>{item.nombre}</Text>
-      <Text style={styles.cardText}>Precio: ${item.precio}</Text>
-      <Text style={styles.cardText}>Disponibles: {item.disponibles}</Text>
+      <Image 
+        source={{ uri: item.images && item.images.length > 0 ? item.images[0] : 'https://via.placeholder.com/150' }} 
+        style={styles.cardImage} 
+      />
+      <Text style={styles.cardTitle}>{item.name}</Text>
+      <Text style={styles.cardText}>Precio: ${item.price}</Text>
+      <Text style={styles.cardText}>Disponibles: {item.stock}</Text>
+      
+      <View style={styles.cardActions}>
+        <TouchableOpacity 
+          style={styles.editButton}
+          onPress={() => abrirModalEditar(item)}
+        >
+          <Text style={styles.editButtonText}>✎</Text>
+        </TouchableOpacity>
+        
+        <TouchableOpacity 
+          style={styles.deleteButton}
+          onPress={() => eliminarProducto(item._id)}
+        >
+          <Text style={styles.deleteButtonText}>✕</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 
@@ -258,6 +409,115 @@ const Productos = ({ navigation }) => {
               </View>
               <TouchableOpacity style={styles.agregarBtn} onPress={agregarProducto}>
                 <Text style={styles.agregarBtnText}>Agregar</Text>
+              </TouchableOpacity>
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Modal para editar producto */}
+      <Modal
+        visible={modalEditarVisible}
+        animationType="fade"
+        transparent
+        onRequestClose={() => setModalEditarVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalBox}>
+            <TouchableOpacity
+              style={styles.modalBack}
+              onPress={() => setModalEditarVisible(false)}
+            >
+              <Text style={styles.backButtonText}>←</Text>
+            </TouchableOpacity>
+            <ScrollView contentContainerStyle={styles.modalContent}>
+              <Text style={styles.modalTitle}>Editar Producto</Text>
+              
+              <TouchableOpacity
+                style={styles.imagePicker}
+                onPress={seleccionarImagenEditar}
+              >
+                {productoSeleccionado?.imagen ? (
+                  <Image
+                    source={{ uri: productoSeleccionado.imagen }}
+                    style={styles.previewImage}
+                  />
+                ) : (
+                  <Text style={styles.imagePickerText}>Cambiar imagen</Text>
+                )}
+              </TouchableOpacity>
+              
+              <TextInput
+                style={styles.input}
+                placeholder="Nombre"
+                value={productoSeleccionado?.nombre || ''}
+                onChangeText={text => setProductoSeleccionado({ ...productoSeleccionado, nombre: text })}
+              />
+              
+              <View style={styles.descripcionContainer}>
+                <TextInput
+                  style={styles.descripcionInput}
+                  placeholder="Descripción"
+                  value={productoSeleccionado?.descripcion || ''}
+                  onChangeText={text => setProductoSeleccionado({ ...productoSeleccionado, descripcion: text })}
+                  multiline
+                  numberOfLines={4}
+                  textAlignVertical="top"
+                />
+              </View>
+              
+              <View style={styles.row}>
+                <View style={{ flex: 1, marginRight: 8 }}>
+                  <View style={styles.inputContainer}>
+                    <Text style={styles.precioSimbolo}>$</Text>
+                    <TextInput
+                      style={styles.inputPrecio}
+                      placeholder="Precio"
+                      keyboardType="numeric"
+                      value={productoSeleccionado?.precio || ''}
+                      onChangeText={handlePrecioChangeEditar}
+                      maxLength={8}
+                    />
+                  </View>
+                  {precioError ? (
+                    <Text style={styles.errorText}>{precioError}</Text>
+                  ) : null}
+                </View>
+                <View style={{ flex: 1, marginLeft: 8 }}>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Disponibles"
+                    keyboardType="numeric"
+                    value={productoSeleccionado?.disponibles || ''}
+                    onChangeText={handleDisponiblesChangeEditar}
+                    maxLength={5}
+                  />
+                  {disponiblesError ? (
+                    <Text style={styles.errorText}>{disponiblesError}</Text>
+                  ) : null}
+                </View>
+              </View>
+              
+              <View style={styles.row}>
+                <Text style={styles.categoriaLabel}>Categoría:</Text>
+                <View style={styles.pickerContainer}>
+                  <Picker
+                    selectedValue={productoSeleccionado?.categoria || 'Llavero'}
+                    style={styles.picker}
+                    onValueChange={itemValue =>
+                      setProductoSeleccionado({ ...productoSeleccionado, categoria: itemValue })
+                    }
+                    dropdownIconColor="#8B5CF6"
+                    mode="dropdown"
+                  >
+                    <Picker.Item label="Llavero" value="Llavero" />
+                    <Picker.Item label="Cuadro" value="Cuadro" />
+                  </Picker>
+                </View>
+              </View>
+              
+              <TouchableOpacity style={styles.agregarBtn} onPress={editarProducto}>
+                <Text style={styles.agregarBtnText}>Guardar Cambios</Text>
               </TouchableOpacity>
             </ScrollView>
           </View>
@@ -535,6 +795,57 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
     padding: 0,
     height: 40,
+  },
+  cardActions: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginTop: 8,
+    width: '100%',
+  },
+  editButton: {
+    backgroundColor: '#3B82F6',
+    borderRadius: 8,
+    paddingHorizontal: 8,
+    paddingVertical: 8,
+    flex: 1,
+    marginHorizontal: 4,
+    alignItems: 'center',
+    shadowColor: '#3B82F6',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+    elevation: 3,
+  },
+  editButtonText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+  },
+  deleteButton: {
+    backgroundColor: '#EF4444',
+    borderRadius: 8,
+    paddingHorizontal: 8,
+    paddingVertical: 8,
+    flex: 1,
+    marginHorizontal: 4,
+    alignItems: 'center',
+    shadowColor: '#EF4444',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+    elevation: 3,
+  },
+  deleteButtonText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#1F2937',
+    marginBottom: 16,
+    textAlign: 'center',
   },
 });
 

@@ -22,6 +22,15 @@ export default function Catalogo() {
   const { favorites, toggleFavorite } = useFavorites(userId);
   const { toasts, showSuccess, showError, showWarning, showInfo, removeToast } = useToast();
   
+  // Función helper para formatear precios de forma segura
+  const formatPrice = (price) => {
+    const numPrice = Number(price);
+    if (isNaN(numPrice) || !isFinite(numPrice)) {
+      return '0.00';
+    }
+    return numPrice.toFixed(2);
+  };
+  
   const [searchTerm, setSearchTerm] = useState('');
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [priceRange, setPriceRange] = useState([0, 10]);
@@ -30,18 +39,40 @@ export default function Catalogo() {
   // Calcular el rango de precios dinámicamente basado en los productos
   const priceRangeDynamic = useMemo(() => {
     if (!products || products.length === 0) return [0, 10];
-    const prices = products.map(p => p.price);
-    const minPrice = Math.floor(Math.min(...prices));
-    const maxPrice = Math.ceil(Math.max(...prices));
-    return [minPrice, maxPrice];
+    
+    // Filtrar precios válidos y convertir a números
+    const validPrices = products
+      .map(p => Number(p.price))
+      .filter(price => !isNaN(price) && isFinite(price) && price > 0);
+    
+    if (validPrices.length === 0) return [0, 10];
+    
+    const minPrice = Math.floor(Math.min(...validPrices));
+    const maxPrice = Math.ceil(Math.max(...validPrices));
+    
+    // Asegurar que los valores sean números válidos
+    return [
+      isNaN(minPrice) ? 0 : minPrice,
+      isNaN(maxPrice) ? 10 : maxPrice
+    ];
   }, [products]);
 
   // Inicializar el rango de precios cuando se cargan los productos
   useEffect(() => {
     if (products && products.length > 0) {
+      // Solo inicializar si el priceRange actual es el valor por defecto [0, 10]
+      if (priceRange[0] === 0 && priceRange[1] === 10) {
+        setPriceRange(priceRangeDynamic);
+      }
+    }
+  }, [priceRangeDynamic, products]);
+
+  // Validar y corregir priceRange si tiene valores inválidos
+  useEffect(() => {
+    if (isNaN(priceRange[0]) || isNaN(priceRange[1]) || !isFinite(priceRange[0]) || !isFinite(priceRange[1])) {
       setPriceRange(priceRangeDynamic);
     }
-  }, [priceRangeDynamic]);
+  }, [priceRange, priceRangeDynamic]);
 
   // Hook para manejar reseñas del producto seleccionado
   const { 
@@ -66,6 +97,7 @@ export default function Catalogo() {
   // Filtrar productos
   const filteredProducts = useMemo(() => {
     if (!products || products.length === 0) return [];
+    
     return products.filter(product => {
       // Filtro por búsqueda de texto
       const matchesSearch = searchTerm === '' || 
@@ -73,11 +105,18 @@ export default function Catalogo() {
         (product.category && product.category.toLowerCase().includes(searchTerm.toLowerCase()));
       
       // Filtro por rango de precios
-      const matchesPrice = product.price >= priceRange[0] && product.price <= priceRange[1];
+      const productPrice = Number(product.price);
+      if (isNaN(productPrice) || !isFinite(productPrice)) {
+        return matchesSearch; // Si el precio no es válido, solo aplicar filtro de búsqueda
+      }
+      
+      // Usar el rango dinámico si el actual no es válido
+      const currentPriceRange = (isNaN(priceRange[0]) || isNaN(priceRange[1])) ? priceRangeDynamic : priceRange;
+      const matchesPrice = productPrice >= currentPriceRange[0] && productPrice <= currentPriceRange[1];
       
       return matchesSearch && matchesPrice;
     });
-  }, [products, searchTerm, priceRange]);
+  }, [products, searchTerm, priceRange, priceRangeDynamic]);
 
   // Productos populares (modificado para usar los productos con mejor rating)
   const popularProducts = useMemo(() => {
@@ -205,7 +244,7 @@ export default function Catalogo() {
                     <h3 className="popular-product-title">{product.name}</h3>
                     <p className="popular-product-subtitle">{product.category}</p>
                     <div className="popular-product-footer">
-                      <p className="popular-product-price">${product.price.toFixed(2)}</p>
+                      <p className="popular-product-price">${formatPrice(product.price)}</p>
                       <button
                         className="add-to-cart-btn"
                         onClick={(e) => {
@@ -248,19 +287,19 @@ export default function Catalogo() {
               </div>
 
               <div className="price-filter">
-                <label>Precio: ${priceRange[0]} - ${priceRange[1]}</label>
+                <label>Precio: ${isNaN(priceRange[0]) ? 0 : priceRange[0]} - ${isNaN(priceRange[1]) ? 10 : priceRange[1]}</label>
                 <div className="price-slider-container">
                   <div className="slider-group">
-                    <label className="slider-label">Mínimo: ${priceRange[0]}</label>
+                    <label className="slider-label">Mínimo: ${isNaN(priceRange[0]) ? 0 : priceRange[0]}</label>
                     <input
                       type="range"
-                      min={priceRangeDynamic[0]}
-                      max={priceRangeDynamic[1]}
+                      min={isNaN(priceRangeDynamic[0]) ? 0 : priceRangeDynamic[0]}
+                      max={isNaN(priceRangeDynamic[1]) ? 10 : priceRangeDynamic[1]}
                       step="0.5"
-                      value={priceRange[0]}
+                      value={isNaN(priceRange[0]) ? 0 : priceRange[0]}
                       onChange={(e) => {
                         const newMin = Number(e.target.value);
-                        if (newMin <= priceRange[1]) {
+                        if (!isNaN(newMin) && isFinite(newMin) && newMin <= priceRange[1]) {
                           setPriceRange([newMin, priceRange[1]]);
                         }
                       }}
@@ -268,16 +307,16 @@ export default function Catalogo() {
                     />
                   </div>
                   <div className="slider-group">
-                    <label className="slider-label">Máximo: ${priceRange[1]}</label>
+                    <label className="slider-label">Máximo: ${isNaN(priceRange[1]) ? 10 : priceRange[1]}</label>
                     <input
                       type="range"
-                      min={priceRangeDynamic[0]}
-                      max={priceRangeDynamic[1]}
+                      min={isNaN(priceRangeDynamic[0]) ? 0 : priceRangeDynamic[0]}
+                      max={isNaN(priceRangeDynamic[1]) ? 10 : priceRangeDynamic[1]}
                       step="0.5"
-                      value={priceRange[1]}
+                      value={isNaN(priceRange[1]) ? 10 : priceRange[1]}
                       onChange={(e) => {
                         const newMax = Number(e.target.value);
-                        if (newMax >= priceRange[0]) {
+                        if (!isNaN(newMax) && isFinite(newMax) && newMax >= priceRange[0]) {
                           setPriceRange([priceRange[0], newMax]);
                         }
                       }}
@@ -286,7 +325,7 @@ export default function Catalogo() {
                   </div>
                 </div>
                 <div className="price-info">
-                  <span>Rango disponible: ${priceRangeDynamic[0]} - ${priceRangeDynamic[1]}</span>
+                  <span>Rango disponible: ${isNaN(priceRangeDynamic[0]) ? 0 : priceRangeDynamic[0]} - ${isNaN(priceRangeDynamic[1]) ? 10 : priceRangeDynamic[1]}</span>
                 </div>
               </div>
 
@@ -311,7 +350,7 @@ export default function Catalogo() {
             Mostrando {filteredProducts.length} de {products.length} productos
             {searchTerm && ` para "${searchTerm}"`}
             {priceRange[0] !== priceRangeDynamic[0] || priceRange[1] !== priceRangeDynamic[1] ? 
-              ` (Precio: $${priceRange[0]} - $${priceRange[1]})` : ''}
+              ` (Precio: $${isNaN(priceRange[0]) ? 0 : priceRange[0]} - $${isNaN(priceRange[1]) ? 10 : priceRange[1]})` : ''}
           </p>
         </div>
 
@@ -339,6 +378,16 @@ export default function Catalogo() {
                 <h3 className="product-title">{product.name}</h3>
                 <p className="product-subtitle">{product.category}</p>
                 
+                {/* Descripción del producto */}
+                {product.description && (
+                  <p className="product-description">
+                    {product.description.length > 80 
+                      ? `${product.description.substring(0, 80)}...` 
+                      : product.description
+                    }
+                  </p>
+                )}
+                
                 {/* Rating en la tarjeta */}
                 <div className="product-rating">
                   <div className="rating-stars-small">
@@ -350,7 +399,7 @@ export default function Catalogo() {
                 </div>
                 
                 <div className="product-footer">
-                  <p className="product-price">${product.price.toFixed(2)}</p>
+                  <p className="product-price">${formatPrice(product.price)}</p>
                   <button
                     className="add-to-cart-btn"
                     onClick={(e) => {
@@ -389,7 +438,7 @@ export default function Catalogo() {
               </div>
               <h2 className="detail-title">{selectedProduct.name}</h2>
               <p className="detail-subtitle">{selectedProduct.category}</p>
-              <p className="detail-price">${selectedProduct.price.toFixed(2)}</p>
+              <p className="detail-price">${formatPrice(selectedProduct.price)}</p>
               
               {/* Rating y Reseñas */}
               <div className="product-ratings-section">

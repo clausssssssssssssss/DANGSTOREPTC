@@ -45,7 +45,8 @@ const MaterialSchema = new Schema(
     /** URL de la imagen asociada al material */
     image: {
       type: String,
-      required: [true, 'La imagen es obligatoria'],
+      required: false, // Hacer opcional
+      default: null,   // Valor por defecto
     },
   },
   {

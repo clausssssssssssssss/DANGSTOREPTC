@@ -19,6 +19,9 @@ router.get('/:id', materialController.getMaterialById);
 // Insertar un nuevo material (con imagen)
 router.post('/', upload.single('image'), materialController.insertMaterial);
 
+// Insertar un nuevo material SIN imagen
+router.post('/without-image', materialController.insertMaterialWithoutImage);
+
 // Actualizar un material (con imagen opcional)
 router.put('/:id', upload.single('image'), materialController.updateMaterial);
 

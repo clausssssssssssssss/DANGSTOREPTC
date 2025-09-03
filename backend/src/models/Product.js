@@ -3,27 +3,32 @@ import mongoose from 'mongoose';
 const productSchema = new mongoose.Schema({
   nombre: {
     type: String,
-    required: true,
-    trim: true
+    required: [true, 'El nombre del producto es obligatorio'],
+    trim: true,
+    maxLength: [100, 'El nombre no puede exceder los 100 caracteres']
   },
   descripcion: {
     type: String,
-    required: true
+    required: [true, 'La descripción del producto es obligatoria'],
+    maxLength: [500, 'La descripción no puede exceder los 500 caracteres']
   },
   precio: {
     type: Number,
-    required: true,
-    min: 0
+    required: [true, 'El precio del producto es obligatorio'],
+    min: [0, 'El precio no puede ser negativo']
   },
   disponibles: {
     type: Number,
-    required: true,
-    min: 0
+    required: [true, 'La cantidad disponible es obligatoria'],
+    min: [0, 'La cantidad disponible no puede ser negativa']
   },
   categoria: {
     type: String,
-    required: true,
-    enum: ['Llavero', 'Cuadro']
+    required: [true, 'La categoría del producto es obligatoria'],
+    enum: {
+      values: ['Llavero', 'Cuadro'],
+      message: 'La categoría {VALUE} no es válida'
+    }
   },
   imagen: {
     type: String,

@@ -11,6 +11,8 @@ import {
   Image,
   Modal,
   ScrollView,
+  Alert,
+  ActivityIndicator
 } from 'react-native';
 import axios from 'axios';
 import * as ImagePicker from 'expo-image-picker';
@@ -24,6 +26,7 @@ const Productos = ({ navigation }) => {
   const [productos, setProductos] = useState([]);
   const [busqueda, setBusqueda] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
+  const [cargando, setCargando] = useState(false);
   const [nuevoProducto, setNuevoProducto] = useState({
     nombre: '',
     descripcion: '',
@@ -42,59 +45,94 @@ const Productos = ({ navigation }) => {
 
   const obtenerProductos = async () => {
     try {
+      setCargando(true);
       const res = await axios.get(API_URL);
       setProductos(res.data);
     } catch (error) {
       console.log('Error obteniendo productos:', error);
+      Alert.alert('Error', 'No se pudieron cargar los productos');
+    } finally {
+      setCargando(false);
     }
   };
 
-
   const agregarProducto = async () => {
+    // Validaciones
+    if (!nuevoProducto.nombre || !nuevoProducto.precio || !nuevoProducto.disponibles) {
+      Alert.alert('Error', 'Por favor completa todos los campos obligatorios');
+      return;
+    }
+
+    if (!nuevoProducto.imagen) {
+      Alert.alert('Error', 'Por favor selecciona una imagen');
+      return;
+    }
+
     try {
+      setCargando(true);
       const formData = new FormData();
       formData.append('nombre', nuevoProducto.nombre);
       formData.append('descripcion', nuevoProducto.descripcion);
       formData.append('precio', nuevoProducto.precio);
       formData.append('disponibles', nuevoProducto.disponibles);
       formData.append('categoria', nuevoProducto.categoria);
+      
       if (nuevoProducto.imagen) {
+        // Extraer el nombre del archivo de la URI
+        let filename = nuevoProducto.imagen.split('/').pop();
+        let match = /\.(\w+)$/.exec(filename);
+        let type = match ? `image/${match[1]}` : 'image/jpeg';
+        
         formData.append('imagen', {
           uri: nuevoProducto.imagen,
-          name: 'producto.jpg',
-          type: 'image/jpeg',
+          name: filename,
+          type,
         });
       }
-      await axios.post(API_URL, formData, {
+
+      const response = await axios.post(API_URL, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
           ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
         },
       });
-      setModalVisible(false);
-      obtenerProductos();
-      setNuevoProducto({
-        nombre: '',
-        descripcion: '',
-        precio: '',
-        disponibles: '',
-        categoria: 'Llavero',
-        imagen: null,
-      });
+
+      if (response.status === 201) {
+        Alert.alert('Éxito', 'Producto agregado correctamente');
+        setModalVisible(false);
+        obtenerProductos();
+        setNuevoProducto({
+          nombre: '',
+          descripcion: '',
+          precio: '',
+          disponibles: '',
+          categoria: 'Llavero',
+          imagen: null,
+        });
+      }
     } catch (error) {
-      console.log(error);
+      console.log('Error al agregar producto:', error);
+      Alert.alert('Error', 'No se pudo agregar el producto');
+    } finally {
+      setCargando(false);
     }
   };
 
   const seleccionarImagen = async () => {
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 0.7,
-    });
-    if (!result.canceled) {
-      setNuevoProducto({ ...nuevoProducto, imagen: result.assets[0].uri });
+    try {
+      let result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.7,
+      });
+      
+      if (!result.canceled) {
+        setNuevoProducto({ ...nuevoProducto, imagen: result.assets[0].uri });
+      }
+    } catch (error) {
+      console.log('Error seleccionando imagen:', error);
+      Alert.alert('Error', 'No se pudo seleccionar la imagen');
     }
   };
 
@@ -124,7 +162,7 @@ const Productos = ({ navigation }) => {
 
   const renderProducto = ({ item }) => (
     <View style={styles.card}>
-      <Image source={{ uri: item.imagen }} style={styles.cardImage} />
+      <Image source={{ uri: `http://192.168.0.9:4000/uploads/${item.imagen}` }} style={styles.cardImage} />
       <Text style={styles.cardTitle}>{item.nombre}</Text>
       <Text style={styles.cardText}>Precio: ${item.precio}</Text>
       <Text style={styles.cardText}>Disponibles: {item.disponibles}</Text>
@@ -160,6 +198,12 @@ const Productos = ({ navigation }) => {
         <Text style={styles.nuevoBtnText}>+ Nuevo producto</Text>
       </TouchableOpacity>
 
+      {cargando && (
+        <View style={styles.cargandoContainer}>
+          <ActivityIndicator size="large" color="#8B5CF6" />
+        </View>
+      )}
+
       <FlatList
         data={productosFiltrados}
         keyExtractor={item => item._id}
@@ -173,13 +217,14 @@ const Productos = ({ navigation }) => {
         visible={modalVisible}
         animationType="fade"
         transparent
-        onRequestClose={() => setModalVisible(false)}
+        onRequestClose={() => !cargando && setModalVisible(false)}
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalBox}>
             <TouchableOpacity
               style={styles.modalBack}
-              onPress={() => setModalVisible(false)}
+              onPress={() => !cargando && setModalVisible(false)}
+              disabled={cargando}
             >
               <Text style={styles.backButtonText}>←</Text>
             </TouchableOpacity>
@@ -187,6 +232,7 @@ const Productos = ({ navigation }) => {
               <TouchableOpacity
                 style={styles.imagePicker}
                 onPress={seleccionarImagen}
+                disabled={cargando}
               >
                 {nuevoProducto.imagen ? (
                   <Image
@@ -202,6 +248,7 @@ const Productos = ({ navigation }) => {
                 placeholder="Nombre"
                 value={nuevoProducto.nombre}
                 onChangeText={text => setNuevoProducto({ ...nuevoProducto, nombre: text })}
+                editable={!cargando}
               />
               <View style={styles.descripcionContainer}>
                 <TextInput
@@ -212,6 +259,7 @@ const Productos = ({ navigation }) => {
                   multiline
                   numberOfLines={4}
                   textAlignVertical="top"
+                  editable={!cargando}
                 />
               </View>
               <View style={styles.row}>
@@ -225,6 +273,7 @@ const Productos = ({ navigation }) => {
                       value={nuevoProducto.precio}
                       onChangeText={handlePrecioChange}
                       maxLength={8}
+                      editable={!cargando}
                     />
                   </View>
                   {precioError ? (
@@ -239,6 +288,7 @@ const Productos = ({ navigation }) => {
                     value={nuevoProducto.disponibles}
                     onChangeText={handleDisponiblesChange}
                     maxLength={5}
+                    editable={!cargando}
                   />
                   {disponiblesError ? (
                     <Text style={styles.errorText}>{disponiblesError}</Text>
@@ -256,14 +306,23 @@ const Productos = ({ navigation }) => {
                     }
                     dropdownIconColor="#8B5CF6"
                     mode="dropdown"
+                    enabled={!cargando}
                   >
                     <Picker.Item label="Llavero" value="Llavero" />
                     <Picker.Item label="Cuadro" value="Cuadro" />
                   </Picker>
                 </View>
               </View>
-              <TouchableOpacity style={styles.agregarBtn} onPress={agregarProducto}>
-                <Text style={styles.agregarBtnText}>Agregar</Text>
+              <TouchableOpacity 
+                style={[styles.agregarBtn, cargando && styles.btnDeshabilitado]} 
+                onPress={agregarProducto}
+                disabled={cargando}
+              >
+                {cargando ? (
+                  <ActivityIndicator color="#fff" />
+                ) : (
+                  <Text style={styles.agregarBtnText}>Agregar</Text>
+                )}
               </TouchableOpacity>
             </ScrollView>
           </View>
@@ -443,12 +502,6 @@ const styles = StyleSheet.create({
     width: width * 0.7,
     marginBottom: 12,
   },
-  descripcionLabel: {
-    color: '#8B5CF6',
-    fontWeight: 'bold',
-    marginBottom: 4,
-    fontSize: 15,
-  },
   descripcionInput: {
     backgroundColor: '#EDE9FE',
     borderRadius: 12,
@@ -457,15 +510,14 @@ const styles = StyleSheet.create({
     minHeight: 70,
     maxHeight: 120,
   },
-  precioContainer: {
+  inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#EDE9FE',
     borderRadius: 12,
     paddingHorizontal: 10,
-    flex: 1,
-    marginRight: 8,
     height: 40,
+    width: '100%',
   },
   precioSimbolo: {
     fontSize: 18,
@@ -473,7 +525,7 @@ const styles = StyleSheet.create({
     marginRight: 4,
     fontWeight: 'bold',
   },
-  precioInput: {
+  inputPrecio: {
     flex: 1,
     fontSize: 16,
     color: '#1F2937',
@@ -488,16 +540,13 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     marginLeft: 8,
     justifyContent: 'center',
-    height: 50, // más grande para mejor visibilidad
+    height: 50,
   },
   picker: {
     height: 50,
     color: '#1F2937',
     fontSize: 18,
     width: '100%',
-    marginTop: 0,
-    marginBottom: 0,
-    paddingLeft: 10,
   },
   agregarBtn: {
     backgroundColor: '#8B5CF6',
@@ -525,25 +574,20 @@ const styles = StyleSheet.create({
     marginLeft: 4,
     fontWeight: 'bold',
   },
-  inputContainer: {
-    flexDirection: 'row',
+  cargandoContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#EDE9FE',
-    borderRadius: 12,
-    paddingHorizontal: 10,
-    height: 40,
-    width: '100%',
+    backgroundColor: 'rgba(255, 255, 255, 0.7)',
+    zIndex: 1000,
   },
-  inputPrecio: {
-    flex: 1,
-    fontSize: 16,
-    color: '#1F2937',
-    backgroundColor: 'transparent',
-    padding: 0,
-    height: 40,
+  btnDeshabilitado: {
+    opacity: 0.6,
   },
 });
 
 export default Productos;
-
-

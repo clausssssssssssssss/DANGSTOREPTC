@@ -22,6 +22,9 @@ import { AuthContext } from '../context/AuthContext';
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
 
+// Componente vacío para la pantalla de Logout
+const EmptyComponent = () => null;
+
 // Stack para la pantalla de inicio (permite navegar a notificaciones y pendientes)
 const InicioStack = () => (
   <Stack.Navigator screenOptions={{ headerShown: false }}>
@@ -134,7 +137,7 @@ const MainTabNavigator = () => {
       />
       <Tab.Screen
         name="Logout"
-        component={() => null}
+        component={EmptyComponent}
         options={{
           tabBarLabel: 'Salir',
           tabBarButton: (props) => <LogoutButton {...props} />,

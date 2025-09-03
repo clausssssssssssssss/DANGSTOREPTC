@@ -43,7 +43,6 @@ export default function Catalogo() {
     }
   }, [priceRangeDynamic]);
 
-  
   // Hook para manejar reseñas del producto seleccionado
   const { 
     ratings, 
@@ -80,15 +79,19 @@ export default function Catalogo() {
     });
   }, [products, searchTerm, priceRange]);
 
-  // Productos populares
+  // Productos populares (modificado para usar los productos con mejor rating)
   const popularProducts = useMemo(() => {
     if (!products || products.length === 0) return [];
-    return products.filter(product => 
-      product.name === 'Llavero Batman' || 
-      product.name === 'Llavero Corazón' ||
-      product.name === 'Llavero Zelda'
-    ).slice(0, 3); 
-  }, [products]);
+    
+    // Ordenar productos por rating (si está disponible) o por popularidad
+    return [...products]
+      .sort((a, b) => {
+        const ratingA = getProductRatings(a._id).averageRating || 0;
+        const ratingB = getProductRatings(b._id).averageRating || 0;
+        return ratingB - ratingA;
+      })
+      .slice(0, 3);
+  }, [products, getProductRatings]);
 
   const openDetail = (product) => {
     setSelectedProduct(product);

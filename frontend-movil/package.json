@@ -24,6 +24,7 @@
     "expo-cli": "^6.3.12",
     "expo-image-picker": "~16.1.4",
     "expo-linear-gradient": "~14.1.5",
+    "multer": "^2.0.2",
     "react": "19.0.0",
     "react-dom": "19.0.0",
     "react-native": "0.79.5",

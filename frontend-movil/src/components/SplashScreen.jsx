@@ -5,14 +5,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 const { width, height } = Dimensions.get('window');
 
 export default function SplashScreen({ navigation }) {
-  
-
-  
-
-
-
-
-    return (
+  return (
     <LinearGradient
       colors={['#604BC2', '#999999']}
       start={{ x: 0, y: 0 }}
@@ -28,14 +21,13 @@ export default function SplashScreen({ navigation }) {
         />
       </View>
 
-      {/* Slogan principal */}
+      {/* Slogan principal - POSICIÓN AJUSTADA 15% MÁS ARRIBA */}
       <View style={styles.sloganContainer}>
         <Text style={styles.title}>No soy yo, es el</Text>
         <Text style={styles.brand}>DANG que brilla</Text>
-        <Text style={styles.subtitle}>El llavero perfecto para ti</Text>
       </View>
 
-      {/* Botón simple "Empezar" */}
+      {/* Botón simple "Empezar" - MANTENIDO EN SU POSICIÓN */}
       <View style={styles.buttonWrapper}>
         <TouchableOpacity
           style={styles.startButton}
@@ -67,7 +59,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: height * 0.02,
-    marginBottom: 390,
+    marginBottom: 300, // Ajustado para el nuevo diseño
     zIndex: 2,
   },
   keychainImage: {
@@ -82,7 +74,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     position: 'absolute',
-    top: height * 0.7,
+    top: height * 0.66, // 15% más arriba que la posición anterior (0.78 → 0.66)
     left: 0,
     right: 0,
     zIndex: 2,
@@ -99,18 +91,10 @@ const styles = StyleSheet.create({
     fontSize: 36,
     fontWeight: 'bold',
     color: '#fff',
-    marginBottom: 8,
     textAlign: 'center',
     textShadowColor: 'rgba(0, 0, 0, 0.3)',
     textShadowOffset: { width: 0, height: 2 },
     textShadowRadius: 4,
-  },
-  subtitle: {
-    fontSize: 18,
-    color: '#666',
-    fontWeight: '500',
-    letterSpacing: 0.5,
-    textAlign: 'center',
   },
   buttonWrapper: {
     position: 'absolute',

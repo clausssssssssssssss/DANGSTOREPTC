@@ -27,8 +27,21 @@ const Productos = ({ navigation }) => {
   const [busqueda, setBusqueda] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
   const [modalEditarVisible, setModalEditarVisible] = useState(false);
+  const [modalCategoriaVisible, setModalCategoriaVisible] = useState(false);
   const [productoSeleccionado, setProductoSeleccionado] = useState(null);
   const [cargando, setCargando] = useState(false);
+  const [nuevaCategoria, setNuevaCategoria] = useState('');
+  const [customAlert, setCustomAlert] = useState({
+    visible: false,
+    title: '',
+    message: '',
+    type: 'info', // 'success', 'error', 'warning', 'info'
+    onConfirm: null,
+    onCancel: null,
+    confirmText: 'OK',
+    cancelText: 'Cancelar',
+    showCancel: false,
+  });
   const [nuevoProducto, setNuevoProducto] = useState({
     nombre: '',
     descripcion: '',
@@ -45,6 +58,24 @@ const Productos = ({ navigation }) => {
     obtenerProductos();
   }, []);
 
+  const showCustomAlert = (title, message, type = 'info', options = {}) => {
+    setCustomAlert({
+      visible: true,
+      title,
+      message,
+      type,
+      onConfirm: options.onConfirm || null,
+      onCancel: options.onCancel || null,
+      confirmText: options.confirmText || 'OK',
+      cancelText: options.cancelText || 'Cancelar',
+      showCancel: options.showCancel || false,
+    });
+  };
+
+  const hideCustomAlert = () => {
+    setCustomAlert(prev => ({ ...prev, visible: false }));
+  };
+
   const obtenerProductos = async () => {
     try {
       setCargando(true);
@@ -56,7 +87,7 @@ const Productos = ({ navigation }) => {
       setProductos(data);
     } catch (error) {
       console.log('Error obteniendo productos:', error);
-      Alert.alert('Error', 'No se pudieron cargar los productos');
+      showCustomAlert('Error', 'No se pudieron cargar los productos', 'error');
     } finally {
       setCargando(false);
     }
@@ -65,12 +96,12 @@ const Productos = ({ navigation }) => {
   const agregarProducto = async () => {
     // Validaciones
     if (!nuevoProducto.nombre || !nuevoProducto.precio || !nuevoProducto.disponibles) {
-      Alert.alert('Error', 'Por favor completa todos los campos obligatorios');
+      showCustomAlert('Error', 'Por favor completa todos los campos obligatorios', 'error');
       return;
     }
 
     if (!nuevoProducto.imagen) {
-      Alert.alert('Error', 'Por favor selecciona una imagen');
+      showCustomAlert('Error', 'Por favor selecciona una imagen', 'error');
       return;
     }
 
@@ -109,7 +140,7 @@ const Productos = ({ navigation }) => {
       }
 
       if (response.status === 201) {
-        Alert.alert('Éxito', 'Producto agregado correctamente');
+        showCustomAlert('Éxito', 'Producto agregado correctamente', 'success');
         setModalVisible(false);
         obtenerProductos();
         setNuevoProducto({
@@ -123,7 +154,7 @@ const Productos = ({ navigation }) => {
       }
     } catch (error) {
       console.log('Error al agregar producto:', error);
-      Alert.alert('Error', 'No se pudo agregar el producto');
+      showCustomAlert('Error', 'No se pudo agregar el producto', 'error');
     } finally {
       setCargando(false);
     }
@@ -143,7 +174,7 @@ const Productos = ({ navigation }) => {
       }
     } catch (error) {
       console.log('Error seleccionando imagen:', error);
-      Alert.alert('Error', 'No se pudo seleccionar la imagen');
+      showCustomAlert('Error', 'No se pudo seleccionar la imagen', 'error');
     }
   };
 
@@ -160,34 +191,33 @@ const Productos = ({ navigation }) => {
   };
 
   const eliminarProducto = async (productId) => {
-    Alert.alert(
+    showCustomAlert(
       'Confirmar eliminación',
       '¿Estás seguro de que quieres eliminar este producto? Esta acción no se puede deshacer.',
-      [
-        {
-          text: 'Cancelar',
-          style: 'cancel',
-        },
-        {
-          text: 'Eliminar',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              const response = await fetch(`${API_URL}/${productId}`, {
-                method: 'DELETE',
-              });
-              
-              if (!response.ok) {
-                throw new Error(`HTTP ${response.status} ${response.statusText}`);
-              }
-              
-              obtenerProductos(); // Recargar la lista
-            } catch (error) {
-              console.log('Error eliminando producto:', error);
+      'warning',
+      {
+        showCancel: true,
+        confirmText: 'Eliminar',
+        cancelText: 'Cancelar',
+        onConfirm: async () => {
+          try {
+            const response = await fetch(`${API_URL}/${productId}`, {
+              method: 'DELETE',
+            });
+            
+            if (!response.ok) {
+              throw new Error(`HTTP ${response.status} ${response.statusText}`);
             }
-          },
+            
+            obtenerProductos(); // Recargar la lista
+            showCustomAlert('Éxito', 'Producto eliminado correctamente', 'success');
+          } catch (error) {
+            console.log('Error eliminando producto:', error);
+            showCustomAlert('Error', 'No se pudo eliminar el producto', 'error');
+          }
         },
-      ]
+        onCancel: () => hideCustomAlert(),
+      }
     );
   };
 
@@ -240,6 +270,37 @@ const Productos = ({ navigation }) => {
       imagen: null, // No cargar imagen existente, solo permitir nueva
     });
     setModalEditarVisible(true);
+  };
+
+  const crearCategoria = async () => {
+    if (!nuevaCategoria.trim()) {
+      showCustomAlert('Error', 'Por favor ingresa un nombre para la categoría', 'error');
+      return;
+    }
+
+    try {
+      setCargando(true);
+      const response = await fetch(`${API_URL.replace('/products', '/categories')}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ name: nuevaCategoria.trim() }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status} ${response.statusText}`);
+      }
+
+      showCustomAlert('Éxito', 'Categoría creada correctamente', 'success');
+      setModalCategoriaVisible(false);
+      setNuevaCategoria('');
+    } catch (error) {
+      console.log('Error creando categoría:', error);
+      showCustomAlert('Error', 'No se pudo crear la categoría', 'error');
+    } finally {
+      setCargando(false);
+    }
   };
 
   const handleDisponiblesChange = (text) => {
@@ -336,12 +397,21 @@ const Productos = ({ navigation }) => {
         />
       </View>
 
-      <TouchableOpacity
-        style={styles.nuevoBtn}
-        onPress={() => setModalVisible(true)}
-      >
-        <Text style={styles.nuevoBtnText}>+ Nuevo producto</Text>
-      </TouchableOpacity>
+      <View style={styles.buttonsContainer}>
+        <TouchableOpacity
+          style={styles.nuevoBtn}
+          onPress={() => setModalVisible(true)}
+        >
+          <Text style={styles.nuevoBtnText}>+ Nuevo producto</Text>
+        </TouchableOpacity>
+        
+        <TouchableOpacity
+          style={styles.categoriaBtn}
+          onPress={() => setModalCategoriaVisible(true)}
+        >
+          <Text style={styles.categoriaBtnText}>+ Nueva categoría</Text>
+        </TouchableOpacity>
+      </View>
 
       {cargando && (
         <View style={styles.cargandoContainer}>
@@ -582,6 +652,88 @@ const Productos = ({ navigation }) => {
           </View>
         </View>
       </Modal>
+
+      {/* Modal para nueva categoría */}
+      <Modal
+        visible={modalCategoriaVisible}
+        animationType="fade"
+        transparent
+        onRequestClose={() => !cargando && setModalCategoriaVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalBox}>
+            <TouchableOpacity
+              style={styles.modalBack}
+              onPress={() => !cargando && setModalCategoriaVisible(false)}
+              disabled={cargando}
+            >
+              <Text style={styles.backButtonText}>←</Text>
+            </TouchableOpacity>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalTitle}>Nueva Categoría</Text>
+              
+              <TextInput
+                style={styles.input}
+                placeholder="Nombre de la categoría"
+                value={nuevaCategoria}
+                onChangeText={setNuevaCategoria}
+                editable={!cargando}
+                maxLength={50}
+              />
+              
+              <TouchableOpacity 
+                style={[styles.agregarBtn, cargando && styles.btnDeshabilitado]} 
+                onPress={crearCategoria}
+                disabled={cargando}
+              >
+                {cargando ? (
+                  <ActivityIndicator color="#fff" />
+                ) : (
+                  <Text style={styles.agregarBtnText}>Crear Categoría</Text>
+                )}
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Alert personalizado */}
+      {customAlert.visible && (
+        <View style={styles.alertOverlay}>
+          <View style={styles.alertContainer}>
+            <View style={[styles.alertIcon, styles[`alertIcon${customAlert.type.charAt(0).toUpperCase() + customAlert.type.slice(1)}`]]}>
+              <Text style={[styles.alertIconText, styles[`alertIconText${customAlert.type.charAt(0).toUpperCase() + customAlert.type.slice(1)}`]]}>
+                {customAlert.type === 'success' ? '✓' : 
+                 customAlert.type === 'error' ? '✕' : 
+                 customAlert.type === 'warning' ? '⚠' : 'ℹ'}
+              </Text>
+            </View>
+            
+            <Text style={styles.alertTitle}>{customAlert.title}</Text>
+            <Text style={styles.alertMessage}>{customAlert.message}</Text>
+            
+            <View style={styles.alertButtons}>
+              {customAlert.showCancel && (
+                <TouchableOpacity 
+                  style={[styles.alertButton, styles.alertButtonCancel]} 
+                  onPress={customAlert.onCancel || hideCustomAlert}
+                >
+                  <Text style={styles.alertButtonCancelText}>{customAlert.cancelText}</Text>
+                </TouchableOpacity>
+              )}
+              
+              <TouchableOpacity 
+                style={[styles.alertButton, styles[`alertButton${customAlert.type.charAt(0).toUpperCase() + customAlert.type.slice(1)}`]]} 
+                onPress={customAlert.onConfirm || hideCustomAlert}
+              >
+                <Text style={styles[`alertButton${customAlert.type.charAt(0).toUpperCase() + customAlert.type.slice(1)}Text`]}>
+                  {customAlert.confirmText}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      )}
     </SafeAreaView>
   );
 };
@@ -625,24 +777,60 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#1F2937',
   },
+  buttonsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginHorizontal: width * 0.05,
+    marginBottom: 15,
+    gap: 12,
+  },
   nuevoBtn: {
     backgroundColor: '#8B5CF6',
-    marginHorizontal: width * 0.2,
-    marginBottom: 10,
-    borderRadius: 20,
-    paddingVertical: 12,
+    flex: 1,
+    borderRadius: 25,
+    paddingVertical: 15,
+    paddingHorizontal: 20,
     alignItems: 'center',
     shadowColor: '#8B5CF6',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 4,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.4,
+    shadowRadius: 8,
+    elevation: 6,
+    borderWidth: 2,
+    borderColor: '#7C3AED',
   },
   nuevoBtnText: {
     color: '#fff',
-    fontWeight: 'bold',
-    fontSize: 18,
-    letterSpacing: 1,
+    fontWeight: '800',
+    fontSize: 16,
+    letterSpacing: 0.5,
+    textShadowColor: 'rgba(0,0,0,0.3)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
+  },
+  categoriaBtn: {
+    backgroundColor: '#10B981',
+    flex: 1,
+    borderRadius: 25,
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+    alignItems: 'center',
+    shadowColor: '#10B981',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.4,
+    shadowRadius: 8,
+    elevation: 6,
+    borderWidth: 2,
+    borderColor: '#059669',
+  },
+  categoriaBtnText: {
+    color: '#fff',
+    fontWeight: '800',
+    fontSize: 16,
+    letterSpacing: 0.5,
+    textShadowColor: 'rgba(0,0,0,0.3)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
   listContainer: {
     paddingHorizontal: width * 0.05,
@@ -892,6 +1080,135 @@ const styles = StyleSheet.create({
     color: '#1F2937',
     marginBottom: 16,
     textAlign: 'center',
+  },
+  // Estilos del Alert personalizado
+  alertOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 9999,
+  },
+  alertContainer: {
+    backgroundColor: '#fff',
+    borderRadius: 20,
+    padding: 24,
+    marginHorizontal: 20,
+    maxWidth: width * 0.85,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.3,
+    shadowRadius: 20,
+    elevation: 10,
+  },
+  alertIcon: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  alertIconSuccess: {
+    backgroundColor: '#D1FAE5',
+  },
+  alertIconError: {
+    backgroundColor: '#FEE2E2',
+  },
+  alertIconWarning: {
+    backgroundColor: '#EDE9FE',
+  },
+  alertIconInfo: {
+    backgroundColor: '#DBEAFE',
+  },
+  alertIconText: {
+    fontSize: 28,
+    fontWeight: 'bold',
+  },
+  alertIconTextSuccess: {
+    color: '#10B981',
+  },
+  alertIconTextError: {
+    color: '#EF4444',
+  },
+  alertIconTextWarning: {
+    color: '#8B5CF6',
+  },
+  alertIconTextInfo: {
+    color: '#3B82F6',
+  },
+  alertTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#1F2937',
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  alertMessage: {
+    fontSize: 16,
+    color: '#6B7280',
+    textAlign: 'center',
+    lineHeight: 22,
+    marginBottom: 24,
+  },
+  alertButtons: {
+    flexDirection: 'row',
+    gap: 12,
+    width: '100%',
+  },
+  alertButton: {
+    flex: 1,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 12,
+    alignItems: 'center',
+  },
+  alertButtonSuccess: {
+    backgroundColor: '#10B981',
+  },
+  alertButtonError: {
+    backgroundColor: '#EF4444',
+  },
+  alertButtonWarning: {
+    backgroundColor: '#8B5CF6',
+  },
+  alertButtonInfo: {
+    backgroundColor: '#3B82F6',
+  },
+  alertButtonCancel: {
+    backgroundColor: '#F3F4F6',
+    borderWidth: 1,
+    borderColor: '#D1D5DB',
+  },
+  alertButtonSuccessText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+  alertButtonErrorText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+  alertButtonWarningText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+  alertButtonInfoText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+  alertButtonCancelText: {
+    color: '#374151',
+    fontWeight: 'bold',
+    fontSize: 16,
   },
 });
 

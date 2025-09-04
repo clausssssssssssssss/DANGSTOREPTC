@@ -34,7 +34,7 @@ export function useProducts() {
         description: product.descripcion || '',
         price: product.precio,
         category: product.categoria || 'Llavero',
-        images: product.imagen ? [`http://192.168.0.9:4000/uploads/${product.imagen}`] : [],
+        images: product.imagen ? [product.imagen] : [],
         stock: product.disponibles || 0,
       }));
       

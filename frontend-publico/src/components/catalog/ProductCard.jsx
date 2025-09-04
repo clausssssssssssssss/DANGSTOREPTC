@@ -8,7 +8,7 @@ export default function ProductCard({ product, onAddToCart, onClick, isFavorite,
   const imageUrl =
     Array.isArray(product.images) && product.images.length > 0
       ? product.images[0]
-      : 'https://via.placeholder.com/300x200?text=Sin+imagen';
+      : '/src/assets/llavero.png';
 
   // 🔎 Debug: mostrar qué se está renderizando
   console.log('Rendering product card:');

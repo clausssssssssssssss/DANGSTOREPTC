@@ -76,7 +76,6 @@ class AppErrorBoundary extends React.Component {
 function MainLayout() {
   return (
     <div className="App">
-      <NavBar />
       <main className="main-content">
         <Outlet />
       </main>
@@ -99,20 +98,23 @@ const App = () => {
         <FavoritesProvider>
           <AppErrorBoundary>
             <Suspense fallback={<LoadingSpinner />}>
-              <Routes>
-                <Route element={<MainLayout />}>
-                  <Route path="/" element={<Acerca />} />
-                  <Route path="/auth/*" element={<AuthApp />} />
-                  <Route path="/encargo" element={<Encargo />} />
-                  <Route path="/catalogo" element={<Catalogo />} />
-                  <Route path="/carrito" element={<CarritoDeCompras />} />
-                  <Route path="/form-payment" element={<FormPaymentFake />} />
-                  <Route path="/contacto" element={<Contacto />} />
-                  <Route path="/acerca" element={<Acerca />} />
-                  <Route path="/perfil" element={<UserProfile />} />
-                  <Route path="*" element={<Navigate to="/" replace />} />
-                </Route>
-              </Routes>
+              <div className="App">
+                <NavBar />
+                <Routes>
+                  <Route element={<MainLayout />}>
+                    <Route path="/" element={<Acerca />} />
+                    <Route path="/auth/*" element={<AuthApp />} />
+                    <Route path="/encargo" element={<Encargo />} />
+                    <Route path="/catalogo" element={<Catalogo />} />
+                    <Route path="/carrito" element={<CarritoDeCompras />} />
+                    <Route path="/form-payment" element={<FormPaymentFake />} />
+                    <Route path="/contacto" element={<Contacto />} />
+                    <Route path="/acerca" element={<Acerca />} />
+                    <Route path="/perfil" element={<UserProfile />} />
+                    <Route path="*" element={<Navigate to="/" replace />} />
+                  </Route>
+                </Routes>
+              </div>
             </Suspense>
           </AppErrorBoundary>
         </FavoritesProvider>

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from "../hooks/useAuth.jsx";
-import { useCart } from "../context/CartContext.jsx";
+import { useCart } from "../components/cart/hook/useCart.jsx";
 import usePaymentFakeForm from "../components/payment/hook/usePaymentFakeForm.jsx";
 import InputField from "../components/payment/InputField";
 import Button from "../components/payment/Button";

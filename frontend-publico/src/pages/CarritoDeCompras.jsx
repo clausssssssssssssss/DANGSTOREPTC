@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
-import { useCart } from '../context/CartContext';
+import { useCart } from '../components/cart/hook/useCart.jsx';
 import { useToast } from '../hooks/useToast';
 import usePaymentFakeForm from '../components/payment/hook/usePaymentFakeForm';
 import ToastContainer from '../components/ui/ToastContainer';
@@ -239,7 +239,7 @@ const CarritoDeCompras = () => {
                     <div key={item.product?.id} className="cart-item">
                       <div className="item-image-container">
                         <img 
-                          src={item.product?.image || '/placeholder-product.jpg'} 
+                          src={item.product?.image || '/src/assets/llavero.png'} 
                           alt={item.product?.name || 'Producto'}
                           className="item-img"
                         />

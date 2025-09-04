@@ -1,6 +1,6 @@
 import React from 'react';
 import { useAuth } from '../../hooks/useAuth.jsx';
-import { useCart } from '../../context/CartContext.jsx';
+import { useCart } from './hook/useCart.jsx';
 import './Cartitem.css';
 
 const CartItem = ({ product, quantity }) => {

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Heart, ShoppingCart, Star, Package } from 'lucide-react';
 
 // URL del servidor local para desarrollo
-const API_BASE = 'http://localhost:4000/api';
+const API_BASE = 'http://192.168.0.3:4000/api';
 
 const FavoritesSection = ({ userId }) => {
   const [favorites, setFavorites] = useState([]);

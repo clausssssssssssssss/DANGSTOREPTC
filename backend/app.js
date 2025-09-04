@@ -31,8 +31,10 @@ const app = express();
 
 // Configuración de CORS para permitir solicitudes desde la app móvil y frontend web
 app.use(cors({
-  origin: ['http://localhost:3000', 'exp://your-ip:port', 'http://192.168.0.9:19000'],
-  credentials: true
+  origin: true, // Permitir todos los orígenes temporalmente
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 /** Habilita el parseo de JSON en el cuerpo de las solicitudes */
@@ -43,10 +45,6 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 /** Habilita el parseo de cookies en las solicitudes */
 app.use(cookieParser());
-app.use(cors({
-  origin: ['http://localhost:3000', 'http://192.168.0.9:19000', 'exp://192.168.0.9:19000'],
-  credentials: true
-}));
 // Configuración de multer para subir imágenes
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {

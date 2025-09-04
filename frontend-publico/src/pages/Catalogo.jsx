@@ -2,7 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { Search, RefreshCw, Heart, ShoppingCart, X, Star, TrendingUp, Plus, Check } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth.jsx';
 import { useProducts } from '../components/catalog/hook/useProducts.jsx';
-import { useCart } from '../context/CartContext.jsx';
+import { useCart } from '../components/cart/hook/useCart.jsx';
 import { useFavorites } from '../components/catalog/hook/useFavorites.jsx';
 import { useRatings } from '../components/catalog/hook/useRatings.jsx';
 import { useAllProductsRatings } from '../components/catalog/hook/useAllProductsRatings.jsx';
@@ -222,7 +222,7 @@ export default function Catalogo() {
                 <div key={product._id} className="popular-product-card" onClick={() => openDetail(product)}>
                   <div className="popular-product-image">
                     <img 
-                      src={product.images?.[0] || 'https://via.placeholder.com/300x300/f5f5f5/333333?text=Sin+Imagen'} 
+                      src={product.images?.[0] || '/src/assets/llavero.png'} 
                       alt={product.name}
                       style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                     />
@@ -360,7 +360,7 @@ export default function Catalogo() {
             <div key={product._id} className="product-card" onClick={() => openDetail(product)}>
               <div className="product-image">
                 <img 
-                  src={product.images?.[0] || 'https://via.placeholder.com/300x300/f5f5f5/333333?text=Sin+Imagen'} 
+                  src={product.images?.[0] || '/src/assets/llavero.png'} 
                   alt={product.name}
                   style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                 />
@@ -431,7 +431,7 @@ export default function Catalogo() {
               </button>
               <div className="detail-image">
                 <img 
-                  src={selectedProduct.images?.[0] || 'https://via.placeholder.com/400x400/f5f5f5/333333?text=Sin+Imagen'} 
+                  src={selectedProduct.images?.[0] || '/src/assets/llavero.png'} 
                   alt={selectedProduct.name}
                   style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '1rem' }}
                 />

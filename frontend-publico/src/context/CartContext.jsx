@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, useEffect, useCallback } fr
 import { handleAuthError } from '../utils/authUtils';
 
 // URL del servidor local para desarrollo
-const API_BASE = 'http://localhost:4000/api';
+const API_BASE = 'http://192.168.0.3:4000/api';
 
 const CartContext = createContext();
 
@@ -157,20 +157,4 @@ export const CartProvider = ({ children }) => {
   );
 };
 
-// Exporta el hook como función nombrada
-export const useCart = (userId) => {
-  const context = useContext(CartContext);
-  if (!context) {
-    throw new Error('useCart must be used within a CartProvider');
-  }
-
-  const { loadCart } = context;
-
-  useEffect(() => {
-    if (userId) {
-      loadCart(userId);
-    }
-  }, [userId]); // Solo se ejecuta cuando cambia userId
-
-  return context;
-};
+// Hook eliminado para evitar conflictos con useCart.jsx

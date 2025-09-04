@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../../../hooks/useAuth.jsx';
 
 // URL del servidor local para desarrollo
-const API_BASE = 'http://localhost:4000/api';
+const API_BASE = 'http://192.168.0.3:4000/api';
 
 export const useAllProductsRatings = (products) => {
   const { user } = useAuth();

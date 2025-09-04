@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
-import { useCart } from '../../context/CartContext';
+import { useCart } from '../cart/hook/useCart';
 import { useFavorites } from '../../context/FavoritesContext';
 import { useToast } from '../../hooks/useToast';
 import { 
@@ -26,7 +26,7 @@ import '../styles/navBar.css';
 import logo from '../../assets/DANGSTORELOGOPRUEBA__1.png';
 
 // URL del servidor local para desarrollo
-const base = 'http://localhost:4000/api';
+const base = 'http://192.168.0.3:4000/api';
 
 export default function NavBar() {
   const location = useLocation();

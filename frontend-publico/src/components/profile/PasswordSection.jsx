@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Lock, Eye, EyeOff, AlertCircle, CheckCircle } from 'lucide-react';
 
 // URL del servidor local para desarrollo
-const API_BASE = 'http://localhost:4000/api';
+const API_BASE = 'http://192.168.0.3:4000/api';
 
 const PasswordSection = ({ showSuccess, showError }) => {
   const [currentPassword, setCurrentPassword] = useState('');

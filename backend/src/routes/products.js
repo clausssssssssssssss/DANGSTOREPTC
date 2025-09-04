@@ -2,19 +2,20 @@ import express from 'express';
 import multer from 'multer';
 import path from 'path';
 import Product from '../models/Product.js';
+import { v2 as cloudinary } from 'cloudinary';
+import { config } from '../../config.js';
+
+// Configurar Cloudinary
+cloudinary.config({
+  cloud_name: config.cloudinary.cloudinary_name,
+  api_key: config.cloudinary.cloudinary_api_key,
+  api_secret: config.cloudinary.cloudinary_api_secret,
+});
 
 const router = express.Router();
 
-// Configuración de multer para subir imágenes
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, 'uploads/');
-  },
-  filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, 'product-' + uniqueSuffix + path.extname(file.originalname));
-  }
-});
+// Configuración de multer para subir imágenes a memoria (para Cloudinary)
+const storage = multer.memoryStorage();
 
 const upload = multer({ 
   storage: storage,
@@ -29,6 +30,20 @@ const upload = multer({
     fileSize: 5 * 1024 * 1024 // Límite de 5MB
   }
 });
+
+// Función para subir imagen a Cloudinary
+const uploadToCloudinary = (buffer, folder = 'product_images') => {
+  return new Promise((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(
+      { folder },
+      (error, result) => {
+        if (result) resolve(result);
+        else reject(error);
+      }
+    );
+    stream.end(buffer);
+  });
+};
 
 // GET /api/products - Obtener todos los productos
 router.get('/', async (req, res) => {
@@ -69,13 +84,23 @@ router.post('/', upload.single('imagen'), async (req, res) => {
       return res.status(400).json({ error: 'La imagen es obligatoria' });
     }
     
+    // Subir imagen a Cloudinary
+    let imageUrl = null;
+    try {
+      const result = await uploadToCloudinary(req.file.buffer);
+      imageUrl = result.secure_url;
+    } catch (uploadError) {
+      console.error('Error al subir imagen a Cloudinary:', uploadError);
+      return res.status(500).json({ error: 'Error al subir la imagen' });
+    }
+    
     const nuevoProducto = new Product({
       nombre,
       descripcion: descripcion || '',
       precio: parseFloat(precio),
       disponibles: parseInt(disponibles),
       categoria: categoria || 'Llavero',
-      imagen: req.file.filename
+      imagen: imageUrl
     });
 
     const productoGuardado = await nuevoProducto.save();
@@ -106,7 +131,13 @@ router.put('/:id', upload.single('imagen'), async (req, res) => {
     
     // Si se subió una nueva imagen, actualizarla
     if (req.file) {
-      updateData.imagen = req.file.filename;
+      try {
+        const result = await uploadToCloudinary(req.file.buffer);
+        updateData.imagen = result.secure_url;
+      } catch (uploadError) {
+        console.error('Error al subir imagen a Cloudinary:', uploadError);
+        return res.status(500).json({ error: 'Error al subir la imagen' });
+      }
     }
     
     const productoActualizado = await Product.findByIdAndUpdate(

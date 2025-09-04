@@ -76,8 +76,8 @@ router.post('/', upload.single('imagen'), async (req, res) => {
     const { nombre, descripcion, precio, disponibles, categoria } = req.body;
     
     // Validaciones básicas
-    if (!nombre || !precio || !disponibles) {
-      return res.status(400).json({ error: 'Nombre, precio y disponibles son campos obligatorios' });
+    if (!nombre || !descripcion || !precio || !disponibles) {
+      return res.status(400).json({ error: 'Nombre, descripción, precio y disponibles son campos obligatorios' });
     }
     
     if (!req.file) {
@@ -87,8 +87,10 @@ router.post('/', upload.single('imagen'), async (req, res) => {
     // Subir imagen a Cloudinary
     let imageUrl = null;
     try {
+      console.log('Subiendo imagen a Cloudinary...');
       const result = await uploadToCloudinary(req.file.buffer);
       imageUrl = result.secure_url;
+      console.log('Imagen subida exitosamente a Cloudinary:', imageUrl);
     } catch (uploadError) {
       console.error('Error al subir imagen a Cloudinary:', uploadError);
       return res.status(500).json({ error: 'Error al subir la imagen' });
@@ -103,7 +105,17 @@ router.post('/', upload.single('imagen'), async (req, res) => {
       imagen: imageUrl
     });
 
+    console.log('Guardando producto en la base de datos:', {
+      nombre,
+      descripcion,
+      precio: parseFloat(precio),
+      disponibles: parseInt(disponibles),
+      categoria,
+      imagen: imageUrl
+    });
+
     const productoGuardado = await nuevoProducto.save();
+    console.log('Producto guardado exitosamente:', productoGuardado);
     res.status(201).json(productoGuardado);
   } catch (error) {
     console.error('Error al crear producto:', error);
@@ -120,6 +132,11 @@ router.post('/', upload.single('imagen'), async (req, res) => {
 router.put('/:id', upload.single('imagen'), async (req, res) => {
   try {
     const { nombre, descripcion, precio, disponibles, categoria } = req.body;
+    
+    // Validaciones básicas
+    if (!nombre || !descripcion || !precio || !disponibles) {
+      return res.status(400).json({ error: 'Nombre, descripción, precio y disponibles son campos obligatorios' });
+    }
     
     const updateData = {
       nombre,

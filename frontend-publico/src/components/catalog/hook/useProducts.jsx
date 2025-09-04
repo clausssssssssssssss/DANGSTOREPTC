@@ -32,8 +32,16 @@ export function useProducts() {
       // Transformar los datos del backend al formato esperado por el frontend
       const transformedProducts = data.map(product => {
         // Manejar ambos tipos de productos (antiguos y nuevos)
-        const isNewFormat = product.nombre && product.precio; // Productos nuevos
-        const isOldFormat = product.name && product.price; // Productos antiguos
+        const isNewFormat = product.nombre && product.precio; // Productos nuevos (español)
+        const isOldFormat = product.name && product.price; // Productos antiguos (inglés)
+        
+        console.log('Producto recibido:', {
+          id: product._id,
+          isNewFormat,
+          isOldFormat,
+          imagen: product.imagen,
+          images: product.images
+        });
         
         if (isNewFormat) {
           // Productos nuevos: usar campos directos
@@ -43,7 +51,7 @@ export function useProducts() {
             description: product.descripcion || '',
             price: product.precio,
             category: product.categoria || 'Llavero',
-            images: product.imagen ? [`http://192.168.0.3:4000/uploads/${product.imagen}`] : [],
+            images: product.imagen ? [product.imagen] : [], // Usar la URL completa de Cloudinary
             stock: product.disponibles || 0,
           };
         } else if (isOldFormat) {
@@ -65,7 +73,7 @@ export function useProducts() {
             description: product.description || product.descripcion || '',
             price: product.price || product.precio || 0,
             category: product.category || product.categoria || 'Llavero',
-            images: product.images || (product.imagen ? [`http://192.168.0.3:4000/uploads/${product.imagen}`] : []),
+            images: product.images || (product.imagen ? [product.imagen] : []), // Usar la URL completa de Cloudinary
             stock: product.stock || product.disponibles || 0,
           };
         }

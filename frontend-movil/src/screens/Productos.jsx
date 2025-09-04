@@ -95,8 +95,8 @@ const Productos = ({ navigation }) => {
 
   const agregarProducto = async () => {
     // Validaciones
-    if (!nuevoProducto.nombre || !nuevoProducto.precio || !nuevoProducto.disponibles) {
-      showCustomAlert('Error', 'Por favor completa todos los campos obligatorios', 'error');
+    if (!nuevoProducto.nombre || !nuevoProducto.descripcion || !nuevoProducto.precio || !nuevoProducto.disponibles) {
+      showCustomAlert('Error', 'Por favor completa todos los campos obligatorios (nombre, descripción, precio y disponibles)', 'error');
       return;
     }
 
@@ -108,11 +108,11 @@ const Productos = ({ navigation }) => {
     try {
       setCargando(true);
       const formData = new FormData();
-      formData.append('name', nuevoProducto.nombre);
-      formData.append('description', nuevoProducto.descripcion);
-      formData.append('price', nuevoProducto.precio);
-      formData.append('stock', nuevoProducto.disponibles);
-      formData.append('category', nuevoProducto.categoria);
+      formData.append('nombre', nuevoProducto.nombre);
+      formData.append('descripcion', nuevoProducto.descripcion);
+      formData.append('precio', nuevoProducto.precio);
+      formData.append('disponibles', nuevoProducto.disponibles);
+      formData.append('categoria', nuevoProducto.categoria);
       
       if (nuevoProducto.imagen) {
         // Extraer el nombre del archivo de la URI
@@ -120,7 +120,7 @@ const Productos = ({ navigation }) => {
         let match = /\.(\w+)$/.exec(filename);
         let type = match ? `image/${match[1]}` : 'image/jpeg';
         
-        formData.append('images', {
+        formData.append('imagen', {
           uri: nuevoProducto.imagen,
           name: filename,
           type,
@@ -136,7 +136,17 @@ const Productos = ({ navigation }) => {
       });
       
       if (!response.ok) {
-        throw new Error(`HTTP ${response.status} ${response.statusText}`);
+        // Intentar obtener el mensaje de error del servidor
+        let errorMessage = `HTTP ${response.status} ${response.statusText}`;
+        try {
+          const errorData = await response.json();
+          if (errorData.error) {
+            errorMessage = errorData.error;
+          }
+        } catch (e) {
+          // Si no se puede parsear el JSON, usar el mensaje por defecto
+        }
+        throw new Error(errorMessage);
       }
 
       if (response.status === 201) {
@@ -154,7 +164,8 @@ const Productos = ({ navigation }) => {
       }
     } catch (error) {
       console.log('Error al agregar producto:', error);
-      showCustomAlert('Error', 'No se pudo agregar el producto', 'error');
+      const errorMessage = error.message || 'No se pudo agregar el producto';
+      showCustomAlert('Error', `Error al guardar el producto: ${errorMessage}`, 'error');
     } finally {
       setCargando(false);
     }
@@ -163,7 +174,7 @@ const Productos = ({ navigation }) => {
   const seleccionarImagen = async () => {
     try {
       let result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        mediaTypes: ImagePicker.MediaType.Images,
         allowsEditing: true,
         aspect: [1, 1],
         quality: 0.7,
@@ -180,7 +191,7 @@ const Productos = ({ navigation }) => {
 
   const seleccionarImagenEditar = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      mediaTypes: ImagePicker.MediaType.Images,
       allowsEditing: true,
       aspect: [1, 1],
       quality: 0.7,
@@ -224,15 +235,15 @@ const Productos = ({ navigation }) => {
   const editarProducto = async () => {
     try {
       const formData = new FormData();
-      formData.append('name', productoSeleccionado.nombre);
-      formData.append('description', productoSeleccionado.descripcion);
-      formData.append('price', productoSeleccionado.precio);
-      formData.append('stock', productoSeleccionado.disponibles);
-      formData.append('category', productoSeleccionado.categoria);
+      formData.append('nombre', productoSeleccionado.nombre);
+      formData.append('descripcion', productoSeleccionado.descripcion);
+      formData.append('precio', productoSeleccionado.precio);
+      formData.append('disponibles', productoSeleccionado.disponibles);
+      formData.append('categoria', productoSeleccionado.categoria);
       
       // Solo agregar imagen si se seleccionó una nueva
       if (productoSeleccionado.imagen && typeof productoSeleccionado.imagen === 'string' && productoSeleccionado.imagen.startsWith('file://')) {
-        formData.append('images', {
+        formData.append('imagen', {
           uri: productoSeleccionado.imagen,
           name: 'producto.jpg',
           type: 'image/jpeg',
@@ -256,17 +267,19 @@ const Productos = ({ navigation }) => {
       obtenerProductos();
     } catch (error) {
       console.log('Error editando producto:', error);
+      const errorMessage = error.message || 'No se pudo editar el producto';
+      showCustomAlert('Error', `Error al editar el producto: ${errorMessage}`, 'error');
     }
   };
 
   const abrirModalEditar = (producto) => {
     setProductoSeleccionado({
       _id: producto._id,
-      nombre: producto.name,
-      descripcion: producto.description || '',
-      precio: producto.price.toString(),
-      disponibles: producto.stock.toString(),
-      categoria: producto.category,
+      nombre: producto.nombre,
+      descripcion: producto.descripcion || '',
+      precio: producto.precio.toString(),
+      disponibles: producto.disponibles.toString(),
+      categoria: producto.categoria,
       imagen: null, // No cargar imagen existente, solo permitir nueva
     });
     setModalEditarVisible(true);
@@ -344,18 +357,18 @@ const Productos = ({ navigation }) => {
   };
 
   const productosFiltrados = productos.filter(p =>
-    p.name && p.name.toLowerCase().includes(busqueda.toLowerCase())
+    p.nombre && p.nombre.toLowerCase().includes(busqueda.toLowerCase())
   );
 
   const renderProducto = ({ item }) => (
     <View style={styles.card}>
       <Image 
-        source={{ uri: item.images && item.images.length > 0 ? item.images[0] : 'https://via.placeholder.com/150' }} 
+        source={{ uri: item.imagen || 'https://via.placeholder.com/150' }} 
         style={styles.cardImage} 
       />
-      <Text style={styles.cardTitle}>{item.name}</Text>
-      <Text style={styles.cardText}>Precio: ${item.price}</Text>
-      <Text style={styles.cardText}>Disponibles: {item.stock}</Text>
+      <Text style={styles.cardTitle}>{item.nombre}</Text>
+      <Text style={styles.cardText}>Precio: ${item.precio}</Text>
+      <Text style={styles.cardText}>Disponibles: {item.disponibles}</Text>
       
       <View style={styles.cardActions}>
         <TouchableOpacity 

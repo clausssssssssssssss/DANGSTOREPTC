@@ -19,7 +19,7 @@ import paymentRoutes from './src/routes/paymentRoutes.js';
 import ratingsRoutes from './src/routes/ratings.js';
 import notificationsRoutes from './src/routes/notifications.js';
 import salesRoutes from './src/routes/sales.js';
-
+import categoryRoutes from './src/routes/category.js';
 import swaggerUi from "swagger-ui-express";
 import fs from "fs";
 
@@ -142,6 +142,8 @@ app.use('/api/notifications', notificationsRoutes);
 
 // Sistema para reporte de ventas (diario, mensual, anual, por categoría, por rango de fechas)
 app.use('/api/sales', salesRoutes);
+
+app.use('/api/categories', categoryRoutes);
 
 // Health check simple
 app.get('/api/health', (req, res) => {

@@ -5,10 +5,10 @@ import { config } from "./config.js";
 async function main() {
   try {
     // Iniciar servidor
-    const server = app.listen(config.server.port, () => {
+    const server = app.listen(config.server.port, '0.0.0.0', () => {
       console.log(` Server running on port ${config.server.port}`);
       console.log(` Environment: ${config.server.env}`);
-      console.log(` API URL: http://localhost:${config.server.port}`);
+      console.log(` API URL: http://192.168.0.3:${config.server.port}`);
     });
 
     // Manejo de cierre graceful

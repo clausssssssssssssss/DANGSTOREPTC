@@ -15,7 +15,7 @@ export const AuthProvider = ({ children }) => {
   const API_URL = "http://192.168.0.3:4000/api";
 
   useEffect(() => {
-    const loadStoredData = async () => {image.png
+    const loadStoredData = async () => {
       try {
         const [token, credentials] = await Promise.all([
           AsyncStorage.getItem('authToken'),

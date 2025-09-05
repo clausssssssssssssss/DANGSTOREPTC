@@ -1,6 +1,6 @@
 // src/pages/UserProfile.jsx
 import React, { useState, useEffect } from 'react';
-import { Heart, ShoppingCart, User, Gift, LogOut, Lock } from 'lucide-react';
+import { Heart, ShoppingCart, User, Gift, LogOut, Lock, Menu, X } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { useNavigate, useLocation } from 'react-router-dom';
 import '../components/styles/UserProfile.css';
@@ -12,21 +12,22 @@ import OrdersSection from '../components/profile/OrdersSection';
 import FavoritesSection from '../components/profile/FavoritesSection';
 import PasswordSection from '../components/profile/PasswordSection';
 import UserSection from '../components/profile/UserSection';
-import QuotesSection from '../components/profile/QuotesSection'; // Importar el componente
+import QuotesSection from '../components/profile/QuotesSection';
 
 // URL del servidor local para desarrollo
 const API_URL = 'http://192.168.0.3:4000/api';
-
+ 
 const UserProfile = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const { toasts, showSuccess, showError, showWarning, removeToast } = useToast();
-
+ 
   const [activeSection, setActiveSection] = useState('personal');
   const [hasQuotesFlag, setHasQuotesFlag] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
-
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+ 
   // Detectar si viene de otra página con una sección específica
   useEffect(() => {
     if (location.state?.activeSection) {
@@ -75,6 +76,11 @@ const UserProfile = () => {
     logout();
     navigate('/');
     showSuccess('Sesión cerrada correctamente');
+  };
+
+  const handleSectionChange = (section) => {
+    setActiveSection(section);
+    setIsMobileMenuOpen(false); // Cerrar menú móvil al seleccionar una sección
   };
 
   if (!user) {
@@ -154,14 +160,28 @@ const UserProfile = () => {
 
   return (
     <div className="user-profile-container">
+      {/* Mobile Header */}
+      <div className="mobile-header">
+        <button 
+          className="mobile-menu-toggle"
+          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+        >
+          {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+        </button>
+        <h2>Mi Perfil</h2>
+        <div className="mobile-user-avatar">
+          <User size={24} />
+        </div>
+      </div>
+
       <div className="profile-layout">
         {/* Sidebar */}
-        <aside className="profile-sidebar">
+        <aside className={`profile-sidebar ${isMobileMenuOpen ? 'mobile-open' : ''}`}>
           <div className="sidebar-content">
             <UserSection />
             <nav className="profile-navigation">
               <button
-                onClick={() => setActiveSection('personal')}
+                onClick={() => handleSectionChange('personal')}
                 className={`nav-button ${activeSection === 'personal' ? 'active' : ''}`}
               >
                 <User className="nav-icon" />
@@ -169,7 +189,7 @@ const UserProfile = () => {
               </button>
               
               <button
-                onClick={() => setActiveSection('orders')}
+                onClick={() => handleSectionChange('orders')}
                 className={`nav-button ${activeSection === 'orders' ? 'active' : ''}`}
               >
                 <ShoppingCart className="nav-icon" />
@@ -177,7 +197,7 @@ const UserProfile = () => {
               </button>
               
               <button
-                onClick={() => setActiveSection('favorites')}
+                onClick={() => handleSectionChange('favorites')}
                 className={`nav-button ${activeSection === 'favorites' ? 'active' : ''}`}
               >
                 <Heart className="nav-icon" />
@@ -185,7 +205,7 @@ const UserProfile = () => {
               </button>
               
               <button
-                onClick={() => setActiveSection('password')}
+                onClick={() => handleSectionChange('password')}
                 className={`nav-button ${activeSection === 'password' ? 'active' : ''}`}
               >
                 <Lock className="nav-icon" />
@@ -193,7 +213,7 @@ const UserProfile = () => {
               </button>
               
               <button
-                onClick={() => setActiveSection('quotes')}
+                onClick={() => handleSectionChange('quotes')}
                 className={`nav-button ${activeSection === 'quotes' ? 'active' : ''}`}
               >
                 <div className="nav-content">

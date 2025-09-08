@@ -12,7 +12,7 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(false);
   const [savedCredentials, setSavedCredentials] = useState(null);
 
-  const API_URL = "http://192.168.0.3:4000/api";
+  const API_URL = "http://10.10.4.241:4000/api";
 
   useEffect(() => {
     const loadStoredData = async () => {
@@ -103,14 +103,24 @@ export const AuthProvider = ({ children }) => {
       });
 
       const contentType = response.headers.get('content-type') || '';
+      
+      // Manejar específicamente el error 401 (credenciales inválidas)
+      if (response.status === 401) {
+        const errorData = await response.json();
+        ToastAndroid.show(errorData.message || 'Credenciales inválidas', ToastAndroid.SHORT);
+        return false;
+      }
+      
       if (!response.ok) {
         const errText = await response.text();
         throw new Error(`HTTP ${response.status} ${response.statusText} - ${errText}`);
       }
+      
       if (!contentType.includes('application/json')) {
         const txt = await response.text();
         throw new Error(`Respuesta no JSON: ${txt.slice(0, 200)}`);
       }
+      
       const data = await response.json();
 
       if (response.ok) {
@@ -131,7 +141,12 @@ export const AuthProvider = ({ children }) => {
       }
     } catch (error) {
       console.error('Error during login:', error);
-      ToastAndroid.show('Error de conexión con el servidor', ToastAndroid.SHORT);
+      
+      // Mostrar mensaje de error específico solo si no es un error 401 (que ya manejamos arriba)
+      if (!error.message.includes('401')) {
+        ToastAndroid.show('Error de conexión con el servidor', ToastAndroid.SHORT);
+      }
+      
       return false;
     }
   };
@@ -179,5 +194,3 @@ export const AuthProvider = ({ children }) => {
     </AuthContext.Provider>
   );
 };
-
-

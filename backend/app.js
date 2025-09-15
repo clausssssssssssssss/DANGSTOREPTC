@@ -73,15 +73,6 @@ const upload = multer({
   }
 });
 
-// Middleware para manejar errores de multer
-app.use((error, req, res, next) => {
-  if (error instanceof multer.MulterError) {
-    if (error.code === 'LIMIT_FILE_SIZE') {
-      return res.status(400).json({ error: 'El archivo es demasiado grande' });
-    }
-  }
-  next(error);
-});
 
 // Traemos el archivo json de Swagger
 const swaggerDocument = JSON.parse(
@@ -145,36 +136,6 @@ app.use('/api/sales', salesRoutes);
 
 app.use('/api/categories', categoryRoutes);
 
-// Health check simple
-app.get('/api/health', (req, res) => {
-  console.log('🔍 Health check solicitado');
-  res.json({ 
-    status: 'OK', 
-    message: 'Backend funcionando correctamente',
-    timestamp: new Date().toISOString(),
-    uploadsDirectory: path.resolve('uploads'),
-    routes: [
-      '/api/custom-orders',
-      '/api/custom-orders/pending',
-      '/api/admins/login',
-      '/api/notifications',
-      '/api/notifications/unread-count',
-      '/api/products' // Añadido para verificar la ruta de productos
-    ],
-    notifications: {
-      available: true,
-      endpoints: [
-        'GET /api/notifications',
-        'GET /api/notifications/unread-count',
-        'PUT /api/notifications/:id/read',
-        'PUT /api/notifications/read-all',
-        'DELETE /api/notifications/:id',
-        'DELETE /api/notifications'
-      ]
-    }
-  });
-});
-
 // Ruta de prueba para subida de imágenes
 app.post('/api/upload-test', upload.single('imagen'), (req, res) => {
   if (!req.file) {
@@ -188,40 +149,8 @@ app.post('/api/upload-test', upload.single('imagen'), (req, res) => {
   });
 });
 
-// Logging de todas las rutas registradas
-app.use((req, res, next) => {
-  console.log(`🌐 ${req.method} ${req.path}`);
-  next();
-});
 
-// Middleware para manejar rutas no encontradas
-app.use('*', (req, res) => {
-  res.status(404).json({ 
-    error: 'Ruta no encontrada',
-    message: `La ruta ${req.originalUrl} no existe en este servidor` 
-  });
-});
-
-// Middleware de manejo de errores global
-app.use((error, req, res, next) => {
-  console.error(' Error:', error);
   
-  if (error.code === 'LIMIT_FILE_SIZE') {
-    return res.status(400).json({ error: 'El archivo es demasiado grande' });
-  }
-  
-  if (error.message === 'Solo se permiten imágenes') {
-    return res.status(400).json({ error: 'Solo se permiten archivos de imagen' });
-  }app.use(cors({
-  origin: ['http://localhost:3000', 'exp://your-ip:19000', 'http://your-ip:19000'],
-  credentials: true
-}));
-  
-  res.status(500).json({ 
-    error: 'Error interno del servidor',
-    message: process.env.NODE_ENV === 'development' ? error.message : 'Algo salió mal'
-  });
-});
 
 /**
  * Exporta la instancia de la aplicación Express

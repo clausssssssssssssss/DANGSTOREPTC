@@ -1216,3 +1216,24 @@ body {
   background: linear-gradient(white, white) padding-box,
               linear-gradient(135deg, #4DD0E1, #81C784) border-box;
 }
+
+/* Loading and error states for categories */
+.loading-text {
+  color: #4DD0E1;
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+  font-style: italic;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.error-text {
+  color: #FF6B6B;
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+  font-weight: 500;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}

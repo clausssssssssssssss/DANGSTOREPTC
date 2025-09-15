@@ -10,7 +10,7 @@ import { useToast } from '../hooks/useToast';
 import ToastContainer from '../components/ui/ToastContainer';
 
 // URL del servidor local para desarrollo
-const API_URL = 'http://192.168.0.3:4000/api';
+const API_URL = 'http://localhost:4000/api';
 
 const AuthApp = () => {
   const navigate = useNavigate();

@@ -8,11 +8,6 @@ const categorySchema = new mongoose.Schema({
     trim: true,
     unique: true, // Evita duplicados
     maxLength: [50, "El nombre no puede exceder los 50 caracteres"]
-  },
-  description: {
-    type: String,
-    trim: true,
-    maxLength: [200, "La descripción no puede exceder los 200 caracteres"]
   }
 }, {
   timestamps: true // Crea campos automáticos createdAt y updatedAt

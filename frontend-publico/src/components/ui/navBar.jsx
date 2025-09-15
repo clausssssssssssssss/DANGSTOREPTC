@@ -26,7 +26,7 @@ import '../styles/navBar.css';
 import logo from '../../assets/DANGSTORELOGOPRUEBA__1.png';
 
 // URL del servidor local para desarrollo
-const base = 'http://192.168.0.3:4000/api';
+const base = 'http://localhost:4000/api';
 
 export default function NavBar() {
   const location = useLocation();

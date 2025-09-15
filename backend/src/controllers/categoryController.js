@@ -5,7 +5,7 @@ const categoryController = {};
 // Crear una nueva categoría
 categoryController.createCategory = async (req, res) => {
   try {
-    const { name, description } = req.body;
+    const { name } = req.body;
 
     if (!name) {
       return res.status(400).json({ message: "El nombre de la categoría es obligatorio" });
@@ -16,7 +16,7 @@ categoryController.createCategory = async (req, res) => {
       return res.status(409).json({ message: "La categoría ya existe" });
     }
 
-    const newCategory = await Category.create({ name, description });
+    const newCategory = await Category.create({ name });
     res.status(201).json({
       message: "Categoría creada correctamente",
       category: newCategory
@@ -57,11 +57,11 @@ categoryController.getCategoryById = async (req, res) => {
 // Actualizar categoría
 categoryController.updateCategory = async (req, res) => {
   try {
-    const { name, description } = req.body;
+    const { name } = req.body;
 
     const updatedCategory = await Category.findByIdAndUpdate(
       req.params.id,
-      { name, description },
+      { name },
       { new: true, runValidators: true }
     );
 

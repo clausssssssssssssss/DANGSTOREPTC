@@ -24,10 +24,15 @@ const API_URL = 'http://192.168.0.3:4000/api/products'; // URL consistente con e
 
 const Productos = ({ navigation }) => {
   const [productos, setProductos] = useState([]);
+  const [categorias, setCategorias] = useState(['Llavero', 'Cuadro']); // Categorías por defecto
   const [busqueda, setBusqueda] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
   const [modalEditarVisible, setModalEditarVisible] = useState(false);
   const [modalCategoriaVisible, setModalCategoriaVisible] = useState(false);
+  const [modalGestionarCategoriasVisible, setModalGestionarCategoriasVisible] = useState(false);
+  const [modalEditarCategoriaVisible, setModalEditarCategoriaVisible] = useState(false);
+  const [categoriaEditando, setCategoriaEditando] = useState(null);
+  const [nuevoNombreCategoria, setNuevoNombreCategoria] = useState('');
   const [productoSeleccionado, setProductoSeleccionado] = useState(null);
   const [cargando, setCargando] = useState(false);
   const [nuevaCategoria, setNuevaCategoria] = useState('');
@@ -56,6 +61,7 @@ const Productos = ({ navigation }) => {
 
   useEffect(() => {
     obtenerProductos();
+    obtenerCategorias();
   }, []);
 
   const showCustomAlert = (title, message, type = 'info', options = {}) => {
@@ -90,6 +96,28 @@ const Productos = ({ navigation }) => {
       showCustomAlert('Error', 'No se pudieron cargar los productos', 'error');
     } finally {
       setCargando(false);
+    }
+  };
+
+  const obtenerCategorias = async () => {
+    try {
+      const response = await fetch(`${API_URL}/categories`);
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status} ${response.statusText}`);
+      }
+      const data = await response.json();
+      // Extraer solo los nombres de las categorías
+      const nombresCategorias = data.map(cat => cat.name);
+      setCategorias(nombresCategorias);
+    } catch (error) {
+      console.log('Error obteniendo categorías:', error);
+      // Solo mostrar categorías por defecto si es un error de conexión real
+      if (error.message.includes('fetch') || error.message.includes('Network') || error.message.includes('Failed to fetch')) {
+        setCategorias(['Llavero', 'Cuadro']);
+      } else {
+        // Si es otro tipo de error (como 404, 500), mostrar array vacío
+        setCategorias([]);
+      }
     }
   };
 
@@ -293,24 +321,119 @@ const Productos = ({ navigation }) => {
 
     try {
       setCargando(true);
-      const response = await fetch(`${API_URL.replace('/products', '/categories')}`, {
+      const response = await fetch(`${API_URL}/categories`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ name: nuevaCategoria.trim() }),
+        body: JSON.stringify({ 
+          name: nuevaCategoria.trim()
+        }),
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP ${response.status} ${response.statusText}`);
+        const errorData = await response.json();
+        throw new Error(errorData.message || `HTTP ${response.status} ${response.statusText}`);
       }
 
       showCustomAlert('Éxito', 'Categoría creada correctamente', 'success');
       setModalCategoriaVisible(false);
       setNuevaCategoria('');
+      // Recargar las categorías para incluir la nueva
+      obtenerCategorias();
     } catch (error) {
       console.log('Error creando categoría:', error);
-      showCustomAlert('Error', 'No se pudo crear la categoría', 'error');
+      const errorMessage = error.message || 'No se pudo crear la categoría';
+      showCustomAlert('Error', errorMessage, 'error');
+    } finally {
+      setCargando(false);
+    }
+  };
+
+  const eliminarCategoria = async (categoriaId, categoriaNombre) => {
+    // Todas las categorías ahora vienen del backend, por lo que todas tienen ID
+    const confirmMessage = `¿Estás seguro de que quieres eliminar la categoría "${categoriaNombre}"? Esta acción no se puede deshacer y puede afectar productos existentes.`;
+
+    showCustomAlert(
+      'Confirmar eliminación',
+      confirmMessage,
+      'warning',
+      {
+        showCancel: true,
+        confirmText: 'Eliminar',
+        cancelText: 'Cancelar',
+        onConfirm: async () => {
+          try {
+            setCargando(true);
+
+            // Eliminar categoría del backend
+            const response = await fetch(`${API_URL}/categories/${categoriaId}`, {
+              method: 'DELETE',
+            });
+
+            if (!response.ok) {
+              const errorData = await response.json();
+              throw new Error(errorData.message || `HTTP ${response.status} ${response.statusText}`);
+            }
+
+            showCustomAlert('Éxito', 'Categoría eliminada correctamente', 'success');
+            // Recargar las categorías para actualizar la lista
+            obtenerCategorias();
+          } catch (error) {
+            console.log('Error eliminando categoría:', error);
+            const errorMessage = error.message || 'No se pudo eliminar la categoría';
+            showCustomAlert('Error', errorMessage, 'error');
+          } finally {
+            setCargando(false);
+          }
+        },
+        onCancel: () => hideCustomAlert(),
+      }
+    );
+  };
+
+  const editarCategoria = (categoria) => {
+    // Permitir editar todas las categorías
+    setCategoriaEditando(categoria);
+    setNuevoNombreCategoria(categoria.name || categoria);
+    setModalEditarCategoriaVisible(true);
+  };
+
+  const actualizarCategoria = async () => {
+    if (!nuevoNombreCategoria.trim()) {
+      showCustomAlert('Error', 'Por favor ingresa un nombre para la categoría', 'error');
+      return;
+    }
+
+    try {
+      setCargando(true);
+
+      // Todas las categorías ahora vienen del backend, actualizar vía API
+      const response = await fetch(`${API_URL}/categories/${categoriaEditando._id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: nuevoNombreCategoria.trim()
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || `HTTP ${response.status} ${response.statusText}`);
+      }
+
+      showCustomAlert('Éxito', 'Categoría actualizada correctamente', 'success');
+      setModalEditarCategoriaVisible(false);
+      setCategoriaEditando(null);
+      setNuevoNombreCategoria('');
+      // Recargar las categorías
+      obtenerCategorias();
+    } catch (error) {
+      console.log('Error actualizando categoría:', error);
+      const errorMessage = error.message || 'No se pudo actualizar la categoría';
+      showCustomAlert('Error', errorMessage, 'error');
     } finally {
       setCargando(false);
     }
@@ -425,6 +548,15 @@ const Productos = ({ navigation }) => {
           <Text style={styles.categoriaBtnText}>+ Nueva categoría</Text>
         </TouchableOpacity>
       </View>
+      
+      <View style={styles.managementButtonsContainer}>
+        <TouchableOpacity
+          style={styles.managementBtn}
+          onPress={() => setModalGestionarCategoriasVisible(true)}
+        >
+          <Text style={styles.managementBtnText}>⚙ Gestionar Categorías</Text>
+        </TouchableOpacity>
+      </View>
 
       {cargando && (
         <View style={styles.cargandoContainer}>
@@ -447,8 +579,8 @@ const Productos = ({ navigation }) => {
         transparent
         onRequestClose={() => !cargando && setModalVisible(false)}
       >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalBox}>
+        <View style={[styles.modalOverlay, { zIndex: 200 }]}>
+          <View style={[styles.modalBox, { zIndex: 201 }]}>
             <TouchableOpacity
               style={styles.modalBack}
               onPress={() => !cargando && setModalVisible(false)}
@@ -536,8 +668,9 @@ const Productos = ({ navigation }) => {
                     mode="dropdown"
                     enabled={!cargando}
                   >
-                    <Picker.Item label="Llavero" value="Llavero" />
-                    <Picker.Item label="Cuadro" value="Cuadro" />
+                    {categorias.map((categoria, index) => (
+                      <Picker.Item key={index} label={categoria} value={categoria} />
+                    ))}
                   </Picker>
                 </View>
               </View>
@@ -564,8 +697,8 @@ const Productos = ({ navigation }) => {
         transparent
         onRequestClose={() => setModalEditarVisible(false)}
       >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalBox}>
+        <View style={[styles.modalOverlay, { zIndex: 200 }]}>
+          <View style={[styles.modalBox, { zIndex: 201 }]}>
             <TouchableOpacity
               style={styles.modalBack}
               onPress={() => setModalEditarVisible(false)}
@@ -652,8 +785,9 @@ const Productos = ({ navigation }) => {
                     dropdownIconColor="#8B5CF6"
                     mode="dropdown"
                   >
-                    <Picker.Item label="Llavero" value="Llavero" />
-                    <Picker.Item label="Cuadro" value="Cuadro" />
+                    {categorias.map((categoria, index) => (
+                      <Picker.Item key={index} label={categoria} value={categoria} />
+                    ))}
                   </Picker>
                 </View>
               </View>
@@ -673,8 +807,8 @@ const Productos = ({ navigation }) => {
         transparent
         onRequestClose={() => !cargando && setModalCategoriaVisible(false)}
       >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalBox}>
+        <View style={[styles.modalOverlay, { zIndex: 200 }]}>
+          <View style={[styles.modalBox, { zIndex: 201 }]}>
             <TouchableOpacity
               style={styles.modalBack}
               onPress={() => !cargando && setModalCategoriaVisible(false)}
@@ -710,43 +844,145 @@ const Productos = ({ navigation }) => {
         </View>
       </Modal>
 
-      {/* Alert personalizado */}
-      {customAlert.visible && (
-        <View style={styles.alertOverlay}>
-          <View style={styles.alertContainer}>
-            <View style={[styles.alertIcon, styles[`alertIcon${customAlert.type.charAt(0).toUpperCase() + customAlert.type.slice(1)}`]]}>
-              <Text style={[styles.alertIconText, styles[`alertIconText${customAlert.type.charAt(0).toUpperCase() + customAlert.type.slice(1)}`]]}>
-                {customAlert.type === 'success' ? '✓' : 
-                 customAlert.type === 'error' ? '✕' : 
-                 customAlert.type === 'warning' ? '⚠' : 'ℹ'}
-              </Text>
-            </View>
-            
-            <Text style={styles.alertTitle}>{customAlert.title}</Text>
-            <Text style={styles.alertMessage}>{customAlert.message}</Text>
-            
-            <View style={styles.alertButtons}>
-              {customAlert.showCancel && (
-                <TouchableOpacity 
-                  style={[styles.alertButton, styles.alertButtonCancel]} 
-                  onPress={customAlert.onCancel || hideCustomAlert}
-                >
-                  <Text style={styles.alertButtonCancelText}>{customAlert.cancelText}</Text>
-                </TouchableOpacity>
-              )}
-              
-              <TouchableOpacity 
-                style={[styles.alertButton, styles[`alertButton${customAlert.type.charAt(0).toUpperCase() + customAlert.type.slice(1)}`]]} 
-                onPress={customAlert.onConfirm || hideCustomAlert}
+      {/* Modal para gestionar categorías */}
+      <Modal
+        visible={modalGestionarCategoriasVisible}
+        animationType="fade"
+        transparent
+        onRequestClose={() => !cargando && setModalGestionarCategoriasVisible(false)}
+      >
+        <View style={[styles.modalOverlay, { zIndex: 50 }]}>
+          <View style={[styles.categoriasModalBox, { zIndex: 51 }]}>
+            <View style={styles.categoriasModalHeader}>
+              <TouchableOpacity
+                style={styles.categoriasModalBack}
+                onPress={() => !cargando && setModalGestionarCategoriasVisible(false)}
+                disabled={cargando}
               >
-                <Text style={styles[`alertButton${customAlert.type.charAt(0).toUpperCase() + customAlert.type.slice(1)}Text`]}>
-                  {customAlert.confirmText}
-                </Text>
+                <Text style={styles.categoriasModalBackText}>←</Text>
+              </TouchableOpacity>
+              <Text style={styles.categoriasModalTitle}>Gestionar Categorías</Text>
+              <View style={styles.categoriasModalPlaceholder} />
+            </View>
+
+            <View style={styles.categoriasModalContent}>
+              <Text style={styles.categoriasModalSubtitle}>Administra las categorías de productos</Text>
+
+              <ScrollView style={styles.categoriasList} showsVerticalScrollIndicator={false}>
+                {categorias.map((categoria, index) => (
+                  <View key={index} style={styles.categoriaItem}>
+                    <View style={styles.categoriaInfo}>
+                      <Text style={styles.categoriaItemText}>{categoria.name || categoria}</Text>
+                      <Text style={styles.categoriaStatus}>
+                        {categoria._id ? 'Creada' : 'Por defecto'}
+                      </Text>
+                    </View>
+                    <View style={styles.categoriaActions}>
+                      <TouchableOpacity
+                        style={styles.editarCategoriaBtn}
+                        onPress={() => editarCategoria(categoria)}
+                        disabled={cargando}
+                      >
+                        <Text style={styles.editarCategoriaBtnText}>✏</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        style={styles.eliminarCategoriaBtn}
+                        onPress={() => eliminarCategoria(categoria._id, categoria.name || categoria)}
+                        disabled={cargando}
+                      >
+                        <Text style={styles.eliminarCategoriaBtnText}>✖</Text>
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                ))}
+              </ScrollView>
+            </View>
+          </View>
+
+          {/* Alerta integrada en el modal */}
+          {customAlert.visible && (
+            <View style={[styles.alertOverlay, { zIndex: 1000 }]}>
+              <View style={[styles.alertContainer, { zIndex: 1001 }]}>
+                <View style={[styles.alertIcon, styles[`alertIcon${customAlert.type.charAt(0).toUpperCase() + customAlert.type.slice(1)}`]]}>
+                  <Text style={[styles.alertIconText, styles[`alertIconText${customAlert.type.charAt(0).toUpperCase() + customAlert.type.slice(1)}`]]}>
+                    {customAlert.type === 'success' ? '✓' :
+                     customAlert.type === 'error' ? '✕' :
+                     customAlert.type === 'warning' ? '⚠' : 'ℹ'}
+                  </Text>
+                </View>
+
+                <Text style={styles.alertTitle}>{customAlert.title}</Text>
+                <Text style={styles.alertMessage}>{customAlert.message}</Text>
+
+                <View style={styles.alertButtons}>
+                  {customAlert.showCancel && (
+                    <TouchableOpacity
+                      style={[styles.alertButton, styles.alertButtonCancel]}
+                      onPress={customAlert.onCancel || hideCustomAlert}
+                    >
+                      <Text style={styles.alertButtonCancelText}>{customAlert.cancelText}</Text>
+                    </TouchableOpacity>
+                  )}
+
+                  <TouchableOpacity
+                    style={[styles.alertButton, styles[`alertButton${customAlert.type.charAt(0).toUpperCase() + customAlert.type.slice(1)}`]]}
+                    onPress={customAlert.onConfirm || hideCustomAlert}
+                  >
+                    <Text style={styles[`alertButton${customAlert.type.charAt(0).toUpperCase() + customAlert.type.slice(1)}Text`]}>
+                      {customAlert.confirmText}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </View>
+          )}
+        </View>
+      </Modal>
+
+      {/* Modal para editar categoría */}
+      <Modal
+        visible={modalEditarCategoriaVisible}
+        animationType="fade"
+        transparent
+        onRequestClose={() => !cargando && setModalEditarCategoriaVisible(false)}
+      >
+        <View style={[styles.modalOverlay, { zIndex: 200 }]}>
+          <View style={[styles.modalBox, { zIndex: 201 }]}>
+            <TouchableOpacity
+              style={styles.modalBack}
+              onPress={() => !cargando && setModalEditarCategoriaVisible(false)}
+              disabled={cargando}
+            >
+              <Text style={styles.backButtonText}>←</Text>
+            </TouchableOpacity>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalTitle}>Editar Categoría</Text>
+
+              <TextInput
+                style={styles.input}
+                placeholder="Nombre de la categoría"
+                value={nuevoNombreCategoria}
+                onChangeText={setNuevoNombreCategoria}
+                editable={!cargando}
+                maxLength={50}
+              />
+
+              <TouchableOpacity
+                style={[styles.agregarBtn, cargando && styles.btnDeshabilitado]}
+                onPress={actualizarCategoria}
+                disabled={cargando}
+              >
+                {cargando ? (
+                  <ActivityIndicator color="#fff" />
+                ) : (
+                  <Text style={styles.agregarBtnText}>Actualizar Categoría</Text>
+                )}
               </TouchableOpacity>
             </View>
           </View>
         </View>
-      )}
+      </Modal>
+
     </SafeAreaView>
   );
 };
@@ -797,6 +1033,10 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     gap: 12,
   },
+  managementButtonsContainer: {
+    marginHorizontal: width * 0.05,
+    marginBottom: 15,
+  },
   nuevoBtn: {
     backgroundColor: '#8B5CF6',
     flex: 1,
@@ -837,6 +1077,30 @@ const styles = StyleSheet.create({
     borderColor: '#059669',
   },
   categoriaBtnText: {
+    color: '#fff',
+    fontWeight: '800',
+    fontSize: 16,
+    letterSpacing: 0.5,
+    textShadowColor: 'rgba(0,0,0,0.3)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
+  },
+  managementBtn: {
+    backgroundColor: '#6366F1',
+    borderRadius: 25,
+    paddingVertical: 15,
+    paddingHorizontal: 25,
+    alignItems: 'center',
+    shadowColor: '#6366F1',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.4,
+    shadowRadius: 8,
+    elevation: 6,
+    borderWidth: 2,
+    borderColor: '#4F46E5',
+    width: '100%',
+  },
+  managementBtnText: {
     color: '#fff',
     fontWeight: '800',
     fontSize: 16,
@@ -1104,7 +1368,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.6)',
     justifyContent: 'center',
     alignItems: 'center',
-    zIndex: 9999,
+    zIndex: 10000,
   },
   alertContainer: {
     backgroundColor: '#fff',
@@ -1117,7 +1381,8 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.3,
     shadowRadius: 20,
-    elevation: 10,
+    elevation: 30,
+    zIndex: 10001,
   },
   alertIcon: {
     width: 60,
@@ -1222,6 +1487,158 @@ const styles = StyleSheet.create({
     color: '#374151',
     fontWeight: 'bold',
     fontSize: 16,
+  },
+  // Estilos para gestión de categorías
+  categoriasModalBox: {
+    backgroundColor: '#FFFFFF',
+    marginHorizontal: 20,
+    marginVertical: 60,
+    borderRadius: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.25,
+    shadowRadius: 20,
+    elevation: 15,
+    flex: 1,
+    maxHeight: '80%',
+  },
+  categoriasModalHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingVertical: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E5E7EB',
+  },
+  categoriasModalBack: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#F3F4F6',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  categoriasModalBackText: {
+    fontSize: 20,
+    color: '#374151',
+    fontWeight: 'bold',
+  },
+  categoriasModalTitle: {
+    fontSize: 22,
+    fontWeight: '800',
+    color: '#1F2937',
+    flex: 1,
+    textAlign: 'center',
+    marginHorizontal: 10,
+    fontFamily: 'System',
+    letterSpacing: 0.5,
+  },
+  categoriasModalPlaceholder: {
+    width: 40,
+  },
+  categoriasModalContent: {
+    flex: 1,
+    paddingHorizontal: 20,
+    paddingTop: 15,
+  },
+  categoriasModalSubtitle: {
+    fontSize: 15,
+    color: '#6B7280',
+    textAlign: 'center',
+    marginBottom: 20,
+    fontStyle: 'italic',
+    fontWeight: '500',
+    fontFamily: 'System',
+    letterSpacing: 0.2,
+  },
+  categoriasList: {
+    flex: 1,
+    width: '100%',
+  },
+  categoriaItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: '#F8FAFC',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 8,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 3,
+    elevation: 2,
+  },
+  categoriaInfo: {
+    flex: 1,
+    marginRight: 12,
+  },
+  categoriaItemText: {
+    fontSize: 17,
+    fontWeight: '700',
+    color: '#1E293B',
+    letterSpacing: 0.3,
+    marginBottom: 3,
+    fontFamily: 'System',
+  },
+  categoriaStatus: {
+    fontSize: 12,
+    color: '#64748B',
+    fontWeight: '600',
+    textTransform: 'uppercase',
+    letterSpacing: 0.8,
+    fontFamily: 'System',
+  },
+  categoriaActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  editarCategoriaBtn: {
+    backgroundColor: '#3B82F6',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    shadowColor: '#3B82F6',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 3,
+    minWidth: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  editarCategoriaBtnText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 18,
+    textAlign: 'center',
+  },
+  eliminarCategoriaBtn: {
+    backgroundColor: '#EF4444',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    shadowColor: '#EF4444',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 3,
+    minWidth: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  eliminarCategoriaBtnText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 18,
+    textAlign: 'center',
+  },
+  btnTextDeshabilitado: {
+    color: '#9CA3AF',
   },
 });
 

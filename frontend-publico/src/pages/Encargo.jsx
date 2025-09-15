@@ -3,6 +3,7 @@ import React, { useEffect } from 'react';
 import { CloudUpload, X, Check, XCircle } from 'lucide-react';
 import useCustomerOrders from '../components/personalizedOrder/useCustomerOrders';
 import { useAuth } from '../hooks/useAuth';
+import useCategories from '../hooks/useCategories';
 import Modal from '../components/ui/Modal';
 import '../components/styles/Encargo.css';
 import { useToast } from '../hooks/useToast';
@@ -12,6 +13,7 @@ import logo from '../assets/DANGSTORELOGOPRUEBA.PNG';
 export default function Encargo() {
 const { user } = useAuth();
 const { toasts, showSuccess, showError, showWarning, removeToast } = useToast();
+const { categorias, loading: categoriasLoading, error: categoriasError } = useCategories();
 
   const {
     preview,
@@ -146,12 +148,21 @@ const { toasts, showSuccess, showError, showWarning, removeToast } = useToast();
               value={modelType}
               onChange={e => setModelType(e.target.value)}
               className="field-select"
+              disabled={categoriasLoading}
             >
               <option value="">Selecciona...</option>
-              <option value="llavero">Llavero</option>
-              <option value="cuadro_chico">Cuadro chico</option>
-              <option value="cuadro_grande">Cuadro grande</option>
+              {categorias.map((categoria, index) => (
+                <option key={index} value={categoria.name.toLowerCase()}>
+                  {categoria.name}
+                </option>
+              ))}
             </select>
+            {categoriasLoading && (
+              <p className="loading-text">Cargando categorías...</p>
+            )}
+            {categoriasError && (
+              <p className="error-text">Error cargando categorías: {categoriasError}</p>
+            )}
           </div>
           <div className="field-group flex-1">
             <label className="field-label">Descripción</label>

@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 
 // URL del servidor local para desarrollo
-const API_URL = 'http://192.168.0.3:4000/api';
+const API_URL = 'http://localhost:4000/api';
 
 export default function useCustomerOrders() {
   const [preview, setPreview]         = useState(null);

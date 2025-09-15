@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from "../hooks/useAuth.jsx";
-import { useCart } from "../components/cart/hook/useCart.jsx";
+import { useCart } from "../context/CartContext.jsx";
 import usePaymentFakeForm from "../components/payment/hook/usePaymentFakeForm.jsx";
 import InputField from "../components/payment/InputField";
 import Button from "../components/payment/Button";
@@ -14,7 +14,7 @@ const FormPaymentFake = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const userId = user?.id;
-  const { cart, clearCart, loadCart, loading } = useCart(userId);
+  const { cart, clearCart, loadCart, loading } = useCart();
   
   // Estado para manejar cotizaciones aceptadas
   const [quoteItem, setQuoteItem] = useState(null);
@@ -29,7 +29,7 @@ const FormPaymentFake = () => {
       console.log('FormPaymentFake: Loading cart for user:', userId);
       loadCart(userId);
     }
-  }, [userId]); // Solo depende de userId para evitar bucles infinitos
+  }, [userId, loadCart]);
 
   // Detectar si hay una cotización en la URL
   useEffect(() => {

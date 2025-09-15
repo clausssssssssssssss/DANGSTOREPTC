@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Package, Calendar, DollarSign, MapPin } from 'lucide-react';
 
 // URL del servidor local para desarrollo
-const API_BASE = 'http://192.168.0.3:4000/api';
+const API_BASE = 'http://localhost:4000/api';
 
 const OrdersSection = ({ userId }) => {
   const [orders, setOrders] = useState([]);

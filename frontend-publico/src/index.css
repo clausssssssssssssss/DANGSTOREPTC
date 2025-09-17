@@ -1,5 +1,12 @@
 /* ===== SISTEMA DE TIPOGRAFÍA Y VARIABLES CSS RESPONSIVE ===== */
 
+/* Eliminar outline de enfoque por defecto de todos los elementos */
+*:focus,
+*:active {
+  outline: none !important;
+  outline-offset: 0 !important;
+}
+
 /* Variables CSS para tipografía y espaciado */
 :root {
   /* Tipografía principal - Inter como fuente base */

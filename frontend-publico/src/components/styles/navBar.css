@@ -461,8 +461,8 @@
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   overflow: hidden;
-  width: 52px;
-  height: 52px;
+  width: 64px;
+  height: 64px;
 }
 
 .icon-link::before {
@@ -499,6 +499,12 @@
     rgba(186, 104, 200, 0.25));
   box-shadow: none;
   transform: scale(1.05);
+}
+
+/* Tamaño de los SVG dentro de los iconos */
+.icon-link svg {
+  width: 28px;
+  height: 28px;
 }
 
 /* Badges y notificaciones */
@@ -670,14 +676,30 @@
   }
 }
 
-/* Mejoras de accesibilidad */
+/* Eliminar outline de enfoque de todos los elementos interactivos */
+.navbar *:focus,
+.navbar *:active,
+.navbar button:focus,
+.navbar button:active,
+.navbar a:focus,
+.navbar a:active,
 .nav-link:focus,
+.nav-link:active,
 .icon-link:focus,
+.icon-link:active,
 .logo-link:focus,
+.logo-link:active,
 .hamburger-menu:focus,
-.mobile-nav-link:focus {
-  outline: 2px solid #4DD0E1;
-  outline-offset: 2px;
+.hamburger-menu:active,
+.mobile-nav-link:focus,
+.mobile-nav-link:active,
+.mobile-close-btn:focus,
+.mobile-close-btn:active,
+.login-button-nav:focus,
+.login-button-nav:active {
+  outline: none !important;
+  outline-offset: 0 !important;
+  box-shadow: none !important;
 }
 
 /* Reducir animaciones para usuarios sensibles */
@@ -857,8 +879,13 @@
   }
   
   .icon-link {
-    width: 48px;
-    height: 48px;
+    width: 56px;
+    height: 56px;
+  }
+  
+  .icon-link svg {
+    width: 24px;
+    height: 24px;
   }
   
   .cart-count {
@@ -911,8 +938,13 @@
   }
   
   .icon-link {
-    width: 44px;
-    height: 44px;
+    width: 50px;
+    height: 50px;
+  }
+  
+  .icon-link svg {
+    width: 22px;
+    height: 22px;
   }
   
   .cart-count {
@@ -971,8 +1003,13 @@
   }
   
   .icon-link {
-    width: 40px;
-    height: 40px;
+    width: 46px;
+    height: 46px;
+  }
+  
+  .icon-link svg {
+    width: 20px;
+    height: 20px;
   }
   
   .cart-count {
@@ -1037,8 +1074,13 @@
   }
   
   .icon-link {
-    min-height: 48px;
-    min-width: 48px;
+    min-height: 52px;
+    min-width: 52px;
+  }
+  
+  .icon-link svg {
+    width: 26px;
+    height: 26px;
   }
   
   .user-avatar {
@@ -1176,8 +1218,13 @@
   }
   
   .icon-link {
-    width: 60px;
-    height: 60px;
+    width: 72px;
+    height: 72px;
+  }
+  
+  .icon-link svg {
+    width: 32px;
+    height: 32px;
   }
   
   .cart-count {

@@ -3,8 +3,12 @@ import axios from 'axios';
 
 // URLs alternativas para probar conexión
 const API_BASES = [
-  'http://192.168.0.9:4000/api',
-    // Para emulador iOS
+  'http://192.168.0.9:4000/api', // IP principal
+  'http://192.168.56.1:4000/api', // IP alternativa
+  'http://192.168.0.8:4000/api', // IP alternativa
+  'http://10.0.2.2:4000/api', // Para emulador Android
+  'http://localhost:4000/api', // Para emulador iOS
+  'http://127.0.0.1:4000/api', // Localhost alternativo
 ];
 
 export function useProducts() {
@@ -42,12 +46,19 @@ export function useProducts() {
       return true;
     } catch (err) {
       console.error(` Error con ${apiBase}:`, err.message);
+      console.error(' Detalles del error:', err);
       
       if (err.code === 'ECONNABORTED') {
+        console.log(` Timeout con ${apiBase}`);
         setError('El servidor tardó demasiado en responder. Verifica tu conexión.');
-      } else if (err.message.includes('Network Error')) {
+      } else if (err.message.includes('Network Error') || err.message.includes('Network request failed')) {
+        console.log(` Error de red con ${apiBase}`);
         setError('No se puede conectar al servidor. Verifica que esté ejecutándose.');
+      } else if (err.code === 'ECONNREFUSED') {
+        console.log(` Conexión rechazada con ${apiBase}`);
+        setError('Conexión rechazada. Verifica la IP y puerto del servidor.');
       } else {
+        console.log(` Error desconocido con ${apiBase}:`, err.message);
         setError(`Error: ${err.message}`);
       }
       
@@ -84,5 +95,43 @@ export function useProducts() {
     tryAllApiEndpoints();
   };
 
-  return { products, loading, error, refresh, currentApiBase };
+  const addProduct = async (productData) => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      console.log(' Agregando producto:', productData);
+      console.log(' Usando endpoint:', currentApiBase);
+      
+      const response = await axios.post(`${currentApiBase}/products`, productData, {
+        timeout: 8000,
+      });
+      
+      console.log(' Producto agregado exitosamente');
+      
+      // Recargar los productos después de agregar uno nuevo
+      await fetchProducts(currentApiBase);
+      
+      return response.data;
+    } catch (err) {
+      console.error(' Error al agregar producto:', err.message);
+      console.error(' Detalles del error:', err);
+      
+      if (err.code === 'ECONNABORTED') {
+        setError('El servidor tardó demasiado en responder. Verifica tu conexión.');
+      } else if (err.message.includes('Network Error') || err.message.includes('Network request failed')) {
+        setError('No se puede conectar al servidor. Verifica que esté ejecutándose.');
+      } else if (err.code === 'ECONNREFUSED') {
+        setError('Conexión rechazada. Verifica la IP y puerto del servidor.');
+      } else {
+        setError(`Error al agregar producto: ${err.message}`);
+      }
+      
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return { products, loading, error, refresh, addProduct, currentApiBase };
 }

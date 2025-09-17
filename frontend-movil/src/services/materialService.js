@@ -1,5 +1,5 @@
 // Servicio para manejo de materiales del inventario
-const API_BASE = 'http://192.168.0.8:4000/api';
+const API_BASE = 'http://192.168.0.9:4000/api';
 
 // Obtener todos los materiales
 export const getMaterials = async (baseUrl = API_BASE) => {

@@ -419,9 +419,9 @@
 
 /* Iconos en el menú móvil */
 .mobile-nav-icon {
-  width: 20px;
-  height: 20px;
-  opacity: 0.8;
+  width: 24px;
+  height: 24px;
+  opacity: 0.9;
 }
 
 /* Separador en menú móvil */
@@ -461,8 +461,8 @@
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   overflow: hidden;
-  width: 44px;
-  height: 44px;
+  width: 52px;
+  height: 52px;
 }
 
 .icon-link::before {
@@ -852,8 +852,13 @@
   }
   
   .cart-icon {
-    width: 20px;
-    height: 20px;
+    width: 24px;
+    height: 24px;
+  }
+  
+  .icon-link {
+    width: 48px;
+    height: 48px;
   }
   
   .cart-count {
@@ -901,8 +906,13 @@
   }
   
   .cart-icon {
-    width: 18px;
-    height: 18px;
+    width: 22px;
+    height: 22px;
+  }
+  
+  .icon-link {
+    width: 44px;
+    height: 44px;
   }
   
   .cart-count {
@@ -956,8 +966,13 @@
   }
   
   .cart-icon {
-    width: 16px;
-    height: 16px;
+    width: 20px;
+    height: 20px;
+  }
+  
+  .icon-link {
+    width: 40px;
+    height: 40px;
   }
   
   .cart-count {
@@ -1014,11 +1029,16 @@
   }
   
   .cart-icon {
-    min-height: 44px;
-    min-width: 44px;
+    min-height: 48px;
+    min-width: 48px;
     display: flex;
     align-items: center;
     justify-content: center;
+  }
+  
+  .icon-link {
+    min-height: 48px;
+    min-width: 48px;
   }
   
   .user-avatar {
@@ -1151,8 +1171,13 @@
   }
   
   .cart-icon {
-    width: 28px;
-    height: 28px;
+    width: 32px;
+    height: 32px;
+  }
+  
+  .icon-link {
+    width: 60px;
+    height: 60px;
   }
   
   .cart-count {

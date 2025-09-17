@@ -332,7 +332,7 @@ body {
 .form-textarea:focus {
   outline: none;
   border-color: #6c5ce7;
-  box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.1);
+  box-shadow: none;
   transform: translateY(-1px);
 }
 
@@ -361,13 +361,13 @@ body {
   font-family: var(--font-family-primary, 'Inter', sans-serif);
   line-height: 1.6;
   min-height: 44px;
-  box-shadow: 0 4px 15px rgba(108, 92, 231, 0.3);
+  box-shadow: none;
 }
 
 .submit-button:hover:not(:disabled) {
   background: linear-gradient(135deg, #5a4fcf 0%, #a855a8 100%);
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(108, 92, 231, 0.4);
+  box-shadow: none;
 }
 
 .submit-button:disabled {

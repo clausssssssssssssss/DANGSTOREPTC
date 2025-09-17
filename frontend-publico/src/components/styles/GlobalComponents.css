@@ -18,13 +18,13 @@
   gap: var(--spacing-xs);
   text-decoration: none;
   min-height: 44px;
-  box-shadow: var(--shadow-sm);
+  box-shadow: none;
 }
 
 .btn-primary:hover {
   background: linear-gradient(135deg, var(--color-primary-dark) 0%, var(--color-secondary-dark) 100%);
   transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
+  box-shadow: none;
 }
 
 .btn-primary:active {
@@ -60,7 +60,7 @@
   background: var(--color-primary);
   color: var(--color-text-inverse);
   transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
+  box-shadow: none;
 }
 
 .btn-secondary:active {
@@ -206,12 +206,12 @@
   border: 1px solid var(--color-bg-tertiary);
   border-radius: var(--border-radius-lg);
   padding: var(--spacing-lg);
-  box-shadow: var(--shadow-sm);
+  box-shadow: none;
   transition: all 0.3s ease;
 }
 
 .card:hover {
-  box-shadow: var(--shadow-md);
+  box-shadow: none;
   transform: translateY(-2px);
 }
 
@@ -334,7 +334,7 @@
 .modal {
   background: var(--color-bg-primary);
   border-radius: var(--border-radius-lg);
-  box-shadow: var(--shadow-xl);
+  box-shadow: none;
   max-width: 500px;
   width: 100%;
   max-height: 90vh;
@@ -510,6 +510,7 @@
     background: var(--color-bg-primary);
   }
 }
+
 
 
 

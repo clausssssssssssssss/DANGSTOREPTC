@@ -269,7 +269,7 @@ body {
   color: white;
   border-color: #6c5ce7;
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(108, 92, 231, 0.3);
+  box-shadow: none;
 }
 
 .social-icon {

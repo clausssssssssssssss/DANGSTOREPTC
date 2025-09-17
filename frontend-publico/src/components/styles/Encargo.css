@@ -302,7 +302,7 @@ body {
   border-color: #9C27B0;
   background: linear-gradient(145deg, rgba(77, 208, 225, 0.2) 0%, rgba(186, 104, 200, 0.2) 100%);
   transform: translateY(-5px) scale(1.02);
-  box-shadow: 0 15px 35px rgba(186, 104, 200, 0.3);
+  box-shadow: none;
 }
 
 .upload-zone:hover::before {
@@ -422,7 +422,7 @@ body {
   max-height: 100%;
   object-fit: contain;
   border-radius: 1rem;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  box-shadow: none;
   transition: transform 0.3s ease;
 }
 
@@ -437,7 +437,7 @@ body {
   background: rgba(255, 255, 255, 0.9);
   padding: 0.5rem;
   border-radius: 1rem;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  box-shadow: none;
   backdrop-filter: blur(10px);
   animation: thumbnailPulse 2s ease-in-out infinite;
 }
@@ -601,7 +601,7 @@ body {
 
 .field-select:focus {
   transform: translateY(-2px);
-  box-shadow: 0 10px 25px rgba(186, 104, 200, 0.3);
+  box-shadow: none;
   background: linear-gradient(white, white) padding-box,
               linear-gradient(135deg, #9C27B0, #4DD0E1) border-box;
 }
@@ -624,7 +624,7 @@ body {
 
 .field-textarea:focus {
   transform: translateY(-2px);
-  box-shadow: 0 10px 25px rgba(186, 104, 200, 0.3);
+  box-shadow: none;
   background: linear-gradient(white, white) padding-box,
               linear-gradient(135deg, #9C27B0, #4DD0E1) border-box;
 }
@@ -832,7 +832,7 @@ body {
 .modal-button:hover {
   background: linear-gradient(135deg, #26C6DA, #AB47BC);
   transform: translateY(-2px);
-  box-shadow: 0 10px 25px rgba(186, 104, 200, 0.4);
+  box-shadow: none;
 }
 
 

@@ -25,10 +25,7 @@ const productSchema = new mongoose.Schema({
   categoria: {
     type: String,
     required: [true, 'La categoría del producto es obligatoria'],
-    enum: {
-      values: ['Llavero', 'Cuadro'],
-      message: 'La categoría {VALUE} no es válida'
-    }
+    trim: true
   },
   imagen: {
     type: String,

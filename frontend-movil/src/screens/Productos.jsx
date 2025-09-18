@@ -20,7 +20,7 @@ import { Picker } from '@react-native-picker/picker';
 import { AuthContext } from '../context/AuthContext';
 
 const { width, height } = Dimensions.get('window');
-const API_URL = 'http://192.168.0.3:4000/api/products'; // URL consistente con el backend
+const API_URL = 'http://192.168.0.9:4000/api/products'; // URL consistente con el backend
 
 const Productos = ({ navigation }) => {
   const [productos, setProductos] = useState([]);
@@ -101,14 +101,13 @@ const Productos = ({ navigation }) => {
 
   const obtenerCategorias = async () => {
     try {
-      const response = await fetch(`${API_URL}/categories`);
+      const response = await fetch('http://192.168.0.9:4000/api/categories');
       if (!response.ok) {
         throw new Error(`HTTP ${response.status} ${response.statusText}`);
       }
       const data = await response.json();
-      // Extraer solo los nombres de las categorías
-      const nombresCategorias = data.map(cat => cat.name);
-      setCategorias(nombresCategorias);
+      // Guardar las categorías completas para poder acceder al _id
+      setCategorias(data);
     } catch (error) {
       console.log('Error obteniendo categorías:', error);
       // Solo mostrar categorías por defecto si es un error de conexión real
@@ -321,7 +320,7 @@ const Productos = ({ navigation }) => {
 
     try {
       setCargando(true);
-      const response = await fetch(`${API_URL}/categories`, {
+      const response = await fetch('http://192.168.0.9:4000/api/categories', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -367,7 +366,7 @@ const Productos = ({ navigation }) => {
             setCargando(true);
 
             // Eliminar categoría del backend
-            const response = await fetch(`${API_URL}/categories/${categoriaId}`, {
+            const response = await fetch(`http://192.168.0.9:4000/api/categories/${categoriaId}`, {
               method: 'DELETE',
             });
 
@@ -409,7 +408,7 @@ const Productos = ({ navigation }) => {
       setCargando(true);
 
       // Todas las categorías ahora vienen del backend, actualizar vía API
-      const response = await fetch(`${API_URL}/categories/${categoriaEditando._id}`, {
+      const response = await fetch(`http://192.168.0.9:4000/api/categories/${categoriaEditando._id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -669,7 +668,7 @@ const Productos = ({ navigation }) => {
                     enabled={!cargando}
                   >
                     {categorias.map((categoria, index) => (
-                      <Picker.Item key={index} label={categoria} value={categoria} />
+                      <Picker.Item key={index} label={categoria.name || categoria} value={categoria.name || categoria} />
                     ))}
                   </Picker>
                 </View>
@@ -786,7 +785,7 @@ const Productos = ({ navigation }) => {
                     mode="dropdown"
                   >
                     {categorias.map((categoria, index) => (
-                      <Picker.Item key={index} label={categoria} value={categoria} />
+                      <Picker.Item key={index} label={categoria.name || categoria} value={categoria.name || categoria} />
                     ))}
                   </Picker>
                 </View>

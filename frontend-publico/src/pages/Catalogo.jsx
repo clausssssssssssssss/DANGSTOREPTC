@@ -17,7 +17,7 @@ import '../components/styles/Ratings.css';
 export default function Catalogo() {
   const { user } = useAuth();
   const userId = user?.id;
-  const { products, loading, error, refresh } = useProducts();
+  const { products, loading, error, refresh, lastUpdate } = useProducts();
   const { addToCart } = useCart(userId);
   const { favorites, toggleFavorite } = useFavorites(userId);
   const { toasts, showSuccess, showError, showWarning, showInfo, removeToast } = useToast();
@@ -207,6 +207,20 @@ export default function Catalogo() {
         <div className="popular-banner">
           <h1 className="popular-title">Catálogo de Productos</h1>
           <p className="popular-subtitle">Descubre nuestra increíble selección de los mejores productos para ti</p>
+          {lastUpdate && (
+            <div style={{ 
+              fontSize: '0.8rem', 
+              color: '#666', 
+              marginTop: '0.5rem',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '0.5rem'
+            }}>
+              <span>🔄</span>
+              <span>Última actualización: {new Date(lastUpdate).toLocaleTimeString()}</span>
+            </div>
+          )}
         </div>
 
         {/* Sección de Productos Populares */}

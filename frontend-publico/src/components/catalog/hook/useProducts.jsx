@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
 
 // URL del servidor local para desarrollo
-const API_BASE = 'http://localhost:4000/api';
+const API_BASE = 'http://192.168.0.9:4000/api';
 
 export function useProducts() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [lastUpdate, setLastUpdate] = useState(null);
 
   const fetchProducts = async () => {
     try {
@@ -80,6 +81,8 @@ export function useProducts() {
       });
       
       setProducts(transformedProducts);
+      setLastUpdate(new Date().toISOString());
+      console.log(`✅ Productos actualizados: ${transformedProducts.length} productos cargados`);
     } catch (err) {
       console.error('Error al obtener productos:', err.message);
       
@@ -97,11 +100,23 @@ export function useProducts() {
 
   useEffect(() => {
     fetchProducts();
+    
+    // Configurar polling para sincronización automática cada 30 segundos
+    const interval = setInterval(() => {
+      console.log('🔄 Sincronizando productos automáticamente...');
+      fetchProducts();
+    }, 30000); // 30 segundos
+    
+    // Limpiar interval cuando el componente se desmonte
+    return () => {
+      clearInterval(interval);
+      console.log('🛑 Polling de productos detenido');
+    };
   }, []);
 
   const refresh = () => {
     fetchProducts();
   };
 
-  return { products, loading, error, refresh };
+  return { products, loading, error, refresh, lastUpdate };
 }

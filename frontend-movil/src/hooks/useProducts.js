@@ -4,11 +4,6 @@ import axios from 'axios';
 // URLs alternativas para probar conexión
 const API_BASES = [
   'http://192.168.0.9:4000/api', // IP principal
-  'http://192.168.56.1:4000/api', // IP alternativa
-  'http://192.168.0.8:4000/api', // IP alternativa
-  'http://10.0.2.2:4000/api', // Para emulador Android
-  'http://localhost:4000/api', // Para emulador iOS
-  'http://127.0.0.1:4000/api', // Localhost alternativo
 ];
 
 export function useProducts() {

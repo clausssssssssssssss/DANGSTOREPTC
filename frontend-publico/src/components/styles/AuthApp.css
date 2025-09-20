@@ -57,11 +57,132 @@ body {
   overflow: hidden;
   position: relative;
   border: 1px solid var(--divider);
+  z-index: 2; /* Para que esté sobre los elementos decorativos */
 }
 
-/* ===== ELEMENTOS DECORATIVOS - OCULTOS ===== */
+/* ===== ELEMENTOS DECORATIVOS ===== */
 .decorative-elements {
-  display: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 1;
+}
+
+/* Círculos decorativos */
+.decorative-circle {
+  position: absolute;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.03), rgba(168, 139, 250, 0.05));
+  animation: float 6s ease-in-out infinite;
+}
+
+.decorative-circle-1 {
+  width: 200px;
+  height: 200px;
+  top: -50px;
+  right: -50px;
+  animation-delay: 0s;
+}
+
+.decorative-circle-2 {
+  width: 150px;
+  height: 150px;
+  bottom: -75px;
+  left: -75px;
+  animation-delay: -2s;
+}
+
+.decorative-circle-3 {
+  width: 100px;
+  height: 100px;
+  top: 50%;
+  left: -50px;
+  animation-delay: -4s;
+}
+
+/* Formas geométricas */
+.decorative-shape {
+  position: absolute;
+  background: linear-gradient(45deg, rgba(139, 92, 246, 0.02), rgba(168, 139, 250, 0.03));
+  animation: rotate 15s linear infinite;
+}
+
+.decorative-triangle {
+  width: 0;
+  height: 0;
+  border-left: 30px solid transparent;
+  border-right: 30px solid transparent;
+  border-bottom: 50px solid rgba(139, 92, 246, 0.03);
+  top: 20%;
+  right: 10%;
+  background: none;
+}
+
+.decorative-square {
+  width: 40px;
+  height: 40px;
+  top: 70%;
+  right: 20%;
+  border-radius: 4px;
+}
+
+/* Líneas decorativas */
+.decorative-line {
+  position: absolute;
+  background: linear-gradient(90deg, transparent, rgba(139, 92, 246, 0.05), transparent);
+  animation: slide 8s ease-in-out infinite;
+}
+
+.decorative-line-1 {
+  width: 150px;
+  height: 1px;
+  top: 30%;
+  left: -75px;
+  animation-delay: 0s;
+}
+
+.decorative-line-2 {
+  width: 100px;
+  height: 1px;
+  bottom: 40%;
+  right: -50px;
+  animation-delay: -4s;
+}
+
+/* Animaciones */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+    opacity: 0.3;
+  }
+  50% {
+    transform: translateY(-20px) rotate(5deg);
+    opacity: 0.1;
+  }
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes slide {
+  0%, 100% {
+    transform: translateX(0);
+    opacity: 0;
+  }
+  50% {
+    transform: translateX(20px);
+    opacity: 0.1;
+  }
 }
 
 .decorative-ring {
@@ -142,6 +263,11 @@ body {
   box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.05);
 }
 
+.auth-input.error {
+  border-color: var(--error-main);
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.05);
+}
+
 /* ===== PASSWORD INPUT ===== */
 .password-input {
   position: relative;
@@ -167,6 +293,11 @@ body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  cursor: pointer;
+}
+
+.password-toggle:hover {
+  color: var(--primary-main);
 }
 
 /* Ocultar icono nativo de revelar contraseña en algunos navegadores */
@@ -193,6 +324,7 @@ input[type="password"]::-webkit-contacts-auto-fill-button {
   cursor: pointer;
   transition: all 0.25s ease;
   margin-top: 0.5rem;
+  font-size: 0.95rem;
 }
 
 .auth-button:hover {
@@ -203,6 +335,7 @@ input[type="password"]::-webkit-contacts-auto-fill-button {
 .auth-button:disabled {
   background: #D1D5DB;
   cursor: not-allowed;
+  transform: none;
 }
 
 /* ===== ENLACES (SIN RECUADROS) ===== */
@@ -289,8 +422,70 @@ input[type="password"]::-webkit-contacts-auto-fill-button {
   height: 3.5rem;
   text-align: center;
   font-size: 1.25rem;
+  font-weight: 600;
   border: 1px solid var(--input-border);
   border-radius: 8px;
+  background: var(--input-bg);
+  transition: all 0.2s ease;
+}
+
+.verification-input:focus {
+  outline: none;
+  border-color: var(--primary-main);
+  box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.05);
+}
+
+/* ===== ESTADO DE ÉXITO ===== */
+.success-state {
+  text-align: center;
+  padding: 1rem 0;
+}
+
+.success-icon {
+  width: 60px;
+  height: 60px;
+  margin: 0 auto 1rem;
+  background: var(--secondary-main);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.loading-spinner {
+  width: 24px;
+  height: 24px;
+  border: 2px solid var(--divider);
+  border-top: 2px solid var(--primary-main);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 1rem auto;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* ===== INPUT CON ICONO ===== */
+.input-with-icon {
+  position: relative;
+}
+
+.input-icon {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-secondary);
+  z-index: 1;
+}
+
+.input-with-icon .auth-input {
+  padding-left: 2.5rem;
 }
 
 /* ===== MENSAJES ===== */
@@ -304,6 +499,45 @@ input[type="password"]::-webkit-contacts-auto-fill-button {
   color: var(--secondary-main);
   font-size: 0.75rem;
   margin-top: 0.25rem;
+}
+
+/* ===== REQUISITOS DE CONTRASEÑA ===== */
+.password-requirements {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: var(--input-bg);
+  border-radius: 8px;
+  border: 1px solid var(--input-border);
+}
+
+.requirements-title {
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+  color: var(--text-primary);
+}
+
+.requirement-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  margin-bottom: 0.25rem;
+  transition: color 0.2s ease;
+}
+
+.requirement-item.valid {
+  color: var(--secondary-main);
+}
+
+.requirement-item.invalid {
+  color: var(--text-secondary);
+}
+
+.requirement-icon {
+  font-weight: bold;
+  width: 12px;
+  text-align: center;
 }
 
 /* ===== RESPONSIVE ===== */
@@ -339,5 +573,18 @@ input[type="password"]::-webkit-contacts-auto-fill-button {
     width: 2.5rem;
     height: 2.5rem;
     font-size: 1rem;
+  }
+  
+  .verification-inputs {
+    gap: 0.5rem;
+  }
+  
+  /* Reducir elementos decorativos en móvil */
+  .decorative-circle {
+    opacity: 0.5;
+  }
+  
+  .decorative-line {
+    opacity: 0.3;
   }
 }

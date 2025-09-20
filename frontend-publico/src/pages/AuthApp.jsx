@@ -8,10 +8,28 @@ import logoIcon from "../assets/DANGSTORELOGOPRUEBA.PNG";
 import { useAuth, parseJwt } from '../hooks/useAuth.jsx';
 import { useToast } from '../hooks/useToast';
 import ToastContainer from '../components/ui/ToastContainer';
-import SplashScreen from '../components/SplashScreen'; // ← IMPORTAR EL SPLASH SCREEN
+import SplashScreen from '../components/SplashScreen';
 
 // URL del servidor local para desarrollo
 const API_URL = 'http://localhost:4000/api';
+
+// ——— COMPONENTE DECORATIVO ———
+const DecorativeElements = () => (
+  <div className="decorative-elements">
+    {/* Círculos decorativos de fondo */}
+    <div className="decorative-circle decorative-circle-1"></div>
+    <div className="decorative-circle decorative-circle-2"></div>
+    <div className="decorative-circle decorative-circle-3"></div>
+    
+    {/* Formas geométricas */}
+    <div className="decorative-shape decorative-triangle"></div>
+    <div className="decorative-shape decorative-square"></div>
+    
+    {/* Líneas decorativas */}
+    <div className="decorative-line decorative-line-1"></div>
+    <div className="decorative-line decorative-line-2"></div>
+  </div>
+);
 
 const AuthApp = () => {
   const navigate = useNavigate();
@@ -196,19 +214,11 @@ const AuthApp = () => {
       console.log('📄 Datos de respuesta:', data);
       
       if (!res.ok) {
-      if (!res.ok) {
         console.error('Error enviando código:', { status: res.status, message: data.message });
         showError(data.message || "Error enviando código");
         return;
       }
-        showError(data.message || "Error enviando código");
-        return;
-      }
       
-      console.log('Código enviado exitosamente');
-      showSuccess("Código enviado exitosamente a tu correo");
-      setIsEmailSubmitted(true);
-      setTimeout(() => setCurrentView("verification"), 1500);
       console.log('Código enviado exitosamente');
       showSuccess("Código enviado exitosamente a tu correo");
       setIsEmailSubmitted(true);
@@ -253,7 +263,6 @@ const AuthApp = () => {
       return;
     }
     
-    console.log('Verificando código:', { email: forgotEmail, code, codeLength: code.length });
     console.log('Verificando código:', { email: forgotEmail, code, codeLength: code.length });
     
     try {
@@ -338,7 +347,6 @@ const AuthApp = () => {
         return;
       }
       
-      console.log('Contraseña restablecida exitosamente');
       console.log('Contraseña restablecida exitosamente');
       showSuccess("Contraseña restablecida exitosamente");
       setCurrentView("login");

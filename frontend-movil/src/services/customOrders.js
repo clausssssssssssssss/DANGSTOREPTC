@@ -8,9 +8,6 @@ const API_URL = 'http://192.168.0.9:4000/api';
 const authenticatedFetch = async (url, options = {}) => {
   const token = await AsyncStorage.getItem('authToken');
   
-  console.log('Token obtenido:', token ? 'SÍ' : 'NO');
-  console.log(' URL solicitada:', `${API_URL}${url}`);
-  
   const headers = {
     'Content-Type': 'application/json',
     ...options.headers,
@@ -18,12 +15,7 @@ const authenticatedFetch = async (url, options = {}) => {
 
   if (token) {
     headers.Authorization = `Bearer ${token}`;
-    console.log(' Token enviado en headers');
-  } else {
-    console.log(' No hay token disponible');
   }
-
-  console.log(' Headers enviados:', headers);
 
   return fetch(`${API_URL}${url}`, {
     ...options,
@@ -37,22 +29,40 @@ export const customOrdersAPI = {
   getPendingOrders: async () => {
     try {
       const response = await authenticatedFetch('/custom-orders/pending');
+      
       if (response.ok) {
         const result = await response.json();
-        console.log('Respuesta completa del API:', result);
         
         // Verificar que la respuesta tenga el formato esperado
         if (result.success && Array.isArray(result.data)) {
-          console.log('Órdenes extraídas correctamente:', result.data.length);
           return result.data;
         } else {
-          console.error('Formato de respuesta inesperado:', result);
           throw new Error('Formato de respuesta inesperado del servidor');
         }
       }
       throw new Error(`HTTP ${response.status}: ${response.statusText}`);
     } catch (error) {
-      console.error('Error fetching pending orders:', error);
+      throw error;
+    }
+  },
+
+  // Obtener todas las órdenes (admin) - para filtros
+  getAllOrders: async () => {
+    try {
+      const response = await authenticatedFetch('/custom-orders/all');
+      
+      if (response.ok) {
+        const result = await response.json();
+        
+        // Verificar que la respuesta tenga el formato esperado
+        if (result.success && Array.isArray(result.data)) {
+          return result.data;
+        } else {
+          throw new Error('Formato de respuesta inesperado del servidor');
+        }
+      }
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    } catch (error) {
       throw error;
     }
   },
@@ -70,7 +80,6 @@ export const customOrdersAPI = {
       
       if (response.ok) {
         const result = await response.json();
-        console.log('Respuesta de cotización:', result);
         
         if (result.success) {
           return result.data;
@@ -80,7 +89,6 @@ export const customOrdersAPI = {
       }
       throw new Error(`HTTP ${response.status}: ${response.statusText}`);
     } catch (error) {
-      console.error('Error submitting quote:', error);
       throw error;
     }
   },
@@ -99,7 +107,6 @@ export const customOrdersAPI = {
       
       if (response.ok) {
         const result = await response.json();
-        console.log('Respuesta de rechazo:', result);
         
         if (result.success) {
           return result.data;
@@ -109,7 +116,6 @@ export const customOrdersAPI = {
       }
       throw new Error(`HTTP ${response.status}: ${response.statusText}`);
     } catch (error) {
-      console.error('Error rejecting order:', error);
       throw error;
     }
   },

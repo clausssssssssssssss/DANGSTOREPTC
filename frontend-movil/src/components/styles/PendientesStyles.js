@@ -155,10 +155,28 @@ export const pendientesStyles = StyleSheet.create({
     paddingVertical: 4,
     borderRadius: 12,
   },
+  statusBadgeQuoted: {
+    backgroundColor: '#D1FAE5',
+  },
+  statusBadgeAccepted: {
+    backgroundColor: '#DBEAFE',
+  },
+  statusBadgeRejected: {
+    backgroundColor: '#FEE2E2',
+  },
   statusText: {
     fontSize: 12,
     fontWeight: '600',
     color: '#D97706',
+  },
+  statusTextQuoted: {
+    color: '#10B981',
+  },
+  statusTextAccepted: {
+    color: '#2563EB',
+  },
+  statusTextRejected: {
+    color: '#EF4444',
   },
   orderImage: {
     width: 80,
@@ -299,5 +317,145 @@ export const pendientesStyles = StyleSheet.create({
     fontSize: 14,
     marginTop: 4,
     textAlign: 'center',
+  },
+  // Estilos para filtros
+  filterContainer: {
+    paddingHorizontal: 20,
+    paddingVertical: 15,
+    backgroundColor: '#f8f9fa',
+    borderBottomWidth: 1,
+    borderBottomColor: '#e9ecef',
+  },
+  filterScrollView: {
+    flexDirection: 'row',
+  },
+  filterRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+  },
+  filterButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 8,
+    marginHorizontal: 2,
+    borderRadius: 20,
+    backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: '#e9ecef',
+    minHeight: 44,
+  },
+  filterButtonActive: {
+    backgroundColor: '#8B5CF6',
+    borderColor: '#8B5CF6',
+  },
+  filterIcon: {
+    fontSize: 16,
+    marginRight: 6,
+    color: '#6c757d',
+  },
+  filterIconActive: {
+    color: '#fff',
+  },
+  filterText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#6c757d',
+    textAlign: 'center',
+  },
+  filterTextActive: {
+    color: '#fff',
+  },
+  // Estilos para estados de órdenes
+  statusContainer: {
+    alignItems: 'center',
+    paddingVertical: 10,
+  },
+  statusTextQuoted: {
+    color: '#10B981',
+    backgroundColor: '#D1FAE5',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  statusTextRejected: {
+    color: '#EF4444',
+    backgroundColor: '#FEE2E2',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  priceText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#10B981',
+    marginTop: 4,
+  },
+  // Estilos para filtro de fecha
+  dateFilterButton: {
+    backgroundColor: '#E5E7EB',
+    borderColor: '#9CA3AF',
+  },
+  clearFilterButton: {
+    backgroundColor: '#FEE2E2',
+    borderColor: '#EF4444',
+    minWidth: 40,
+  },
+  clearFilterText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#EF4444',
+  },
+  dateModalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  dateModalContent: {
+    backgroundColor: 'white',
+    borderRadius: 16,
+    padding: 24,
+    margin: 20,
+    width: '80%',
+    maxWidth: 300,
+  },
+  dateModalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#1F2937',
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  dateOption: {
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    backgroundColor: '#F9FAFB',
+    marginBottom: 8,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+  },
+  dateOptionText: {
+    fontSize: 16,
+    color: '#374151',
+    textAlign: 'center',
+  },
+  cancelDateOption: {
+    backgroundColor: '#FEF2F2',
+    borderColor: '#FECACA',
+    marginTop: 12,
+  },
+  cancelDateText: {
+    fontSize: 16,
+    color: '#DC2626',
+    textAlign: 'center',
+    fontWeight: '600',
   },
 });

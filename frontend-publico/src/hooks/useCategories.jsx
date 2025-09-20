@@ -1,45 +1,66 @@
 import { useState, useEffect } from 'react';
 
-const useCategories = () => {
-  const [categorias, setCategorias] = useState([]);
+// URL del servidor local para desarrollo
+const API_BASE = 'http://192.168.0.9:4000/api';
+
+export function useCategories() {
+  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    const obtenerCategorias = async () => {
-      try {
-        setLoading(true);
-        const response = await fetch('http://localhost:4000/api/categories');
-        
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status} ${response.statusText}`);
-        }
-        
-        const data = await response.json();
-        setCategorias(data);
-        setError(null);
-      } catch (err) {
-        console.error('Error obteniendo categorías:', err);
-        setError(err.message);
-        // Solo mostrar categorías por defecto si es un error de conexión real
-        if (err.message.includes('fetch') || err.message.includes('Network') || err.message.includes('Failed to fetch')) {
-          setCategorias([
-            { name: 'Llavero' },
-            { name: 'Cuadro' }
-          ]);
-        } else {
-          // Si es otro tipo de error (como 404, 500), mostrar array vacío
-          setCategorias([]);
-        }
-      } finally {
-        setLoading(false);
+  const fetchCategories = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      console.log('Obteniendo categorías desde:', `${API_BASE}/categories`);
+      
+      const response = await fetch(`${API_BASE}/categories`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Error ${response.status}: ${response.statusText}`);
       }
-    };
+      
+      const data = await response.json();
+      setCategories(data);
+      console.log(`Categorías obtenidas: ${data.length} categorías`);
+    } catch (err) {
+      console.error('Error al obtener categorías:', err.message);
+      
+      if (err.message.includes('Failed to fetch')) {
+        setError('No se puede conectar al servidor. Verifica que esté ejecutándose.');
+      } else {
+        setError(`Error: ${err.message}`);
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    obtenerCategorias();
+  useEffect(() => {
+    fetchCategories();
+    
+    // Configurar polling para sincronización automática cada 60 segundos
+    const interval = setInterval(() => {
+      console.log('Sincronizando categorías automáticamente...');
+      fetchCategories();
+    }, 60000); // 60 segundos
+    
+    // Limpiar interval cuando el componente se desmonte
+    return () => {
+      clearInterval(interval);
+      console.log('Polling de categorías detenido');
+    };
   }, []);
 
-  return { categorias, loading, error };
-};
+  const refresh = () => {
+    fetchCategories();
+  };
 
-export default useCategories;
+  return { categories, loading, error, refresh };
+}

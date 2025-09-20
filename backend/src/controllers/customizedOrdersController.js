@@ -194,6 +194,7 @@ export const getAllPendingOrders = async (req, res) => {
       .populate('user', 'name email phone')
       .sort({ createdAt: -1 });
 
+  
     res.status(200).json({
       success: true,
       data: orders,
@@ -202,6 +203,31 @@ export const getAllPendingOrders = async (req, res) => {
 
   } catch (error) {
     console.error('Error obteniendo órdenes pendientes:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error interno del servidor'
+    });
+  }
+};
+
+/**
+ * Obtener todas las órdenes (admin) - para filtros
+ */
+export const getAllOrders = async (req, res) => {
+  try {
+    const orders = await CustomizedOrder
+      .find({})
+      .populate('user', 'name email phone')
+      .sort({ createdAt: -1 });
+  
+    res.status(200).json({
+      success: true,
+      data: orders,
+      count: orders.length
+    });
+
+  } catch (error) {
+    console.error('Error obteniendo todas las órdenes:', error);
     res.status(500).json({
       success: false,
       message: 'Error interno del servidor'

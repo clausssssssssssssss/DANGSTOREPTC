@@ -43,5 +43,4 @@ const customizedOrderSchema = new Schema(
   }
 );
 
-// ¡ESTA LÍNEA ES IMPORTANTE! Debe ser export default
 export default model('CustomizedOrder', customizedOrderSchema);

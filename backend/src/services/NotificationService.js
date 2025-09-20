@@ -8,7 +8,7 @@ class NotificationService {
   static async createOrderNotification(orderData) {
     try {
       const notification = new Notification({
-        title: '🎨 Nueva Orden Personalizada',
+        title: ' Nueva Orden Personalizada',
         message: `${orderData.customerName} ha solicitado un ${orderData.modelType}`,
         type: 'new_order',
         priority: 'high',
@@ -22,11 +22,11 @@ class NotificationService {
       });
 
       const savedNotification = await notification.save();
-      console.log('✅ Notificación creada:', savedNotification._id);
+      console.log(' Notificación creada:', savedNotification._id);
       
       return savedNotification;
     } catch (error) {
-      console.error('❌ Error creando notificación:', error);
+      console.error(' Error creando notificación:', error);
       throw error;
     }
   }
@@ -37,7 +37,7 @@ class NotificationService {
   static async createNewOrderNotification(orderData) {
     try {
       const notification = new Notification({
-        title: '🎨 Nuevo Encargo Personalizado',
+        title: ' Nuevo Encargo Personalizado',
         message: `Se ha recibido un nuevo encargo de ${orderData.modelType}`,
         type: 'new_order',
         priority: 'high',
@@ -50,11 +50,11 @@ class NotificationService {
       });
 
       const savedNotification = await notification.save();
-      console.log('✅ Notificación de nuevo encargo creada:', savedNotification._id);
+      console.log(' Notificación de nuevo encargo creada:', savedNotification._id);
       
       return savedNotification;
     } catch (error) {
-      console.error('❌ Error creando notificación de nuevo encargo:', error);
+      console.error(' Error creando notificación de nuevo encargo:', error);
       throw error;
     }
   }
@@ -65,7 +65,7 @@ class NotificationService {
   static async createQuoteNotification(orderData) {
     try {
       const notification = new Notification({
-        title: '💰 Orden Cotizada',
+        title: 'Orden Cotizada',
         message: `Se cotizó la orden de ${orderData.customerName} por $${orderData.price}`,
         type: 'order_updated',
         priority: 'normal',
@@ -80,7 +80,7 @@ class NotificationService {
 
       return await notification.save();
     } catch (error) {
-      console.error('❌ Error creando notificación de cotización:', error);
+      console.error(' Error creando notificación de cotización:', error);
       throw error;
     }
   }
@@ -93,7 +93,7 @@ class NotificationService {
       const isAccepted = orderData.decision === 'accept';
       
       const notification = new Notification({
-        title: isAccepted ? '✅ Orden Aceptada' : '❌ Orden Rechazada',
+        title: isAccepted ? ' Orden Aceptada' : ' Orden Rechazada',
         message: `${orderData.customerName} ${isAccepted ? 'aceptó' : 'rechazó'} la cotización`,
         type: 'order_updated',
         priority: isAccepted ? 'high' : 'normal',
@@ -109,7 +109,7 @@ class NotificationService {
 
       return await notification.save();
     } catch (error) {
-      console.error('❌ Error creando notificación de respuesta:', error);
+      console.error(' Error creando notificación de respuesta:', error);
       throw error;
     }
   }
@@ -124,7 +124,7 @@ class NotificationService {
         .sort({ createdAt: -1 })
         .limit(limit);
     } catch (error) {
-      console.error('❌ Error obteniendo notificaciones:', error);
+      console.error(' Error obteniendo notificaciones:', error);
       throw error;
     }
   }
@@ -140,7 +140,7 @@ class NotificationService {
         { new: true }
       );
     } catch (error) {
-      console.error('❌ Error marcando como leída:', error);
+      console.error(' Error marcando como leída:', error);
       throw error;
     }
   }
@@ -155,7 +155,7 @@ class NotificationService {
         { isRead: true }
       );
     } catch (error) {
-      console.error('❌ Error marcando todas como leídas:', error);
+      console.error(' Error marcando todas como leídas:', error);
       throw error;
     }
   }
@@ -167,7 +167,7 @@ class NotificationService {
     try {
       return await Notification.findByIdAndDelete(notificationId);
     } catch (error) {
-      console.error('❌ Error eliminando notificación:', error);
+      console.error(' Error eliminando notificación:', error);
       throw error;
     }
   }
@@ -179,7 +179,7 @@ class NotificationService {
     try {
       return await Notification.deleteMany({});
     } catch (error) {
-      console.error('❌ Error eliminando todas las notificaciones:', error);
+      console.error(' Error eliminando todas las notificaciones:', error);
       throw error;
     }
   }

@@ -329,7 +329,7 @@ export class ErrorBoundary extends React.Component {
       return (
         <SafeAreaView style={errorStyles.boundaryContainer}>
           <View style={errorStyles.boundaryContent}>
-            <Text style={errorStyles.illustration}>💥</Text>
+            <Text style={errorStyles.illustration}></Text>
             <Text style={errorStyles.boundaryTitle}>¡Ups! Algo salió mal</Text>
             <Text style={errorStyles.boundaryMessage}>
               La aplicación encontró un error inesperado.

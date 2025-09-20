@@ -63,11 +63,11 @@ const customerSchema = new Schema({
   resetCode: {
     code: {
       type: String,
-      select: false, // No incluir por defecto en consultas
+      select: false,
     },
     expires: {
       type: Date,
-      select: false, // No incluir por defecto en consultas
+      select: false, 
     }
   },
 

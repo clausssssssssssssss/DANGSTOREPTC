@@ -77,7 +77,7 @@ const AuthApp = () => {
       return;
     }
     try {
-              const res = await fetch(`${API_URL}/customers/login`, {
+      const res = await fetch(`${API_URL}/customers/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })
@@ -96,20 +96,20 @@ const AuthApp = () => {
         return;
       }
       
-             // Si no hay token, es un error de credenciales
-       let errorMessage = 'Credenciales incorrectas';
-       if (data.message === 'Email no registrado') {
-         errorMessage = 'Esta cuenta no está registrada';
-       } else if (data.message === 'Invalid password' || data.message === 'Contraseña incorrecta') {
-         errorMessage = 'Contraseña incorrecta';
-       } else if (data.message && data.message.includes('bloqueada')) {
-         errorMessage = data.message; // Mantener mensaje de cuenta bloqueada
-       } else if (data.message && data.message.includes('bloqueado')) {
-         errorMessage = data.message; // Mantener mensaje de usuario bloqueado
-       } else if (data.message) {
-         // Si hay un mensaje del servidor, usarlo
-         errorMessage = data.message;
-       }
+      // Si no hay token, es un error de credenciales
+      let errorMessage = 'Credenciales incorrectas';
+      if (data.message === 'Email no registrado') {
+        errorMessage = 'Esta cuenta no está registrada';
+      } else if (data.message === 'Invalid password' || data.message === 'Contraseña incorrecta') {
+        errorMessage = 'Contraseña incorrecta';
+      } else if (data.message && data.message.includes('bloqueada')) {
+        errorMessage = data.message; // Mantener mensaje de cuenta bloqueada
+      } else if (data.message && data.message.includes('bloqueado')) {
+        errorMessage = data.message; // Mantener mensaje de usuario bloqueado
+      } else if (data.message) {
+        // Si hay un mensaje del servidor, usarlo
+        errorMessage = data.message;
+      }
       
       showError(errorMessage);
       return;
@@ -127,7 +127,7 @@ const AuthApp = () => {
       return;
     }
     try {
-              const res = await fetch(`${API_URL}/customers`, {
+      const res = await fetch(`${API_URL}/customers`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -160,27 +160,27 @@ const AuthApp = () => {
     console.log('📧 Enviando código de recuperación para:', forgotEmail);
     
     try {
-            const res = await fetch(`${API_URL}/password-recovery/send-code`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email: forgotEmail }),
-    });
+      const res = await fetch(`${API_URL}/password-recovery/send-code`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: forgotEmail }),
+      });
       
       console.log('📥 Respuesta del servidor:', { status: res.status, statusText: res.statusText });
       
-    const data = await res.json();
+      const data = await res.json();
       console.log('📄 Datos de respuesta:', data);
       
-    if (!res.ok) {
+      if (!res.ok) {
         console.error('Error enviando código:', { status: res.status, message: data.message });
-      showError(data.message || "Error enviando código");
-      return;
-    }
+        showError(data.message || "Error enviando código");
+        return;
+      }
       
-              console.log('Código enviado exitosamente');
-    showSuccess("Código enviado exitosamente a tu correo");
-    setIsEmailSubmitted(true);
-    setTimeout(() => setCurrentView("verification"), 1500);
+      console.log('Código enviado exitosamente');
+      showSuccess("Código enviado exitosamente a tu correo");
+      setIsEmailSubmitted(true);
+      setTimeout(() => setCurrentView("verification"), 1500);
     } catch (err) {
       console.error('💥 Error de conexión:', err);
       showError("Error de conexión al enviar código");
@@ -221,13 +221,13 @@ const AuthApp = () => {
       return;
     }
     
-            console.log('Verificando código:', { email: forgotEmail, code, codeLength: code.length });
+    console.log('Verificando código:', { email: forgotEmail, code, codeLength: code.length });
     
     try {
       const requestBody = { email: forgotEmail, code };
       console.log('📤 Enviando solicitud:', requestBody);
       
-              const res = await fetch(`${API_URL}/password-recovery/verify-code`, {
+      const res = await fetch(`${API_URL}/password-recovery/verify-code`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(requestBody)
@@ -288,7 +288,7 @@ const AuthApp = () => {
       
       console.log('📤 Enviando solicitud de restablecimiento:', requestBody);
       
-              const res = await fetch(`${API_URL}/password-recovery/reset`, {
+      const res = await fetch(`${API_URL}/password-recovery/reset`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(requestBody),
@@ -305,7 +305,7 @@ const AuthApp = () => {
         return;
       }
       
-              console.log('Contraseña restablecida exitosamente');
+      console.log('Contraseña restablecida exitosamente');
       showSuccess("Contraseña restablecida exitosamente");
       setCurrentView("login");
     } catch (err) {
@@ -336,14 +336,6 @@ const AuthApp = () => {
     setRegisterData({...registerData, telefono: formattedPhone});
   };
 
-  // Componente de elementos decorativos
-  const DecorativeElements = () => (
-    <div className="decorative-elements">
-      <div className="decorative-ring"></div>
-      <div className="decorative-ring"></div>
-    </div>
-  );
-
   // Componente de Logo
   const Logo = () => (
     <div className="auth-logo">
@@ -358,8 +350,6 @@ const AuthApp = () => {
     return (
       <>
         <div className="auth-container">
-          <DecorativeElements />
-          
           <div className="auth-card">
             <Logo />
             
@@ -447,8 +437,6 @@ const AuthApp = () => {
     return (
       <>
         <div className="auth-container">
-          <DecorativeElements />
-          
           <div className="auth-card">
             <Logo />
             
@@ -540,8 +528,6 @@ const AuthApp = () => {
     return (
       <>
         <div className="auth-container">
-          <DecorativeElements />
-          
           <div className="auth-card">
             <Logo />
             
@@ -605,7 +591,6 @@ const AuthApp = () => {
     return (
       <>
         <div className="auth-container">
-          <DecorativeElements />
           <div className="auth-card">
             <Logo />
             <h1 className="auth-title">Código de verificación</h1>
@@ -642,8 +627,6 @@ const AuthApp = () => {
     return (
       <>
         <div className="auth-container">
-          <DecorativeElements />
-          
           <div className="auth-card">
             <Logo />
             

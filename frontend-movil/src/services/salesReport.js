@@ -4,6 +4,36 @@
 const API_URL = process.env.EXPO_PUBLIC_API_URL || "https://dangstoreptc.onrender.com/api";
 
 export const salesAPI = {
+  // 👇 NUEVO: Obtener las últimas 10 ventas/pedidos
+  async getLatestSales() {
+    try {
+      const response = await fetch(`${API_URL}/sales/latest`);
+      if (!response.ok) {
+        throw new Error(`Error al obtener últimas ventas: ${response.status}`);
+      }
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error("❌ Error en getLatestSales:", error);
+      throw error;
+    }
+  },
+
+  // 👇 EXISTENTE: Obtener todas las ventas/compras para la tabla
+  async getAllSales() {
+    try {
+      const response = await fetch(`${API_URL}/sales`);
+      if (!response.ok) {
+        throw new Error(`Error al obtener todas las ventas: ${response.status}`);
+      }
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error("❌ Error en getAllSales:", error);
+      throw error;
+    }
+  },
+
   // Obtener resumen de ventas (diarias, mensuales, anuales)
   async getSalesSummary() {
     try {

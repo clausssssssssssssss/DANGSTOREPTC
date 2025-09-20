@@ -2,6 +2,7 @@ import Cart from '../models/Cart.js';
 import Order from '../models/Order.js';
 import Customer from "../models/Customers.js";
 import SalesModel from "../models/Sale.js";
+import Product from "../models/Product.js";
 import { sendEmail } from "../utils/mailService.js";
 
 
@@ -197,8 +198,27 @@ export const createOrder = async (req, res) => {
       $push: { orders: savedOrder._id },
     });
 
-    //  3. Limpiar el carrito si el pago fue exitoso
+    //  3. Actualizar stock de productos si el pago fue exitoso
     if (wompiStatus === "COMPLETED") {
+      // Actualizar stock de productos vendidos
+      for (const item of items) {
+        if (item.product && item.quantity) {
+          try {
+            const product = await Product.findById(item.product);
+            if (product) {
+              const newStock = Math.max(0, product.disponibles - item.quantity);
+              await Product.findByIdAndUpdate(item.product, {
+                disponibles: newStock
+              });
+              console.log(` Stock actualizado para ${product.nombre}: ${product.disponibles} → ${newStock}`);
+            }
+          } catch (stockError) {
+            console.error(` Error actualizando stock del producto ${item.product}:`, stockError);
+          }
+        }
+      }
+
+      // Limpiar el carrito
       await Cart.findOneAndUpdate(
         { user: userId },
         { $set: { products: [], customizedProducts: [] } }

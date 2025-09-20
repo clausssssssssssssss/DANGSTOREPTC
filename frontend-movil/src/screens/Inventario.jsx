@@ -14,6 +14,8 @@ import {
 import * as ImagePicker from 'expo-image-picker';
 import { Picker } from '@react-native-picker/picker';
 import { InventarioStyles } from '../components/styles/InventarioStyles';
+import { getMaterials, createMaterial, updateMaterial, deleteMaterial } from '../services/materialService';
+import { API_CONFIG } from '../config/api';
 
 const Inventario = ({ navigation }) => {
   const [materials, setMaterials] = useState([]);
@@ -30,24 +32,49 @@ const Inventario = ({ navigation }) => {
   });
   const [quantityError, setQuantityError] = useState('');
   const [investmentError, setInvestmentError] = useState('');
+  const [customAlert, setCustomAlert] = useState({
+    visible: false,
+    title: '',
+    message: '',
+    type: 'info', // 'success', 'error', 'warning', 'info'
+    onConfirm: null,
+    onCancel: null,
+    confirmText: 'OK',
+    cancelText: 'Cancelar',
+    showCancel: false,
+  });
 
-  const API_URL = 'https://dangstoreptc.onrender.com/api/material';
-  const API_URL_WITHOUT_IMAGE = 'https://dangstoreptc.onrender.com/api/material/without-image';
+  // Usar la configuración centralizada de API
+  const API_BASE = API_CONFIG.BASE_URL;
 
   useEffect(() => {
     obtenerMateriales();
   }, []);
 
+  const showCustomAlert = (title, message, type = 'info', options = {}) => {
+    setCustomAlert({
+      visible: true,
+      title,
+      message,
+      type,
+      onConfirm: options.onConfirm || null,
+      onCancel: options.onCancel || null,
+      confirmText: options.confirmText || 'OK',
+      cancelText: options.cancelText || 'Cancelar',
+      showCancel: options.showCancel || false,
+    });
+  };
+
+  const hideCustomAlert = () => {
+    setCustomAlert(prev => ({ ...prev, visible: false }));
+  };
+
   const obtenerMateriales = async () => {
     try {
-      const response = await fetch(API_URL);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
+      const data = await getMaterials(API_BASE);
       setMaterials(data);
     } catch (error) {
-      console.error('Error obteniendo materiales:', error);
+      showCustomAlert('Error', 'No se pudieron cargar los materiales. Verifica la conexión.', 'error');
     }
   };
 
@@ -59,18 +86,22 @@ const Inventario = ({ navigation }) => {
       quality: 0.7,
     });
     if (!result.canceled) {
+      console.log('Imagen seleccionada:', result.assets[0].uri);
       setNuevoMaterial({ ...nuevoMaterial, image: result.assets[0].uri });
     }
   };
 
-  const resetForm = () => setNuevoMaterial({
-    name: '',
-    type: '',
-    quantity: '',
-    investment: '',
-    dateOfEntry: new Date().toISOString().split('T')[0],
-    image: null,
-  });
+  const resetForm = () => {
+    setNuevoMaterial({
+      name: '',
+      type: '',
+      quantity: '',
+      investment: '',
+      dateOfEntry: new Date().toISOString().split('T')[0],
+      image: null,
+    });
+    setEditItem(null);
+  };
 
   const handleQuantityChange = (text) => {
     if (/^\d*$/.test(text)) {
@@ -95,92 +126,86 @@ const Inventario = ({ navigation }) => {
   const agregarMaterial = async () => {
     // Validar campos obligatorios
     if (!nuevoMaterial.name.trim()) {
-      Alert.alert('Error', 'El nombre del material es obligatorio');
+      showCustomAlert('Error', 'El nombre del material es obligatorio', 'error');
       return;
     }
     if (!nuevoMaterial.type.trim()) {
-      Alert.alert('Error', 'El tipo de material es obligatorio');
+      showCustomAlert('Error', 'El tipo de material es obligatorio', 'error');
       return;
     }
     if (!nuevoMaterial.quantity.trim()) {
-      Alert.alert('Error', 'El stock es obligatorio');
+      showCustomAlert('Error', 'El stock es obligatorio', 'error');
       return;
     }
     if (!nuevoMaterial.investment.trim()) {
-      Alert.alert('Error', 'La inversión es obligatoria');
+      showCustomAlert('Error', 'La inversión es obligatoria', 'error');
       return;
-    }
-    // Temporalmente hacer la imagen opcional para debugging
-    if (!nuevoMaterial.image) {
-      console.log('⚠️ Imagen no seleccionada - continuando sin imagen para debug');
-      // Alert.alert('Error', 'La imagen es obligatoria');
-      // return;
     }
 
     try {
-      // PRUEBA 1: Enviar solo datos básicos sin imagen
       const materialData = {
         name: nuevoMaterial.name.trim(),
         type: nuevoMaterial.type.trim(),
         quantity: parseInt(nuevoMaterial.quantity),
         investment: parseFloat(nuevoMaterial.investment),
         dateOfEntry: nuevoMaterial.dateOfEntry,
+        image: nuevoMaterial.image,
       };
 
-      console.log('Enviando datos básicos:', materialData);
-
-      const response = await fetch(API_URL_WITHOUT_IMAGE, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(materialData),
-      });
-
-      // Remover logs antiguos que ya no aplican
-
-      if (!response.ok) {
-        let errorMessage = `HTTP error! status: ${response.status}`;
-        try {
-          const errorData = await response.json();
-          errorMessage += `, message: ${errorData.message || 'Error desconocido'}`;
-          console.error('Error completo del servidor:', errorData);
-        } catch (parseError) {
-          console.error('No se pudo parsear el error del servidor:', parseError);
-        }
-        throw new Error(errorMessage);
+      let response;
+      if (editItem) {
+        // Editar material existente
+        response = await updateMaterial(API_BASE, editItem._id, materialData);
+        showCustomAlert('Éxito', 'Material actualizado correctamente', 'success');
+      } else {
+        // Crear nuevo material
+        response = await createMaterial(API_BASE, materialData);
+        showCustomAlert('Éxito', 'Material agregado correctamente', 'success');
       }
-
-      const responseData = await response.json();
-      console.log('Respuesta del servidor:', responseData);
       
-      Alert.alert('Éxito', 'Material agregado correctamente');
       setModalVisible(false);
       obtenerMateriales();
       resetForm();
     } catch (error) {
-      console.error('Error al agregar material:', error);
-      Alert.alert('Error', error.message || 'Error al procesar la solicitud');
+      showCustomAlert('Error', error.message || 'Error al procesar la solicitud', 'error');
     }
   };
 
+  const editMaterial = (material) => {
+    setEditItem(material);
+    setNuevoMaterial({
+      name: material.name,
+      type: material.type,
+      quantity: material.quantity.toString(),
+      investment: material.investment.toString(),
+      dateOfEntry: material.dateOfEntry,
+      image: material.image,
+    });
+    setModalVisible(true);
+  };
+
   const confirmDelete = async (id) => {
-    Alert.alert('Eliminar', '¿Estás seguro de eliminar este material?', [
-      { text: 'Cancelar', style: 'cancel' },
-      { text: 'Eliminar', style: 'destructive', onPress: async () => {
-        try { 
-          const response = await fetch(`${API_URL}/${id}`, {
-            method: 'DELETE',
-          });
-          if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+    showCustomAlert(
+      'Confirmar eliminación',
+      '¿Estás seguro de eliminar este material?',
+      'warning',
+      {
+        showCancel: true,
+        confirmText: 'Eliminar',
+        cancelText: 'Cancelar',
+        onConfirm: async () => {
+          try { 
+            await deleteMaterial(API_BASE, id);
+            showCustomAlert('Éxito', 'Material eliminado correctamente', 'success');
+            obtenerMateriales(); 
           }
-          Alert.alert('Material eliminado');
-          obtenerMateriales(); 
-        }
-        catch { Alert.alert('Error', 'No se pudo eliminar'); }
-      }}
-    ]);
+          catch (error) { 
+            showCustomAlert('Error', 'No se pudo eliminar el material', 'error'); 
+          }
+        },
+        onCancel: () => hideCustomAlert(),
+      }
+    );
   };
 
   const materialesFiltrados = materials.filter(m =>
@@ -189,12 +214,31 @@ const Inventario = ({ navigation }) => {
 
   const renderMaterial = ({ item }) => (
     <View style={InventarioStyles.card}>
-      <Image source={{ uri: item.image }} style={InventarioStyles.cardImage} />
+      <Image 
+        source={{ uri: item.image || 'https://via.placeholder.com/150' }} 
+        style={InventarioStyles.cardImage}
+        onError={() => {}}
+      />
       <Text style={InventarioStyles.cardTitle}>{item.name}</Text>
       <Text style={InventarioStyles.cardText}>Tipo: {item.type}</Text>
       <Text style={InventarioStyles.cardText}>Stock: {item.quantity}</Text>
       <Text style={InventarioStyles.cardText}>Inversión: ${item.investment}</Text>
-      <Text style={InventarioStyles.cardText}>Fecha: {new Date(item.dateOfEntry).toLocaleDateString()}</Text>
+      
+      <View style={InventarioStyles.cardActions}>
+        <TouchableOpacity 
+          style={InventarioStyles.editButton}
+          onPress={() => editMaterial(item)}
+        >
+          <Text style={InventarioStyles.editButtonText}>✎</Text>
+        </TouchableOpacity>
+        
+        <TouchableOpacity 
+          style={InventarioStyles.deleteButton}
+          onPress={() => confirmDelete(item._id)}
+        >
+          <Text style={InventarioStyles.deleteButtonText}>✕</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 
@@ -227,63 +271,6 @@ const Inventario = ({ navigation }) => {
         >
           <Text style={InventarioStyles.nuevoBtnText}>+ Nuevo material</Text>
         </TouchableOpacity>
-        
-                 <TouchableOpacity
-           style={InventarioStyles.testBtn}
-           onPress={async () => {
-             try {
-               const response = await fetch(API_URL);
-               if (!response.ok) {
-                 throw new Error(`HTTP error! status: ${response.status}`);
-               }
-               const data = await response.json();
-               Alert.alert('Conexión exitosa', `Conectado al backend. Materiales disponibles: ${data.length}`);
-             } catch (error) {
-               Alert.alert('Error de conexión', 'No se pudo conectar con el backend');
-               console.error('Error de conexión:', error);
-             }
-           }}
-         >
-           <Text style={InventarioStyles.testBtnText}>🔍 Probar conexión</Text>
-         </TouchableOpacity>
-         
-         <TouchableOpacity
-           style={[InventarioStyles.testBtn, { backgroundColor: '#F59E0B' }]}
-           onPress={async () => {
-             try {
-               const testData = {
-                 name: 'Material de Prueba',
-                 type: 'Test',
-                 quantity: 1,
-                 investment: 10.50,
-                 dateOfEntry: new Date().toISOString().split('T')[0],
-               };
-               
-               console.log('Probando con datos básicos:', testData);
-               
-                               const response = await fetch(API_URL_WITHOUT_IMAGE, {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify(testData),
-                });
-               
-               if (!response.ok) {
-                 const errorData = await response.json().catch(() => ({}));
-                 throw new Error(`Error ${response.status}: ${errorData.message || 'Error desconocido'}`);
-               }
-               
-               const result = await response.json();
-               Alert.alert('Prueba exitosa', 'Material de prueba creado correctamente');
-               console.log('Resultado de prueba:', result);
-               obtenerMateriales();
-             } catch (error) {
-               Alert.alert('Error en prueba', error.message);
-               console.error('Error en prueba:', error);
-             }
-           }}
-         >
-           <Text style={InventarioStyles.testBtnText}>🧪 Probar sin imagen</Text>
-         </TouchableOpacity>
       </View>
 
       <FlatList
@@ -305,7 +292,10 @@ const Inventario = ({ navigation }) => {
           <View style={InventarioStyles.modalBox}>
             <TouchableOpacity
               style={InventarioStyles.modalBack}
-              onPress={() => setModalVisible(false)}
+              onPress={() => {
+                setModalVisible(false);
+                resetForm();
+              }}
             >
               <Text style={InventarioStyles.backButtonText}>←</Text>
             </TouchableOpacity>
@@ -324,7 +314,7 @@ const Inventario = ({ navigation }) => {
                   />
                 ) : (
                   <View style={InventarioStyles.imagePickerEmpty}>
-                    <Text style={InventarioStyles.imagePickerText}>📷</Text>
+                    <Text style={InventarioStyles.imagePickerText}>Cámara</Text>
                     <Text style={InventarioStyles.imagePickerSubtext}>Subir imagen</Text>
                     <Text style={InventarioStyles.imagePickerRequired}>*Obligatorio</Text>
                   </View>
@@ -337,9 +327,6 @@ const Inventario = ({ navigation }) => {
                   value={nuevoMaterial.name}
                   onChangeText={text => setNuevoMaterial({ ...nuevoMaterial, name: text })}
                 />
-                {!nuevoMaterial.name.trim() && (
-                  <Text style={InventarioStyles.fieldRequired}>Campo obligatorio</Text>
-                )}
               </View>
               <View style={InventarioStyles.inputWrapper}>
                 <TextInput
@@ -348,9 +335,6 @@ const Inventario = ({ navigation }) => {
                   value={nuevoMaterial.type}
                   onChangeText={text => setNuevoMaterial({ ...nuevoMaterial, type: text })}
                 />
-                {!nuevoMaterial.type.trim() && (
-                  <Text style={InventarioStyles.fieldRequired}>Campo obligatorio</Text>
-                )}
               </View>
               <View style={InventarioStyles.row}>
                 <View style={{ flex: 1, marginRight: 8 }}>
@@ -390,12 +374,50 @@ const Inventario = ({ navigation }) => {
                 onChangeText={text => setNuevoMaterial({ ...nuevoMaterial, dateOfEntry: text })}
               />
               <TouchableOpacity style={InventarioStyles.agregarBtn} onPress={agregarMaterial}>
-                <Text style={InventarioStyles.agregarBtnText}>Agregar</Text>
+                <Text style={InventarioStyles.agregarBtnText}>
+                  {editItem ? 'Actualizar' : 'Agregar'}
+                </Text>
               </TouchableOpacity>
             </ScrollView>
           </View>
         </View>
       </Modal>
+
+      {/* Alerta personalizada */}
+      {customAlert.visible && (
+        <View style={InventarioStyles.alertOverlay}>
+          <View style={InventarioStyles.alertContainer}>
+            <View style={[InventarioStyles.alertIcon, InventarioStyles[`alertIcon${customAlert.type.charAt(0).toUpperCase() + customAlert.type.slice(1)}`]]}>
+              <Text style={[InventarioStyles.alertIconText, InventarioStyles[`alertIconText${customAlert.type.charAt(0).toUpperCase() + customAlert.type.slice(1)}`]]}>
+                {customAlert.type === 'success' ? '✓' :
+                 customAlert.type === 'error' ? '✕' :
+                 customAlert.type === 'warning' ? '⚠' : 'ℹ'}
+              </Text>
+            </View>
+
+            <Text style={InventarioStyles.alertTitle}>{customAlert.title}</Text>
+            <Text style={InventarioStyles.alertMessage}>{customAlert.message}</Text>
+
+            <View style={InventarioStyles.alertButtons}>
+              {customAlert.showCancel && (
+                <TouchableOpacity
+                  style={[InventarioStyles.alertButton, InventarioStyles.alertButtonCancel]}
+                  onPress={customAlert.onCancel || hideCustomAlert}
+                >
+                  <Text style={InventarioStyles.alertButtonCancelText}>{customAlert.cancelText}</Text>
+                </TouchableOpacity>
+              )}
+
+              <TouchableOpacity
+                style={[InventarioStyles.alertButton, InventarioStyles[`alertButton${customAlert.type.charAt(0).toUpperCase() + customAlert.type.slice(1)}`]]}
+                onPress={customAlert.onConfirm || hideCustomAlert}
+              >
+                <Text style={InventarioStyles.alertButtonText}>{customAlert.confirmText}</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      )}
     </SafeAreaView>
   );
 };
@@ -403,3 +425,4 @@ const Inventario = ({ navigation }) => {
 
 
 export default Inventario;  
+

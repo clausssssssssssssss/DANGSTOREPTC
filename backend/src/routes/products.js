@@ -182,15 +182,41 @@ router.put('/:id', upload.single('imagen'), async (req, res) => {
 // DELETE /api/products/:id - Eliminar un producto
 router.delete('/:id', async (req, res) => {
   try {
+    console.log('=== INTENTO DE ELIMINAR PRODUCTO ===');
+    console.log('ID del producto a eliminar:', req.params.id);
+    
     const productoEliminado = await Product.findByIdAndDelete(req.params.id);
     
     if (!productoEliminado) {
+      console.log('Producto no encontrado con ID:', req.params.id);
       return res.status(404).json({ error: 'Producto no encontrado' });
     }
     
+    console.log('Producto eliminado exitosamente:', productoEliminado.nombre);
     res.json({ message: 'Producto eliminado correctamente' });
   } catch (error) {
     console.error('Error al eliminar producto:', error);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
+});
+
+// GET /api/products/stock/summary - Obtener solo información de stock (más eficiente)
+router.get('/stock/summary', async (req, res) => {
+  try {
+    const products = await Product.find({}, '_id nombre disponibles').lean();
+    const stockSummary = products.map(product => ({
+      id: product._id,
+      name: product.nombre,
+      stock: product.disponibles
+    }));
+    
+    res.json({
+      timestamp: new Date().toISOString(),
+      products: stockSummary,
+      totalProducts: stockSummary.length
+    });
+  } catch (error) {
+    console.error('Error al obtener resumen de stock:', error);
     res.status(500).json({ error: 'Error interno del servidor' });
   }
 });

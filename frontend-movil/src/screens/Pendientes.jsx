@@ -11,13 +11,10 @@ import {
   Alert,
   ActivityIndicator,
   RefreshControl,
-  Dimensions,
 } from 'react-native';
 import { customOrdersAPI, getImageUrl } from '../services/customOrders';
 import { AuthContext } from '../context/AuthContext';
 import { pendientesStyles as styles } from '../components/styles/PendientesStyles';
-
-const { width, height } = Dimensions.get('window');
 
 const Pendientes = ({ navigation }) => {
   const { authToken, user } = useContext(AuthContext);

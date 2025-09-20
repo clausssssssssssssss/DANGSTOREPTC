@@ -135,6 +135,7 @@ const AuthApp = () => {
         errorMessage = data.message;
       }
       
+      
       showError(errorMessage);
       return;
     } catch (err) {
@@ -189,18 +190,25 @@ const AuthApp = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: forgotEmail }),
       });
-      
       console.log('📥 Respuesta del servidor:', { status: res.status, statusText: res.statusText });
       
       const data = await res.json();
       console.log('📄 Datos de respuesta:', data);
       
       if (!res.ok) {
+      if (!res.ok) {
         console.error('Error enviando código:', { status: res.status, message: data.message });
         showError(data.message || "Error enviando código");
         return;
       }
+        showError(data.message || "Error enviando código");
+        return;
+      }
       
+      console.log('Código enviado exitosamente');
+      showSuccess("Código enviado exitosamente a tu correo");
+      setIsEmailSubmitted(true);
+      setTimeout(() => setCurrentView("verification"), 1500);
       console.log('Código enviado exitosamente');
       showSuccess("Código enviado exitosamente a tu correo");
       setIsEmailSubmitted(true);
@@ -245,6 +253,7 @@ const AuthApp = () => {
       return;
     }
     
+    console.log('Verificando código:', { email: forgotEmail, code, codeLength: code.length });
     console.log('Verificando código:', { email: forgotEmail, code, codeLength: code.length });
     
     try {
@@ -330,6 +339,7 @@ const AuthApp = () => {
       }
       
       console.log('Contraseña restablecida exitosamente');
+      console.log('Contraseña restablecida exitosamente');
       showSuccess("Contraseña restablecida exitosamente");
       setCurrentView("login");
     } catch (err) {
@@ -359,14 +369,6 @@ const AuthApp = () => {
     const formattedPhone = formatPhoneNumber(e.target.value);
     setRegisterData({...registerData, telefono: formattedPhone});
   };
-
-  // Componente de elementos decorativos
-  const DecorativeElements = () => (
-    <div className="decorative-elements">
-      <div className="decorative-ring"></div>
-      <div className="decorative-ring"></div>
-    </div>
-  );
 
   // Componente de Logo
   const Logo = () => (

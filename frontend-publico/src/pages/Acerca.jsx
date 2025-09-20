@@ -5,8 +5,6 @@ import { Instagram } from 'lucide-react';
 import llaveroImg from '../assets/llavero.png';
 import cuadroImg from '../assets/cuadro.png';
 
-
-
 const About = () => {
 
   useEffect(() => {
@@ -31,10 +29,10 @@ const About = () => {
   }, []);
 
   return (
-    <div className="about-page">
+    <div className="about-page" style={{ background: '#ffffff' }}>
       {/* Hero con fondo blanco, olas y espacio para video */}
-      <section className="hero-olas-section">
-        <div className="hero-content-grid container animate-on-scroll">
+      <section className="hero-olas-section" style={{ background: '#ffffff' }}>
+        <div className="hero-content-grid container animate-on-scroll" style={{ maxWidth: '100%', padding: '0 2rem' }}>
           <div className="hero-text">
             <h1 className="hero-title">DANGSTORE</h1>
             <p className="hero-subtitle">Tus recuerdos en pixeles, tu estilo en llavero.</p>
@@ -57,8 +55,8 @@ const About = () => {
       </section>
 
       {/* Descripción breve de la empresa */}
-      <section className="company-description animate-on-scroll">
-        <div className="container">
+      <section className="company-description animate-on-scroll" style={{ background: '#ffffff' }}>
+        <div className="container" style={{ maxWidth: '100%', padding: '0 2rem' }}>
           <div className="gradient-panel">
             <h2 className="section-title centered large">¿Quienes somos?</h2>
             <div className="company-separator" aria-hidden="true"></div>
@@ -71,8 +69,8 @@ const About = () => {
       </section>
 
       {/* ¿Qué hacemos? - Cards */}
-      <section className="what-cards animate-on-scroll">
-        <div className="container">
+      <section className="what-cards animate-on-scroll" style={{ background: '#fafafa' }}>
+        <div className="container" style={{ maxWidth: '100%', padding: '0 2rem' }}>
           <div className="gradient-panel">
             <h2 className="section-title centered large">¿Qué hacemos?</h2>
             <div className="company-separator" aria-hidden="true"></div>
@@ -109,8 +107,8 @@ const About = () => {
       {/* Sección antigua removida por solicitud */}
 
       {/* Misión, Visión y Valores */}
-      <section className="mvv-section animate-on-scroll">
-        <div className="container">
+      <section className="mvv-section animate-on-scroll" style={{ background: 'linear-gradient(135deg, rgba(126,205,238,0.08) 0%, rgba(180,148,214,0.08) 100%)' }}>
+        <div className="container" style={{ maxWidth: '100%', padding: '0 2rem' }}>
           <div className="gradient-panel">
             <h2 className="section-title centered large">Nosotros</h2>
             <div className="company-separator" aria-hidden="true"></div>
@@ -179,7 +177,7 @@ const About = () => {
 
 
       <footer className="footer">
-        <div className="footer-container">
+        <div className="footer-container" style={{ maxWidth: '100%', padding: '0 2rem' }}>
           <div className="footer-sections">
             {/* Columna 1: DANGSTORE */}
             <div className="footer-section">
@@ -215,7 +213,7 @@ const About = () => {
             <div className="footer-section">
               <h3 className="footer-title">Contacto</h3>
               <p className="footer-text">
-                @dangshop2024@gmail.com
+                soportedangstore@gmail.com
               </p>
             </div>
 

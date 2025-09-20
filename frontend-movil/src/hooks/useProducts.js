@@ -1,14 +1,8 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
 
 // URLs alternativas para probar conexión
 const API_BASES = [
   'http://192.168.0.9:4000/api', // IP principal
-  'http://192.168.56.1:4000/api', // IP alternativa
-  'http://192.168.0.8:4000/api', // IP alternativa
-  'http://10.0.2.2:4000/api', // Para emulador Android
-  'http://localhost:4000/api', // Para emulador iOS
-  'http://127.0.0.1:4000/api', // Localhost alternativo
 ];
 
 export function useProducts() {
@@ -16,49 +10,76 @@ export function useProducts() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [currentApiBase, setCurrentApiBase] = useState('');
+  const [lastStockUpdate, setLastStockUpdate] = useState(null);
 
   const fetchProducts = async (apiBase) => {
     try {
       setLoading(true);
       setError(null);
       
-      console.log(' Intentando conectar a:', `${apiBase}/products`);
+      // Crear AbortController para timeout
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 8000);
       
-      const response = await axios.get(`${apiBase}/products`, {
-        timeout: 8000,
+      const response = await fetch(`${apiBase}/products`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        signal: controller.signal,
       });
       
-      console.log(' Conexión exitosa con:', apiBase);
+      clearTimeout(timeoutId);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status} ${response.statusText}`);
+      }
+      
+      const data = await response.json();
+      
+      // Verificar si hay datos
+      if (!Array.isArray(data)) {
+        console.error(' Los datos recibidos no son un array:', data);
+        throw new Error('Formato de datos inválido del servidor');
+      }
       
       // Transformar los datos del backend al formato esperado por el frontend
-      const transformedProducts = response.data.map(product => ({
-        _id: product._id,
-        name: product.nombre,
-        description: product.descripcion || '',
-        price: product.precio,
-        category: product.categoria || 'Llavero',
-        images: product.imagen ? [product.imagen] : [],
-        stock: product.disponibles || 0,
-      }));
+      const transformedProducts = data.map(product => {
+        return {
+          _id: product._id,
+          nombre: product.nombre || product.name, // Mantener nombre original para compatibilidad
+          descripcion: product.descripcion || product.description || '',
+          precio: product.precio || product.price,
+          disponibles: product.disponibles || product.stock || 0,
+          categoria: product.categoria || product.category || 'Llavero',
+          imagen: product.imagen || (product.images && product.images[0]) || null,
+          // Campos adicionales para compatibilidad
+          name: product.nombre || product.name,
+          description: product.descripcion || product.description || '',
+          price: product.precio || product.price,
+          category: product.categoria || product.category || 'Llavero',
+          images: product.imagen ? [product.imagen] : (product.images || []),
+          stock: product.disponibles || product.stock || 0,
+        };
+      });
       
       setProducts(transformedProducts);
       setCurrentApiBase(apiBase);
+      setLastStockUpdate(new Date().toISOString());
+      
+      // Productos cargados correctamente
       return true;
     } catch (err) {
       console.error(` Error con ${apiBase}:`, err.message);
       console.error(' Detalles del error:', err);
       
-      if (err.code === 'ECONNABORTED') {
-        console.log(` Timeout con ${apiBase}`);
-        setError('El servidor tardó demasiado en responder. Verifica tu conexión.');
-      } else if (err.message.includes('Network Error') || err.message.includes('Network request failed')) {
-        console.log(` Error de red con ${apiBase}`);
-        setError('No se puede conectar al servidor. Verifica que esté ejecutándose.');
-      } else if (err.code === 'ECONNREFUSED') {
-        console.log(` Conexión rechazada con ${apiBase}`);
-        setError('Conexión rechazada. Verifica la IP y puerto del servidor.');
+      if (err.name === 'AbortError') {
+        setError('Timeout de conexión');
+      } else if (err.message.includes('Failed to fetch') || err.message.includes('Network request failed')) {
+        setError('Sin conexión al servidor');
+      } else if (err.message.includes('HTTP')) {
+        setError(`Error del servidor: ${err.message}`);
       } else {
-        console.log(` Error desconocido con ${apiBase}:`, err.message);
         setError(`Error: ${err.message}`);
       }
       
@@ -72,7 +93,6 @@ export function useProducts() {
     let connected = false;
     
     for (const apiBase of API_BASES) {
-      console.log(` Probando endpoint: ${apiBase}`);
       connected = await fetchProducts(apiBase);
       if (connected) {
         break; // Si funciona, salir del bucle
@@ -89,6 +109,17 @@ export function useProducts() {
 
   useEffect(() => {
     tryAllApiEndpoints();
+    
+    // Configurar polling para actualización automática de stock cada 15 segundos
+    const interval = setInterval(() => {
+      tryAllApiEndpoints();
+    }, 15000); // 15 segundos - más frecuente para stock
+    
+    // Limpiar interval cuando el componente se desmonte
+    return () => {
+      clearInterval(interval);
+      console.log(' Polling de productos móvil detenido');
+    };
   }, []);
 
   const refresh = () => {
@@ -100,29 +131,55 @@ export function useProducts() {
       setLoading(true);
       setError(null);
       
-      console.log(' Agregando producto:', productData);
-      console.log(' Usando endpoint:', currentApiBase);
+      // Agregando producto...
       
-      const response = await axios.post(`${currentApiBase}/products`, productData, {
-        timeout: 8000,
+      const formData = new FormData();
+      formData.append('nombre', productData.nombre);
+      formData.append('descripcion', productData.descripcion);
+      formData.append('precio', productData.precio);
+      formData.append('disponibles', productData.disponibles);
+      formData.append('categoria', productData.categoria);
+      
+      if (productData.imagen) {
+        let filename = productData.imagen.split('/').pop();
+        let match = /\.(\w+)$/.exec(filename);
+        let type = match ? `image/${match[1]}` : 'image/jpeg';
+        
+        formData.append('imagen', {
+          uri: productData.imagen,
+          name: filename,
+          type,
+        });
+      }
+      
+      const response = await fetch(`${currentApiBase}/products`, {
+        method: 'POST',
+        body: formData,
+        // No establecer Content-Type para FormData, el navegador lo hará automáticamente
       });
       
-      console.log(' Producto agregado exitosamente');
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`HTTP ${response.status} ${response.statusText}: ${errorText}`);
+      }
+      
+      const data = await response.json();
+      console.log('✅ Producto agregado');
       
       // Recargar los productos después de agregar uno nuevo
       await fetchProducts(currentApiBase);
       
-      return response.data;
+      return data;
     } catch (err) {
       console.error(' Error al agregar producto:', err.message);
       console.error(' Detalles del error:', err);
       
-      if (err.code === 'ECONNABORTED') {
-        setError('El servidor tardó demasiado en responder. Verifica tu conexión.');
-      } else if (err.message.includes('Network Error') || err.message.includes('Network request failed')) {
+      if (err.message.includes('Failed to fetch') || err.message.includes('Network request failed')) {
         setError('No se puede conectar al servidor. Verifica que esté ejecutándose.');
-      } else if (err.code === 'ECONNREFUSED') {
-        setError('Conexión rechazada. Verifica la IP y puerto del servidor.');
+      } else if (err.message.includes('timeout')) {
+        setError('El servidor tardó demasiado en responder. Verifica tu conexión.');
+      } else if (err.message.includes('HTTP')) {
+        setError(`Error del servidor: ${err.message}`);
       } else {
         setError(`Error al agregar producto: ${err.message}`);
       }
@@ -133,5 +190,5 @@ export function useProducts() {
     }
   };
 
-  return { products, loading, error, refresh, addProduct, currentApiBase };
+  return { products, loading, error, refresh, addProduct, currentApiBase, lastStockUpdate };
 }

@@ -1,31 +1,44 @@
-/* NavBar.css - Versión Responsive con Menú Hamburguesa */
-/* ===== NAVBAR RESPONSIVE CON NUEVO SISTEMA DE TIPOGRAFÍA ===== */
+/* NavBar.css - Versión Responsive Corregida */
+:root {
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-base: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.25rem;
+  --font-family-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --font-weight-extrabold: 800;
+  --border-radius-md: 0.375rem;
+  --border-radius-lg: 0.5rem;
+}
+
+/* Reset para eliminar la línea morada */
+.navbar::after {
+  display: none !important;
+}
 
 .navbar {
   position: fixed;
   top: 0;
   width: 100%;
-  background: linear-gradient(135deg, 
-    rgba(45, 55, 72, 0.98) 0%, 
-    rgba(30, 41, 59, 0.98) 25%,
-    rgba(51, 65, 85, 0.98) 50%,
-    rgba(30, 41, 59, 0.98) 75%,
-    rgba(45, 55, 72, 0.98) 100%);
+  background: rgba(30, 41, 59, 0.98);
   backdrop-filter: blur(20px);
-  box-shadow: none;
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
   border-bottom: 1px solid rgba(186, 104, 200, 0.4);
-  z-index: 50;
-  transition: all 0.3s ease;
-}
-
-.navbar:hover {
-  box-shadow: none;
+  padding: 0;
 }
 
 .navbar-container {
-  max-width: var(--breakpoint-xl);
+  max-width: 1200px;
   margin: 0 auto;
-  padding: 0 var(--spacing-md);
+  padding: 0 1rem;
 }
 
 .navbar-content {
@@ -41,42 +54,8 @@
   align-items: center;
   gap: var(--spacing-sm);
   text-decoration: none;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   padding: var(--spacing-sm);
   border-radius: var(--border-radius-lg);
-  position: relative;
-  overflow: hidden;
-  z-index: 60;
-}
-
-.logo-link::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(135deg, 
-    rgba(77, 208, 225, 0.15), 
-    rgba(186, 104, 200, 0.15));
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  border-radius: var(--border-radius-lg);
-}
-
-.logo-link:hover::before {
-  opacity: 1;
-}
-
-.logo-link:hover {
-  transform: scale(1.05) translateY(-2px);
-  box-shadow: none;
-}
-
-.logo-container {
-  display: flex;
-  position: relative;
-  animation: logoFloat 4s ease-in-out infinite;
 }
 
 .logo-icon {
@@ -87,42 +66,13 @@
   align-items: center;
   justify-content: center;
   background: linear-gradient(135deg, #4DD0E1 0%, #BA68C8 50%, #9C27B0 100%);
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
   overflow: hidden;
-  box-shadow: none;
-}
-
-.logo-icon::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
-  transition: left 0.6s ease;
-}
-
-.logo-icon:hover::before {
-  left: 100%;
-}
-
-.logo-icon:hover {
-  transform: scale(1.1) rotate(5deg);
-  box-shadow: none;
 }
 
 .logo-image {
   width: 100%;
   height: 100%;
   object-fit: contain;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.logo-icon:hover .logo-image {
-  transform: scale(1.1) rotate(5deg);
-  filter: brightness(1.1);
 }
 
 .logo-text {
@@ -130,42 +80,37 @@
   font-weight: var(--font-weight-extrabold);
   font-size: var(--font-size-xl);
   background: linear-gradient(135deg, #9C27B0 0%, #4DD0E1 50%, #BA68C8 100%);
-  background-size: 300% 300%;
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  animation: gradientShift 4s ease-in-out infinite;
-  position: relative;
   letter-spacing: 0.5px;
 }
 
-.logo-text::after {
-  content: '';
-  position: absolute;
-  bottom: -2px;
-  left: 0;
-  width: 0;
-  height: 2px;
-  background: linear-gradient(135deg, #4DD0E1, #9C27B0);
-  animation: textUnderline 3s ease-in-out infinite;
+/* Navigation Links - Desktop */
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xl);
 }
 
-@keyframes gradientShift {
-  0%, 100% { background-position: 0% 50%; }
-  25% { background-position: 100% 50%; }
-  50% { background-position: 50% 0%; }
-  75% { background-position: 50% 100%; }
+.nav-link {
+  color: #e2e8f0;
+  font-family: var(--font-family-primary);
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-base);
+  text-decoration: none;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--border-radius-lg);
+  transition: all 0.3s ease;
 }
 
-@keyframes textUnderline {
-  0%, 100% { width: 0; }
-  50% { width: 100%; }
+.nav-link:hover {
+  color: #4DD0E1;
 }
 
-@keyframes logoFloat {
-  0%, 100% { transform: translateY(0px) rotate(0deg); }
-  33% { transform: translateY(-3px) rotate(1deg); }
-  66% { transform: translateY(2px) rotate(-1deg); }
+.nav-link.active {
+  color: #4DD0E1;
+  background: rgba(77, 208, 225, 0.15);
 }
 
 /* MENÚ HAMBURGUESA */
@@ -175,13 +120,9 @@
   cursor: pointer;
   padding: var(--spacing-sm);
   border-radius: var(--border-radius-md);
-  transition: all 0.3s ease;
+  background: none;
+  border: none;
   z-index: 60;
-  position: relative;
-}
-
-.hamburger-menu:hover {
-  background: rgba(77, 208, 225, 0.1);
 }
 
 .hamburger-line {
@@ -189,7 +130,7 @@
   height: 3px;
   background: linear-gradient(135deg, #4DD0E1, #BA68C8);
   border-radius: 2px;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.3s ease;
   transform-origin: center;
 }
 
@@ -211,84 +152,6 @@
   transform: rotate(-45deg) translate(6px, -6px);
 }
 
-/* Navigation Links - Desktop */
-.nav-links {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-xl);
-}
-
-.nav-link {
-  color: #e2e8f0;
-  font-family: var(--font-family-primary);
-  font-weight: var(--font-weight-semibold);
-  font-size: var(--font-size-base);
-  text-decoration: none;
-  padding: var(--spacing-sm) var(--spacing-lg);
-  border-radius: var(--border-radius-lg);
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
-  overflow: hidden;
-  text-transform: capitalize;
-  letter-spacing: 0.3px;
-}
-
-.nav-link::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(135deg, 
-    rgba(77, 208, 225, 0.2), 
-    rgba(186, 104, 200, 0.2));
-  transition: left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  z-index: -1;
-  border-radius: var(--border-radius-lg);
-}
-
-.nav-link::after {
-  content: '';
-  position: absolute;
-  bottom: 6px;
-  left: 50%;
-  width: 0;
-  height: 3px;
-  background: linear-gradient(135deg, #4DD0E1, #9C27B0);
-  border-radius: 2px;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  transform: translateX(-50%);
-}
-
-.nav-link:hover {
-  color: #4DD0E1;
-  transform: translateY(-2px) scale(1.03);
-  box-shadow: none;
-}
-
-.nav-link:hover::before {
-  left: 0;
-}
-
-.nav-link:hover::after {
-  width: 75%;
-}
-
-.nav-link.active {
-  color: #4DD0E1;
-  background: linear-gradient(135deg, 
-    rgba(77, 208, 225, 0.25), 
-    rgba(186, 104, 200, 0.25));
-  transform: translateY(-1px);
-  box-shadow: none;
-}
-
-.nav-link.active::after {
-  width: 85%;
-  background: linear-gradient(135deg, #4DD0E1, #9C27B0);
-}
-
 /* MENÚ MÓVIL */
 .mobile-menu {
   position: fixed;
@@ -296,15 +159,11 @@
   right: -100%;
   width: 280px;
   height: 100vh;
-  background: linear-gradient(180deg, 
-    rgba(45, 55, 72, 0.98) 0%, 
-    rgba(30, 41, 59, 0.98) 50%,
-    rgba(51, 65, 85, 0.98) 100%);
+  background: rgba(30, 41, 59, 0.98);
   backdrop-filter: blur(30px);
   border-left: 1px solid rgba(186, 104, 200, 0.3);
-  box-shadow: none;
-  transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  z-index: 55;
+  transition: right 0.4s ease;
+  z-index: 1001;
   overflow-y: auto;
 }
 
@@ -323,7 +182,7 @@
   opacity: 0;
   visibility: hidden;
   transition: all 0.3s ease;
-  z-index: 54;
+  z-index: 1000;
 }
 
 .mobile-overlay.open {
@@ -357,11 +216,9 @@
   cursor: pointer;
   padding: var(--spacing-sm);
   border-radius: var(--border-radius-md);
-  transition: all 0.3s ease;
 }
 
 .mobile-close-btn:hover {
-  background: rgba(77, 208, 225, 0.1);
   color: #4DD0E1;
 }
 
@@ -383,24 +240,6 @@
   transition: all 0.3s ease;
   border-left: 3px solid transparent;
   position: relative;
-  overflow: hidden;
-}
-
-.mobile-nav-link::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, 
-    rgba(77, 208, 225, 0.1), 
-    rgba(186, 104, 200, 0.1));
-  transition: left 0.3s ease;
-}
-
-.mobile-nav-link:hover::before {
-  left: 0;
 }
 
 .mobile-nav-link:hover {
@@ -409,29 +248,33 @@
   background: rgba(77, 208, 225, 0.05);
 }
 
-.mobile-nav-link.active {
-  color: #4DD0E1;
-  border-left-color: #4DD0E1;
-  background: linear-gradient(90deg, 
-    rgba(77, 208, 225, 0.15), 
-    rgba(186, 104, 200, 0.1));
-}
-
-/* Iconos en el menú móvil */
 .mobile-nav-icon {
-  width: 24px;
-  height: 24px;
-  opacity: 0.9;
+  width: 20px;
+  height: 20px;
 }
 
-/* Separador en menú móvil */
 .mobile-separator {
   height: 1px;
-  background: linear-gradient(90deg, 
-    transparent, 
-    rgba(186, 104, 200, 0.3), 
-    transparent);
+  background: rgba(186, 104, 200, 0.3);
   margin: var(--spacing-sm) var(--spacing-lg);
+}
+
+.mobile-cart-badge {
+  margin-left: auto;
+  background: #4DD0E1;
+  color: white;
+  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-weight: bold;
+}
+
+.mobile-notification-dot {
+  margin-left: auto;
+  width: 8px;
+  height: 8px;
+  background: #ff3b30;
+  border-radius: 50%;
 }
 
 /* Action Icons */
@@ -439,15 +282,6 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-lg);
-}
-
-/* Clases para controlar visibilidad */
-.desktop-only {
-  display: flex;
-}
-
-.mobile-login-only {
-  display: none;
 }
 
 .icon-link {
@@ -458,56 +292,15 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
-  overflow: hidden;
-  width: 64px;
-  height: 64px;
-}
-
-.icon-link::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(135deg, 
-    rgba(77, 208, 225, 0.2), 
-    rgba(186, 104, 200, 0.2));
-  opacity: 0;
-  border-radius: var(--border-radius-lg);
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  transform: scale(0);
-}
-
-.icon-link:hover::before {
-  opacity: 1;
-  transform: scale(1);
+  width: 44px;
+  height: 44px;
 }
 
 .icon-link:hover {
   color: #4DD0E1;
-  transform: translateY(-3px) scale(1.1);
-  box-shadow: none;
 }
 
-.icon-link.active {
-  color: #4DD0E1;
-  background: linear-gradient(135deg, 
-    rgba(77, 208, 225, 0.25), 
-    rgba(186, 104, 200, 0.25));
-  box-shadow: none;
-  transform: scale(1.05);
-}
-
-/* Tamaño de los SVG dentro de los iconos */
-.icon-link svg {
-  width: 28px;
-  height: 28px;
-}
-
-/* Badges y notificaciones */
 .cart-badge {
   position: absolute;
   top: 4px;
@@ -524,7 +317,6 @@
   align-items: center;
   justify-content: center;
   font-weight: var(--font-weight-bold);
-  border: 2px solid rgba(45, 55, 72, 0.8);
 }
 
 .notification-dot {
@@ -535,58 +327,32 @@
   height: 8px;
   background: #ff3b30;
   border-radius: 50%;
-  z-index: 10;
-  border: 2px solid rgba(45, 55, 72, 0.8);
 }
 
-/* Animaciones para iconos */
-.icon-link:nth-child(1):hover svg {
-  animation: searchPulse 0.6s ease-in-out;
+/* Botón de login */
+.login-button-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: linear-gradient(135deg, #4DD0E1 0%, #BA68C8 100%);
+  color: white;
+  text-decoration: none;
+  border-radius: var(--border-radius-md);
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  transition: all 0.3s ease;
+  border: none;
+  cursor: pointer;
+  min-height: 44px;
 }
 
-.icon-link:nth-child(2):hover svg {
-  animation: cartShake 0.6s ease-in-out;
-}
-
-.icon-link:nth-child(3):hover svg {
-  animation: userBounce 0.6s ease-in-out;
-}
-
-@keyframes searchPulse {
-  0%, 100% { transform: scale(1) rotate(0deg); }
-  50% { transform: scale(1.2) rotate(180deg); }
-}
-
-@keyframes cartShake {
-  0%, 100% { transform: translateX(0); }
-  10%, 30%, 50%, 70%, 90% { transform: translateX(-3px); }
-  20%, 40%, 60%, 80% { transform: translateX(3px); }
-}
-
-@keyframes userBounce {
-  0%, 100% { transform: translateY(0); }
-  25% { transform: translateY(-8px) scale(1.1); }
-  50% { transform: translateY(-4px) scale(1.05); }
-  75% { transform: translateY(-2px) scale(1.02); }
+.login-button-nav:hover {
+  background: linear-gradient(135deg, #26C6DA 0%, #AB47BC 100%);
 }
 
 /* RESPONSIVE DESIGN */
-
-/* Tablets grandes (1024px y menor) */
-@media (max-width: 1024px) {
-  .nav-links {
-    gap: var(--spacing-lg);
-  }
-  
-  .nav-link {
-    padding: var(--spacing-sm) var(--spacing-md);
-    font-size: var(--font-size-sm);
-  }
-  
-  .logo-text {
-    font-size: var(--font-size-lg);
-  }
-}
 
 /* Tablets (768px y menor) */
 @media (max-width: 768px) {
@@ -607,27 +373,25 @@
   }
   
   .logo-icon {
-    width: 42px;
-    height: 42px;
+    width: 36px;
+    height: 36px;
   }
   
   .desktop-only {
     display: none;
   }
   
-  .mobile-login-only {
-    display: block;
-  }
-  
-  .navbar-container {
-    padding: 0 var(--spacing-sm);
+  .navbar-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
   }
 }
 
 /* Móviles (480px y menor) */
 @media (max-width: 480px) {
   .navbar-container {
-    padding: 0 var(--spacing-xs);
+    padding: 0 0.5rem;
   }
   
   .navbar-content {
@@ -639,8 +403,8 @@
   }
   
   .logo-icon {
-    width: 38px;
-    height: 38px;
+    width: 32px;
+    height: 32px;
   }
   
   .mobile-menu {
@@ -654,8 +418,17 @@
   }
   
   .login-button-nav {
-    padding: var(--spacing-xs) var(--spacing-sm);
+    padding: 6px 12px;
     font-size: var(--font-size-xs);
+  }
+  
+  .action-icons {
+    gap: var(--spacing-md);
+  }
+  
+  .icon-link {
+    width: 40px;
+    height: 40px;
   }
 }
 
@@ -666,613 +439,114 @@
   }
   
   .logo-icon {
-    width: 34px;
-    height: 34px;
+    width: 30px;
+    height: 30px;
   }
   
   .login-button-nav {
     padding: 5px 10px;
-    font-size: var(--font-size-xs);
+    font-size: 0.7rem;
   }
 }
 
-/* Eliminar outline de enfoque de todos los elementos interactivos */
-.navbar *:focus,
-.navbar *:active,
-.navbar button:focus,
-.navbar button:active,
-.navbar a:focus,
-.navbar a:active,
-.nav-link:focus,
-.nav-link:active,
-.icon-link:focus,
-.icon-link:active,
-.logo-link:focus,
-.logo-link:active,
-.hamburger-menu:focus,
-.hamburger-menu:active,
-.mobile-nav-link:focus,
-.mobile-nav-link:active,
-.mobile-close-btn:focus,
-.mobile-close-btn:active,
-.login-button-nav:focus,
-.login-button-nav:active {
-  outline: none !important;
-  outline-offset: 0 !important;
+/* Oculta barras de progreso y overlays de carga comunes de React Router y NProgress */
+#nprogress, 
+#nprogress .bar, 
+.router-loading-bar, 
+.router-progress-bar, 
+.loading-bar, 
+.loading-indicator, 
+.loading-overlay, 
+.loading-message, 
+[data-testid="loading-indicator"], 
+[data-testid="router-loading-bar"],
+/* Ocultar posibles líneas moradas de carga */
+.progress-bar,
+.progress-line,
+.loading-line,
+.spinner-border,
+.progress,
+.progress-bar-striped,
+.progress-bar-animated,
+/* Barras de progreso del navegador */
+::-webkit-progress-bar,
+::-webkit-progress-value,
+::-moz-progress-bar,
+progress,
+/* Elementos con colores morados que puedan aparecer como líneas */
+*[style*="#8B5CF6"],
+*[style*="#A78BFA"],
+*[style*="#7C3AED"],
+*[style*="#BA68C8"],
+*[style*="#9C27B0"],
+*[style*="purple"],
+*[style*="violet"] {
+  display: none !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  visibility: hidden !important;
+  height: 0 !important;
+  width: 0 !important;
+  border: none !important;
+  background: transparent !important;
+}
+
+/* Oculta texto "Cargando pagina" si aparece como overlay o mensaje flotante */
+body:has(.loading-message), 
+body:has(.router-loading-bar), 
+body:has(.loading-indicator) {
+  overflow: unset !important;
+}
+
+/* Eliminación específica de la raya morada de carga */
+/* Ocultar cualquier elemento que pueda crear una línea horizontal durante la carga */
+*::before,
+*::after {
+  /* Ocultar pseudo-elementos que puedan crear líneas moradas */
+  background-image: none !important;
+  border-image: none !important;
+}
+
+/* Ocultar líneas de progreso específicas */
+.loading-container::before,
+.loading-container::after,
+.catalog-page::before,
+.catalog-page::after {
+  display: none !important;
+}
+
+/* Ocultar barras de progreso del sistema */
+::-webkit-progress-inner-element {
+  display: none !important;
+}
+
+/* Prevenir líneas de borde que puedan aparecer como rayas */
+body::before,
+body::after,
+html::before,
+html::after,
+#root::before,
+#root::after,
+.App::before,
+.App::after {
+  display: none !important;
+  content: none !important;
+  background: none !important;
+  border: none !important;
+}
+
+/* Ocultar cualquier elemento con gradiente morado que pueda parecer una línea */
+*[style*="linear-gradient"],
+*[style*="radial-gradient"] {
+  background-image: none !important;
+}
+
+/* Asegurar que no hay bordes morados en elementos de carga */
+.loading-container,
+.loading-spinner,
+.spinner,
+.animate-spin {
+  border-color: transparent !important;
+  background: transparent !important;
   box-shadow: none !important;
-}
-
-/* Reducir animaciones para usuarios sensibles */
-@media (prefers-reduced-motion: reduce) {
-  .logo-container,
-  .logo-text::after,
-  .nav-link,
-  .icon-link:nth-child(1):hover svg,
-  .icon-link:nth-child(2):hover svg,
-  .icon-link:nth-child(3):hover svg,
-  .mobile-menu,
-  .mobile-overlay {
-    animation: none !important;
-    transition: none !important;
-  }
-  
-  .nav-link:hover,
-  .icon-link:hover,
-  .logo-link:hover {
-    transform: none !important;
-  }
-}
-
-/* Efectos adicionales */
-.navbar::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 1px;
-  background: linear-gradient(90deg, 
-    transparent, 
-    rgba(77, 208, 225, 0.5), 
-    rgba(186, 104, 200, 0.5), 
-    transparent);
-  opacity: 0.7;
-  animation: borderGlow 3s ease-in-out infinite;
-}
-
-@keyframes borderGlow {
-  0%, 100% {
-    opacity: 0.7;
-    transform: scaleX(1);
-  }
-  50% {
-    opacity: 1;
-    transform: scaleX(1.02);
-  }
-}
-
-/* Animación sutil para el fondo del navbar */
-.navbar {
-  background-attachment: fixed;
-  background-size: 400% 400%;
-  animation: navbarGradient 15s ease infinite;
-}
-
-@keyframes navbarGradient {
-  0%, 100% { background-position: 0% 50%; }
-  25% { background-position: 100% 0%; }
-  50% { background-position: 100% 100%; }
-  75% { background-position: 0% 100%; }
-}
-
-/* Estilos para el botón de Iniciar Sesión en el navbar */
-.login-button-nav {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: var(--spacing-sm) var(--spacing-md);
-  background: linear-gradient(135deg, #4DD0E1 0%, #BA68C8 100%);
-  color: white;
-  text-decoration: none;
-  border-radius: var(--border-radius-md);
-  font-family: var(--font-family-primary);
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-semibold);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  border: none;
-  cursor: pointer;
-  position: relative;
-  overflow: hidden;
-  box-shadow: none;
-  min-height: 44px;
-}
-
-.login-button-nav::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, 
-    transparent, 
-    rgba(255, 255, 255, 0.2), 
-    transparent);
-  transition: left 0.5s ease;
-}
-
-.login-button-nav:hover::before {
-  left: 100%;
-}
-
-.login-button-nav:hover {
-  transform: translateY(-2px);
-  box-shadow: none;
-  background: linear-gradient(135deg, #26C6DA 0%, #AB47BC 100%);
-}
-
-.login-button-nav:active {
-  transform: translateY(0);
-  box-shadow: none;
-}
-
-/* Responsive para el botón de login */
-@media (max-width: 768px) {
-  .login-button-nav {
-    padding: 8px 14px;
-    font-size: 0.85rem;
-    white-space: nowrap;
-  }
-}
-
-@media (max-width: 480px) {
-  .login-button-nav {
-    padding: 6px 12px;
-    font-size: 0.8rem;
-  }
-}
-
-@media (max-width: 320px) {
-  .login-button-nav {
-    padding: 5px 10px;
-    font-size: 0.75rem;
-  }
-}
-
-/* ===== DISEÑO RESPONSIVO PARA NAVBAR ===== */
-
-/* Pantallas medianas (tablets) */
-@media (max-width: 1199px) and (min-width: 768px) {
-  .navbar {
-    padding: 0 16px;
-  }
-  
-  .nav-container {
-    max-width: 900px;
-  }
-  
-  .nav-logo {
-    font-size: 20px;
-  }
-  
-  .nav-logo img {
-    width: 32px;
-    height: 32px;
-  }
-  
-  .nav-menu {
-    gap: 20px;
-  }
-  
-  .nav-link {
-    font-size: 14px;
-    padding: 8px 12px;
-  }
-  
-  .nav-actions {
-    gap: 12px;
-  }
-  
-  .cart-icon {
-    width: 24px;
-    height: 24px;
-  }
-  
-  .icon-link {
-    width: 56px;
-    height: 56px;
-  }
-  
-  .icon-link svg {
-    width: 24px;
-    height: 24px;
-  }
-  
-  .cart-count {
-    font-size: 10px;
-    padding: 2px 4px;
-    min-width: 16px;
-    height: 16px;
-  }
-  
-  .user-menu {
-    right: 16px;
-  }
-}
-
-/* Pantallas pequeñas (móviles grandes) */
-@media (max-width: 767px) and (min-width: 480px) {
-  .navbar {
-    padding: 0 12px;
-  }
-  
-  .nav-container {
-    max-width: 100%;
-  }
-  
-  .nav-logo {
-    font-size: 18px;
-  }
-  
-  .nav-logo img {
-    width: 28px;
-    height: 28px;
-  }
-  
-  .nav-menu {
-    gap: 16px;
-  }
-  
-  .nav-link {
-    font-size: 13px;
-    padding: 6px 10px;
-  }
-  
-  .nav-actions {
-    gap: 10px;
-  }
-  
-  .cart-icon {
-    width: 22px;
-    height: 22px;
-  }
-  
-  .icon-link {
-    width: 50px;
-    height: 50px;
-  }
-  
-  .icon-link svg {
-    width: 22px;
-    height: 22px;
-  }
-  
-  .cart-count {
-    font-size: 9px;
-    padding: 1px 3px;
-    min-width: 14px;
-    height: 14px;
-  }
-  
-  .user-menu {
-    right: 12px;
-    min-width: 180px;
-  }
-  
-  .user-menu-item {
-    padding: 10px 12px;
-    font-size: 13px;
-  }
-}
-
-/* Pantallas muy pequeñas (móviles) */
-@media (max-width: 479px) {
-  .navbar {
-    padding: 0 8px;
-  }
-  
-  .nav-container {
-    max-width: 100%;
-  }
-  
-  .nav-logo {
-    font-size: 16px;
-  }
-  
-  .nav-logo img {
-    width: 24px;
-    height: 24px;
-  }
-  
-  .nav-menu {
-    gap: 12px;
-  }
-  
-  .nav-link {
-    font-size: 12px;
-    padding: 5px 8px;
-  }
-  
-  .nav-actions {
-    gap: 8px;
-  }
-  
-  .cart-icon {
-    width: 20px;
-    height: 20px;
-  }
-  
-  .icon-link {
-    width: 46px;
-    height: 46px;
-  }
-  
-  .icon-link svg {
-    width: 20px;
-    height: 20px;
-  }
-  
-  .cart-count {
-    font-size: 8px;
-    padding: 1px 2px;
-    min-width: 12px;
-    height: 12px;
-  }
-  
-  .user-menu {
-    right: 8px;
-    min-width: 160px;
-  }
-  
-  .user-menu-item {
-    padding: 8px 10px;
-    font-size: 12px;
-  }
-  
-  .user-avatar {
-    width: 28px;
-    height: 28px;
-  }
-  
-  .user-name {
-    font-size: 12px;
-  }
-}
-
-/* Ajustes para orientación landscape en móviles */
-@media (max-width: 767px) and (orientation: landscape) {
-  .navbar {
-    padding: 0 12px;
-  }
-  
-  .nav-menu {
-    gap: 14px;
-  }
-  
-  .nav-link {
-    font-size: 13px;
-    padding: 6px 10px;
-  }
-}
-
-/* Ajustes para pantallas táctiles */
-@media (hover: none) and (pointer: coarse) {
-  .nav-link {
-    min-height: 44px;
-    min-width: 44px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  
-  .cart-icon {
-    min-height: 48px;
-    min-width: 48px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  
-  .icon-link {
-    min-height: 52px;
-    min-width: 52px;
-  }
-  
-  .icon-link svg {
-    width: 26px;
-    height: 26px;
-  }
-  
-  .user-avatar {
-    min-height: 44px;
-    min-width: 44px;
-  }
-  
-  .user-menu-item {
-    min-height: 44px;
-    display: flex;
-    align-items: center;
-  }
-}
-
-/* Ajustes para modo oscuro del sistema */
-@media (prefers-color-scheme: dark) {
-  .navbar {
-    background-color: #1a1a1a;
-    border-bottom-color: #404040;
-  }
-  
-  .nav-link {
-    color: #ffffff;
-  }
-  
-  .nav-link:hover {
-    background-color: #333333;
-  }
-  
-  .nav-link.active {
-    background-color: #6c5ce7;
-    color: #ffffff;
-  }
-  
-  .user-menu {
-    background-color: #2d2d2d;
-    border-color: #404040;
-    box-shadow: none;
-  }
-  
-  .user-menu-item {
-    color: #ffffff;
-  }
-  
-  .user-menu-item:hover {
-    background-color: #404040;
-  }
-  
-  .user-menu-item.danger {
-    color: #e17055;
-  }
-  
-  .user-menu-item.danger:hover {
-    background-color: #e17055;
-    color: #ffffff;
-  }
-  
-  .cart-count {
-    background-color: #e17055;
-    color: #ffffff;
-  }
-}
-
-/* Ajustes para usuarios con preferencias de movimiento reducido */
-@media (prefers-reduced-motion: reduce) {
-  .navbar {
-    transition: none;
-  }
-  
-  .nav-link {
-    transition: none;
-  }
-  
-  .user-menu {
-    transition: none;
-  }
-  
-  .user-menu-item {
-    transition: none;
-  }
-  
-  .cart-count {
-    transition: none;
-  }
-}
-
-/* Ajustes para pantallas de alta densidad (retina) */
-@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
-  .nav-logo img {
-    image-rendering: -webkit-optimize-contrast;
-    image-rendering: crisp-edges;
-  }
-  
-  .cart-icon {
-    image-rendering: -webkit-optimize-contrast;
-    image-rendering: crisp-edges;
-  }
-}
-
-/* Ajustes para pantallas de muy alta resolución */
-@media (min-width: 2000px) {
-  .navbar {
-    padding: 0 40px;
-  }
-  
-  .nav-container {
-    max-width: 1600px;
-  }
-  
-  .nav-logo {
-    font-size: 28px;
-  }
-  
-  .nav-logo img {
-    width: 48px;
-    height: 48px;
-  }
-  
-  .nav-menu {
-    gap: 32px;
-  }
-  
-  .nav-link {
-    font-size: 18px;
-    padding: 12px 20px;
-  }
-  
-  .nav-actions {
-    gap: 20px;
-  }
-  
-  .cart-icon {
-    width: 32px;
-    height: 32px;
-  }
-  
-  .icon-link {
-    width: 72px;
-    height: 72px;
-  }
-  
-  .icon-link svg {
-    width: 32px;
-    height: 32px;
-  }
-  
-  .cart-count {
-    font-size: 14px;
-    padding: 4px 6px;
-    min-width: 20px;
-    height: 20px;
-  }
-  
-  .user-menu {
-    right: 40px;
-    min-width: 240px;
-  }
-  
-  .user-menu-item {
-    padding: 16px 20px;
-    font-size: 16px;
-  }
-  
-  .user-avatar {
-    width: 48px;
-    height: 48px;
-  }
-  
-  .user-name {
-    font-size: 16px;
-  }
-}
-
-/* Ajustes específicos para dispositivos móviles con notch */
-@media (max-width: 767px) and (min-height: 800px) {
-  .navbar {
-    padding-top: env(safe-area-inset-top);
-  }
-}
-
-/* Ajustes para dispositivos con pantalla dividida */
-@media (max-width: 767px) and (min-height: 600px) and (max-height: 800px) {
-  .navbar {
-    padding: 0 8px;
-  }
-  
-  .nav-menu {
-    gap: 8px;
-  }
-  
-  .nav-link {
-    font-size: 11px;
-    padding: 4px 6px;
-  }
 }

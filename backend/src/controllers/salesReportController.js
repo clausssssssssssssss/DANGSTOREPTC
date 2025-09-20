@@ -13,6 +13,38 @@ salesController.getAllSales = async (req, res) => {
   }
 };
 
+// 👇 NUEVO: Obtener las últimas 10 ventas/pedidos
+salesController.getLatestSales = async (req, res) => {
+  try {
+    console.log('🔍 Intentando obtener las últimas ventas...');
+    
+    // Primero verifica si hay datos en la colección
+    const totalCount = await SalesModel.countDocuments();
+    console.log(`📊 Total de ventas en la base: ${totalCount}`);
+    
+    if (totalCount === 0) {
+      console.log('⚠️ No hay ventas en la base de datos');
+      return res.status(200).json([]);
+    }
+    
+    // Obtener las últimas 10 ventas ordenadas por _id (más reciente primero)
+    // Usamos _id en lugar de date porque _id contiene timestamp de creación
+    const latestSales = await SalesModel
+      .find()
+      .sort({ _id: -1 }) // Ordenar por _id descendente (más recientes primero)
+      .limit(10) // Limitar a 10 resultados
+      .lean(); // Para mejor performance
+
+    console.log(`✅ Ventas encontradas: ${latestSales.length}`);
+    console.log('📋 Primeras 2 ventas:', JSON.stringify(latestSales.slice(0, 2), null, 2));
+
+    res.status(200).json(latestSales);
+  } catch (error) {
+    console.error('❌ Error en getLatestSales:', error);
+    res.status(500).json({ message: "Error al obtener las últimas ventas", error: error.message });
+  }
+};
+
 // aquí registro una nueva venta
 salesController.insertSales = async (req, res) => {
   try {
@@ -153,4 +185,4 @@ salesController.getIncomeByDateRange = async (req, res) => {
   }
 };
 
-export default salesController;
+export default salesController; 

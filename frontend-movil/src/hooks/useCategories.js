@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
 
 // URLs alternativas para probar conexión
 const API_BASES = [
@@ -20,14 +19,29 @@ export function useCategories() {
       
       console.log(' Intentando conectar a categorías:', `${apiBase}/categories`);
       
-      const response = await axios.get(`${apiBase}/categories`, {
-        timeout: 8000,
+      // Crear AbortController para timeout
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 8000);
+      
+      const response = await fetch(`${apiBase}/categories`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        signal: controller.signal,
       });
       
+      clearTimeout(timeoutId);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status} ${response.statusText}`);
+      }
+      
+      const data = await response.json();
       console.log(' Conexión exitosa con categorías:', apiBase);
       
       // Transformar los datos del backend al formato esperado por el frontend
-      const transformedCategories = response.data.map(category => ({
+      const transformedCategories = data.map(category => ({
         _id: category._id,
         name: category.nombre || category.name,
         description: category.descripcion || category.description || '',
@@ -41,15 +55,15 @@ export function useCategories() {
       console.error(` Error con categorías ${apiBase}:`, err.message);
       console.error(' Detalles del error:', err);
       
-      if (err.code === 'ECONNABORTED') {
-        console.log(` Timeout con categorías ${apiBase}`);
-        setError('El servidor tardó demasiado en responder. Verifica tu conexión.');
-      } else if (err.message.includes('Network Error') || err.message.includes('Network request failed')) {
+      if (err.message.includes('Failed to fetch') || err.message.includes('Network request failed')) {
         console.log(` Error de red con categorías ${apiBase}`);
         setError('No se puede conectar al servidor. Verifica que esté ejecutándose.');
-      } else if (err.code === 'ECONNREFUSED') {
-        console.log(` Conexión rechazada con categorías ${apiBase}`);
-        setError('Conexión rechazada. Verifica la IP y puerto del servidor.');
+      } else if (err.message.includes('timeout')) {
+        console.log(` Timeout con categorías ${apiBase}`);
+        setError('El servidor tardó demasiado en responder. Verifica tu conexión.');
+      } else if (err.message.includes('HTTP')) {
+        console.log(` Error HTTP con categorías ${apiBase}:`, err.message);
+        setError(`Error del servidor: ${err.message}`);
       } else {
         console.log(` Error desconocido con categorías ${apiBase}:`, err.message);
         setError(`Error: ${err.message}`);
@@ -84,16 +98,33 @@ export function useCategories() {
       
       console.log(' Agregando categoría:', categoryData);
       
-      const response = await axios.post(`${currentApiBase}/categories`, categoryData, {
-        timeout: 8000,
+      // Crear AbortController para timeout
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 8000);
+      
+      const response = await fetch(`${currentApiBase}/categories`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(categoryData),
+        signal: controller.signal,
       });
       
+      clearTimeout(timeoutId);
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`HTTP ${response.status} ${response.statusText}: ${errorText}`);
+      }
+      
+      const data = await response.json();
       console.log(' Categoría agregada exitosamente');
       
       // Recargar las categorías después de agregar una nueva
       await fetchCategories(currentApiBase);
       
-      return response.data;
+      return data;
     } catch (err) {
       console.error(' Error al agregar categoría:', err.message);
       setError(`Error al agregar categoría: ${err.message}`);

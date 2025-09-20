@@ -67,8 +67,7 @@ export function useProducts() {
       setCurrentApiBase(apiBase);
       setLastStockUpdate(new Date().toISOString());
       
-      // Solo log importante: cantidad de productos cargados
-      console.log(`📦 ${transformedProducts.length} productos cargados`);
+      // Productos cargados correctamente
       return true;
     } catch (err) {
       console.error(` Error con ${apiBase}:`, err.message);

@@ -2,10 +2,8 @@ import React, { useEffect, useState, useContext } from 'react';
 import {
   View,
   Text,
-  StyleSheet,
   TouchableOpacity,
   SafeAreaView,
-  Dimensions,
   TextInput,
   FlatList,
   Image,
@@ -19,8 +17,8 @@ import * as ImagePicker from 'expo-image-picker';
 import { Picker } from '@react-native-picker/picker';
 import { AuthContext } from '../context/AuthContext';
 import { useProducts } from '../hooks/useProducts';
+import { ProductosStyles } from '../components/styles/ProductosStyles';
 
-const { width, height } = Dimensions.get('window');
 const API_URL = 'http://192.168.0.9:4000/api/products'; // URL consistente con el backend
 
 const Productos = ({ navigation }) => {
@@ -49,6 +47,11 @@ const Productos = ({ navigation }) => {
     cancelText: 'Cancelar',
     showCancel: false,
   });
+
+  // Debug: Log cuando cambie el estado de customAlert
+  useEffect(() => {
+    console.log('customAlert state cambió:', customAlert);
+  }, [customAlert]);
   const [nuevoProducto, setNuevoProducto] = useState({
     nombre: '',
     descripcion: '',
@@ -72,6 +75,7 @@ const Productos = ({ navigation }) => {
   }, [productosHook]);
 
   const showCustomAlert = (title, message, type = 'info', options = {}) => {
+    console.log('showCustomAlert llamado con:', { title, message, type, options });
     setCustomAlert({
       visible: true,
       title,
@@ -83,6 +87,7 @@ const Productos = ({ navigation }) => {
       cancelText: options.cancelText || 'Cancelar',
       showCancel: options.showCancel || false,
     });
+    console.log('customAlert state actualizado');
   };
 
   const hideCustomAlert = () => {
@@ -186,7 +191,7 @@ const Productos = ({ navigation }) => {
       if (response.status === 201) {
         showCustomAlert('Éxito', 'Producto agregado correctamente', 'success');
         setModalVisible(false);
-        obtenerProductos();
+        refreshProducts();
         setNuevoProducto({
           nombre: '',
           descripcion: '',
@@ -236,6 +241,7 @@ const Productos = ({ navigation }) => {
   };
 
   const eliminarProducto = async (productId) => {
+    console.log('Botón eliminar presionado para producto ID:', productId);
     showCustomAlert(
       'Confirmar eliminación',
       '¿Estás seguro de que quieres eliminar este producto? Esta acción no se puede deshacer.',
@@ -246,15 +252,26 @@ const Productos = ({ navigation }) => {
         cancelText: 'Cancelar',
         onConfirm: async () => {
           try {
+            console.log('Intentando eliminar producto con ID:', productId);
+            console.log('URL de eliminación:', `${API_URL}/${productId}`);
+            
             const response = await fetch(`${API_URL}/${productId}`, {
               method: 'DELETE',
             });
             
+            console.log('Respuesta del servidor:', response.status, response.statusText);
+            
             if (!response.ok) {
+              const errorData = await response.json().catch(() => null);
+              console.log('Error data:', errorData);
               throw new Error(`HTTP ${response.status} ${response.statusText}`);
             }
             
-            obtenerProductos(); // Recargar la lista
+            const result = await response.json();
+            console.log('Producto eliminado exitosamente:', result);
+            
+            // Recargar la lista usando el hook
+            refreshProducts();
             showCustomAlert('Éxito', 'Producto eliminado correctamente', 'success');
           } catch (error) {
             console.log('Error eliminando producto:', error);
@@ -298,7 +315,7 @@ const Productos = ({ navigation }) => {
       
       setModalEditarVisible(false);
       setProductoSeleccionado(null);
-      obtenerProductos();
+      refreshProducts();
     } catch (error) {
       console.log('Error editando producto:', error);
       const errorMessage = error.message || 'No se pudo editar el producto';
@@ -499,92 +516,95 @@ const Productos = ({ navigation }) => {
   );
 
   const renderProducto = ({ item }) => (
-    <View style={styles.card}>
+    <View style={ProductosStyles.card}>
       <Image 
         source={{ uri: item.imagen || 'https://via.placeholder.com/150' }} 
-        style={styles.cardImage} 
+        style={ProductosStyles.cardImage} 
       />
-      <Text style={styles.cardTitle}>{item.nombre}</Text>
-      <Text style={styles.cardText}>Precio: ${item.precio}</Text>
-      <Text style={[styles.cardText, item.stock <= 5 && styles.lowStockText]}>
+      <Text style={ProductosStyles.cardTitle}>{item.nombre}</Text>
+      <Text style={ProductosStyles.cardText}>Precio: ${item.precio}</Text>
+      <Text style={[ProductosStyles.cardText, item.stock <= 5 && ProductosStyles.lowStockText]}>
         Disponibles: {item.disponibles || item.stock || 0}
         {(item.stock <= 5 || item.disponibles <= 5) && ' ⚠️'}
       </Text>
       
-      <View style={styles.cardActions}>
+      <View style={ProductosStyles.cardActions}>
         <TouchableOpacity 
-          style={styles.editButton}
+          style={ProductosStyles.editButton}
           onPress={() => abrirModalEditar(item)}
         >
-          <Text style={styles.editButtonText}>✎</Text>
+          <Text style={ProductosStyles.editButtonText}>✎</Text>
         </TouchableOpacity>
         
         <TouchableOpacity 
-          style={styles.deleteButton}
-          onPress={() => eliminarProducto(item._id)}
+          style={ProductosStyles.deleteButton}
+          onPress={() => {
+            console.log('TouchableOpacity delete presionado');
+            eliminarProducto(item._id);
+          }}
         >
-          <Text style={styles.deleteButtonText}>✕</Text>
+          <Text style={ProductosStyles.deleteButtonText}>✕</Text>
         </TouchableOpacity>
       </View>
     </View>
   );
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
+    <SafeAreaView style={ProductosStyles.container}>
+      <View style={ProductosStyles.header}>
         <TouchableOpacity
           onPress={() => navigation.goBack()}
-          style={styles.backButton}
+          style={ProductosStyles.backButton}
         >
-          <Text style={styles.backButtonText}>←</Text>
+          <Text style={ProductosStyles.backButtonText}>←</Text>
         </TouchableOpacity>
-        <View style={styles.headerTitleContainer}>
-          <Text style={styles.headerTitle}>Tus productos</Text>
+        <View style={ProductosStyles.headerTitleContainer}>
+          <Text style={ProductosStyles.headerTitle}>Tus productos</Text>
           {lastStockUpdate && (
-            <Text style={styles.stockUpdateIndicator}>
+            <Text style={ProductosStyles.stockUpdateIndicator}>
               📦 {new Date(lastStockUpdate).toLocaleTimeString()}
             </Text>
           )}
         </View>
-        <View style={styles.placeholder} />
+        <View style={ProductosStyles.placeholder} />
       </View>
 
-      <View style={styles.searchContainer}>
+      <View style={ProductosStyles.searchContainer}>
         <TextInput
-          style={styles.searchInput}
+          style={ProductosStyles.searchInput}
           placeholder="Buscar producto"
           value={busqueda}
           onChangeText={setBusqueda}
         />
       </View>
 
-      <View style={styles.buttonsContainer}>
+      <View style={ProductosStyles.buttonsContainer}>
         <TouchableOpacity
-          style={styles.nuevoBtn}
+          style={ProductosStyles.nuevoBtn}
           onPress={() => setModalVisible(true)}
         >
-          <Text style={styles.nuevoBtnText}>+ Nuevo producto</Text>
+          <Text style={ProductosStyles.nuevoBtnText}>+ Nuevo producto</Text>
         </TouchableOpacity>
         
         <TouchableOpacity
-          style={styles.categoriaBtn}
+          style={ProductosStyles.categoriaBtn}
           onPress={() => setModalCategoriaVisible(true)}
         >
-          <Text style={styles.categoriaBtnText}>+ Nueva categoría</Text>
+          <Text style={ProductosStyles.categoriaBtnText}>+ Nueva categoría</Text>
         </TouchableOpacity>
       </View>
       
-      <View style={styles.managementButtonsContainer}>
+      <View style={ProductosStyles.managementButtonsContainer}>
         <TouchableOpacity
-          style={styles.managementBtn}
+          style={ProductosStyles.managementBtn}
           onPress={() => setModalGestionarCategoriasVisible(true)}
         >
-          <Text style={styles.managementBtnText}>⚙ Gestionar Categorías</Text>
+          <Text style={ProductosStyles.managementBtnText}>⚙ Gestionar Categorías</Text>
         </TouchableOpacity>
       </View>
 
       {cargando && (
-        <View style={styles.cargandoContainer}>
+        <View style={ProductosStyles.cargandoContainer}>
           <ActivityIndicator size="large" color="#8B5CF6" />
         </View>
       )}
@@ -594,7 +614,7 @@ const Productos = ({ navigation }) => {
         keyExtractor={item => item._id}
         renderItem={renderProducto}
         numColumns={2}
-        contentContainerStyle={styles.listContainer}
+        contentContainerStyle={ProductosStyles.listContainer}
       />
 
       {/* Modal para agregar producto */}
@@ -604,40 +624,40 @@ const Productos = ({ navigation }) => {
         transparent
         onRequestClose={() => !cargando && setModalVisible(false)}
       >
-        <View style={[styles.modalOverlay, { zIndex: 200 }]}>
-          <View style={[styles.modalBox, { zIndex: 201 }]}>
+        <View style={[ProductosStyles.modalOverlay, { zIndex: 200 }]}>
+          <View style={[ProductosStyles.modalBox, { zIndex: 201 }]}>
             <TouchableOpacity
-              style={styles.modalBack}
+              style={ProductosStyles.modalBack}
               onPress={() => !cargando && setModalVisible(false)}
               disabled={cargando}
             >
-              <Text style={styles.backButtonText}>←</Text>
+              <Text style={ProductosStyles.backButtonText}>←</Text>
             </TouchableOpacity>
-            <ScrollView contentContainerStyle={styles.modalContent}>
+            <ScrollView contentContainerStyle={ProductosStyles.modalContent}>
               <TouchableOpacity
-                style={styles.imagePicker}
+                style={ProductosStyles.imagePicker}
                 onPress={seleccionarImagen}
                 disabled={cargando}
               >
                 {nuevoProducto.imagen ? (
                   <Image
                     source={{ uri: nuevoProducto.imagen }}
-                    style={styles.previewImage}
+                    style={ProductosStyles.previewImage}
                   />
                 ) : (
-                  <Text style={styles.imagePickerText}>Subir imagen</Text>
+                  <Text style={ProductosStyles.imagePickerText}>Subir imagen</Text>
                 )}
               </TouchableOpacity>
               <TextInput
-                style={styles.input}
+                style={ProductosStyles.input}
                 placeholder="Nombre"
                 value={nuevoProducto.nombre}
                 onChangeText={text => setNuevoProducto({ ...nuevoProducto, nombre: text })}
                 editable={!cargando}
               />
-              <View style={styles.descripcionContainer}>
+              <View style={ProductosStyles.descripcionContainer}>
                 <TextInput
-                  style={styles.descripcionInput}
+                  style={ProductosStyles.descripcionInput}
                   placeholder="Descripción"
                   value={nuevoProducto.descripcion}
                   onChangeText={text => setNuevoProducto({ ...nuevoProducto, descripcion: text })}
@@ -647,12 +667,12 @@ const Productos = ({ navigation }) => {
                   editable={!cargando}
                 />
               </View>
-              <View style={styles.row}>
+              <View style={ProductosStyles.row}>
                 <View style={{ flex: 1, marginRight: 8 }}>
-                  <View style={styles.inputContainer}>
-                    <Text style={styles.precioSimbolo}>$</Text>
+                  <View style={ProductosStyles.inputContainer}>
+                    <Text style={ProductosStyles.precioSimbolo}>$</Text>
                     <TextInput
-                      style={styles.inputPrecio}
+                      style={ProductosStyles.inputPrecio}
                       placeholder="Precio"
                       keyboardType="numeric"
                       value={nuevoProducto.precio}
@@ -662,12 +682,12 @@ const Productos = ({ navigation }) => {
                     />
                   </View>
                   {precioError ? (
-                    <Text style={styles.errorText}>{precioError}</Text>
+                    <Text style={ProductosStyles.errorText}>{precioError}</Text>
                   ) : null}
                 </View>
                 <View style={{ flex: 1, marginLeft: 8 }}>
                   <TextInput
-                    style={styles.input}
+                    style={ProductosStyles.input}
                     placeholder="Disponibles"
                     keyboardType="numeric"
                     value={nuevoProducto.disponibles}
@@ -676,16 +696,16 @@ const Productos = ({ navigation }) => {
                     editable={!cargando}
                   />
                   {disponiblesError ? (
-                    <Text style={styles.errorText}>{disponiblesError}</Text>
+                    <Text style={ProductosStyles.errorText}>{disponiblesError}</Text>
                   ) : null}
                 </View>
               </View>
-              <View style={styles.row}>
-                <Text style={styles.categoriaLabel}>Categoría:</Text>
-                <View style={styles.pickerContainer}>
+              <View style={ProductosStyles.row}>
+                <Text style={ProductosStyles.categoriaLabel}>Categoría:</Text>
+                <View style={ProductosStyles.pickerContainer}>
                   <Picker
                     selectedValue={nuevoProducto.categoria}
-                    style={styles.picker}
+                    style={ProductosStyles.picker}
                     onValueChange={itemValue =>
                       setNuevoProducto({ ...nuevoProducto, categoria: itemValue })
                     }
@@ -700,14 +720,14 @@ const Productos = ({ navigation }) => {
                 </View>
               </View>
               <TouchableOpacity 
-                style={[styles.agregarBtn, cargando && styles.btnDeshabilitado]} 
+                style={[ProductosStyles.agregarBtn, cargando && ProductosStyles.btnDeshabilitado]} 
                 onPress={agregarProducto}
                 disabled={cargando}
               >
                 {cargando ? (
                   <ActivityIndicator color="#fff" />
                 ) : (
-                  <Text style={styles.agregarBtnText}>Agregar</Text>
+                  <Text style={ProductosStyles.agregarBtnText}>Agregar</Text>
                 )}
               </TouchableOpacity>
             </ScrollView>
@@ -722,41 +742,41 @@ const Productos = ({ navigation }) => {
         transparent
         onRequestClose={() => setModalEditarVisible(false)}
       >
-        <View style={[styles.modalOverlay, { zIndex: 200 }]}>
-          <View style={[styles.modalBox, { zIndex: 201 }]}>
+        <View style={[ProductosStyles.modalOverlay, { zIndex: 200 }]}>
+          <View style={[ProductosStyles.modalBox, { zIndex: 201 }]}>
             <TouchableOpacity
-              style={styles.modalBack}
+              style={ProductosStyles.modalBack}
               onPress={() => setModalEditarVisible(false)}
             >
-              <Text style={styles.backButtonText}>←</Text>
+              <Text style={ProductosStyles.backButtonText}>←</Text>
             </TouchableOpacity>
-            <ScrollView contentContainerStyle={styles.modalContent}>
-              <Text style={styles.modalTitle}>Editar Producto</Text>
+            <ScrollView contentContainerStyle={ProductosStyles.modalContent}>
+              <Text style={ProductosStyles.modalTitle}>Editar Producto</Text>
               
               <TouchableOpacity
-                style={styles.imagePicker}
+                style={ProductosStyles.imagePicker}
                 onPress={seleccionarImagenEditar}
               >
                 {productoSeleccionado?.imagen ? (
                   <Image
                     source={{ uri: productoSeleccionado.imagen }}
-                    style={styles.previewImage}
+                    style={ProductosStyles.previewImage}
                   />
                 ) : (
-                  <Text style={styles.imagePickerText}>Cambiar imagen</Text>
+                  <Text style={ProductosStyles.imagePickerText}>Cambiar imagen</Text>
                 )}
               </TouchableOpacity>
               
               <TextInput
-                style={styles.input}
+                style={ProductosStyles.input}
                 placeholder="Nombre"
                 value={productoSeleccionado?.nombre || ''}
                 onChangeText={text => setProductoSeleccionado({ ...productoSeleccionado, nombre: text })}
               />
               
-              <View style={styles.descripcionContainer}>
+              <View style={ProductosStyles.descripcionContainer}>
                 <TextInput
-                  style={styles.descripcionInput}
+                  style={ProductosStyles.descripcionInput}
                   placeholder="Descripción"
                   value={productoSeleccionado?.descripcion || ''}
                   onChangeText={text => setProductoSeleccionado({ ...productoSeleccionado, descripcion: text })}
@@ -766,12 +786,12 @@ const Productos = ({ navigation }) => {
                 />
               </View>
               
-              <View style={styles.row}>
+              <View style={ProductosStyles.row}>
                 <View style={{ flex: 1, marginRight: 8 }}>
-                  <View style={styles.inputContainer}>
-                    <Text style={styles.precioSimbolo}>$</Text>
+                  <View style={ProductosStyles.inputContainer}>
+                    <Text style={ProductosStyles.precioSimbolo}>$</Text>
                     <TextInput
-                      style={styles.inputPrecio}
+                      style={ProductosStyles.inputPrecio}
                       placeholder="Precio"
                       keyboardType="numeric"
                       value={productoSeleccionado?.precio || ''}
@@ -780,12 +800,12 @@ const Productos = ({ navigation }) => {
                     />
                   </View>
                   {precioError ? (
-                    <Text style={styles.errorText}>{precioError}</Text>
+                    <Text style={ProductosStyles.errorText}>{precioError}</Text>
                   ) : null}
                 </View>
                 <View style={{ flex: 1, marginLeft: 8 }}>
                   <TextInput
-                    style={styles.input}
+                    style={ProductosStyles.input}
                     placeholder="Disponibles"
                     keyboardType="numeric"
                     value={productoSeleccionado?.disponibles || ''}
@@ -793,17 +813,17 @@ const Productos = ({ navigation }) => {
                     maxLength={5}
                   />
                   {disponiblesError ? (
-                    <Text style={styles.errorText}>{disponiblesError}</Text>
+                    <Text style={ProductosStyles.errorText}>{disponiblesError}</Text>
                   ) : null}
                 </View>
               </View>
               
-              <View style={styles.row}>
-                <Text style={styles.categoriaLabel}>Categoría:</Text>
-                <View style={styles.pickerContainer}>
+              <View style={ProductosStyles.row}>
+                <Text style={ProductosStyles.categoriaLabel}>Categoría:</Text>
+                <View style={ProductosStyles.pickerContainer}>
                   <Picker
                     selectedValue={productoSeleccionado?.categoria || 'Llavero'}
-                    style={styles.picker}
+                    style={ProductosStyles.picker}
                     onValueChange={itemValue =>
                       setProductoSeleccionado({ ...productoSeleccionado, categoria: itemValue })
                     }
@@ -817,8 +837,8 @@ const Productos = ({ navigation }) => {
                 </View>
               </View>
               
-              <TouchableOpacity style={styles.agregarBtn} onPress={editarProducto}>
-                <Text style={styles.agregarBtnText}>Guardar Cambios</Text>
+              <TouchableOpacity style={ProductosStyles.agregarBtn} onPress={editarProducto}>
+                <Text style={ProductosStyles.agregarBtnText}>Guardar Cambios</Text>
               </TouchableOpacity>
             </ScrollView>
           </View>
@@ -832,20 +852,20 @@ const Productos = ({ navigation }) => {
         transparent
         onRequestClose={() => !cargando && setModalCategoriaVisible(false)}
       >
-        <View style={[styles.modalOverlay, { zIndex: 200 }]}>
-          <View style={[styles.modalBox, { zIndex: 201 }]}>
+        <View style={[ProductosStyles.modalOverlay, { zIndex: 200 }]}>
+          <View style={[ProductosStyles.modalBox, { zIndex: 201 }]}>
             <TouchableOpacity
-              style={styles.modalBack}
+              style={ProductosStyles.modalBack}
               onPress={() => !cargando && setModalCategoriaVisible(false)}
               disabled={cargando}
             >
-              <Text style={styles.backButtonText}>←</Text>
+              <Text style={ProductosStyles.backButtonText}>←</Text>
             </TouchableOpacity>
-            <View style={styles.modalContent}>
-              <Text style={styles.modalTitle}>Nueva Categoría</Text>
+            <View style={ProductosStyles.modalContent}>
+              <Text style={ProductosStyles.modalTitle}>Nueva Categoría</Text>
               
               <TextInput
-                style={styles.input}
+                style={ProductosStyles.input}
                 placeholder="Nombre de la categoría"
                 value={nuevaCategoria}
                 onChangeText={setNuevaCategoria}
@@ -854,14 +874,14 @@ const Productos = ({ navigation }) => {
               />
               
               <TouchableOpacity 
-                style={[styles.agregarBtn, cargando && styles.btnDeshabilitado]} 
+                style={[ProductosStyles.agregarBtn, cargando && ProductosStyles.btnDeshabilitado]} 
                 onPress={crearCategoria}
                 disabled={cargando}
               >
                 {cargando ? (
                   <ActivityIndicator color="#fff" />
                 ) : (
-                  <Text style={styles.agregarBtnText}>Crear Categoría</Text>
+                  <Text style={ProductosStyles.agregarBtnText}>Crear Categoría</Text>
                 )}
               </TouchableOpacity>
             </View>
@@ -876,46 +896,46 @@ const Productos = ({ navigation }) => {
         transparent
         onRequestClose={() => !cargando && setModalGestionarCategoriasVisible(false)}
       >
-        <View style={[styles.modalOverlay, { zIndex: 50 }]}>
-          <View style={[styles.categoriasModalBox, { zIndex: 51 }]}>
-            <View style={styles.categoriasModalHeader}>
+        <View style={[ProductosStyles.modalOverlay, { zIndex: 50 }]}>
+          <View style={[ProductosStyles.categoriasModalBox, { zIndex: 51 }]}>
+            <View style={ProductosStyles.categoriasModalHeader}>
               <TouchableOpacity
-                style={styles.categoriasModalBack}
+                style={ProductosStyles.categoriasModalBack}
                 onPress={() => !cargando && setModalGestionarCategoriasVisible(false)}
                 disabled={cargando}
               >
-                <Text style={styles.categoriasModalBackText}>←</Text>
+                <Text style={ProductosStyles.categoriasModalBackText}>←</Text>
               </TouchableOpacity>
-              <Text style={styles.categoriasModalTitle}>Gestionar Categorías</Text>
-              <View style={styles.categoriasModalPlaceholder} />
+              <Text style={ProductosStyles.categoriasModalTitle}>Gestionar Categorías</Text>
+              <View style={ProductosStyles.categoriasModalPlaceholder} />
             </View>
 
-            <View style={styles.categoriasModalContent}>
-              <Text style={styles.categoriasModalSubtitle}>Administra las categorías de productos</Text>
+            <View style={ProductosStyles.categoriasModalContent}>
+              <Text style={ProductosStyles.categoriasModalSubtitle}>Administra las categorías de productos</Text>
 
-              <ScrollView style={styles.categoriasList} showsVerticalScrollIndicator={false}>
+              <ScrollView style={ProductosStyles.categoriasList} showsVerticalScrollIndicator={false}>
                 {categorias.map((categoria, index) => (
-                  <View key={index} style={styles.categoriaItem}>
-                    <View style={styles.categoriaInfo}>
-                      <Text style={styles.categoriaItemText}>{categoria.name || categoria}</Text>
-                      <Text style={styles.categoriaStatus}>
+                  <View key={index} style={ProductosStyles.categoriaItem}>
+                    <View style={ProductosStyles.categoriaInfo}>
+                      <Text style={ProductosStyles.categoriaItemText}>{categoria.name || categoria}</Text>
+                      <Text style={ProductosStyles.categoriaStatus}>
                         {categoria._id ? 'Creada' : 'Por defecto'}
                       </Text>
                     </View>
-                    <View style={styles.categoriaActions}>
+                    <View style={ProductosStyles.categoriaActions}>
                       <TouchableOpacity
-                        style={styles.editarCategoriaBtn}
+                        style={ProductosStyles.editarCategoriaBtn}
                         onPress={() => editarCategoria(categoria)}
                         disabled={cargando}
                       >
-                        <Text style={styles.editarCategoriaBtnText}>✏</Text>
+                        <Text style={ProductosStyles.editarCategoriaBtnText}>✏</Text>
                       </TouchableOpacity>
                       <TouchableOpacity
-                        style={styles.eliminarCategoriaBtn}
+                        style={ProductosStyles.eliminarCategoriaBtn}
                         onPress={() => eliminarCategoria(categoria._id, categoria.name || categoria)}
                         disabled={cargando}
                       >
-                        <Text style={styles.eliminarCategoriaBtnText}>✖</Text>
+                        <Text style={ProductosStyles.eliminarCategoriaBtnText}>✖</Text>
                       </TouchableOpacity>
                     </View>
                   </View>
@@ -924,43 +944,6 @@ const Productos = ({ navigation }) => {
             </View>
           </View>
 
-          {/* Alerta integrada en el modal */}
-          {customAlert.visible && (
-            <View style={[styles.alertOverlay, { zIndex: 1000 }]}>
-              <View style={[styles.alertContainer, { zIndex: 1001 }]}>
-                <View style={[styles.alertIcon, styles[`alertIcon${customAlert.type.charAt(0).toUpperCase() + customAlert.type.slice(1)}`]]}>
-                  <Text style={[styles.alertIconText, styles[`alertIconText${customAlert.type.charAt(0).toUpperCase() + customAlert.type.slice(1)}`]]}>
-                    {customAlert.type === 'success' ? '✓' :
-                     customAlert.type === 'error' ? '✕' :
-                     customAlert.type === 'warning' ? '⚠' : 'ℹ'}
-                  </Text>
-                </View>
-
-                <Text style={styles.alertTitle}>{customAlert.title}</Text>
-                <Text style={styles.alertMessage}>{customAlert.message}</Text>
-
-                <View style={styles.alertButtons}>
-                  {customAlert.showCancel && (
-                    <TouchableOpacity
-                      style={[styles.alertButton, styles.alertButtonCancel]}
-                      onPress={customAlert.onCancel || hideCustomAlert}
-                    >
-                      <Text style={styles.alertButtonCancelText}>{customAlert.cancelText}</Text>
-                    </TouchableOpacity>
-                  )}
-
-                  <TouchableOpacity
-                    style={[styles.alertButton, styles[`alertButton${customAlert.type.charAt(0).toUpperCase() + customAlert.type.slice(1)}`]]}
-                    onPress={customAlert.onConfirm || hideCustomAlert}
-                  >
-                    <Text style={styles[`alertButton${customAlert.type.charAt(0).toUpperCase() + customAlert.type.slice(1)}Text`]}>
-                      {customAlert.confirmText}
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-            </View>
-          )}
         </View>
       </Modal>
 
@@ -971,20 +954,20 @@ const Productos = ({ navigation }) => {
         transparent
         onRequestClose={() => !cargando && setModalEditarCategoriaVisible(false)}
       >
-        <View style={[styles.modalOverlay, { zIndex: 200 }]}>
-          <View style={[styles.modalBox, { zIndex: 201 }]}>
+        <View style={[ProductosStyles.modalOverlay, { zIndex: 200 }]}>
+          <View style={[ProductosStyles.modalBox, { zIndex: 201 }]}>
             <TouchableOpacity
-              style={styles.modalBack}
+              style={ProductosStyles.modalBack}
               onPress={() => !cargando && setModalEditarCategoriaVisible(false)}
               disabled={cargando}
             >
-              <Text style={styles.backButtonText}>←</Text>
+              <Text style={ProductosStyles.backButtonText}>←</Text>
             </TouchableOpacity>
-            <View style={styles.modalContent}>
-              <Text style={styles.modalTitle}>Editar Categoría</Text>
+            <View style={ProductosStyles.modalContent}>
+              <Text style={ProductosStyles.modalTitle}>Editar Categoría</Text>
 
               <TextInput
-                style={styles.input}
+                style={ProductosStyles.input}
                 placeholder="Nombre de la categoría"
                 value={nuevoNombreCategoria}
                 onChangeText={setNuevoNombreCategoria}
@@ -993,14 +976,14 @@ const Productos = ({ navigation }) => {
               />
 
               <TouchableOpacity
-                style={[styles.agregarBtn, cargando && styles.btnDeshabilitado]}
+                style={[ProductosStyles.agregarBtn, cargando && ProductosStyles.btnDeshabilitado]}
                 onPress={actualizarCategoria}
                 disabled={cargando}
               >
                 {cargando ? (
                   <ActivityIndicator color="#fff" />
                 ) : (
-                  <Text style={styles.agregarBtnText}>Actualizar Categoría</Text>
+                  <Text style={ProductosStyles.agregarBtnText}>Actualizar Categoría</Text>
                 )}
               </TouchableOpacity>
             </View>
@@ -1008,677 +991,47 @@ const Productos = ({ navigation }) => {
         </View>
       </Modal>
 
+      {/* Alerta personalizada - fuera de todos los modales */}
+      {customAlert.visible && (
+        <View style={[ProductosStyles.alertOverlay, { zIndex: 10000 }]}>
+          <View style={[ProductosStyles.alertContainer, { zIndex: 10001 }]}>
+            <View style={[ProductosStyles.alertIcon, ProductosStyles[`alertIcon${customAlert.type.charAt(0).toUpperCase() + customAlert.type.slice(1)}`]]}>
+              <Text style={[ProductosStyles.alertIconText, ProductosStyles[`alertIconText${customAlert.type.charAt(0).toUpperCase() + customAlert.type.slice(1)}`]]}>
+                {customAlert.type === 'success' ? '✓' :
+                 customAlert.type === 'error' ? '✕' :
+                 customAlert.type === 'warning' ? '⚠' : 'ℹ'}
+              </Text>
+            </View>
+
+            <Text style={ProductosStyles.alertTitle}>{customAlert.title}</Text>
+            <Text style={ProductosStyles.alertMessage}>{customAlert.message}</Text>
+
+            <View style={ProductosStyles.alertButtons}>
+              {customAlert.showCancel && (
+                <TouchableOpacity
+                  style={[ProductosStyles.alertButton, ProductosStyles.alertButtonCancel]}
+                  onPress={customAlert.onCancel || hideCustomAlert}
+                >
+                  <Text style={ProductosStyles.alertButtonCancelText}>{customAlert.cancelText}</Text>
+                </TouchableOpacity>
+              )}
+
+              <TouchableOpacity
+                style={[ProductosStyles.alertButton, ProductosStyles[`alertButton${customAlert.type.charAt(0).toUpperCase() + customAlert.type.slice(1)}`]]}
+                onPress={customAlert.onConfirm || hideCustomAlert}
+              >
+                <Text style={ProductosStyles.alertButtonText}>
+                  {customAlert.confirmText}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      )}
+
     </SafeAreaView>
   );
 };
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F8FAFC' },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: width * 0.05,
-    paddingTop: height * 0.02,
-    paddingBottom: height * 0.025,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
-    backgroundColor: 'white',
-  },
-  backButton: { padding: 8 },
-  backButtonText: {
-    fontSize: Math.max(20, width * 0.06),
-    color: '#8B5CF6',
-    fontWeight: 'bold',
-  },
-  headerTitleContainer: {
-    flex: 1,
-    alignItems: 'center',
-  },
-  headerTitle: {
-    fontSize: Math.max(22, width * 0.055),
-    fontWeight: 'bold',
-    color: '#1F2937',
-  },
-  stockUpdateIndicator: {
-    fontSize: 10,
-    color: '#8B5CF6',
-    marginTop: 2,
-    fontWeight: '500',
-  },
-  placeholder: { width: 40 },
-  searchContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    margin: width * 0.05,
-    backgroundColor: '#EDE9FE',
-    borderRadius: 20,
-    paddingHorizontal: 12,
-  },
-  searchInput: {
-    flex: 1,
-    height: 40,
-    fontSize: 16,
-    color: '#1F2937',
-  },
-  buttonsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginHorizontal: width * 0.05,
-    marginBottom: 15,
-    gap: 12,
-  },
-  managementButtonsContainer: {
-    marginHorizontal: width * 0.05,
-    marginBottom: 15,
-  },
-  nuevoBtn: {
-    backgroundColor: '#8B5CF6',
-    flex: 1,
-    borderRadius: 25,
-    paddingVertical: 15,
-    paddingHorizontal: 20,
-    alignItems: 'center',
-    shadowColor: '#8B5CF6',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.4,
-    shadowRadius: 8,
-    elevation: 6,
-    borderWidth: 2,
-    borderColor: '#7C3AED',
-  },
-  nuevoBtnText: {
-    color: '#fff',
-    fontWeight: '800',
-    fontSize: 16,
-    letterSpacing: 0.5,
-    textShadowColor: 'rgba(0,0,0,0.3)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 2,
-  },
-  categoriaBtn: {
-    backgroundColor: '#10B981',
-    flex: 1,
-    borderRadius: 25,
-    paddingVertical: 15,
-    paddingHorizontal: 20,
-    alignItems: 'center',
-    shadowColor: '#10B981',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.4,
-    shadowRadius: 8,
-    elevation: 6,
-    borderWidth: 2,
-    borderColor: '#059669',
-  },
-  categoriaBtnText: {
-    color: '#fff',
-    fontWeight: '800',
-    fontSize: 16,
-    letterSpacing: 0.5,
-    textShadowColor: 'rgba(0,0,0,0.3)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 2,
-  },
-  managementBtn: {
-    backgroundColor: '#6366F1',
-    borderRadius: 25,
-    paddingVertical: 15,
-    paddingHorizontal: 25,
-    alignItems: 'center',
-    shadowColor: '#6366F1',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.4,
-    shadowRadius: 8,
-    elevation: 6,
-    borderWidth: 2,
-    borderColor: '#4F46E5',
-    width: '100%',
-  },
-  managementBtnText: {
-    color: '#fff',
-    fontWeight: '800',
-    fontSize: 16,
-    letterSpacing: 0.5,
-    textShadowColor: 'rgba(0,0,0,0.3)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 2,
-  },
-  listContainer: {
-    paddingHorizontal: width * 0.05,
-    paddingBottom: 20,
-  },
-  card: {
-    backgroundColor: '#fff',
-    borderRadius: 16,
-    margin: 8,
-    flex: 1,
-    alignItems: 'center',
-    padding: 12,
-    elevation: 2,
-    maxWidth: (width - width * 0.15) / 2,
-  },
-  cardImage: {
-    width: 90,
-    height: 90,
-    borderRadius: 12,
-    marginBottom: 8,
-    backgroundColor: '#F3F4F6',
-  },
-  cardTitle: {
-    fontWeight: 'bold',
-    fontSize: 16,
-    color: '#1F2937',
-    marginBottom: 4,
-    textAlign: 'center',
-  },
-  cardText: {
-    fontSize: 14,
-    color: '#6B7280',
-    marginBottom: 2,
-    textAlign: 'center',
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(60, 40, 120, 0.15)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  modalBox: {
-    width: width * 0.85,
-    borderRadius: 30,
-    backgroundColor: '#fff',
-    padding: 24,
-    shadowColor: '#8B5CF6',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.2,
-    shadowRadius: 16,
-    elevation: 8,
-    alignItems: 'center',
-    position: 'relative',
-  },
-  modalBack: {
-    position: 'absolute',
-    left: 16,
-    top: 16,
-    zIndex: 2,
-  },
-  modalContent: {
-    alignItems: 'center',
-    paddingTop: 32,
-    paddingBottom: 12,
-  },
-  imagePicker: {
-    width: 110,
-    height: 110,
-    borderRadius: 16,
-    backgroundColor: '#EDE9FE',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 18,
-    overflow: 'hidden',
-    borderWidth: 2,
-    borderColor: '#C4B5FD',
-  },
-  imagePickerText: {
-    color: '#8B5CF6',
-    fontWeight: 'bold',
-    fontSize: 16,
-  },
-  previewImage: {
-    width: '100%',
-    height: '100%',
-    resizeMode: 'cover',
-  },
-  input: {
-    backgroundColor: '#EDE9FE',
-    borderRadius: 12,
-    padding: 10,
-    marginBottom: 12,
-    width: '100%',
-    fontSize: 16,
-    minHeight: 40,
-    maxHeight: 60,
-  },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    width: width * 0.7,
-    marginBottom: 12,
-  },
-  categoriaLabel: {
-    fontSize: 16,
-    color: '#8B5CF6',
-    fontWeight: 'bold',
-    marginRight: 8,
-  },
-  descripcionContainer: {
-    width: width * 0.7,
-    marginBottom: 12,
-  },
-  descripcionInput: {
-    backgroundColor: '#EDE9FE',
-    borderRadius: 12,
-    padding: 10,
-    fontSize: 16,
-    minHeight: 70,
-    maxHeight: 120,
-  },
-  inputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#EDE9FE',
-    borderRadius: 12,
-    paddingHorizontal: 10,
-    height: 40,
-    width: '100%',
-  },
-  precioSimbolo: {
-    fontSize: 18,
-    color: '#8B5CF6',
-    marginRight: 4,
-    fontWeight: 'bold',
-  },
-  inputPrecio: {
-    flex: 1,
-    fontSize: 16,
-    color: '#1F2937',
-    backgroundColor: 'transparent',
-    padding: 0,
-    height: 40,
-  },
-  pickerContainer: {
-    flex: 1,
-    backgroundColor: '#EDE9FE',
-    borderRadius: 12,
-    overflow: 'hidden',
-    marginLeft: 8,
-    justifyContent: 'center',
-    height: 50,
-  },
-  picker: {
-    height: 50,
-    color: '#1F2937',
-    fontSize: 18,
-    width: '100%',
-  },
-  agregarBtn: {
-    backgroundColor: '#8B5CF6',
-    borderRadius: 20,
-    paddingVertical: 12,
-    alignItems: 'center',
-    marginBottom: 10,
-    width: width * 0.7,
-    shadowColor: '#8B5CF6',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 4,
-  },
-  agregarBtnText: {
-    color: '#fff',
-    fontWeight: 'bold',
-    fontSize: 18,
-    letterSpacing: 1,
-  },
-  errorText: {
-    color: '#D97706',
-    fontSize: 13,
-    marginTop: 2,
-    marginLeft: 4,
-    fontWeight: 'bold',
-  },
-  cargandoContainer: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.7)',
-    zIndex: 1000,
-  },
-  btnDeshabilitado: {
-    opacity: 0.6,
-  },
-  cardActions: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    marginTop: 8,
-    width: '100%',
-  },
-  editButton: {
-    backgroundColor: '#3B82F6',
-    borderRadius: 8,
-    paddingHorizontal: 8,
-    paddingVertical: 8,
-    flex: 1,
-    marginHorizontal: 4,
-    alignItems: 'center',
-    shadowColor: '#3B82F6',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 3,
-    elevation: 3,
-  },
-  editButtonText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-  },
-  deleteButton: {
-    backgroundColor: '#EF4444',
-    borderRadius: 8,
-    paddingHorizontal: 8,
-    paddingVertical: 8,
-    flex: 1,
-    marginHorizontal: 4,
-    alignItems: 'center',
-    shadowColor: '#EF4444',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 3,
-    elevation: 3,
-  },
-  deleteButtonText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-  },
-  modalTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#1F2937',
-    marginBottom: 16,
-    textAlign: 'center',
-  },
-  // Estilos del Alert personalizado
-  alertOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.6)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 10000,
-  },
-  alertContainer: {
-    backgroundColor: '#fff',
-    borderRadius: 20,
-    padding: 24,
-    marginHorizontal: 20,
-    maxWidth: width * 0.85,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.3,
-    shadowRadius: 20,
-    elevation: 30,
-    zIndex: 10001,
-  },
-  alertIcon: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  alertIconSuccess: {
-    backgroundColor: '#D1FAE5',
-  },
-  alertIconError: {
-    backgroundColor: '#FEE2E2',
-  },
-  alertIconWarning: {
-    backgroundColor: '#EDE9FE',
-  },
-  alertIconInfo: {
-    backgroundColor: '#DBEAFE',
-  },
-  alertIconText: {
-    fontSize: 28,
-    fontWeight: 'bold',
-  },
-  alertIconTextSuccess: {
-    color: '#10B981',
-  },
-  alertIconTextError: {
-    color: '#EF4444',
-  },
-  alertIconTextWarning: {
-    color: '#8B5CF6',
-  },
-  alertIconTextInfo: {
-    color: '#3B82F6',
-  },
-  alertTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#1F2937',
-    marginBottom: 8,
-    textAlign: 'center',
-  },
-  alertMessage: {
-    fontSize: 16,
-    color: '#6B7280',
-    textAlign: 'center',
-    lineHeight: 22,
-    marginBottom: 24,
-  },
-  alertButtons: {
-    flexDirection: 'row',
-    gap: 12,
-    width: '100%',
-  },
-  alertButton: {
-    flex: 1,
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: 12,
-    alignItems: 'center',
-  },
-  alertButtonSuccess: {
-    backgroundColor: '#10B981',
-  },
-  alertButtonError: {
-    backgroundColor: '#EF4444',
-  },
-  alertButtonWarning: {
-    backgroundColor: '#8B5CF6',
-  },
-  alertButtonInfo: {
-    backgroundColor: '#3B82F6',
-  },
-  alertButtonCancel: {
-    backgroundColor: '#F3F4F6',
-    borderWidth: 1,
-    borderColor: '#D1D5DB',
-  },
-  alertButtonSuccessText: {
-    color: '#fff',
-    fontWeight: 'bold',
-    fontSize: 16,
-  },
-  alertButtonErrorText: {
-    color: '#fff',
-    fontWeight: 'bold',
-    fontSize: 16,
-  },
-  alertButtonWarningText: {
-    color: '#fff',
-    fontWeight: 'bold',
-    fontSize: 16,
-  },
-  alertButtonInfoText: {
-    color: '#fff',
-    fontWeight: 'bold',
-    fontSize: 16,
-  },
-  alertButtonCancelText: {
-    color: '#374151',
-    fontWeight: 'bold',
-    fontSize: 16,
-  },
-  // Estilos para gestión de categorías
-  categoriasModalBox: {
-    backgroundColor: '#FFFFFF',
-    marginHorizontal: 20,
-    marginVertical: 60,
-    borderRadius: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.25,
-    shadowRadius: 20,
-    elevation: 15,
-    flex: 1,
-    maxHeight: '80%',
-  },
-  categoriasModalHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingVertical: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
-  },
-  categoriasModalBack: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#F3F4F6',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  categoriasModalBackText: {
-    fontSize: 20,
-    color: '#374151',
-    fontWeight: 'bold',
-  },
-  categoriasModalTitle: {
-    fontSize: 22,
-    fontWeight: '800',
-    color: '#1F2937',
-    flex: 1,
-    textAlign: 'center',
-    marginHorizontal: 10,
-    fontFamily: 'System',
-    letterSpacing: 0.5,
-  },
-  categoriasModalPlaceholder: {
-    width: 40,
-  },
-  categoriasModalContent: {
-    flex: 1,
-    paddingHorizontal: 20,
-    paddingTop: 15,
-  },
-  categoriasModalSubtitle: {
-    fontSize: 15,
-    color: '#6B7280',
-    textAlign: 'center',
-    marginBottom: 20,
-    fontStyle: 'italic',
-    fontWeight: '500',
-    fontFamily: 'System',
-    letterSpacing: 0.2,
-  },
-  categoriasList: {
-    flex: 1,
-    width: '100%',
-  },
-  categoriaItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: '#F8FAFC',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 8,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 3,
-    elevation: 2,
-  },
-  categoriaInfo: {
-    flex: 1,
-    marginRight: 12,
-  },
-  categoriaItemText: {
-    fontSize: 17,
-    fontWeight: '700',
-    color: '#1E293B',
-    letterSpacing: 0.3,
-    marginBottom: 3,
-    fontFamily: 'System',
-  },
-  categoriaStatus: {
-    fontSize: 12,
-    color: '#64748B',
-    fontWeight: '600',
-    textTransform: 'uppercase',
-    letterSpacing: 0.8,
-    fontFamily: 'System',
-  },
-  categoriaActions: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  editarCategoriaBtn: {
-    backgroundColor: '#3B82F6',
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    shadowColor: '#3B82F6',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 3,
-    minWidth: 40,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  editarCategoriaBtnText: {
-    color: '#fff',
-    fontWeight: 'bold',
-    fontSize: 18,
-    textAlign: 'center',
-  },
-  eliminarCategoriaBtn: {
-    backgroundColor: '#EF4444',
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    shadowColor: '#EF4444',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 3,
-    minWidth: 40,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  eliminarCategoriaBtnText: {
-    color: '#fff',
-    fontWeight: 'bold',
-    fontSize: 18,
-    textAlign: 'center',
-  },
-  btnTextDeshabilitado: {
-    color: '#9CA3AF',
-  },
-  lowStockText: {
-    color: '#DC2626',
-    fontWeight: 'bold',
-  },
-});
 
 export default Productos;

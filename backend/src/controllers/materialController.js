@@ -1,17 +1,29 @@
-// import { v2 as cloudinary } from 'cloudinary';
+import { v2 as cloudinary } from 'cloudinary';
 import Material from '../models/Material.js';
 import { config } from '../../config.js';
 
 // Configuro cloudinary con mis credenciales
-// cloudinary.config({
-//   cloud_name: config.cloudinary.cloudinary_name,
-//   api_key: config.cloudinary.cloudinary_api_key,
-//   api_secret: config.cloudinary.cloudinary_api_secret,
-// });
+console.log('Cloudinary config:', {
+  cloud_name: config.cloudinary.cloudinary_name ? 'Set' : 'Missing',
+  api_key: config.cloudinary.cloudinary_api_key ? 'Set' : 'Missing',
+  api_secret: config.cloudinary.cloudinary_api_secret ? 'Set' : 'Missing'
+});
+
+cloudinary.config({
+  cloud_name: config.cloudinary.cloudinary_name,
+  api_key: config.cloudinary.cloudinary_api_key,
+  api_secret: config.cloudinary.cloudinary_api_secret,
+});
 
 // función para subir una imagen a cloudinary usando un buffer
 const uploadToCloudinary = (buffer) => {
   return new Promise((resolve, reject) => {
+    // Asegurar que cloudinary esté configurado
+    if (!cloudinary) {
+      reject(new Error('Cloudinary no está configurado correctamente'));
+      return;
+    }
+    
     const stream = cloudinary.uploader.upload_stream(
       { folder: 'material_images' },
       (error, result) => {
@@ -37,6 +49,15 @@ materialController.insertMaterial = async (req, res) => {
     const { name, type, quantity, dateOfEntry, investment } = req.body;
     const image = req.file; // multer
 
+    console.log('=== INTENTO DE CREAR MATERIAL ===');
+    console.log('Material data:', { name, type, quantity, dateOfEntry, investment });
+    console.log('Image file:', image ? 'Present' : 'Missing');
+    console.log('Cloudinary config status:', {
+      cloud_name: config.cloudinary.cloudinary_name ? 'Set' : 'Missing',
+      api_key: config.cloudinary.cloudinary_api_key ? 'Set' : 'Missing',
+      api_secret: config.cloudinary.cloudinary_api_secret ? 'Set' : 'Missing'
+    });
+
     if (!image || !image.buffer) {
       return res.status(400).json({ message: 'La imagen es obligatoria' });
     }
@@ -47,9 +68,12 @@ materialController.insertMaterial = async (req, res) => {
     }
 
     // subo la imagen a cloudinary
+    console.log('Subiendo imagen a Cloudinary...');
     const result = await uploadToCloudinary(image.buffer);
+    console.log('Imagen subida exitosamente:', result.secure_url);
 
     // creo el documento con la URL de la imagen de cloudinary
+    console.log('Creando documento en base de datos...');
     const newMaterial = new Material({
       name,
       type,
@@ -60,10 +84,11 @@ materialController.insertMaterial = async (req, res) => {
     });
 
     await newMaterial.save();
+    console.log('Material creado exitosamente con ID:', newMaterial._id);
     res.status(201).json(newMaterial);
   } catch (error) {
-    console.error('Error creando material:', error);
-    res.status(500).json({ message: 'Error al crear material', error });
+    console.log('Error creating material:', error.message);
+    res.status(500).json({ message: 'Error al crear material' });
   }
 };
 
@@ -92,8 +117,7 @@ materialController.insertMaterialWithoutImage = async (req, res) => {
     await newMaterial.save();
     res.status(201).json(newMaterial);
   } catch (error) {
-    console.error('Error creando material sin imagen:', error);
-    res.status(500).json({ message: 'Error al crear material', error });
+    res.status(500).json({ message: 'Error al crear material' });
   }
 };
 
@@ -103,8 +127,7 @@ materialController.getAllMaterials = async (req, res) => {
     const materials = await Material.find(); // traigo todo
     res.json(materials);
   } catch (error) {
-    console.error('Error obteniendo materiales:', error);
-    res.status(500).json({ message: 'Error al obtener materiales', error });
+    res.status(500).json({ message: 'Error al obtener materiales' });
   }
 };
 
@@ -120,8 +143,7 @@ materialController.getMaterialById = async (req, res) => {
 
     res.json(material);
   } catch (error) {
-    console.error('Error obteniendo material por ID:', error);
-    res.status(500).json({ message: 'Error al obtener material', error });
+    res.status(500).json({ message: 'Error al obtener material' });
   }
 };
 
@@ -162,8 +184,7 @@ materialController.updateMaterial = async (req, res) => {
 
     res.json(updatedMaterial);
   } catch (error) {
-    console.error('Error actualizando material:', error);
-    res.status(500).json({ message: 'Error al actualizar material', error });
+    res.status(500).json({ message: 'Error al actualizar material' });
   }
 };
 
@@ -185,8 +206,7 @@ materialController.deleteMaterial = async (req, res) => {
 
     res.json({ success: true, message: 'Material eliminado correctamente' });
   } catch (error) {
-    console.error('Error eliminando material:', error);
-    res.status(500).json({ message: 'Error al eliminar material', error });
+    res.status(500).json({ message: 'Error al eliminar material' });
   }
 };
 
@@ -204,8 +224,7 @@ materialController.searchMaterials = async (req, res) => {
 
     res.json(materials);
   } catch (error) {
-    console.error('Error buscando materiales:', error);
-    res.status(500).json({ message: 'Error al buscar materiales', error });
+    res.status(500).json({ message: 'Error al buscar materiales' });
   }
 };
 

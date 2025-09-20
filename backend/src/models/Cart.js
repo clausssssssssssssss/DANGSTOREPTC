@@ -37,7 +37,7 @@ const cartSchema = new Schema({
   /** Método de pago elegido */
  paymentMethod: {
     type:    String,
-    enum:    ['PayPal', 'Tarjeta', 'Efectivo'],  // ← aquí ahora sí 'PayPal'
+    enum:    ['PayPal', 'Tarjeta', 'Efectivo'], 
     default: 'PayPal'
   }
 }, {

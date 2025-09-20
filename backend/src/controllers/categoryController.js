@@ -90,7 +90,7 @@ categoryController.deleteCategory = async (req, res) => {
       return res.status(404).json({ message: "Categoría no encontrada" });
     }
 
-    console.log(`🗑️ Eliminando categoría: ${categoryToDelete.name}`);
+    console.log(` Eliminando categoría: ${categoryToDelete.name}`);
 
     // Importar Product model
     const Product = (await import("../models/Product.js")).default;
@@ -99,18 +99,18 @@ categoryController.deleteCategory = async (req, res) => {
     const productsWithCategory = await Product.find({ categoria: categoryToDelete.name });
     
     if (productsWithCategory.length > 0) {
-      console.log(`🗑️ Eliminando ${productsWithCategory.length} productos asociados a la categoría "${categoryToDelete.name}"`);
+      console.log(` Eliminando ${productsWithCategory.length} productos asociados a la categoría "${categoryToDelete.name}"`);
       
       // Eliminar todos los productos que usan esta categoría
       await Product.deleteMany({ categoria: categoryToDelete.name });
       
-      console.log(`✅ ${productsWithCategory.length} productos eliminados`);
+      console.log(` ${productsWithCategory.length} productos eliminados`);
     }
 
     // Eliminar la categoría
     const deletedCategory = await Category.findByIdAndDelete(categoryId);
 
-    console.log(`✅ Categoría "${categoryToDelete.name}" eliminada correctamente`);
+    console.log(` Categoría "${categoryToDelete.name}" eliminada correctamente`);
     
     res.json({ 
       message: "Categoría eliminada correctamente",

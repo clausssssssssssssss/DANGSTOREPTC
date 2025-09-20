@@ -236,7 +236,7 @@ export const quoteCustomOrder = async (req, res) => {
       });
     }
 
-    // 🔔 Crear notificación de cotización
+    //  Crear notificación de cotización
     try {
       await NotificationService.createQuoteNotification({
         orderId: order._id,
@@ -290,7 +290,7 @@ export const respondCustomOrder = async (req, res) => {
       });
     }
 
-    // 🔔 Crear notificación de respuesta del cliente
+    //  Crear notificación de respuesta del cliente
     try {
       await NotificationService.createResponseNotification({
         orderId: order._id,

@@ -14,8 +14,7 @@ const usePaymentForm = () => {
     mesVencimiento: "",
     anioVencimiento: "",
     nombreTitular: "",
-    tipoTarjeta: "visa", // visa, mastercard, amex
-    // Nuevos campos de facturación
+    tipoTarjeta: "visa",
     nombreFacturacion: "",
     emailFacturacion: "",
     direccionFacturacion: "",

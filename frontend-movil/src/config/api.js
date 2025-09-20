@@ -8,7 +8,7 @@ export const API_CONFIG = {
   // URL base para producción
   PRODUCTION: 'https://dangstoreptc.onrender.com/api',
   
-  // URL actualmente activa (cambiar según el entorno)
+  // URL actualmente activa 
   BASE_URL: 'http://192.168.0.9:4000/api', // Cambiar a PRODUCTION para producción
 };
 

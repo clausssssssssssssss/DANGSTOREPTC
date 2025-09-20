@@ -459,11 +459,36 @@
 .loading-overlay, 
 .loading-message, 
 [data-testid="loading-indicator"], 
-[data-testid="router-loading-bar"] {
+[data-testid="router-loading-bar"],
+/* Ocultar posibles líneas moradas de carga */
+.progress-bar,
+.progress-line,
+.loading-line,
+.spinner-border,
+.progress,
+.progress-bar-striped,
+.progress-bar-animated,
+/* Barras de progreso del navegador */
+::-webkit-progress-bar,
+::-webkit-progress-value,
+::-moz-progress-bar,
+progress,
+/* Elementos con colores morados que puedan aparecer como líneas */
+*[style*="#8B5CF6"],
+*[style*="#A78BFA"],
+*[style*="#7C3AED"],
+*[style*="#BA68C8"],
+*[style*="#9C27B0"],
+*[style*="purple"],
+*[style*="violet"] {
   display: none !important;
   opacity: 0 !important;
   pointer-events: none !important;
   visibility: hidden !important;
+  height: 0 !important;
+  width: 0 !important;
+  border: none !important;
+  background: transparent !important;
 }
 
 /* Oculta texto "Cargando pagina" si aparece como overlay o mensaje flotante */
@@ -471,4 +496,57 @@ body:has(.loading-message),
 body:has(.router-loading-bar), 
 body:has(.loading-indicator) {
   overflow: unset !important;
+}
+
+/* Eliminación específica de la raya morada de carga */
+/* Ocultar cualquier elemento que pueda crear una línea horizontal durante la carga */
+*::before,
+*::after {
+  /* Ocultar pseudo-elementos que puedan crear líneas moradas */
+  background-image: none !important;
+  border-image: none !important;
+}
+
+/* Ocultar líneas de progreso específicas */
+.loading-container::before,
+.loading-container::after,
+.catalog-page::before,
+.catalog-page::after {
+  display: none !important;
+}
+
+/* Ocultar barras de progreso del sistema */
+::-webkit-progress-inner-element {
+  display: none !important;
+}
+
+/* Prevenir líneas de borde que puedan aparecer como rayas */
+body::before,
+body::after,
+html::before,
+html::after,
+#root::before,
+#root::after,
+.App::before,
+.App::after {
+  display: none !important;
+  content: none !important;
+  background: none !important;
+  border: none !important;
+}
+
+/* Ocultar cualquier elemento con gradiente morado que pueda parecer una línea */
+*[style*="linear-gradient"],
+*[style*="radial-gradient"] {
+  background-image: none !important;
+}
+
+/* Asegurar que no hay bordes morados en elementos de carga */
+.loading-container,
+.loading-spinner,
+.spinner,
+.animate-spin {
+  border-color: transparent !important;
+  background: transparent !important;
+  box-shadow: none !important;
 }

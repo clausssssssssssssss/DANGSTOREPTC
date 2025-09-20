@@ -82,7 +82,7 @@ export function useProducts() {
       
       setProducts(transformedProducts);
       setLastUpdate(new Date().toISOString());
-      console.log(`✅ Productos actualizados: ${transformedProducts.length} productos cargados`);
+      console.log(` Productos actualizados: ${transformedProducts.length} productos cargados`);
     } catch (err) {
       console.error('Error al obtener productos:', err.message);
       
@@ -103,14 +103,14 @@ export function useProducts() {
     
     // Configurar polling para sincronización automática cada 30 segundos
     const interval = setInterval(() => {
-      console.log('🔄 Sincronizando productos automáticamente...');
+      console.log(' Sincronizando productos automáticamente...');
       fetchProducts();
     }, 30000); // 30 segundos
     
     // Limpiar interval cuando el componente se desmonte
     return () => {
       clearInterval(interval);
-      console.log('🛑 Polling de productos detenido');
+      console.log(' Polling de productos detenido');
     };
   }, []);
 

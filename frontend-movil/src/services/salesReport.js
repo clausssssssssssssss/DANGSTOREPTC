@@ -1,6 +1,6 @@
 // src/services/salesReport.js
 
-// 👉 Cambia esta URL cuando tengas backend corriendo
+//  Cambia esta URL cuando tengas backend corriendo
 const API_URL = process.env.EXPO_PUBLIC_API_URL || "https://dangstoreptc.onrender.com/api";
 
 export const salesAPI = {

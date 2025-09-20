@@ -6,11 +6,11 @@ const categorySchema = new mongoose.Schema({
     type: String,
     required: [true, "El nombre de la categoría es obligatorio"],
     trim: true,
-    unique: true, // Evita duplicados
+    unique: true,
     maxLength: [50, "El nombre no puede exceder los 50 caracteres"]
   }
 }, {
-  timestamps: true // Crea campos automáticos createdAt y updatedAt
+  timestamps: true
 });
 
 export default mongoose.model("Category", categorySchema);

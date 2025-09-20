@@ -149,9 +149,6 @@ app.post('/api/upload-test', upload.single('imagen'), (req, res) => {
   });
 });
 
-
-  
-
 /**
  * Exporta la instancia de la aplicación Express
  * para que pueda ser utilizada por el servidor (e.g., server.js).

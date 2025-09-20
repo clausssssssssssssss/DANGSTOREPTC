@@ -154,7 +154,7 @@ export const removeCartItem = async (req, res) => {
   }
 };
 
-//---------------Crear Orden---------------------//
+//Crear orden
 export const createOrder = async (req, res) => {
   console.log(" ============= INICIO createOrder =============");
   try {
@@ -279,7 +279,7 @@ export const createOrder = async (req, res) => {
     });
   }
 };
-// --------------------- OBTENER HISTORIAL DE ÓRDENES ---------------------
+// Obtener historial de órdenes
 
 export const getOrders = async (req, res) => {
   try {

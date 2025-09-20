@@ -18,11 +18,13 @@ import {
 import * as ImagePicker from 'expo-image-picker';
 import { Picker } from '@react-native-picker/picker';
 import { AuthContext } from '../context/AuthContext';
+import { useProducts } from '../hooks/useProducts';
 
 const { width, height } = Dimensions.get('window');
 const API_URL = 'http://192.168.0.9:4000/api/products'; // URL consistente con el backend
 
 const Productos = ({ navigation }) => {
+  const { products: productosHook, loading: loadingHook, lastStockUpdate, refresh: refreshProducts } = useProducts();
   const [productos, setProductos] = useState([]);
   const [categorias, setCategorias] = useState(['Llavero', 'Cuadro']); // Categorías por defecto
   const [busqueda, setBusqueda] = useState('');
@@ -60,9 +62,14 @@ const Productos = ({ navigation }) => {
   const { authToken } = useContext(AuthContext);
 
   useEffect(() => {
-    obtenerProductos();
+    // obtenerProductos(); // Comentado temporalmente - usando hook
     obtenerCategorias();
   }, []);
+
+  // Sincronizar con el hook de productos
+  useEffect(() => {
+    setProductos(productosHook || []);
+  }, [productosHook]);
 
   const showCustomAlert = (title, message, type = 'info', options = {}) => {
     setCustomAlert({
@@ -350,8 +357,7 @@ const Productos = ({ navigation }) => {
   };
 
   const eliminarCategoria = async (categoriaId, categoriaNombre) => {
-    // Todas las categorías ahora vienen del backend, por lo que todas tienen ID
-    const confirmMessage = `¿Estás seguro de que quieres eliminar la categoría "${categoriaNombre}"? Esta acción no se puede deshacer y puede afectar productos existentes.`;
+    const confirmMessage = `¿Estás seguro de que quieres eliminar la categoría "${categoriaNombre}"?\n\n⚠️ ATENCIÓN: También se eliminarán TODOS los productos que pertenecen a esta categoría.\n\nEsta acción no se puede deshacer.`;
 
     showCustomAlert(
       'Confirmar eliminación',
@@ -359,13 +365,13 @@ const Productos = ({ navigation }) => {
       'warning',
       {
         showCancel: true,
-        confirmText: 'Eliminar',
+        confirmText: 'Sí, eliminar todo',
         cancelText: 'Cancelar',
         onConfirm: async () => {
           try {
             setCargando(true);
 
-            // Eliminar categoría del backend
+            // Eliminar categoría del backend (también eliminará productos asociados)
             const response = await fetch(`http://192.168.0.9:4000/api/categories/${categoriaId}`, {
               method: 'DELETE',
             });
@@ -375,9 +381,19 @@ const Productos = ({ navigation }) => {
               throw new Error(errorData.message || `HTTP ${response.status} ${response.statusText}`);
             }
 
-            showCustomAlert('Éxito', 'Categoría eliminada correctamente', 'success');
+            const result = await response.json();
+            
+            // Mostrar mensaje con información de productos eliminados
+            const message = result.deletedProducts > 0 
+              ? `Categoría "${result.categoryName}" eliminada correctamente.\n\n${result.deletedProducts} productos también fueron eliminados.`
+              : `Categoría "${result.categoryName}" eliminada correctamente.`;
+            
+            showCustomAlert('Éxito', message, 'success');
+            
             // Recargar las categorías para actualizar la lista
             obtenerCategorias();
+            // También refrescar productos para mostrar cambios
+            refreshProducts();
           } catch (error) {
             console.log('Error eliminando categoría:', error);
             const errorMessage = error.message || 'No se pudo eliminar la categoría';
@@ -490,7 +506,10 @@ const Productos = ({ navigation }) => {
       />
       <Text style={styles.cardTitle}>{item.nombre}</Text>
       <Text style={styles.cardText}>Precio: ${item.precio}</Text>
-      <Text style={styles.cardText}>Disponibles: {item.disponibles}</Text>
+      <Text style={[styles.cardText, item.stock <= 5 && styles.lowStockText]}>
+        Disponibles: {item.disponibles || item.stock || 0}
+        {(item.stock <= 5 || item.disponibles <= 5) && ' ⚠️'}
+      </Text>
       
       <View style={styles.cardActions}>
         <TouchableOpacity 
@@ -519,7 +538,14 @@ const Productos = ({ navigation }) => {
         >
           <Text style={styles.backButtonText}>←</Text>
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Tus productos</Text>
+        <View style={styles.headerTitleContainer}>
+          <Text style={styles.headerTitle}>Tus productos</Text>
+          {lastStockUpdate && (
+            <Text style={styles.stockUpdateIndicator}>
+              📦 {new Date(lastStockUpdate).toLocaleTimeString()}
+            </Text>
+          )}
+        </View>
         <View style={styles.placeholder} />
       </View>
 
@@ -1005,10 +1031,20 @@ const styles = StyleSheet.create({
     color: '#8B5CF6',
     fontWeight: 'bold',
   },
+  headerTitleContainer: {
+    flex: 1,
+    alignItems: 'center',
+  },
   headerTitle: {
     fontSize: Math.max(22, width * 0.055),
     fontWeight: 'bold',
     color: '#1F2937',
+  },
+  stockUpdateIndicator: {
+    fontSize: 10,
+    color: '#8B5CF6',
+    marginTop: 2,
+    fontWeight: '500',
   },
   placeholder: { width: 40 },
   searchContainer: {
@@ -1638,6 +1674,10 @@ const styles = StyleSheet.create({
   },
   btnTextDeshabilitado: {
     color: '#9CA3AF',
+  },
+  lowStockText: {
+    color: '#DC2626',
+    fontWeight: 'bold',
   },
 });
 

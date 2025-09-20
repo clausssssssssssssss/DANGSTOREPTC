@@ -82,13 +82,41 @@ categoryController.updateCategory = async (req, res) => {
 // Eliminar categoría
 categoryController.deleteCategory = async (req, res) => {
   try {
-    const deletedCategory = await Category.findByIdAndDelete(req.params.id);
-
-    if (!deletedCategory) {
+    const categoryId = req.params.id;
+    
+    // Buscar la categoría antes de eliminarla
+    const categoryToDelete = await Category.findById(categoryId);
+    if (!categoryToDelete) {
       return res.status(404).json({ message: "Categoría no encontrada" });
     }
 
-    res.json({ message: "Categoría eliminada correctamente" });
+    console.log(`🗑️ Eliminando categoría: ${categoryToDelete.name}`);
+
+    // Importar Product model
+    const Product = (await import("../models/Product.js")).default;
+    
+    // Buscar productos que usan esta categoría
+    const productsWithCategory = await Product.find({ categoria: categoryToDelete.name });
+    
+    if (productsWithCategory.length > 0) {
+      console.log(`🗑️ Eliminando ${productsWithCategory.length} productos asociados a la categoría "${categoryToDelete.name}"`);
+      
+      // Eliminar todos los productos que usan esta categoría
+      await Product.deleteMany({ categoria: categoryToDelete.name });
+      
+      console.log(`✅ ${productsWithCategory.length} productos eliminados`);
+    }
+
+    // Eliminar la categoría
+    const deletedCategory = await Category.findByIdAndDelete(categoryId);
+
+    console.log(`✅ Categoría "${categoryToDelete.name}" eliminada correctamente`);
+    
+    res.json({ 
+      message: "Categoría eliminada correctamente",
+      deletedProducts: productsWithCategory.length,
+      categoryName: categoryToDelete.name
+    });
   } catch (error) {
     console.error("Error al eliminar categoría:", error);
     res.status(500).json({ message: "Error al eliminar categoría" });

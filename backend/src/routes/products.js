@@ -195,4 +195,25 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
+// GET /api/products/stock/summary - Obtener solo información de stock (más eficiente)
+router.get('/stock/summary', async (req, res) => {
+  try {
+    const products = await Product.find({}, '_id nombre disponibles').lean();
+    const stockSummary = products.map(product => ({
+      id: product._id,
+      name: product.nombre,
+      stock: product.disponibles
+    }));
+    
+    res.json({
+      timestamp: new Date().toISOString(),
+      products: stockSummary,
+      totalProducts: stockSummary.length
+    });
+  } catch (error) {
+    console.error('Error al obtener resumen de stock:', error);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
+});
+
 export default router;

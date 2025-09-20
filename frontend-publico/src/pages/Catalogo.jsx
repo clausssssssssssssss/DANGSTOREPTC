@@ -217,8 +217,6 @@ export default function Catalogo() {
               justifyContent: 'center',
               gap: '0.5rem'
             }}>
-              <span>🔄</span>
-              <span>Última actualización: {new Date(lastUpdate).toLocaleTimeString()}</span>
             </div>
           )}
         </div>

@@ -1,17 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, ScrollView, SafeAreaView, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native'; // Importar para actualización automática
 import VentasTabs from '../components/Ventas/VentasTabs';
 import VentasCard from '../components/Ventas/VentasCard';
 import VentasChart from '../components/Ventas/VentasChart';
 import VentasTable from '../components/Ventas/VentasTable';
 import { VentasStyles } from '../components/styles/VentasStyles';
-import { salesAPI } from '../services/salesReport'; // 👈 Importar tu API
+import { salesAPI } from '../services/salesReport';
 
 const Ventas = ({ navigation }) => {
   const [activeTab, setActiveTab] = useState('reporte');
   const [selectedReporte, setSelectedReporte] = useState('mensual');
   
-  // 👇 Estados para manejar los datos de la API
+  // Estados para manejar los datos de la API
   const [salesData, setSalesData] = useState({
     daily: 0,
     monthly: 0,
@@ -22,58 +23,152 @@ const Ventas = ({ navigation }) => {
     startDate: '',
     endDate: ''
   });
-  const [categoryData, setCategoryData] = useState([]); // datos por categorías
-  const [latestSalesData, setLatestSalesData] = useState([]); // 👈 NUEVO: últimas 10 ventas
+  const [categoryData, setCategoryData] = useState([]);
+  const [latestSalesData, setLatestSalesData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // 👇 useEffect para cargar datos cuando se monta el componente
-  useEffect(() => {
-    loadSalesData();
-    loadIncomeData();
-    loadCategoryData();
-    loadLatestSales(); // 👈 NUEVO: cargar últimas ventas
-  }, []);
+  // NUEVO: Función auxiliar para obtener rango de fechas de los últimos 30 días
+  const getDateRange = () => {
+    const endDate = new Date();
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() - 30);
+    
+    const formatDate = (date) => {
+      return date.toISOString().split('T')[0];
+    };
+    
+    return {
+      start: formatDate(startDate),
+      end: formatDate(endDate),
+      startDate: startDate,
+      endDate: endDate
+    };
+  };
 
-  // 👇 NUEVA: Función para cargar las últimas 10 ventas
-  const loadLatestSales = async () => {
+  // ACTUALIZADO: useEffect reemplazado por useFocusEffect para actualización automática
+  useFocusEffect(
+    React.useCallback(() => {
+      console.log('🔄 Pantalla enfocada - Cargando datos...');
+      loadAllData();
+    }, [])
+  );
+
+  // NUEVA: Función para cargar todos los datos de una vez
+  const loadAllData = async () => {
+    setLoading(true);
+    setError(null);
+    
     try {
-      console.log('🔍 Iniciando carga de últimas ventas...');
-      console.log('🔍 URL de API:', `${process.env.EXPO_PUBLIC_API_URL || "https://dangstoreptc.onrender.com/api"}/sales/latest`);
+      await Promise.all([
+        loadSalesData(),
+        loadIncomeAndCategoryData(), // Combinamos estas dos para usar el mismo rango
+        loadLatestSales()
+      ]);
+    } catch (err) {
+      console.error('Error cargando datos:', err);
+      setError('Error al cargar los datos');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // ACTUALIZADA: Función combinada para cargar ingresos y categorías con el mismo rango
+  const loadIncomeAndCategoryData = async () => {
+    try {
+      const dateRange = getDateRange();
       
-      const data = await salesAPI.getLatestSales();
+      console.log('📅 Consultando datos del', dateRange.start, 'al', dateRange.end);
       
-      // 🔍 DEBUGGING MEJORADO: Ver datos de las últimas ventas
-      console.log('🛒 Respuesta completa de últimas ventas:', data);
-      console.log('🛒 Tipo de respuesta:', typeof data);
-      console.log('🛒 Es array?', Array.isArray(data));
-      console.log('🛒 Cantidad de ventas:', data?.length || 0);
+      // Cargar ingresos por rango
+      const incomePromise = salesAPI.getIncomeByDateRange(dateRange.start, dateRange.end);
       
-      if (Array.isArray(data) && data.length > 0) {
-        console.log('🛒 Primera venta completa:', JSON.stringify(data[0], null, 2));
-        console.log('🛒 Campos disponibles:', Object.keys(data[0] || {}));
+      // Cargar todas las categorías (sin filtro de fecha en el backend)
+      const categoryPromise = salesAPI.getSalesByCategory();
+      
+      const [incomeResult, allCategoriesResult] = await Promise.all([incomePromise, categoryPromise]);
+      
+      console.log('💰 Datos de ingresos:', JSON.stringify(incomeResult, null, 2));
+      console.log('📂 Todas las categorías:', JSON.stringify(allCategoriesResult, null, 2));
+      
+      // Procesar datos de ingresos
+      let incomeTotal = 0;
+      if (incomeResult) {
+        if (incomeResult.total !== undefined) {
+          incomeTotal = parseFloat(incomeResult.total) || 0;
+        } else if (incomeResult.data && incomeResult.data.total) {
+          incomeTotal = parseFloat(incomeResult.data.total) || 0;
+        }
       }
       
-      // Asegurarse de que sea un array
-      const salesArray = Array.isArray(data) ? data : [];
-      console.log('🛒 Array final para setLatestSalesData:', salesArray.length, 'items');
+      // Procesar categorías - AQUÍ ESTÁ LA CLAVE: calcular total desde las categorías
+      let processedCategories = [];
+      let categoryTotal = 0;
       
+      if (Array.isArray(allCategoriesResult)) {
+        processedCategories = allCategoriesResult.map(item => {
+          const total = parseFloat(item.total || item.amount || item.monto || 0);
+          categoryTotal += total;
+          return {
+            name: item._id || item.categoria || item.category || item.name || 'Sin categoría',
+            total: total,
+            count: parseInt(item.count || item.cantidad || 0)
+          };
+        });
+      }
+      
+      console.log('📊 Total calculado desde categorías:', categoryTotal);
+      console.log('💰 Total desde endpoint de ingresos:', incomeTotal);
+      
+      // IMPORTANTE: Usar el total calculado desde las categorías para mayor consistencia
+      // O usar el mayor de los dos si hay discrepancia
+      const finalTotal = Math.max(categoryTotal, incomeTotal);
+      
+      setIncomeData({
+        total: finalTotal,
+        startDate: dateRange.startDate.toLocaleDateString('es-ES'),
+        endDate: dateRange.endDate.toLocaleDateString('es-ES')
+      });
+      
+      setCategoryData(processedCategories);
+      
+      console.log('✅ Datos actualizados - Total final:', finalTotal);
+      
+    } catch (err) {
+      console.error('❌ Error cargando datos de ingresos/categorías:', err);
+      setError('Error al cargar datos de ingresos');
+      setIncomeData({
+        total: 0,
+        startDate: '',
+        endDate: ''
+      });
+      setCategoryData([]);
+    }
+  };
+
+  // Función para cargar las últimas 10 ventas (sin cambios)
+  const loadLatestSales = async () => {
+    try {
+      console.log('🔍 Cargando últimas ventas...');
+      const data = await salesAPI.getLatestSales();
+      
+      console.log('🛒 Últimas ventas:', data?.length || 0, 'encontradas');
+      
+      const salesArray = Array.isArray(data) ? data : [];
       setLatestSalesData(salesArray);
       
     } catch (err) {
       console.error('❌ Error cargando últimas ventas:', err);
-      console.error('❌ Stack trace:', err.stack);
-      setLatestSalesData([]); // Array vacío en caso de error
+      setLatestSalesData([]);
     }
   };
 
-  // 👇 Función para cargar resumen de ventas (sin cambios)
+  // Función para cargar resumen de ventas (sin cambios)
   const loadSalesData = async () => {
     try {
-      setLoading(true);
       const data = await salesAPI.getSalesSummary();
       
-      console.log('📊 Datos completos de getSalesSummary:', JSON.stringify(data, null, 2));
+      console.log('📊 Datos de resumen de ventas:', JSON.stringify(data, null, 2));
       
       let salesInfo = {
         daily: 0,
@@ -98,95 +193,12 @@ const Ventas = ({ navigation }) => {
         }
       }
       
-      console.log('📊 Datos procesados:', salesInfo);
+      console.log('📊 Datos de ventas procesados:', salesInfo);
       setSalesData(salesInfo);
-      setError(null);
+      
     } catch (err) {
       console.error('❌ Error cargando datos de ventas:', err);
       setError('Error al cargar datos de ventas');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // 👇 Función para cargar datos de ingresos (sin cambios)
-  const loadIncomeData = async () => {
-    try {
-      const endDate = new Date();
-      const startDate = new Date();
-      startDate.setDate(startDate.getDate() - 30);
-      
-      const formatDate = (date) => {
-        return date.toISOString().split('T')[0];
-      };
-      
-      const data = await salesAPI.getIncomeByDateRange(
-        formatDate(startDate), 
-        formatDate(endDate)
-      );
-      
-      console.log('💰 Datos de ingresos completos:', JSON.stringify(data, null, 2));
-      
-      let total = 0;
-      
-      if (data) {
-        if (data.total !== undefined) {
-          total = parseFloat(data.total) || 0;
-        } else if (data.data && data.data.total) {
-          total = parseFloat(data.data.total) || 0;
-        } else if (data.income) {
-          total = parseFloat(data.income) || 0;
-        } else if (data.ingresos) {
-          total = parseFloat(data.ingresos) || 0;
-        } else if (Array.isArray(data)) {
-          total = data.reduce((sum, item) => {
-            return sum + (parseFloat(item.monto || item.amount || item.total || 0));
-          }, 0);
-        }
-      }
-      
-      console.log('💰 Total procesado:', total);
-      
-      setIncomeData({
-        total: total,
-        startDate: startDate.toLocaleDateString('es-ES'),
-        endDate: endDate.toLocaleDateString('es-ES')
-      });
-      
-    } catch (err) {
-      console.error('❌ Error cargando datos de ingresos:', err);
-      setError('Error al cargar datos de ingresos');
-    }
-  };
-
-  // 👇 Función para cargar datos por categorías (sin cambios)
-  const loadCategoryData = async () => {
-    try {
-      const data = await salesAPI.getSalesByCategory();
-      
-      console.log('📂 Datos por categorías completos:', JSON.stringify(data, null, 2));
-      
-      let categories = [];
-      if (Array.isArray(data)) {
-        categories = data.map(item => ({
-          name: item.categoria || item.category || item.name || 'Sin categoría',
-          total: parseFloat(item.total || item.amount || item.monto || 0),
-          count: parseInt(item.count || item.cantidad || 0)
-        }));
-      } else if (data && typeof data === 'object') {
-        categories = Object.entries(data).map(([key, value]) => ({
-          name: key,
-          total: parseFloat(value) || 0,
-          count: 0
-        }));
-      }
-      
-      console.log('📂 Categorías procesadas:', categories);
-      setCategoryData(categories);
-      
-    } catch (err) {
-      console.error('❌ Error cargando datos de categorías:', err);
-      setCategoryData([]);
     }
   };
 
@@ -194,11 +206,11 @@ const Ventas = ({ navigation }) => {
     setActiveTab(tabId);
   };
 
-  // 👇 Función para formatear números como moneda (sin cambios)
+  // Función para formatear números como moneda
   const formatCurrency = (amount) => {
     const numAmount = parseFloat(amount);
     if (isNaN(numAmount)) {
-      console.log('⚠️ Valor inválido para formatCurrency:', amount, 'tipo:', typeof amount);
+      console.log('⚠️ Valor inválido para formatCurrency:', amount);
       return '$0.00';
     }
     
@@ -210,7 +222,7 @@ const Ventas = ({ navigation }) => {
     return `${formatted}`;
   };
 
-  // 👇 Función para obtener el monto según el reporte seleccionado (sin cambios)
+  // Función para obtener el monto según el reporte seleccionado
   const getSelectedAmount = () => {
     switch (selectedReporte) {
       case 'diario':
@@ -267,13 +279,11 @@ const Ventas = ({ navigation }) => {
         </View>
       </View>
 
-      {/* Total simplificado */}
       <View style={VentasStyles.totalContainer}>
         <Text style={VentasStyles.totalLabel}>Reporte seleccionado: {selectedReporte}</Text>
         <Text style={VentasStyles.totalAmount}>{formatCurrency(getSelectedAmount())}</Text>
       </View>
 
-      {/* Contenedor de la Gráfica con scroll horizontal */}
       <View style={VentasStyles.chartContainer}>
         <ScrollView 
           horizontal={true}
@@ -290,19 +300,47 @@ const Ventas = ({ navigation }) => {
   const renderIngresosContent = () => (
     <>
       <View style={VentasStyles.ingresosHeader}>
-        <Text style={VentasStyles.ingresosTitle}>Ingresos por Categorías</Text>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+          <Text style={VentasStyles.ingresosTitle}>Ingresos por Categorías</Text>
+          <TouchableOpacity 
+            onPress={() => {
+              console.log('🔄 Actualizando datos manualmente...');
+              loadIncomeAndCategoryData();
+            }}
+            style={{ 
+              paddingHorizontal: 12, 
+              paddingVertical: 6, 
+              backgroundColor: '#007AFF', 
+              borderRadius: 6,
+              minWidth: 70,
+              alignItems: 'center'
+            }}
+          >
+            <Text style={{ color: 'white', fontSize: 12, fontWeight: '600' }}>
+              Actualizar
+            </Text>
+          </TouchableOpacity>
+        </View>
+        
         <Text style={VentasStyles.ingresosDate}>
           {incomeData.startDate} - {incomeData.endDate}
         </Text>
+        
         <View style={VentasStyles.ingresosTotal}>
-          <Text style={VentasStyles.ingresosTotalLabel}>Ingresos Totales (Últimos 30 días)</Text>
+          <Text style={VentasStyles.ingresosTotalLabel}>
+            Ingresos Totales (Últimos 30 días)
+          </Text>
           <Text style={VentasStyles.ingresosTotalAmount}>
             {formatCurrency(incomeData.total)}
           </Text>
         </View>
+        
+        {/* Información adicional para debugging */}
+        <Text style={{ fontSize: 10, color: '#666', textAlign: 'center', marginTop: 4 }}>
+          Categorías: {categoryData.length} | Última actualización: {new Date().toLocaleTimeString()}
+        </Text>
       </View>
       
-      {/* Gráfica con scroll horizontal */}
       <View style={VentasStyles.chartContainer}>
         <ScrollView 
           horizontal={true}
@@ -316,7 +354,6 @@ const Ventas = ({ navigation }) => {
     </>
   );
 
-  // 👇 ACTUALIZADO: Pasar los datos reales a VentasTable
   const renderPedidosContent = () => (
     <>
       <View style={VentasStyles.pedidosHeader}>
@@ -325,34 +362,34 @@ const Ventas = ({ navigation }) => {
           {latestSalesData.length} pedidos encontrados
         </Text>
         <Text style={VentasStyles.pedidosFilter}>
-          {latestSalesData.length > 0 ? 'Datos de la base de datos' : 'Sin datos reales - mostrando ejemplo'}
+          {latestSalesData.length > 0 ? 'Datos actualizados de la base' : 'Sin datos - mostrando ejemplo'}
         </Text>
       </View>
-      {/* 👇 IMPORTANTE: Pasar los datos reales a VentasTable */}
+      
       <VentasTable data={latestSalesData} />
       
-      {/* 👇 Botón para recargar datos manualmente */}
-      {__DEV__ && (
-        <TouchableOpacity 
-          style={{ 
-            margin: 20, 
-            padding: 15, 
-            backgroundColor: '#007AFF', 
-            borderRadius: 8,
-            alignItems: 'center'
-          }}
-          onPress={loadLatestSales}
-        >
-          <Text style={{ color: 'white', fontWeight: 'bold' }}>
-            🔄 Recargar Últimas Ventas (Debug)
-          </Text>
-        </TouchableOpacity>
-      )}
+      {/* Botón de actualización manual para pedidos */}
+      <TouchableOpacity 
+        style={{ 
+          margin: 20, 
+          padding: 15, 
+          backgroundColor: '#007AFF', 
+          borderRadius: 8,
+          alignItems: 'center'
+        }}
+        onPress={() => {
+          console.log('🔄 Recargando últimas ventas...');
+          loadLatestSales();
+        }}
+      >
+        <Text style={{ color: 'white', fontWeight: 'bold' }}>
+          Actualizar Pedidos
+        </Text>
+      </TouchableOpacity>
     </>
   );
 
   const renderContent = () => {
-    // 👇 Mostrar loading mientras cargan los datos
     if (loading) {
       return (
         <View style={[VentasStyles.container, { justifyContent: 'center', alignItems: 'center' }]}>
@@ -362,7 +399,6 @@ const Ventas = ({ navigation }) => {
       );
     }
 
-    // 👇 Mostrar error si hay problemas
     if (error) {
       return (
         <View style={[VentasStyles.container, { justifyContent: 'center', alignItems: 'center' }]}>
@@ -372,10 +408,8 @@ const Ventas = ({ navigation }) => {
           <TouchableOpacity 
             style={{ padding: 10, backgroundColor: '#007AFF', borderRadius: 5 }}
             onPress={() => {
-              loadSalesData();
-              loadIncomeData();
-              loadCategoryData();
-              loadLatestSales(); // 👈 AGREGADO: recargar últimas ventas también
+              console.log('🔄 Reintentando cargar datos...');
+              loadAllData();
             }}
           >
             <Text style={{ color: 'white' }}>Reintentar</Text>
@@ -384,7 +418,6 @@ const Ventas = ({ navigation }) => {
       );
     }
 
-    // 👇 Renderizar contenido según tab activo
     switch (activeTab) {
       case 'reporte':
         return renderReporteContent();

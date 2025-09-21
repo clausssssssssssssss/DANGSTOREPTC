@@ -30,8 +30,29 @@ const About = () => {
 
   return (
     <div className="about-page" style={{ background: '#ffffff' }}>
+      {/* Decoraciones pixeladas */}
+      <div className="pixel-decoration" style={{ top: '10%', left: '5%' }}>
+        <div className="pixel-float" style={{ top: '0px', left: '0px' }}></div>
+        <div className="pixel-float" style={{ top: '20px', left: '30px' }}></div>
+        <div className="pixel-float" style={{ top: '40px', left: '10px' }}></div>
+      </div>
+      
+      <div className="pixel-decoration" style={{ top: '20%', right: '10%' }}>
+        <div className="hama-bead" style={{ top: '0px', left: '0px' }}></div>
+        <div className="hama-bead" style={{ top: '25px', left: '20px' }}></div>
+        <div className="pixel-float" style={{ top: '50px', left: '5px' }}></div>
+      </div>
+      
+      <div className="pixel-decoration" style={{ bottom: '30%', left: '15%' }}>
+        <div className="pixel-float" style={{ top: '0px', left: '0px' }}></div>
+        <div className="hama-bead" style={{ top: '30px', left: '15px' }}></div>
+        <div className="pixel-float" style={{ top: '60px', left: '35px' }}></div>
+      </div>
+
+      <div className="pixel-grid"></div>
+
       {/* Hero con fondo blanco, olas y espacio para video */}
-      <section className="hero-olas-section" style={{ background: '#ffffff' }}>
+      <section className="hero-olas-section">
         <div className="hero-content-grid container animate-on-scroll" style={{ maxWidth: '100%', padding: '0 2rem' }}>
           <div className="hero-text">
             <h1 className="hero-title">DANGSTORE</h1>
@@ -69,7 +90,17 @@ const About = () => {
       </section>
 
       {/* ¿Qué hacemos? - Cards */}
-      <section className="what-cards animate-on-scroll" style={{ background: '#fafafa' }}>
+      <section className="what-cards animate-on-scroll" style={{ background: '#fafafa', position: 'relative' }}>
+        {/* Decoraciones adicionales para la sección de cards */}
+        <div className="pixel-decoration" style={{ top: '10%', right: '5%' }}>
+          <div className="hama-bead" style={{ top: '0px', left: '0px' }}></div>
+          <div className="pixel-float" style={{ top: '25px', left: '20px' }}></div>
+        </div>
+        
+        <div className="pixel-decoration" style={{ bottom: '20%', left: '8%' }}>
+          <div className="pixel-float" style={{ top: '0px', left: '0px' }}></div>
+          <div className="hama-bead" style={{ top: '35px', left: '10px' }}></div>
+        </div>
         <div className="container" style={{ maxWidth: '100%', padding: '0 2rem' }}>
           <div className="gradient-panel">
             <h2 className="section-title centered large">¿Qué hacemos?</h2>
@@ -107,7 +138,23 @@ const About = () => {
       {/* Sección antigua removida por solicitud */}
 
       {/* Misión, Visión y Valores */}
-      <section className="mvv-section animate-on-scroll" style={{ background: 'linear-gradient(135deg, rgba(126,205,238,0.08) 0%, rgba(180,148,214,0.08) 100%)' }}>
+      <section className="mvv-section animate-on-scroll" style={{ background: 'linear-gradient(135deg, rgba(126,205,238,0.08) 0%, rgba(180,148,214,0.08) 100%)', position: 'relative' }}>
+        {/* Decoraciones especiales para MVV */}
+        <div className="pixel-decoration" style={{ top: '15%', left: '12%' }}>
+          <div className="hama-bead" style={{ top: '0px', left: '0px' }}></div>
+          <div className="pixel-float" style={{ top: '30px', left: '25px' }}></div>
+          <div className="hama-bead" style={{ top: '60px', left: '5px' }}></div>
+        </div>
+        
+        <div className="pixel-decoration" style={{ top: '25%', right: '8%' }}>
+          <div className="pixel-float" style={{ top: '0px', left: '0px' }}></div>
+          <div className="hama-bead" style={{ top: '40px', left: '15px' }}></div>
+        </div>
+        
+        <div className="pixel-decoration" style={{ bottom: '25%', left: '20%' }}>
+          <div className="hama-bead" style={{ top: '0px', left: '0px' }}></div>
+          <div className="pixel-float" style={{ top: '35px', left: '20px' }}></div>
+        </div>
         <div className="container" style={{ maxWidth: '100%', padding: '0 2rem' }}>
           <div className="gradient-panel">
             <h2 className="section-title centered large">Nosotros</h2>

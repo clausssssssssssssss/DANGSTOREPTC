@@ -4,6 +4,7 @@ import { Heart, ShoppingCart, User, Gift, LogOut, Lock, Menu, X } from 'lucide-r
 import { useAuth } from '../hooks/useAuth';
 import { useNavigate, useLocation } from 'react-router-dom';
 import '../components/styles/UserProfile.css';
+import '../components/styles/PixelDecorations.css';
 import { useToast } from '../hooks/useToast';
 import ToastContainer from '../components/ui/ToastContainer';
 
@@ -158,7 +159,31 @@ const UserProfile = () => {
   };
 
   return (
-    <div className="user-profile-container">
+    <div className="user-profile-container" style={{ position: 'relative' }}>
+      {/* Decoraciones pixeladas */}
+      <div className="pixel-decoration" style={{ top: '12%', left: '5%' }}>
+        <div className="pixel-float" style={{ top: '0px', left: '0px' }}></div>
+        <div className="hama-bead" style={{ top: '30px', left: '28px' }}></div>
+        <div className="pixel-float" style={{ top: '60px', left: '10px' }}></div>
+      </div>
+      
+      <div className="pixel-decoration" style={{ top: '25%', right: '8%' }}>
+        <div className="hama-bead" style={{ top: '0px', left: '0px' }}></div>
+        <div className="pixel-float" style={{ top: '35px', left: '20px' }}></div>
+      </div>
+      
+      <div className="pixel-decoration" style={{ bottom: '18%', left: '11%' }}>
+        <div className="pixel-float" style={{ top: '0px', left: '0px' }}></div>
+        <div className="hama-bead" style={{ top: '32px', left: '22px' }}></div>
+        <div className="pixel-float" style={{ top: '65px', left: '6px' }}></div>
+      </div>
+
+      <div className="pixel-decoration" style={{ top: '68%', right: '16%' }}>
+        <div className="hama-bead" style={{ top: '0px', left: '0px' }}></div>
+        <div className="pixel-float" style={{ top: '30px', left: '18px' }}></div>
+      </div>
+
+      <div className="pixel-grid"></div>
       {/* Mobile Header */}
       <div className="mobile-header">
         <button 

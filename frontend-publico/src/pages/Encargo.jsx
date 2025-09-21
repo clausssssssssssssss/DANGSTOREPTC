@@ -6,6 +6,7 @@ import { useAuth } from '../hooks/useAuth';
 import useCategories from '../hooks/useCategories';
 import Modal from '../components/ui/Modal';
 import '../components/styles/Encargo.css';
+import '../components/styles/PixelDecorations.css';
 import { useToast } from '../hooks/useToast';
 import ToastContainer from '../components/ui/ToastContainer';
 import logo from '../assets/DANGSTORELOGOPRUEBA.PNG';
@@ -13,7 +14,7 @@ import logo from '../assets/DANGSTORELOGOPRUEBA.PNG';
 export default function Encargo() {
 const { user } = useAuth();
 const { toasts, showSuccess, showError, showWarning, removeToast } = useToast();
-const { categorias, loading: categoriasLoading, error: categoriasError } = useCategories();
+const { categories, loading: categoriasLoading, error: categoriasError } = useCategories();
 
   const {
     preview,
@@ -87,7 +88,31 @@ const { categorias, loading: categoriasLoading, error: categoriasError } = useCa
   };
 
   return (
-    <div className="encargo-container">
+    <div className="encargo-container" style={{ position: 'relative' }}>
+      {/* Decoraciones pixeladas */}
+      <div className="pixel-decoration" style={{ top: '8%', left: '5%' }}>
+        <div className="pixel-float" style={{ top: '0px', left: '0px' }}></div>
+        <div className="hama-bead" style={{ top: '25px', left: '30px' }}></div>
+        <div className="pixel-float" style={{ top: '50px', left: '10px' }}></div>
+      </div>
+      
+      <div className="pixel-decoration" style={{ top: '25%', right: '8%' }}>
+        <div className="hama-bead" style={{ top: '0px', left: '0px' }}></div>
+        <div className="pixel-float" style={{ top: '35px', left: '20px' }}></div>
+      </div>
+      
+      <div className="pixel-decoration" style={{ bottom: '15%', left: '10%' }}>
+        <div className="pixel-float" style={{ top: '0px', left: '0px' }}></div>
+        <div className="hama-bead" style={{ top: '30px', left: '25px' }}></div>
+        <div className="pixel-float" style={{ top: '60px', left: '5px' }}></div>
+      </div>
+
+      <div className="pixel-decoration" style={{ top: '70%', right: '15%' }}>
+        <div className="hama-bead" style={{ top: '0px', left: '0px' }}></div>
+        <div className="pixel-float" style={{ top: '25px', left: '20px' }}></div>
+      </div>
+
+      <div className="pixel-grid"></div>
       <div className="encargo-header">
         <div className="logo-container">
           <img src={logo} alt="DANGSTORE Logo" className="header-logo" />
@@ -151,7 +176,7 @@ const { categorias, loading: categoriasLoading, error: categoriasError } = useCa
               disabled={categoriasLoading}
             >
               <option value="">Selecciona...</option>
-              {categorias.map((categoria, index) => (
+              {categories && categories.map((categoria, index) => (
                 <option key={index} value={categoria.name.toLowerCase()}>
                   {categoria.name}
                 </option>

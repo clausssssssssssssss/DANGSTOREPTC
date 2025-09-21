@@ -14,6 +14,7 @@ import RatingsList from '../components/catalog/RatingsList.jsx';
 import RatingStars from '../components/catalog/RatingStars.jsx';
 import '../components/styles/Catalogo.css';
 import '../components/styles/Ratings.css';
+import '../components/styles/PixelDecorations.css';
 
 export default function Catalogo() {
   const { user } = useAuth();
@@ -208,7 +209,32 @@ export default function Catalogo() {
   }
 
   return (
-    <div className="catalog-page">
+    <div className="catalog-page" style={{ position: 'relative' }}>
+      {/* Decoraciones pixeladas */}
+      <div className="pixel-decoration" style={{ top: '5%', left: '3%' }}>
+        <div className="pixel-float" style={{ top: '0px', left: '0px' }}></div>
+        <div className="pixel-float" style={{ top: '25px', left: '35px' }}></div>
+        <div className="hama-bead" style={{ top: '50px', left: '15px' }}></div>
+      </div>
+      
+      <div className="pixel-decoration" style={{ top: '15%', right: '5%' }}>
+        <div className="hama-bead" style={{ top: '0px', left: '0px' }}></div>
+        <div className="pixel-float" style={{ top: '30px', left: '20px' }}></div>
+      </div>
+      
+      <div className="pixel-decoration" style={{ bottom: '20%', left: '8%' }}>
+        <div className="pixel-float" style={{ top: '0px', left: '0px' }}></div>
+        <div className="hama-bead" style={{ top: '40px', left: '25px' }}></div>
+        <div className="pixel-float" style={{ top: '70px', left: '10px' }}></div>
+      </div>
+
+      <div className="pixel-decoration" style={{ top: '60%', right: '12%' }}>
+        <div className="hama-bead" style={{ top: '0px', left: '0px' }}></div>
+        <div className="pixel-float" style={{ top: '35px', left: '15px' }}></div>
+      </div>
+
+      <div className="pixel-grid"></div>
+
       <div className="container">
         {/* Banner Principal */}
         <div className="popular-banner">

@@ -6,6 +6,7 @@ import { useToast } from "../hooks/useToast";
 import ToastContainer from "../components/ui/ToastContainer";
 import { CreditCard, User, Mail, HelpCircle, CheckCircle, MapPin, ShoppingCart } from "lucide-react";
 import "../components/styles/formPayment.css";
+import "../components/styles/PixelDecorations.css";
 
 const FormPayment = () => {
   const { toasts, showError, removeToast } = useToast();
@@ -41,7 +42,31 @@ const FormPayment = () => {
   };
 
   return (
-    <div className="payment-container">
+    <div className="payment-container" style={{ position: 'relative' }}>
+      {/* Decoraciones pixeladas */}
+      <div className="pixel-decoration" style={{ top: '10%', left: '4%' }}>
+        <div className="pixel-float" style={{ top: '0px', left: '0px' }}></div>
+        <div className="hama-bead" style={{ top: '30px', left: '25px' }}></div>
+        <div className="pixel-float" style={{ top: '60px', left: '8px' }}></div>
+      </div>
+      
+      <div className="pixel-decoration" style={{ top: '20%', right: '6%' }}>
+        <div className="hama-bead" style={{ top: '0px', left: '0px' }}></div>
+        <div className="pixel-float" style={{ top: '40px', left: '18px' }}></div>
+      </div>
+      
+      <div className="pixel-decoration" style={{ bottom: '25%', left: '12%' }}>
+        <div className="pixel-float" style={{ top: '0px', left: '0px' }}></div>
+        <div className="hama-bead" style={{ top: '35px', left: '20px' }}></div>
+        <div className="pixel-float" style={{ top: '70px', left: '5px' }}></div>
+      </div>
+
+      <div className="pixel-decoration" style={{ top: '65%', right: '18%' }}>
+        <div className="hama-bead" style={{ top: '0px', left: '0px' }}></div>
+        <div className="pixel-float" style={{ top: '30px', left: '15px' }}></div>
+      </div>
+
+      <div className="pixel-grid"></div>
       <div className="payment-card">
         <div className="payment-header">
           <h1 className="payment-title">

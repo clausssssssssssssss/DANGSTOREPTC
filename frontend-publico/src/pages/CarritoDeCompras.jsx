@@ -7,6 +7,7 @@ import usePaymentFakeForm from '../components/payment/hook/usePaymentFakeForm';
 import ToastContainer from '../components/ui/ToastContainer';
 import { ShoppingBag, Trash2, Plus, Minus, ArrowLeft, CreditCard, Check, Shield, Truck, RefreshCw } from 'lucide-react';
 import '../components/styles/CarritoDeCompras.css';
+import '../components/styles/PixelDecorations.css';
 
 const CarritoDeCompras = () => {
   const { user } = useAuth();
@@ -195,7 +196,31 @@ const CarritoDeCompras = () => {
 
   return (
     <>
-      <div className="cart-container">
+      <div className="cart-container" style={{ position: 'relative' }}>
+        {/* Decoraciones pixeladas */}
+        <div className="pixel-decoration" style={{ top: '8%', left: '6%' }}>
+          <div className="pixel-float" style={{ top: '0px', left: '0px' }}></div>
+          <div className="hama-bead" style={{ top: '25px', left: '30px' }}></div>
+          <div className="pixel-float" style={{ top: '50px', left: '12px' }}></div>
+        </div>
+        
+        <div className="pixel-decoration" style={{ top: '18%', right: '7%' }}>
+          <div className="hama-bead" style={{ top: '0px', left: '0px' }}></div>
+          <div className="pixel-float" style={{ top: '35px', left: '22px' }}></div>
+        </div>
+        
+        <div className="pixel-decoration" style={{ bottom: '20%', left: '9%' }}>
+          <div className="pixel-float" style={{ top: '0px', left: '0px' }}></div>
+          <div className="hama-bead" style={{ top: '30px', left: '25px' }}></div>
+          <div className="pixel-float" style={{ top: '60px', left: '8px' }}></div>
+        </div>
+
+        <div className="pixel-decoration" style={{ top: '55%', right: '14%' }}>
+          <div className="hama-bead" style={{ top: '0px', left: '0px' }}></div>
+          <div className="pixel-float" style={{ top: '28px', left: '18px' }}></div>
+        </div>
+
+        <div className="pixel-grid"></div>
         <div className="cart-content">
           <div className="cart-header">
             <Link to="/catalogo" className="back-link">

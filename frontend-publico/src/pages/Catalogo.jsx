@@ -1,7 +1,8 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { Search, RefreshCw, Heart, ShoppingCart, X, Star, TrendingUp, Plus, Check } from 'lucide-react';
+import { Search, RefreshCw, Heart, ShoppingCart, X, Star, TrendingUp, Plus, Check, Filter } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth.jsx';
 import { useProducts } from '../components/catalog/hook/useProducts.jsx';
+import { useCategories } from '../hooks/useCategories.jsx';
 import { useCart } from '../components/cart/hook/useCart.jsx';
 import { useFavorites } from '../components/catalog/hook/useFavorites.jsx';
 import { useRatings } from '../components/catalog/hook/useRatings.jsx';
@@ -18,6 +19,7 @@ export default function Catalogo() {
   const { user } = useAuth();
   const userId = user?.id;
   const { products, loading, error, refresh, lastUpdate } = useProducts();
+  const { categories, loading: categoriesLoading, error: categoriesError } = useCategories();
   const { addToCart } = useCart(userId);
   const { favorites, toggleFavorite } = useFavorites(userId);
   const { toasts, showSuccess, showError, showWarning, showInfo, removeToast } = useToast();
@@ -34,6 +36,7 @@ export default function Catalogo() {
   const [searchTerm, setSearchTerm] = useState('');
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [priceRange, setPriceRange] = useState([0, 10]);
+  const [selectedCategory, setSelectedCategory] = useState('');
   const [selectedProduct, setSelectedProduct] = useState(null);
 
   // Calcular el rango de precios dinámicamente basado en los productos
@@ -104,19 +107,23 @@ export default function Catalogo() {
         product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         (product.category && product.category.toLowerCase().includes(searchTerm.toLowerCase()));
       
+      // Filtro por categoría
+      const matchesCategory = selectedCategory === '' || 
+        product.category === selectedCategory;
+      
       // Filtro por rango de precios
       const productPrice = Number(product.price);
       if (isNaN(productPrice) || !isFinite(productPrice)) {
-        return matchesSearch; // Si el precio no es válido, solo aplicar filtro de búsqueda
+        return matchesSearch && matchesCategory; // Si el precio no es válido, aplicar filtros de búsqueda y categoría
       }
       
       // Usar el rango dinámico si el actual no es válido
       const currentPriceRange = (isNaN(priceRange[0]) || isNaN(priceRange[1])) ? priceRangeDynamic : priceRange;
       const matchesPrice = productPrice >= currentPriceRange[0] && productPrice <= currentPriceRange[1];
       
-      return matchesSearch && matchesPrice;
+      return matchesSearch && matchesCategory && matchesPrice;
     });
-  }, [products, searchTerm, priceRange, priceRangeDynamic]);
+  }, [products, searchTerm, selectedCategory, priceRange, priceRangeDynamic]);
 
   // Productos populares (modificado para usar los productos con mejor rating)
   const popularProducts = useMemo(() => {
@@ -287,71 +294,105 @@ export default function Catalogo() {
 
           {isSearchOpen && (
             <div className="search-panel">
-              <div className="search-input-group">
-                <Search className="search-icon" size={20} />
-                <input
-                  type="text"
-                  placeholder="Buscar productos..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="search-input"
-                />
-              </div>
+              {/* Fila completamente horizontal con todos los filtros */}
+              <div className="filters-row filters-row-complete">
+                {/* Búsqueda */}
+                <div className="search-input-group">
+                  <Search className="search-icon" size={20} />
+                  <input
+                    type="text"
+                    placeholder="Buscar productos..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="search-input"
+                  />
+                </div>
 
-              <div className="price-filter">
-                <label>Precio: ${isNaN(priceRange[0]) ? 0 : priceRange[0]} - ${isNaN(priceRange[1]) ? 10 : priceRange[1]}</label>
-                <div className="price-slider-container">
-                  <div className="slider-group">
-                    <label className="slider-label">Mínimo: ${isNaN(priceRange[0]) ? 0 : priceRange[0]}</label>
-                    <input
-                      type="range"
-                      min={isNaN(priceRangeDynamic[0]) ? 0 : priceRangeDynamic[0]}
-                      max={isNaN(priceRangeDynamic[1]) ? 10 : priceRangeDynamic[1]}
-                      step="0.5"
-                      value={isNaN(priceRange[0]) ? 0 : priceRange[0]}
-                      onChange={(e) => {
-                        const newMin = Number(e.target.value);
-                        if (!isNaN(newMin) && isFinite(newMin) && newMin <= priceRange[1]) {
-                          setPriceRange([newMin, priceRange[1]]);
-                        }
-                      }}
-                      className="price-slider"
-                    />
+                {/* Categoría */}
+                <div className="category-filter">
+                  <label htmlFor="category-select">
+                    <Filter size={16} />
+                    Categoría
+                  </label>
+                  <select
+                    id="category-select"
+                    value={selectedCategory}
+                    onChange={(e) => setSelectedCategory(e.target.value)}
+                    className="category-select"
+                  >
+                    <option value="">Todas las categorías</option>
+                    {categoriesLoading ? (
+                      <option disabled>Cargando categorías...</option>
+                    ) : categoriesError ? (
+                      <option disabled>Error al cargar categorías</option>
+                    ) : (
+                      categories.map((category) => (
+                        <option key={category._id} value={category.name}>
+                          {category.name}
+                        </option>
+                      ))
+                    )}
+                  </select>
+                </div>
+
+                {/* Filtro de Precio Compacto */}
+                <div className="price-filter-compact">
+                  <div className="price-filter-header-compact">
+                    <label>Precio</label>
+                    <span className="price-range-display-compact">
+                      ${isNaN(priceRange[0]) ? 0 : priceRange[0]} - ${isNaN(priceRange[1]) ? 10 : priceRange[1]}
+                    </span>
                   </div>
-                  <div className="slider-group">
-                    <label className="slider-label">Máximo: ${isNaN(priceRange[1]) ? 10 : priceRange[1]}</label>
-                    <input
-                      type="range"
-                      min={isNaN(priceRangeDynamic[0]) ? 0 : priceRangeDynamic[0]}
-                      max={isNaN(priceRangeDynamic[1]) ? 10 : priceRangeDynamic[1]}
-                      step="0.5"
-                      value={isNaN(priceRange[1]) ? 10 : priceRange[1]}
-                      onChange={(e) => {
-                        const newMax = Number(e.target.value);
-                        if (!isNaN(newMax) && isFinite(newMax) && newMax >= priceRange[0]) {
-                          setPriceRange([priceRange[0], newMax]);
-                        }
-                      }}
-                      className="price-slider"
-                    />
+                  <div className="price-slider-container-compact">
+                    <div className="slider-group-compact">
+                      <input
+                        type="range"
+                        min={isNaN(priceRangeDynamic[0]) ? 0 : priceRangeDynamic[0]}
+                        max={isNaN(priceRangeDynamic[1]) ? 10 : priceRangeDynamic[1]}
+                        step="0.5"
+                        value={isNaN(priceRange[0]) ? 0 : priceRange[0]}
+                        onChange={(e) => {
+                          const newMin = Number(e.target.value);
+                          if (!isNaN(newMin) && isFinite(newMin) && newMin <= priceRange[1]) {
+                            setPriceRange([newMin, priceRange[1]]);
+                          }
+                        }}
+                        className="price-slider-compact"
+                        title={`Mínimo: $${isNaN(priceRange[0]) ? 0 : priceRange[0]}`}
+                      />
+                      <input
+                        type="range"
+                        min={isNaN(priceRangeDynamic[0]) ? 0 : priceRangeDynamic[0]}
+                        max={isNaN(priceRangeDynamic[1]) ? 10 : priceRangeDynamic[1]}
+                        step="0.5"
+                        value={isNaN(priceRange[1]) ? 10 : priceRange[1]}
+                        onChange={(e) => {
+                          const newMax = Number(e.target.value);
+                          if (!isNaN(newMax) && isFinite(newMax) && newMax >= priceRange[0]) {
+                            setPriceRange([priceRange[0], newMax]);
+                          }
+                        }}
+                        className="price-slider-compact"
+                        title={`Máximo: $${isNaN(priceRange[1]) ? 10 : priceRange[1]}`}
+                      />
+                    </div>
                   </div>
                 </div>
-                <div className="price-info">
-                  <span>Rango disponible: ${isNaN(priceRangeDynamic[0]) ? 0 : priceRangeDynamic[0]} - ${isNaN(priceRangeDynamic[1]) ? 10 : priceRangeDynamic[1]}</span>
-                </div>
-              </div>
 
-              <button 
-                className="clear-filters-btn"
-                onClick={() => {
-                  setSearchTerm('');
-                  setPriceRange(priceRangeDynamic);
-                  showInfo('Filtros limpiados');
-                }}
-              >
-                <RefreshCw size={16} />
-                Limpiar
-              </button>
+                {/* Botón Limpiar */}
+                <button 
+                  className="clear-filters-btn"
+                  onClick={() => {
+                    setSearchTerm('');
+                    setSelectedCategory('');
+                    setPriceRange(priceRangeDynamic);
+                    showInfo('Filtros limpiados');
+                  }}
+                >
+                  <RefreshCw size={16} />
+                  Limpiar
+                </button>
+              </div>
             </div>
           )}
         </div>
@@ -361,6 +402,7 @@ export default function Catalogo() {
           <p>
             Mostrando {filteredProducts.length} de {products.length} productos
             {searchTerm && ` para "${searchTerm}"`}
+            {selectedCategory && ` en categoría "${selectedCategory}"`}
             {priceRange[0] !== priceRangeDynamic[0] || priceRange[1] !== priceRangeDynamic[1] ? 
               ` (Precio: $${isNaN(priceRange[0]) ? 0 : priceRange[0]} - $${isNaN(priceRange[1]) ? 10 : priceRange[1]})` : ''}
           </p>

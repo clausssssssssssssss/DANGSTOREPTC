@@ -5,6 +5,7 @@ import {
   createCustomOrder,
   getMyCustomOrders,
   getAllPendingOrders,
+  getAllOrders,
   quoteCustomOrder,
   respondCustomOrder,
   getCustomOrderById 
@@ -32,6 +33,13 @@ router.get(
   '/pending',
   authMiddleware(['admin']),
   getAllPendingOrders
+);
+
+// Ver todas las órdenes (admin) - para filtros
+router.get(
+  '/all',
+  authMiddleware(['admin']),
+  getAllOrders
 );
 
 // Obtener una solicitud personalizada por ID - DEBE ESTAR DESPUÉS

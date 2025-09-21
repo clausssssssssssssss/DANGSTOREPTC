@@ -152,6 +152,111 @@ const MenuStyles = StyleSheet.create({
     color: '#6c5ce7',
     fontWeight: 'bold',
   },
+  // Estilos para órdenes recientes
+  recentOrdersContainer: {
+    marginTop: 20,
+  },
+  recentOrdersHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 15,
+  },
+  recentOrdersTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#2d3436',
+  },
+  verTodasText: {
+    fontSize: 14,
+    color: '#6c5ce7',
+    fontWeight: '600',
+  },
+  recentOrderCard: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 15,
+    marginBottom: 10,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  recentOrderInfo: {
+    flex: 1,
+  },
+  recentOrderTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#2d3436',
+    marginBottom: 4,
+  },
+  recentOrderDate: {
+    fontSize: 12,
+    color: '#636e72',
+  },
+  recentOrderStatus: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  recentOrderStatusText: {
+    fontSize: 12,
+    color: '#fdcb6e',
+    backgroundColor: '#fff3e0',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+    marginRight: 8,
+  },
+  recentOrderArrow: {
+    fontSize: 18,
+    color: '#636e72',
+  },
+  loadingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 20,
+  },
+  loadingText: {
+    marginLeft: 10,
+    fontSize: 14,
+    color: '#636e72',
+  },
+  emptyOrdersContainer: {
+    padding: 20,
+    alignItems: 'center',
+  },
+  emptyOrdersText: {
+    fontSize: 14,
+    color: '#636e72',
+    fontStyle: 'italic',
+  },
+  // Estilos para indicador de tiempo real
+  titleContainer: {
+    flexDirection: 'column',
+  },
+  realTimeIndicator: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 2,
+  },
+  realTimeDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: '#00b894',
+    marginRight: 4,
+  },
+  realTimeText: {
+    fontSize: 10,
+    color: '#00b894',
+    fontWeight: '500',
+  },
 });
 
 export { MenuStyles };

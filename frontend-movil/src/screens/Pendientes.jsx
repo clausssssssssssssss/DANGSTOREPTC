@@ -15,11 +15,12 @@ import {
 import { customOrdersAPI, getImageUrl } from '../services/customOrders';
 import { AuthContext } from '../context/AuthContext';
 import { pendientesStyles as styles } from '../components/styles/PendientesStyles';
+import DateFilter from '../components/DateFilter';
+import { useOrdersWithFilters } from '../hooks/useOrdersWithFilters';
 
 const Pendientes = ({ navigation }) => {
   const { authToken, user } = useContext(AuthContext);
-  const [orders, setOrders] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { orders, loading, error, activeFilter, dateFilter, changeFilter, refresh } = useOrdersWithFilters();
   const [refreshing, setRefreshing] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState(null);
@@ -27,64 +28,10 @@ const Pendientes = ({ navigation }) => {
   const [comment, setComment] = useState('');
   const [priceError, setPriceError] = useState('');
   const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    if (authToken) {
-      fetchPendingOrders();
-    } else {
-      setLoading(false);
-      Alert.alert('Error', 'No estás autenticado. Por favor inicia sesión.');
-    }
-  }, [authToken]);
-
-  const fetchPendingOrders = async () => {
-    try {
-      setError(null); // Limpiar errores previos
-      console.log('🔄 Iniciando fetch de órdenes pendientes...');
-      const data = await customOrdersAPI.getPendingOrders();
-      console.log('✅ Órdenes obtenidas:', data);
-      
-      // Verificar que data sea un array
-      if (Array.isArray(data)) {
-        setOrders(data);
-        console.log(`📊 ${data.length} órdenes cargadas correctamente`);
-      } else {
-        console.error('❌ Data no es un array:', typeof data, data);
-        throw new Error('Formato de datos inesperado del servidor');
-      }
-    } catch (error) {
-      console.error('❌ Error fetching pending orders:', error);
-      console.error('Error details:', {
-        message: error.message,
-        stack: error.stack,
-        name: error.name
-      });
-      
-      setError(error.message);
-      
-      // Mostrar mensaje de error más específico
-      let errorMessage = 'No se pudieron cargar las órdenes pendientes';
-      if (error.message.includes('401') || error.message.includes('Unauthorized')) {
-        errorMessage = 'Sesión expirada. Por favor inicia sesión nuevamente.';
-      } else if (error.message.includes('403') || error.message.includes('Forbidden')) {
-        errorMessage = 'No tienes permisos para ver las órdenes pendientes.';
-      } else if (error.message.includes('500') || error.message.includes('Internal Server Error')) {
-        errorMessage = 'Error del servidor. Intenta nuevamente más tarde.';
-      } else if (error.message.includes('Network') || error.message.includes('fetch')) {
-        errorMessage = 'Error de conexión. Verifica tu internet.';
-      }
-      
-      Alert.alert('Error de Conexión', errorMessage);
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-    }
-  };
 
   const onRefresh = () => {
     setRefreshing(true);
-    fetchPendingOrders();
+    refresh().finally(() => setRefreshing(false));
   };
 
   const openQuoteModal = (order) => {
@@ -123,9 +70,8 @@ const Pendientes = ({ navigation }) => {
       await customOrdersAPI.quoteOrder(selectedOrder._id, price, comment);
       Alert.alert('Éxito', 'Cotización enviada correctamente');
       closeModal();
-      fetchPendingOrders(); // Refrescar la lista
+      refresh(); // Refrescar la lista
     } catch (error) {
-      console.error('Error submitting quote:', error);
       Alert.alert('Error', 'No se pudo enviar la cotización');
     } finally {
       setSubmitting(false);
@@ -147,9 +93,8 @@ const Pendientes = ({ navigation }) => {
               await customOrdersAPI.rejectOrder(selectedOrder._id, comment);
               Alert.alert('Orden rechazada', 'La orden ha sido rechazada');
               closeModal();
-              fetchPendingOrders();
+              refresh();
             } catch (error) {
-              console.error('Error rejecting order:', error);
               Alert.alert('Error', 'No se pudo rechazar la orden');
             } finally {
               setSubmitting(false);
@@ -173,7 +118,6 @@ const Pendientes = ({ navigation }) => {
 
   const getModelTypeLabel = (modelType) => {
     if (!modelType) {
-      console.warn('⚠️ modelType no definido en getModelTypeLabel');
       return 'Tipo no especificado';
     }
     
@@ -186,7 +130,6 @@ const Pendientes = ({ navigation }) => {
     
     const label = labels[modelType];
     if (!label) {
-      console.warn(`⚠️ Tipo de modelo no reconocido: ${modelType}`);
       return `Tipo: ${modelType}`;
     }
     
@@ -196,9 +139,11 @@ const Pendientes = ({ navigation }) => {
   const renderOrderCard = ({ item }) => {
     // Validar que el item tenga los datos necesarios
     if (!item || !item._id) {
-      console.warn('⚠️ Item inválido en renderOrderCard:', item);
       return null;
     }
+
+    // Log temporal para ver el status de las órdenes
+    console.log('Order status:', item.status, 'Order ID:', item._id);
 
     return (
       <View style={styles.orderCard}>
@@ -210,15 +155,30 @@ const Pendientes = ({ navigation }) => {
             <Text style={styles.clientContact}>
               {item.user?.email || 'Sin email'}
             </Text>
-            {item.user?.phone && (
+            {item.user?.phone ? (
               <Text style={styles.clientContact}>{item.user.phone}</Text>
-            )}
+            ) : null}
             <Text style={styles.orderDate}>
               {item.createdAt ? formatDate(item.createdAt) : 'Fecha no disponible'}
             </Text>
           </View>
-          <View style={styles.statusBadge}>
-            <Text style={styles.statusText}>PENDIENTE</Text>
+          <View style={[
+            styles.statusBadge,
+            item.status === 'quoted' && styles.statusBadgeQuoted,
+            item.status === 'accepted' && styles.statusBadgeAccepted,
+            item.status === 'rejected' && styles.statusBadgeRejected
+          ]}>
+            <Text style={[
+              styles.statusText,
+              item.status === 'quoted' && styles.statusTextQuoted,
+              item.status === 'accepted' && styles.statusTextAccepted,
+              item.status === 'rejected' && styles.statusTextRejected
+            ]}>
+              {item.status === 'quoted' ? 'COTIZADA' :
+               item.status === 'accepted' ? 'ACEPTADA' :
+               item.status === 'rejected' ? 'RECHAZADA' :
+               'PENDIENTE'}
+            </Text>
           </View>
         </View>
 
@@ -227,7 +187,6 @@ const Pendientes = ({ navigation }) => {
             source={{ uri: getImageUrl(item.imageUrl) }}
             style={styles.orderImage}
             resizeMode="cover"
-            onError={(error) => console.warn('Error cargando imagen:', error)}
           />
         )}
 
@@ -235,39 +194,79 @@ const Pendientes = ({ navigation }) => {
           <Text style={styles.modelType}>
             {getModelTypeLabel(item.modelType || 'tipo_desconocido')}
           </Text>
-          {item.description && (
+          {item.description ? (
             <Text style={styles.description}>{item.description}</Text>
-          )}
+          ) : null}
         </View>
 
-        <TouchableOpacity
-          style={styles.actionButton}
-          onPress={() => openQuoteModal(item)}
-        >
-          <Text style={styles.actionButtonText}>Cotizar</Text>
-        </TouchableOpacity>
+        {activeFilter === 'pending' ? (
+          <TouchableOpacity
+            style={styles.actionButton}
+            onPress={() => openQuoteModal(item)}
+          >
+            <Text style={styles.actionButtonText}>Cotizar</Text>
+          </TouchableOpacity>
+        ) : (
+          <View style={styles.statusContainer}>
+            <Text style={[
+              styles.statusText,
+              activeFilter === 'quoted' && styles.statusTextQuoted,
+              activeFilter === 'rejected' && styles.statusTextRejected
+            ]}>
+              {activeFilter === 'quoted' ? 'Cotizada' : 'Rechazada'}
+            </Text>
+            {activeFilter === 'quoted' && item.price ? (
+              <Text style={styles.priceText}>${item.price}</Text>
+            ) : null}
+          </View>
+        )}
       </View>
     );
   };
 
-  const renderEmptyState = () => (
-    <View style={styles.emptyContainer}>
-      <Text style={styles.emptyIcon}>📋</Text>
-      <Text style={styles.emptyTitle}>No hay órdenes pendientes</Text>
-      <Text style={styles.emptyDescription}>
-        Cuando los clientes soliciten cotizaciones para productos personalizados, aparecerán aquí.
-      </Text>
-    </View>
-  );
+  const renderEmptyState = () => {
+    const getEmptyMessage = () => {
+      switch (activeFilter) {
+        case 'pending':
+          return {
+            title: 'No hay órdenes pendientes',
+            description: 'Cuando los clientes soliciten cotizaciones para productos personalizados, aparecerán aquí.'
+          };
+        case 'quoted':
+          return {
+            title: 'No hay órdenes cotizadas',
+            description: 'Las órdenes que ya han sido cotizadas aparecerán aquí.'
+          };
+        case 'rejected':
+          return {
+            title: 'No hay órdenes rechazadas',
+            description: 'Las órdenes que han sido rechazadas aparecerán aquí.'
+          };
+        default:
+          return {
+            title: 'No hay órdenes',
+            description: 'No se encontraron órdenes para mostrar.'
+          };
+      }
+    };
+
+    const message = getEmptyMessage();
+    
+    return (
+      <View style={styles.emptyContainer}>
+        <Text style={styles.emptyTitle}>{message.title}</Text>
+        <Text style={styles.emptyDescription}>{message.description}</Text>
+      </View>
+    );
+  };
 
   const renderErrorState = () => (
     <View style={styles.errorContainer}>
-      <Text style={styles.errorIcon}>⚠️</Text>
       <Text style={styles.errorTitle}>Error al cargar órdenes</Text>
       <Text style={styles.errorDescription}>
         {error || 'Ocurrió un error inesperado'}
       </Text>
-      <TouchableOpacity style={styles.retryButton} onPress={fetchPendingOrders}>
+      <TouchableOpacity style={styles.retryButton} onPress={refresh}>
         <Text style={styles.retryButtonText}>Reintentar</Text>
       </TouchableOpacity>
     </View>
@@ -304,12 +303,13 @@ const Pendientes = ({ navigation }) => {
           <Text style={styles.backButtonText}>←</Text>
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Órdenes Cotizadas</Text>
-        <View style={styles.authStatus}>
-          <Text style={styles.authStatusText}>
-            {authToken ? '🔐' : '❌'}
-          </Text>
-        </View>
+        <View style={styles.placeholder} />
       </View>
+
+      <DateFilter 
+        activeFilter={activeFilter}
+        onFilterChange={changeFilter}
+      />
 
       <View style={styles.content}>
         {error ? (

@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 // URL del servidor local para desarrollo
 const API_BASE = 'http://192.168.0.9:4000/api';
 
-export function useCategories() {
+function useCategories() {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -64,3 +64,5 @@ export function useCategories() {
 
   return { categories, loading, error, refresh };
 }
+
+export default useCategories;

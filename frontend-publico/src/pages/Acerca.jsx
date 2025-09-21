@@ -177,7 +177,7 @@ const About = () => {
 
 
       <footer className="footer">
-        <div className="footer-container" style={{ maxWidth: '100%', padding: '0 2rem' }}>
+        <div className="footer-container">
           <div className="footer-sections">
             {/* Columna 1: DANGSTORE */}
             <div className="footer-section">

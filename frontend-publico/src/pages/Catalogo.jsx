@@ -318,7 +318,7 @@ export default function Catalogo() {
                   <div className="filter-dropdown-panel">
                     <div className="filter-options">
                       <label className="filter-option">
-                        <input
+                    <input
                           type="checkbox"
                           checked={selectedCategory === ''}
                           onChange={() => setSelectedCategory('')}
@@ -334,7 +334,7 @@ export default function Catalogo() {
                       ) : (
                         categories.map((category) => (
                           <label key={category._id} className="filter-option">
-                            <input
+                    <input
                               type="checkbox"
                               checked={selectedCategory === category.name}
                               onChange={() => setSelectedCategory(category.name)}
@@ -344,8 +344,8 @@ export default function Catalogo() {
                           </label>
                         ))
                       )}
-                    </div>
                   </div>
+                </div>
                 )}
               </div>
 

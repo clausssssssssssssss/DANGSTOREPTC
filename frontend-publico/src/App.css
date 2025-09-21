@@ -39,9 +39,7 @@ body {
 
 .main-content {
   flex: 1;
-  padding: 2rem;
-  max-width: 1200px;
-  margin: 0 auto;
+  padding: 0;
   width: 100%;
   padding-top: 6rem; /* Espacio para navbar */
 }
@@ -179,7 +177,8 @@ body {
 /* ===== RESPONSIVE DESIGN ===== */
 @media (max-width: 768px) {
   .main-content {
-    padding: 1rem;
+    padding: 0;
+    padding-top: 6rem;
   }
   
   .error-content {
@@ -198,7 +197,8 @@ body {
 
 @media (max-width: 480px) {
   .main-content {
-    padding: 0.5rem;
+    padding: 0;
+    padding-top: 6rem;
   }
   
   .error-content {

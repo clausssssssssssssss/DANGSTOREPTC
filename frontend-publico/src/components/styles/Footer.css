@@ -1,16 +1,27 @@
+/* Prevenir scroll horizontal */
+html, body {
+  overflow-x: hidden;
+  margin: 0;
+  padding: 0;
+}
+
 .footer {
   background: #1a1a1a; /* Mismo color que el navbar */
   color: #ffffff;
   padding: 40px 0 20px;
-  margin-top: 40px;
+  margin-top: 0;
   text-align: center;
   position: relative;
+  width: 100vw;
+  margin-left: calc(-50vw + 50%);
+  box-sizing: border-box;
 }
 
 .footer-container {
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 20px;
+  width: 100%;
 }
 
 .footer-sections {

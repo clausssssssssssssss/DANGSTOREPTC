@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 
-// URL del servidor local para desarrollo
-const API_BASE = 'http://localhost:4000/api';
+// URL del servidor en producción (Render)
+const API_BASE = 'https://dangstoreptc.onrender.com/api';
 
 export function useCart(userId) {
   const [cart, setCart] = useState([]);
@@ -48,7 +48,7 @@ export function useCart(userId) {
     (async () => {
       try {
         const data = await authFetch(`/cart`);
-        setCart((data.products || []).map(p => ({
+        setCart((data.products || []).filter(p => p.product && p.product._id).map(p => ({
           product: {
             id: p.product._id,
             name: p.product.name,

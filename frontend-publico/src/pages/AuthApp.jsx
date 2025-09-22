@@ -3,7 +3,6 @@ import { Eye, EyeOff, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import "../components/styles/AuthApp.css";  
 import logoIcon from "../assets/DANGSTORELOGOPRUEBA.PNG";
-import fondoDangStore from "../assets/FondoDangStore.jpg";
 
 // ——— imports para el login y contexto ———
 import { useAuth, parseJwt } from '../hooks/useAuth.jsx';
@@ -11,8 +10,26 @@ import { useToast } from '../hooks/useToast';
 import ToastContainer from '../components/ui/ToastContainer';
 import SplashScreen from '../components/SplashScreen';
 
-// URL del servidor
-const API_URL = "http://192.168.0.9:4000/api";
+// URL del servidor local para desarrollo
+const API_URL = 'http://localhost:4000/api';
+
+// ——— COMPONENTE DECORATIVO ———
+const DecorativeElements = () => (
+  <div className="decorative-elements">
+    {/* Círculos decorativos de fondo */}
+    <div className="decorative-circle decorative-circle-1"></div>
+    <div className="decorative-circle decorative-circle-2"></div>
+    <div className="decorative-circle decorative-circle-3"></div>
+    
+    {/* Formas geométricas */}
+    <div className="decorative-shape decorative-triangle"></div>
+    <div className="decorative-shape decorative-square"></div>
+    
+    {/* Líneas decorativas */}
+    <div className="decorative-line decorative-line-1"></div>
+    <div className="decorative-line decorative-line-2"></div>
+  </div>
+);
 
 const AuthApp = () => {
   const navigate = useNavigate();
@@ -62,28 +79,6 @@ const AuthApp = () => {
   // Estado para reenvío de código
   const [isResending, setIsResending] = useState(false);
 
-  // Cargar credenciales guardadas al iniciar
-  useEffect(() => {
-    const loadStoredData = async () => {
-      try {
-        const storedCredentials = localStorage.getItem('savedCredentials');
-        if (storedCredentials) {
-          const credentials = JSON.parse(storedCredentials);
-          setSavedCredentials(credentials);
-          setLoginData({
-            email: credentials.email,
-            password: ''
-          });
-          setRememberMe(true);
-        }
-      } catch (error) {
-        console.error('Error loading stored credentials:', error);
-      }
-    };
-
-    loadStoredData();
-  }, []);
-
   // ——— FUNCIÓN PARA MANEJAR CUANDO EL SPLASH TERMINA ———
   const handleSplashComplete = () => {
     setShowSplash(false);
@@ -105,16 +100,13 @@ const AuthApp = () => {
     }
   };
 
-  // ——— FUNCIÓN DE LOGIN MODIFICADA PARA MOSTRAR SPLASH ———
+  // ——— FUNCIÓN DE LOGIN MODIFICADA PARA MANEJAR "RECORDARME" ———
   const handleLogin = async () => {
     const { email, password } = loginData;
     if (!email || !password) {
       showError('Por favor completa todos los campos');
       return;
     }
-    
-    setLoading(true);
-    
     try {
       const res = await fetch(`${API_URL}/customers/login`, {
         method: 'POST',
@@ -132,13 +124,6 @@ const AuthApp = () => {
         
         setUser(user);
         console.log('👤 User set in context:', user);
-        
-        // Guardar credenciales si "Recordarme" está activado
-        if (rememberMe) {
-          localStorage.setItem('savedCredentials', JSON.stringify({ email }));
-        } else {
-          localStorage.removeItem('savedCredentials');
-        }
         
         // ——— GUARDAR DATOS DEL USUARIO Y MOSTRAR SPLASH ———
         setUserData({
@@ -259,8 +244,7 @@ const AuthApp = () => {
             <button
               type="button"
               onClick={handleLogin}
-              className="auth-button login-button"
-              disabled={loading}
+              className="auth-button"
             >
               {loading ? 'Cargando...' : 'Iniciar Sesión'}
             </button>

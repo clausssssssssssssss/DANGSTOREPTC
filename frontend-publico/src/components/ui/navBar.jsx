@@ -14,7 +14,7 @@ import {
 import '../styles/navBar.css';
 import logo from '../../assets/DANGSTORELOGOPRUEBA__1.png';
 
-const base = 'http://localhost:4000/api';
+const base = 'https://dangstoreptc.onrender.com/api';
 
 export default function NavBar() {
   const location = useLocation();
@@ -37,7 +37,7 @@ export default function NavBar() {
         });
         if (!res.ok) return;
         const orders = await res.json();
-        if (orders.some(o => o.status === 'quoted')) {
+        if (Array.isArray(orders) && orders.some(o => o.status === 'quoted')) {
           setHasQuotes(true);
         }
       } catch (err) {

@@ -1,11 +1,64 @@
 import React, { useEffect } from 'react';
 import '../components/styles/Footer.css';
 import '../components/styles/Acerca.css';
+import '../components/styles/CarouselIntegration.css';
 import { Instagram } from 'lucide-react';
 import llaveroImg from '../assets/llavero.png';
 import cuadroImg from '../assets/cuadro.png';
+import ProductCarousel from '../components/catalog/ProductCarousel';
+import { usePopularProducts } from '../components/catalog/hook/usePopularProducts';
+import { useAuth } from '../hooks/useAuth';
+import { useCart } from '../components/cart/hook/useCart';
+import { useFavorites } from '../components/catalog/hook/useFavorites';
+import { useToast } from '../hooks/useToast';
+import ToastContainer from '../components/ui/ToastContainer';
 
 const About = () => {
+  const { user } = useAuth();
+  const userId = user?.id;
+  const { popularProducts, loading: productsLoading, error: productsError } = usePopularProducts();
+  const { addToCart } = useCart(userId);
+  const { favorites, toggleFavorite } = useFavorites(userId);
+  const { toasts, showSuccess, showError, showWarning, removeToast } = useToast();
+
+  // Función para manejar agregar al carrito
+  const handleAddToCart = async (product) => {
+    if (!user) {
+      showWarning("Debes iniciar sesión para agregar productos al carrito");
+      return;
+    }
+    try {
+      await addToCart({ productId: product.id || product._id, quantity: 1 });
+      showSuccess(`${product.name} añadido al carrito`);
+    } catch (err) {
+      console.error('Error adding to cart:', err);
+      showError(err.message || 'Error al añadir producto');
+    }
+  };
+
+  // Función para manejar click en producto (redirigir al catálogo)
+  const handleProductClick = (product) => {
+    window.location.href = `/catalogo#producto-${product.id || product._id}`;
+  };
+
+  // Función para manejar favoritos
+  const handleToggleFavorite = async (productId) => {
+    if (!user) {
+      showWarning('Debes iniciar sesión para marcar productos como favoritos');
+      return;
+    }
+
+    const result = await toggleFavorite(productId);
+    if (result.success) {
+      if (result.wasFavorite) {
+        showSuccess('Producto eliminado de favoritos');
+      } else {
+        showSuccess('Producto agregado a favoritos');
+      }
+    } else {
+      showError('Error al actualizar favoritos');
+    }
+  };
 
   useEffect(() => {
     // Animación de entrada para elementos
@@ -132,6 +185,34 @@ const About = () => {
             </div>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* Carrusel de Productos Populares */}
+      <section className="popular-products-carousel-section animate-on-scroll" style={{ background: '#ffffff', padding: '4rem 0' }}>
+        <div className="container" style={{ maxWidth: '100%', padding: '0 2rem' }}>
+          {productsLoading ? (
+            <div className="carousel-loading-state">
+              <div className="loading-spinner">
+                <div className="spinner"></div>
+                <p>Cargando productos populares...</p>
+              </div>
+            </div>
+          ) : productsError ? (
+            <div className="carousel-error-state">
+              <p>Error al cargar productos populares: {productsError}</p>
+            </div>
+          ) : popularProducts.length > 0 ? (
+            <ProductCarousel
+              products={popularProducts}
+              autoPlay={true}
+              autoPlayInterval={5000}
+            />
+          ) : (
+            <div className="no-popular-products">
+              <p>No hay productos populares disponibles en este momento</p>
+            </div>
+          )}
         </div>
       </section>
 
@@ -289,6 +370,9 @@ const About = () => {
           </div>
         </div>
       </footer>
+      
+      {/* Toast Container para notificaciones */}
+      <ToastContainer toasts={toasts} removeToast={removeToast} />
     </div>
     
   );

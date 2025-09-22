@@ -200,6 +200,38 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
+// GET /api/products/popular - Obtener productos populares para el carrusel
+router.get('/popular', async (req, res) => {
+  try {
+    // Por ahora, obtener los 6 productos más recientes o con más stock
+    // En el futuro se puede implementar lógica más compleja basada en ventas/ratings
+    const popularProducts = await Product.find()
+      .sort({ disponibles: -1, createdAt: -1 }) // Ordenar por stock y fecha
+      .limit(6)
+      .lean();
+    
+    const formattedProducts = popularProducts.map(product => ({
+      id: product._id,
+      name: product.nombre,
+      price: product.precio,
+      image: product.imagen,
+      category: product.categoria,
+      description: product.descripcion,
+      stock: product.disponibles
+    }));
+    
+    res.json({
+      success: true,
+      products: formattedProducts,
+      total: formattedProducts.length,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error('Error al obtener productos populares:', error);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
+});
+
 // GET /api/products/stock/summary - Obtener solo información de stock (más eficiente)
 router.get('/stock/summary', async (req, res) => {
   try {

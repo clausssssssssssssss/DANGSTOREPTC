@@ -1,0 +1,144 @@
+/* ====== INTEGRACIÓN DEL CARRUSEL EN LA PÁGINA PRINCIPAL ====== */
+
+.popular-products-carousel-section {
+  position: relative;
+  overflow: hidden;
+}
+
+.popular-products-carousel-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(126,205,238,0.02) 0%, rgba(180,148,214,0.02) 100%);
+  pointer-events: none;
+}
+
+/* ====== ESTADOS DE CARGA Y ERROR ====== */
+
+.carousel-loading-state,
+.carousel-error-state,
+.no-popular-products {
+  text-align: center;
+  padding: 4rem 2rem;
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.carousel-loading-state .loading-spinner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.carousel-loading-state .spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid rgba(126, 205, 238, 0.2);
+  border-top: 4px solid #7ECDEE;
+  border-radius: 50%;
+  animation: carousel-spin 1s linear infinite;
+}
+
+.carousel-loading-state p {
+  color: #7f8c8d;
+  font-size: 1.1rem;
+  font-weight: 500;
+  margin: 0;
+}
+
+.carousel-error-state p {
+  color: #e74c3c;
+  font-size: 1.1rem;
+  font-weight: 500;
+  margin: 0;
+  background: rgba(231, 76, 60, 0.1);
+  padding: 1rem 2rem;
+  border-radius: 0.5rem;
+  border: 1px solid rgba(231, 76, 60, 0.2);
+}
+
+.no-popular-products p {
+  color: #95a5a6;
+  font-size: 1.1rem;
+  font-weight: 500;
+  margin: 0;
+  font-style: italic;
+}
+
+@keyframes carousel-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* ====== DECORACIONES PARA LA SECCIÓN DEL CARRUSEL ====== */
+
+.popular-products-carousel-section .pixel-decoration {
+  position: absolute;
+  z-index: 1;
+}
+
+.popular-products-carousel-section .pixel-decoration:nth-child(1) {
+  top: 10%;
+  left: 5%;
+}
+
+.popular-products-carousel-section .pixel-decoration:nth-child(2) {
+  top: 20%;
+  right: 8%;
+}
+
+.popular-products-carousel-section .pixel-decoration:nth-child(3) {
+  bottom: 15%;
+  left: 12%;
+}
+
+/* ====== RESPONSIVE ====== */
+
+@media (max-width: 768px) {
+  .carousel-loading-state,
+  .carousel-error-state,
+  .no-popular-products {
+    padding: 3rem 1rem;
+    min-height: 150px;
+  }
+  
+  .carousel-loading-state .spinner {
+    width: 32px;
+    height: 32px;
+    border-width: 3px;
+  }
+  
+  .carousel-loading-state p,
+  .carousel-error-state p,
+  .no-popular-products p {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .carousel-loading-state,
+  .carousel-error-state,
+  .no-popular-products {
+    padding: 2rem 0.5rem;
+    min-height: 120px;
+  }
+  
+  .carousel-loading-state .spinner {
+    width: 28px;
+    height: 28px;
+  }
+  
+  .carousel-loading-state p,
+  .carousel-error-state p,
+  .no-popular-products p {
+    font-size: 0.9rem;
+  }
+}
+

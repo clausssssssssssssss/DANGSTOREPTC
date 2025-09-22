@@ -14,7 +14,7 @@ import {
 import '../styles/navBar.css';
 import logo from '../../assets/DANGSTORELOGOPRUEBA__1.png';
 
-const base = 'http://localhost:4000/api';
+const base = 'https://dangstoreptc.onrender.com/api';
 
 export default function NavBar() {
   const location = useLocation();

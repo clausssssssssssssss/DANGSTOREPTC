@@ -3,15 +3,13 @@ import { Eye, EyeOff, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import "../components/styles/AuthApp.css";  
 import logoIcon from "../assets/DANGSTORELOGOPRUEBA.PNG";
-
-// ——— imports para el login y contexto ———
 import { useAuth, parseJwt } from '../hooks/useAuth.jsx';
 import { useToast } from '../hooks/useToast';
 import ToastContainer from '../components/ui/ToastContainer';
 import SplashScreen from '../components/SplashScreen';
 
-// URL del servidor local para desarrollo
-const API_URL = 'http://localhost:4000/api';
+// URL del servidor en producción (Render)
+const API_URL = 'https://dangstoreptc.onrender.com/api';
 
 // ——— COMPONENTE DECORATIVO ———
 const DecorativeElements = () => (

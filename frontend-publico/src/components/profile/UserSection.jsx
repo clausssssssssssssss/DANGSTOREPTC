@@ -3,7 +3,7 @@ import { useAuth } from '../../hooks/useAuth';
 import { User, Mail, Phone, MapPin, Edit, Save, X, AlertTriangle } from 'lucide-react';
 
 // URL del servidor local para desarrollo
-const API_BASE = 'http://localhost:4000/api';
+const API_BASE = 'https://dangstoreptc.onrender.com/api';
 
 const UserSection = ({ userId }) => {
   const [user, setUser] = useState({});

@@ -1,6 +1,6 @@
 // src/services/api.js
-// URL del servidor local para desarrollo
-const API_URL = 'http://localhost:4000/api';
+// URL del servidor en producción (Render)
+const API_URL = 'https://dangstoreptc.onrender.com/api';
 
 const getAuthHeaders = () => {
   const token = localStorage.getItem('token')

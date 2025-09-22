@@ -1,64 +1,11 @@
 import React, { useEffect } from 'react';
 import '../components/styles/Footer.css';
 import '../components/styles/Acerca.css';
-import '../components/styles/CarouselIntegration.css';
 import { Instagram } from 'lucide-react';
 import llaveroImg from '../assets/llavero.png';
 import cuadroImg from '../assets/cuadro.png';
-import ProductCarousel from '../components/catalog/ProductCarousel';
-import { usePopularProducts } from '../components/catalog/hook/usePopularProducts';
-import { useAuth } from '../hooks/useAuth';
-import { useCart } from '../components/cart/hook/useCart';
-import { useFavorites } from '../components/catalog/hook/useFavorites';
-import { useToast } from '../hooks/useToast';
-import ToastContainer from '../components/ui/ToastContainer';
 
 const About = () => {
-  const { user } = useAuth();
-  const userId = user?.id;
-  const { popularProducts, loading: productsLoading, error: productsError } = usePopularProducts();
-  const { addToCart } = useCart(userId);
-  const { favorites, toggleFavorite } = useFavorites(userId);
-  const { toasts, showSuccess, showError, showWarning, removeToast } = useToast();
-
-  // Función para manejar agregar al carrito
-  const handleAddToCart = async (product) => {
-    if (!user) {
-      showWarning("Debes iniciar sesión para agregar productos al carrito");
-      return;
-    }
-    try {
-      await addToCart({ productId: product.id || product._id, quantity: 1 });
-      showSuccess(`${product.name} añadido al carrito`);
-    } catch (err) {
-      console.error('Error adding to cart:', err);
-      showError(err.message || 'Error al añadir producto');
-    }
-  };
-
-  // Función para manejar click en producto (redirigir al catálogo)
-  const handleProductClick = (product) => {
-    window.location.href = `/catalogo#producto-${product.id || product._id}`;
-  };
-
-  // Función para manejar favoritos
-  const handleToggleFavorite = async (productId) => {
-    if (!user) {
-      showWarning('Debes iniciar sesión para marcar productos como favoritos');
-      return;
-    }
-
-    const result = await toggleFavorite(productId);
-    if (result.success) {
-      if (result.wasFavorite) {
-        showSuccess('Producto eliminado de favoritos');
-      } else {
-        showSuccess('Producto agregado a favoritos');
-      }
-    } else {
-      showError('Error al actualizar favoritos');
-    }
-  };
 
   useEffect(() => {
     // Animación de entrada para elementos
@@ -83,29 +30,8 @@ const About = () => {
 
   return (
     <div className="about-page" style={{ background: '#ffffff' }}>
-      {/* Decoraciones pixeladas */}
-      <div className="pixel-decoration" style={{ top: '10%', left: '5%' }}>
-        <div className="pixel-float" style={{ top: '0px', left: '0px' }}></div>
-        <div className="pixel-float" style={{ top: '20px', left: '30px' }}></div>
-        <div className="pixel-float" style={{ top: '40px', left: '10px' }}></div>
-      </div>
-      
-      <div className="pixel-decoration" style={{ top: '20%', right: '10%' }}>
-        <div className="hama-bead" style={{ top: '0px', left: '0px' }}></div>
-        <div className="hama-bead" style={{ top: '25px', left: '20px' }}></div>
-        <div className="pixel-float" style={{ top: '50px', left: '5px' }}></div>
-      </div>
-      
-      <div className="pixel-decoration" style={{ bottom: '30%', left: '15%' }}>
-        <div className="pixel-float" style={{ top: '0px', left: '0px' }}></div>
-        <div className="hama-bead" style={{ top: '30px', left: '15px' }}></div>
-        <div className="pixel-float" style={{ top: '60px', left: '35px' }}></div>
-      </div>
-
-      <div className="pixel-grid"></div>
-
       {/* Hero con fondo blanco, olas y espacio para video */}
-      <section className="hero-olas-section">
+      <section className="hero-olas-section" style={{ background: '#ffffff' }}>
         <div className="hero-content-grid container animate-on-scroll" style={{ maxWidth: '100%', padding: '0 2rem' }}>
           <div className="hero-text">
             <h1 className="hero-title">DANGSTORE</h1>
@@ -143,17 +69,7 @@ const About = () => {
       </section>
 
       {/* ¿Qué hacemos? - Cards */}
-      <section className="what-cards animate-on-scroll" style={{ background: '#fafafa', position: 'relative' }}>
-        {/* Decoraciones adicionales para la sección de cards */}
-        <div className="pixel-decoration" style={{ top: '10%', right: '5%' }}>
-          <div className="hama-bead" style={{ top: '0px', left: '0px' }}></div>
-          <div className="pixel-float" style={{ top: '25px', left: '20px' }}></div>
-        </div>
-        
-        <div className="pixel-decoration" style={{ bottom: '20%', left: '8%' }}>
-          <div className="pixel-float" style={{ top: '0px', left: '0px' }}></div>
-          <div className="hama-bead" style={{ top: '35px', left: '10px' }}></div>
-        </div>
+      <section className="what-cards animate-on-scroll" style={{ background: '#fafafa' }}>
         <div className="container" style={{ maxWidth: '100%', padding: '0 2rem' }}>
           <div className="gradient-panel">
             <h2 className="section-title centered large">¿Qué hacemos?</h2>
@@ -188,54 +104,10 @@ const About = () => {
         </div>
       </section>
 
-      {/* Carrusel de Productos Populares */}
-      <section className="popular-products-carousel-section animate-on-scroll" style={{ background: '#ffffff', padding: '4rem 0' }}>
-        <div className="container" style={{ maxWidth: '100%', padding: '0 2rem' }}>
-          {productsLoading ? (
-            <div className="carousel-loading-state">
-              <div className="loading-spinner">
-                <div className="spinner"></div>
-                <p>Cargando productos populares...</p>
-              </div>
-            </div>
-          ) : productsError ? (
-            <div className="carousel-error-state">
-              <p>Error al cargar productos populares: {productsError}</p>
-            </div>
-          ) : popularProducts.length > 0 ? (
-            <ProductCarousel
-              products={popularProducts}
-              autoPlay={true}
-              autoPlayInterval={5000}
-            />
-          ) : (
-            <div className="no-popular-products">
-              <p>No hay productos populares disponibles en este momento</p>
-            </div>
-          )}
-        </div>
-      </section>
-
       {/* Sección antigua removida por solicitud */}
 
       {/* Misión, Visión y Valores */}
-      <section className="mvv-section animate-on-scroll" style={{ background: 'linear-gradient(135deg, rgba(126,205,238,0.08) 0%, rgba(180,148,214,0.08) 100%)', position: 'relative' }}>
-        {/* Decoraciones especiales para MVV */}
-        <div className="pixel-decoration" style={{ top: '15%', left: '12%' }}>
-          <div className="hama-bead" style={{ top: '0px', left: '0px' }}></div>
-          <div className="pixel-float" style={{ top: '30px', left: '25px' }}></div>
-          <div className="hama-bead" style={{ top: '60px', left: '5px' }}></div>
-        </div>
-        
-        <div className="pixel-decoration" style={{ top: '25%', right: '8%' }}>
-          <div className="pixel-float" style={{ top: '0px', left: '0px' }}></div>
-          <div className="hama-bead" style={{ top: '40px', left: '15px' }}></div>
-        </div>
-        
-        <div className="pixel-decoration" style={{ bottom: '25%', left: '20%' }}>
-          <div className="hama-bead" style={{ top: '0px', left: '0px' }}></div>
-          <div className="pixel-float" style={{ top: '35px', left: '20px' }}></div>
-        </div>
+      <section className="mvv-section animate-on-scroll" style={{ background: 'linear-gradient(135deg, rgba(126,205,238,0.08) 0%, rgba(180,148,214,0.08) 100%)' }}>
         <div className="container" style={{ maxWidth: '100%', padding: '0 2rem' }}>
           <div className="gradient-panel">
             <h2 className="section-title centered large">Nosotros</h2>
@@ -305,7 +177,7 @@ const About = () => {
 
 
       <footer className="footer">
-        <div className="footer-container">
+        <div className="footer-container" style={{ maxWidth: '100%', padding: '0 2rem' }}>
           <div className="footer-sections">
             {/* Columna 1: DANGSTORE */}
             <div className="footer-section">
@@ -370,9 +242,6 @@ const About = () => {
           </div>
         </div>
       </footer>
-      
-      {/* Toast Container para notificaciones */}
-      <ToastContainer toasts={toasts} removeToast={removeToast} />
     </div>
     
   );

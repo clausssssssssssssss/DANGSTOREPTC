@@ -3,6 +3,7 @@ import { Eye, EyeOff, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import "../components/styles/AuthApp.css";  
 import logoIcon from "../assets/DANGSTORELOGOPRUEBA.PNG";
+import fondoDangStore from "../assets/FondoDangStore.jpg";
 
 // ——— imports para el login y contexto ———
 import { useAuth, parseJwt } from '../hooks/useAuth.jsx';
@@ -12,24 +13,6 @@ import SplashScreen from '../components/SplashScreen';
 
 // URL del servidor local para desarrollo
 const API_URL = 'http://localhost:4000/api';
-
-// ——— COMPONENTE DECORATIVO ———
-const DecorativeElements = () => (
-  <div className="decorative-elements">
-    {/* Círculos decorativos de fondo */}
-    <div className="decorative-circle decorative-circle-1"></div>
-    <div className="decorative-circle decorative-circle-2"></div>
-    <div className="decorative-circle decorative-circle-3"></div>
-    
-    {/* Formas geométricas */}
-    <div className="decorative-shape decorative-triangle"></div>
-    <div className="decorative-shape decorative-square"></div>
-    
-    {/* Líneas decorativas */}
-    <div className="decorative-line decorative-line-1"></div>
-    <div className="decorative-line decorative-line-2"></div>
-  </div>
-);
 
 const AuthApp = () => {
   const navigate = useNavigate();
@@ -100,13 +83,16 @@ const AuthApp = () => {
     }
   };
 
-  // ——— FUNCIÓN DE LOGIN MODIFICADA PARA MANEJAR "RECORDARME" ———
+  // ——— FUNCIÓN DE LOGIN ———
   const handleLogin = async () => {
     const { email, password } = loginData;
     if (!email || !password) {
       showError('Por favor completa todos los campos');
       return;
     }
+    
+    setLoading(true);
+    
     try {
       const res = await fetch(`${API_URL}/customers/login`, {
         method: 'POST',
@@ -147,11 +133,10 @@ const AuthApp = () => {
       } else if (data.message === 'Invalid password' || data.message === 'Contraseña incorrecta') {
         errorMessage = 'Contraseña incorrecta';
       } else if (data.message && data.message.includes('bloqueada')) {
-        errorMessage = data.message; // Mantener mensaje de cuenta bloqueada
+        errorMessage = data.message;
       } else if (data.message && data.message.includes('bloqueado')) {
-        errorMessage = data.message; // Mantener mensaje de usuario bloqueado
+        errorMessage = data.message;
       } else if (data.message) {
-        // Si hay un mensaje del servidor, usarlo
         errorMessage = data.message;
       }
       
@@ -164,10 +149,274 @@ const AuthApp = () => {
     }
   };
 
-  // Resto del código (handleRegister, handleForgotPassword, etc.) se mantiene igual
-  // [El resto de las funciones permanecen sin cambios]
+  // ——— FUNCIÓN DE REGISTRO (CON ENDPOINT CORRECTO) ———
+  const handleRegister = async () => {
+    const { nombre, email, telefono, password } = registerData;
+    if (!nombre || !email || !telefono || !password) {
+      showError('Por favor completa todos los campos');
+      return;
+    }
+    
+    setLoading(true);
+    
+    try {
+      const res = await fetch(`${API_URL}/customers`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: nombre,
+          email,
+          telephone: telefono,
+          password
+        })
+      });
+      const data = await res.json();
+      
+      if (!res.ok) {
+        showError(data.message || 'Error en el registro');
+      } else {
+        showSuccess('¡Registro exitoso!');
+        setCurrentView('login');
+        setRegisterData({ nombre: '', email: '', telefono: '', password: '' });
+      }
+    } catch (err) {
+      console.error('Error de red:', err);
+      showError('Error de conexión');
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  // ——— RENDERIZAR EL SPLASH SCREEN FUERA DE TODOS LOS CONTENEDORES ———
+  // ——— FUNCIÓN PARA RECUPERAR CONTRASEÑA (CON ENDPOINTS CORRECTOS) ———
+  const handleForgotPassword = async () => {
+    if (!forgotEmail) {
+      showError("Por favor ingresa tu correo electrónico");
+      return;
+    }
+    
+    setLoading(true);
+    
+    try {
+      const res = await fetch(`${API_URL}/password-recovery/send-code`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: forgotEmail }),
+      });
+      
+      const data = await res.json();
+      
+      if (!res.ok) {
+        showError(data.message || "Error enviando código");
+        return;
+      }
+      
+      showSuccess("Código enviado exitosamente a tu correo");
+      setIsEmailSubmitted(true);
+      setTimeout(() => setCurrentView("verification"), 1500);
+    } catch (err) {
+      console.error('Error de conexión:', err);
+      showError("Error de conexión al enviar código");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // ——— FUNCIÓN PARA MANEJAR CAMBIO EN CÓDIGO DE VERIFICACIÓN ———
+  const handleCodeChange = (index, value) => {
+    if (!/^\d?$/.test(value)) return;
+    
+    const newCode = [...verificationCode];
+    newCode[index] = value;
+    setVerificationCode(newCode);
+    
+    // Auto-enfocar siguiente input
+    if (value && index < 3) {
+      document.getElementById(`verification-input-${index + 1}`)?.focus();
+    }
+  };
+
+  // ——— FUNCIÓN PARA MANEJAR TECLAS EN CÓDIGO DE VERIFICACIÓN ———
+  const handleCodeKeyDown = (index, e) => {
+    if (e.key === 'Backspace' && !verificationCode[index] && index > 0) {
+      document.getElementById(`verification-input-${index - 1}`)?.focus();
+    }
+  };
+
+  // ——— FUNCIÓN PARA VERIFICAR CÓDIGO ———
+  const handleVerifyCode = async () => {
+    const code = verificationCode.join("");
+    if (code.length !== 4) {
+      showError("Por favor ingresa el código completo");
+      return;
+    }
+    
+    setLoading(true);
+    
+    try {
+      const res = await fetch(`${API_URL}/password-recovery/verify-code`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: forgotEmail, code })
+      });
+      
+      const data = await res.json();
+      
+      if (!res.ok) {
+        showError(data.message || "Código inválido");
+      } else {
+        showSuccess("Código verificado correctamente");
+        setCurrentView("reset-password");
+      }
+    } catch (err) {
+      console.error('Error de conexión:', err);
+      showError("Error de conexión al verificar código");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // ——— EFECTO PARA AUTO-VERIFICAR CUANDO SE COMPLETA EL CÓDIGO ———
+  useEffect(() => {
+    if (currentView === 'verification' && verificationCode.every(digit => digit !== '')) {
+      handleVerifyCode();
+    }
+  }, [verificationCode, currentView]);
+
+  // ——— FUNCIÓN PARA REENVIAR CÓDIGO ———
+  const handleResendCode = async () => {
+    if (!forgotEmail) {
+      showError('No hay correo especificado');
+      return;
+    }
+    
+    setIsResending(true);
+    
+    try {
+      const res = await fetch(`${API_URL}/password-recovery/send-code`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: forgotEmail }),
+      });
+      
+      const data = await res.json();
+      
+      if (!res.ok) {
+        showError(data.message || "Error al reenviar código");
+      } else {
+        showInfo("Código reenviado correctamente");
+      }
+    } catch (err) {
+      console.error('Error de conexión:', err);
+      showError("Error de conexión al reenviar código");
+    } finally {
+      setIsResending(false);
+    }
+  };
+
+  // ——— FUNCIÓN PARA RESTABLECER CONTRASEÑA ———
+  const handleResetPassword = async () => {
+    const code = verificationCode.join("");
+    const { password, confirmPassword } = newPasswordData;
+
+    if (!password || !confirmPassword) {
+      showError("Por favor completa todos los campos");
+      return;
+    }
+    
+    if (password !== confirmPassword) {
+      showError("Las contraseñas no coinciden");
+      return;
+    }
+    
+    if (password.length < 6) {
+      showError("La contraseña debe tener al menos 6 caracteres");
+      return;
+    }
+
+    setLoading(true);
+    
+    try {
+      const res = await fetch(`${API_URL}/password-recovery/reset`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: forgotEmail,       
+          code,
+          newPassword: password,
+        }),
+      });
+      
+      const data = await res.json();
+      
+      if (!res.ok) {
+        showError(data.message || "Error al cambiar contraseña");
+        return;
+      }
+      
+      showSuccess("Contraseña restablecida exitosamente");
+      setCurrentView("login");
+      setNewPasswordData({ password: '', confirmPassword: '' });
+      setForgotEmail('');
+    } catch (err) {
+      console.error('Error de conexión:', err);
+      showError("Error de conexión al restablecer contraseña");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Validaciones para nueva contraseña
+  const isPasswordValid = newPasswordData.password.length >= 6;
+  const doPasswordsMatch = newPasswordData.password === newPasswordData.confirmPassword && newPasswordData.confirmPassword !== '';
+
+  // ——— FUNCIÓN PARA FORMATEAR NÚMERO DE TELÉFONO ———
+  const formatPhoneNumber = (value) => {
+    const phoneNumber = value.replace(/\D/g, '');
+    if (phoneNumber.length <= 8) {
+      if (phoneNumber.length > 4) {
+        return phoneNumber.slice(0, 4) + '-' + phoneNumber.slice(4);
+      }
+      return phoneNumber;
+    }
+    return phoneNumber.slice(0, 8);
+  };
+
+  // ——— FUNCIÓN PARA MANEJAR CAMBIO EN TELÉFONO ———
+  const handlePhoneChange = (e) => {
+    const formattedPhone = formatPhoneNumber(e.target.value);
+    setRegisterData({...registerData, telefono: formattedPhone});
+  };
+
+  // ——— EFECTO PARA CARGAR CREDENCIALES GUARDADAS ———
+  useEffect(() => {
+    const saved = localStorage.getItem('savedCredentials');
+    if (saved) {
+      const credentials = JSON.parse(saved);
+      setLoginData(credentials);
+      setRememberMe(true);
+      setSavedCredentials(credentials);
+    }
+  }, []);
+
+  // ——— EFECTO PARA GUARDAR CREDENCIALES CUANDO RECUERDAME ESTÁ ACTIVADO ———
+  useEffect(() => {
+    if (rememberMe && loginData.email && loginData.password) {
+      localStorage.setItem('savedCredentials', JSON.stringify(loginData));
+    } else if (!rememberMe) {
+      localStorage.removeItem('savedCredentials');
+    }
+  }, [rememberMe, loginData]);
+
+  // ——— COMPONENTE LOGO ———
+  const Logo = () => (
+    <div className="auth-logo">
+      <div className="logo-container">
+        <img src={logoIcon} alt="DangStore Logo" className="logo-image" />
+      </div>
+    </div>
+  );
+
+  // ——— RENDERIZAR EL SPLASH SCREEN ———
   if (showSplash) {
     return (
       <SplashScreen 
@@ -244,7 +493,8 @@ const AuthApp = () => {
             <button
               type="button"
               onClick={handleLogin}
-              className="auth-button"
+              className="auth-button login-button"
+              disabled={loading}
             >
               {loading ? 'Cargando...' : 'Iniciar Sesión'}
             </button>
@@ -263,13 +513,299 @@ const AuthApp = () => {
       );
     }
 
+    // Vista de Registro
+    if (currentView === 'register') {
+      return (
+        <div className="auth-card compact">
+          <Logo />
+          
+          <h1 className="auth-title">REGISTRO</h1>
+          <p className="auth-subtitle">Regístrate para comenzar a utilizar nuestra plataforma</p>
+          
+          <form className="auth-form" onSubmit={(e) => e.preventDefault()}>
+            <div className="input-group">
+              <label className="input-label">Nombre</label>
+              <input
+                type="text"
+                value={registerData.nombre}
+                onChange={(e) => setRegisterData({...registerData, nombre: e.target.value})}
+                className="auth-input"
+                placeholder="Ingresa tu nombre"
+              />
+            </div>
+            
+            <div className="input-group">
+              <label className="input-label">Correo electrónico</label>
+              <input
+                type="email"
+                value={registerData.email}
+                onChange={(e) => setRegisterData({...registerData, email: e.target.value})}
+                className="auth-input"
+                placeholder="Ingresa tu correo"
+              />
+            </div>
+            
+            <div className="input-group">
+              <label className="input-label">Teléfono</label>
+              <input
+                type="tel"
+                value={registerData.telefono}
+                onChange={handlePhoneChange}
+                className="auth-input"
+                placeholder="XXXX-XXXX"
+                maxLength={9}
+              />
+            </div>
+            
+            <div className="input-group">
+              <label className="input-label">Contraseña</label>
+              <div className="password-input">
+                <input
+                  type={showRegisterPassword ? "text" : "password"}
+                  value={registerData.password}
+                  onChange={(e) => setRegisterData({...registerData, password: e.target.value})}
+                  className="auth-input"
+                  placeholder="Ingresa tu contraseña"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowRegisterPassword(!showRegisterPassword)}
+                  className="password-toggle"
+                >
+                  {showRegisterPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
+            </div>
+            
+            <button
+              type="button"
+              onClick={handleRegister}
+              className="auth-button login-button"
+              disabled={loading}
+            >
+              {loading ? 'Cargando...' : 'Registrarse'}
+            </button>
+          </form>
+          
+          <div className="auth-link-section">
+            <span>¿Ya tienes una cuenta? </span>
+            <button 
+              onClick={() => handleNavigate('login')}
+              className="auth-link"
+            >
+              Inicia Sesión
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    // Vista de Recuperar Contraseña - Paso 1
+    if (currentView === 'forgot-password') {
+      return (
+        <div className="auth-card compact">
+          <Logo />
+          
+          <h1 className="auth-title">Recuperar Contraseña</h1>
+          
+          {!isEmailSubmitted ? (
+            <form className="auth-form" onSubmit={(e) => e.preventDefault()}>
+              <div className="input-group">
+                <label className="input-label">Correo electrónico:</label>
+                <input
+                  type="email"
+                  value={forgotEmail}
+                  onChange={(e) => setForgotEmail(e.target.value)}
+                  className="auth-input"
+                  placeholder="Ingresa tu correo"
+                />
+              </div>
+              
+              <button
+                type="button"
+                onClick={handleForgotPassword}
+                className="auth-button login-button"
+                disabled={loading}
+              >
+                {loading ? 'Enviando...' : 'Enviar código'}
+              </button>
+            </form>
+          ) : (
+            <div className="success-state">
+              <div className="success-icon">
+                <span>✓</span>
+              </div>
+              <p className="auth-subtitle">
+                Hemos enviado un código de verificación a tu correo electrónico.
+              </p>
+              <div className="loading-spinner"></div>
+              <p style={{fontSize: '0.875rem', color: '#6b7280', marginTop: '0.5rem'}}>Redirigiendo...</p>
+            </div>
+          )}
+          
+          <div className="auth-link-section">
+            <button 
+              onClick={() => handleNavigate('login')}
+              className="back-button"
+            >
+              <ArrowLeft size={16} className="back-icon" />
+              Regresar al Login
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    // Vista de Código de Verificación
+    if (currentView === 'verification') {
+      return (
+        <div className="auth-card compact">
+          <Logo />
+          <h1 className="auth-title">Código de verificación</h1>
+          <p className="auth-subtitle">Ingresa el código que recibiste en tu correo</p>
+          
+          <div className="verification-inputs">
+            {verificationCode.map((digit, idx) => (
+              <input
+                key={idx}
+                id={`verification-input-${idx}`}
+                type="text"
+                value={digit}
+                maxLength={1}
+                onChange={e => handleCodeChange(idx, e.target.value)}
+                onKeyDown={e => handleCodeKeyDown(idx, e)}
+                className="verification-input"
+              />
+            ))}
+          </div>
+          
+          <button
+            onClick={handleVerifyCode}
+            disabled={verificationCode.join('').length !== 4 || loading}
+            className="auth-button login-button"
+          >
+            {loading ? 'Verificando...' : 'Verificar código'}
+          </button>
+          
+          <div className="auth-link-section">
+            <button 
+              onClick={handleResendCode}
+              disabled={isResending}
+              className="auth-link"
+            >
+              {isResending ? 'Reenviando...' : 'Reenviar código'}
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    // Vista de Nueva Contraseña
+    if (currentView === 'reset-password') {
+      return (
+        <div className="auth-card compact">
+          <Logo />
+          
+          <h1 className="auth-title">Nueva Contraseña</h1>
+          <p className="auth-subtitle">Por favor ingresa y confirma tu nueva contraseña</p>
+          
+          <form className="auth-form" onSubmit={(e) => e.preventDefault()}>
+            <div className="input-group">
+              <label className="input-label">Nueva contraseña</label>
+              <div className="password-input">
+                <input
+                  type={showNewPassword ? "text" : "password"}
+                  value={newPasswordData.password}
+                  onChange={(e) => setNewPasswordData({...newPasswordData, password: e.target.value})}
+                  className={`auth-input ${newPasswordData.password && !isPasswordValid ? 'error' : ''}`}
+                  placeholder="Ingresa tu nueva contraseña"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowNewPassword(!showNewPassword)}
+                  className="password-toggle"
+                >
+                  {showNewPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
+              {newPasswordData.password && !isPasswordValid && (
+                <p className="error-message">La contraseña debe tener al menos 6 caracteres</p>
+              )}
+            </div>
+            
+            <div className="input-group">
+              <label className="input-label">Confirmar contraseña</label>
+              <div className="password-input">
+                <input
+                  type={showConfirmPassword ? "text" : "password"}
+                  value={newPasswordData.confirmPassword}
+                  onChange={(e) => setNewPasswordData({...newPasswordData, confirmPassword: e.target.value})}
+                  className={`auth-input ${newPasswordData.confirmPassword && !doPasswordsMatch ? 'error' : ''}`}
+                  placeholder="Confirma tu nueva contraseña"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="password-toggle"
+                >
+                  {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
+              {newPasswordData.confirmPassword && !doPasswordsMatch && (
+                <p className="error-message">Las contraseñas no coinciden</p>
+              )}
+            </div>
+            
+            <button
+              type="button"
+              onClick={handleResetPassword}
+              disabled={!isPasswordValid || !doPasswordsMatch || loading}
+              className="auth-button login-button"
+            >
+              {loading ? 'Restableciendo...' : 'Restaurar contraseña'}
+            </button>
+          </form>
+          
+          {/* Indicadores de seguridad de contraseña */}
+          <div className="password-requirements">
+            <p className="requirements-title">Requisitos de contraseña:</p>
+            <div>
+              <div className={`requirement-item ${isPasswordValid ? 'valid' : 'invalid'}`}>
+                <span className="requirement-icon">{isPasswordValid ? '✓' : '○'}</span>
+                Al menos 6 caracteres
+              </div>
+              <div className={`requirement-item ${doPasswordsMatch ? 'valid' : 'invalid'}`}>
+                <span className="requirement-icon">{doPasswordsMatch ? '✓' : '○'}</span>
+                Las contraseñas coinciden
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // Fallback por defecto
+    return (
+      <div className="auth-card compact">
+        <div style={{textAlign: 'center', color: '#1f2937'}}>
+          <h1 className="auth-title">Vista no encontrada</h1>
+          <button
+            onClick={() => handleNavigate('login')}
+            className="auth-button login-button"
+            style={{marginTop: '1rem'}}
+          >
+            Ir al Login
+          </button>
+        </div>
+      </div>
+    );
   };
 
   // ——— RENDERIZADO PRINCIPAL ———
   return (
     <>
       <div 
-        className="auth-container"
+        className="auth-container"                                       
         style={{
           backgroundImage: `url(${fondoDangStore})`,
           backgroundSize: 'cover',

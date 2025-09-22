@@ -4,6 +4,7 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
+/* Variables CSS */
 :root {
   --primary-main: #8B5CF6;
   --primary-light: #A78BFA;
@@ -17,6 +18,11 @@
   --divider: #E5E7EB;
   --input-bg: #F9FAFB;
   --input-border: #E5E7EB;
+  
+  /* Variables para los botones de login */
+  --login-button-bg: #8B5CF6;
+  --login-button-hover: #7C3AED;
+  --login-button-disabled: #9CA3AF;
 }
 
 /* ===== RESET ===== */
@@ -256,7 +262,7 @@ body {
   color: var(--primary-main);
 }
 
-/* Ocultar icono nativo de revelar contraseña en algunos navegadores */
+/* Ocultar icono nativo de revelar contraseña */
 input[type="password"]::-ms-reveal,
 input[type="password"]::-ms-clear {
   display: none;
@@ -298,7 +304,7 @@ input[type="password"]::-webkit-contacts-auto-fill-button {
 /* ===== BOTÓN DE LOGIN ESPECÍFICO ===== */
 .login-button {
   background: var(--login-button-bg) !important;
-  padding: 0.7rem 1.5rem; /* Botón aún más compacto para login */
+  padding: 0.7rem 1.5rem;
   font-size: 0.9rem;
 }
 
@@ -314,7 +320,7 @@ input[type="password"]::-webkit-contacts-auto-fill-button {
   box-shadow: none;
 }
 
-/* ===== ENLACES (SIN RECUADROS) ===== */
+/* ===== ENLACES ===== */
 .forgot-link, 
 .auth-link,
 .back-button {

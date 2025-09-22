@@ -1,4 +1,4 @@
-/* About.css - Estilos optimizados y responsive con temática pixel */
+/* About.css - Estilos optimizados y responsive */
 * {
   margin: 0;
   padding: 0;
@@ -9,124 +9,12 @@ html, body {
   width: 100%;
   overflow-x: hidden;
   background: #ffffff;
-  margin: 0;
-  padding: 0;
-}
-
-/* ===== DECORACIONES PIXELADAS ===== */
-.pixel-decoration {
-  position: absolute;
-  pointer-events: none;
-  z-index: 1;
-}
-
-/* Píxeles flotantes */
-.pixel-float {
-  width: 8px;
-  height: 8px;
-  background: #6c5ce7;
-  position: absolute;
-  animation: pixelFloat 8s ease-in-out infinite;
-}
-
-.pixel-float:nth-child(2n) {
-  background: #a29bfe;
-  animation-delay: -2s;
-}
-
-.pixel-float:nth-child(3n) {
-  background: #4dd0e1;
-  animation-delay: -4s;
-}
-
-.pixel-float:nth-child(4n) {
-  background: #fd79a8;
-  animation-delay: -6s;
-}
-
-@keyframes pixelFloat {
-  0%, 100% {
-    transform: translateY(0px) rotate(0deg);
-    opacity: 0.7;
-  }
-  25% {
-    transform: translateY(-20px) rotate(90deg);
-    opacity: 1;
-  }
-  50% {
-    transform: translateY(-10px) rotate(180deg);
-    opacity: 0.8;
-  }
-  75% {
-    transform: translateY(-30px) rotate(270deg);
-    opacity: 1;
-  }
-}
-
-/* Hama Beads decorativos */
-.hama-bead {
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  position: absolute;
-  background: linear-gradient(45deg, #6c5ce7, #a29bfe);
-  box-shadow: 0 2px 8px rgba(108, 92, 231, 0.3);
-  animation: hamaBounce 6s ease-in-out infinite;
-}
-
-.hama-bead::before {
-  content: '';
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  width: 6px;
-  height: 6px;
-  background: rgba(255, 255, 255, 0.6);
-  border-radius: 50%;
-}
-
-@keyframes hamaBounce {
-  0%, 100% {
-    transform: translateY(0px) scale(1);
-  }
-  50% {
-    transform: translateY(-15px) scale(1.1);
-  }
-}
-
-/* Grid de píxeles de fondo */
-.pixel-grid {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-image: 
-    linear-gradient(rgba(108, 92, 231, 0.1) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(108, 92, 231, 0.1) 1px, transparent 1px);
-  background-size: 20px 20px;
-  opacity: 0.3;
-  pointer-events: none;
-  animation: gridMove 20s linear infinite;
-}
-
-@keyframes gridMove {
-  0% {
-    transform: translate(0, 0);
-  }
-  100% {
-    transform: translate(20px, 20px);
-  }
 }
 
 .about-page {
   min-height: 100vh;
   background: #ffffff;
   margin-top: 64px;
-  overflow-x: hidden;
-  padding: 0;
-  margin-left: 0;
-  margin-right: 0;
 }
 
 .container {
@@ -140,25 +28,7 @@ html, body {
   position: relative;
   overflow: hidden;
   padding: 2rem 0;
-  background: linear-gradient(135deg, rgba(108, 92, 231, 0.05) 0%, rgba(77, 208, 225, 0.05) 100%);
-}
-
-.hero-olas-section::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="2" fill="%236c5ce7" opacity="0.3"/><circle cx="80" cy="80" r="2" fill="%234dd0e1" opacity="0.3"/><circle cx="40" cy="60" r="1" fill="%23a29bfe" opacity="0.4"/><circle cx="60" cy="40" r="1" fill="%23fd79a8" opacity="0.4"/></svg>') repeat;
-  background-size: 100px 100px;
-  animation: pixelPattern 30s linear infinite;
-  pointer-events: none;
-}
-
-@keyframes pixelPattern {
-  0% { transform: translate(0, 0); }
-  100% { transform: translate(100px, 100px); }
+  background: #ffffff;
 }
 
 .hero-content-grid {
@@ -180,45 +50,6 @@ html, body {
   margin-bottom: 0.5rem;
   color: #1f2937;
   line-height: 1.1;
-  background: linear-gradient(135deg, #6c5ce7, #4dd0e1);
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  animation: titleGlow 3s ease-in-out infinite alternate;
-  position: relative;
-}
-
-.hero-title::after {
-  content: '';
-  position: absolute;
-  bottom: -5px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 60px;
-  height: 4px;
-  background: linear-gradient(90deg, #6c5ce7, #4dd0e1);
-  border-radius: 2px;
-  animation: titleUnderline 2s ease-in-out infinite;
-}
-
-@keyframes titleGlow {
-  0% {
-    filter: brightness(1);
-  }
-  100% {
-    filter: brightness(1.2);
-  }
-}
-
-@keyframes titleUnderline {
-  0%, 100% {
-    width: 60px;
-    opacity: 1;
-  }
-  50% {
-    width: 100px;
-    opacity: 0.8;
-  }
 }
 
 .hero-subtitle {
@@ -321,40 +152,12 @@ html, body {
   border-radius: 16px;
   box-shadow: 0 8px 30px rgba(0,0,0,.06);
   overflow: hidden;
-  transition: all .3s ease;
-  position: relative;
-  border: 2px solid transparent;
-}
-
-.action-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(135deg, rgba(108, 92, 231, 0.1), rgba(77, 208, 225, 0.1));
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  border-radius: 16px;
+  transition: transform .3s ease, box-shadow .3s ease;
 }
 
 .action-card:hover {
-  transform: translateY(-8px) scale(1.02);
-  box-shadow: 0 20px 50px rgba(108, 92, 231, 0.2);
-  border-color: rgba(108, 92, 231, 0.3);
-}
-
-.action-card:hover::before {
-  opacity: 1;
-}
-
-.action-card:hover .card-media {
-  transform: scale(1.05);
-}
-
-.action-card:hover .card-media img {
-  filter: brightness(1.1) saturate(1.2);
+  transform: translateY(-5px);
+  box-shadow: 0 12px 40px rgba(0,0,0,.1);
 }
 
 .card-media {
@@ -409,10 +212,9 @@ html, body {
   border-radius: 1.5rem;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
   text-align: center;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
-  border: 2px solid transparent;
 }
 
 .mvv-card::before {
@@ -421,68 +223,20 @@ html, body {
   top: 0;
   left: 0;
   right: 0;
-  height: 6px;
-  background: linear-gradient(135deg, #6c5ce7, #4dd0e1, #fd79a8);
-  background-size: 200% 100%;
-  animation: gradientShift 3s ease-in-out infinite;
-}
-
-.mvv-card::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(135deg, rgba(108, 92, 231, 0.05), rgba(77, 208, 225, 0.05));
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  border-radius: 1.5rem;
+  height: 4px;
+  background: linear-gradient(135deg, #4DD0E1, #9C27B0);
 }
 
 .mvv-card:hover {
-  transform: translateY(-10px) rotateY(5deg);
-  box-shadow: 0 25px 50px rgba(108, 92, 231, 0.25);
-  border-color: rgba(108, 92, 231, 0.3);
-}
-
-.mvv-card:hover::after {
-  opacity: 1;
-}
-
-.mvv-card:hover .mvv-icon {
-  transform: scale(1.2) rotate(10deg);
-  filter: drop-shadow(0 5px 15px rgba(108, 92, 231, 0.4));
-}
-
-@keyframes gradientShift {
-  0%, 100% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
+  transform: translateY(-5px);
+  box-shadow: 0 15px 35px rgba(186, 104, 200, 0.15);
 }
 
 .mvv-icon {
   width: 70px;
   height: 70px;
   margin: 0 auto 1.5rem;
-  color: #6c5ce7;
-  transition: all 0.3s ease;
-  filter: drop-shadow(0 2px 8px rgba(108, 92, 231, 0.3));
-  animation: iconPulse 4s ease-in-out infinite;
-}
-
-@keyframes iconPulse {
-  0%, 100% {
-    transform: scale(1);
-    filter: drop-shadow(0 2px 8px rgba(108, 92, 231, 0.3));
-  }
-  50% {
-    transform: scale(1.05);
-    filter: drop-shadow(0 4px 12px rgba(108, 92, 231, 0.5));
-  }
+  color: #9C27B0;
 }
 
 .mvv-card h3 {
@@ -498,7 +252,99 @@ html, body {
   color: #4a5568;
 }
 
-/* Footer - Los estilos están en Footer.css para mantener consistencia */
+/* Footer */
+.footer {
+  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+  color: white;
+  padding: 3rem 0 1.5rem;
+}
+
+.footer-container {
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.footer-sections {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.footer-section h3 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  background: linear-gradient(135deg, #4DD0E1, #9C27B0);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.footer-text {
+  color: #a0aec0;
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}
+
+.footer-links {
+  list-style: none;
+}
+
+.footer-links li {
+  margin-bottom: 0.5rem;
+}
+
+.footer-links a {
+  color: #a0aec0;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.footer-links a:hover {
+  color: #4DD0E1;
+}
+
+.footer-social {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.social-link {
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, #4DD0E1, #9C27B0);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.social-link:hover {
+  transform: scale(1.1);
+  box-shadow: 0 5px 15px rgba(186, 104, 200, 0.4);
+}
+
+.footer-bottom {
+  border-top: 1px solid #4a5568;
+  padding-top: 1.5rem;
+}
+
+.footer-bottom-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  text-align: center;
+}
+
+.footer-copyright {
+  color: #a0aec0;
+  font-size: 0.9rem;
+}
 
 /* Animaciones */
 .animate-on-scroll {
@@ -546,7 +392,15 @@ html, body {
     grid-template-columns: repeat(3, 1fr);
   }
   
-  /* Footer responsive está en Footer.css */
+  .footer-sections {
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+  }
+  
+  .footer-bottom-content {
+    flex-direction: row;
+    justify-content: space-between;
+    text-align: left;
+  }
 }
 
 /* Desktop (1024px y mayor) */
@@ -562,8 +416,6 @@ html, body {
   .section-title.large {
     font-size: 2.75rem;
   }
-  
-  /* Footer responsive está en Footer.css */
 }
 
 /* Móviles pequeños (480px y menor) */
@@ -613,45 +465,6 @@ html, body {
   .card-body p {
     font-size: 0.9rem;
   }
-  
-  /* Footer responsive está en Footer.css */
-}
-
-/* Estilos responsive para decoraciones */
-@media (max-width: 768px) {
-  .pixel-decoration {
-    opacity: 0.6;
-  }
-  
-  .pixel-float {
-    width: 6px;
-    height: 6px;
-  }
-  
-  .hama-bead {
-    width: 12px;
-    height: 12px;
-  }
-  
-  .pixel-grid {
-    background-size: 15px 15px;
-  }
-}
-
-@media (max-width: 480px) {
-  .pixel-decoration {
-    opacity: 0.4;
-  }
-  
-  .pixel-float {
-    width: 4px;
-    height: 4px;
-  }
-  
-  .hama-bead {
-    width: 10px;
-    height: 10px;
-  }
 }
 
 /* Mejoras de accesibilidad */
@@ -664,14 +477,5 @@ html, body {
   .action-card:hover,
   .social-link:hover {
     transform: none;
-  }
-  
-  /* Desactivar animaciones para usuarios que prefieren movimiento reducido */
-  .pixel-float,
-  .hama-bead,
-  .pixel-grid,
-  .hero-title,
-  .mvv-icon {
-    animation: none;
   }
 }

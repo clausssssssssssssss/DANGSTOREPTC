@@ -110,73 +110,42 @@ salesController.deleteSales = async (req, res) => {
 // aquí hago resumen de ventas: diario, mensual y anual
 salesController.getSalesSummary = async (req, res) => {
   try {
-    const today = new Date();
-    const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-    const endOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
-
-    // Semana (desde el lunes hasta hoy)
-    const dayOfWeek = today.getDay(); // 0 = domingo, 1 = lunes, ...
-    const diffToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
-    const startOfWeek = new Date(today);
-    startOfWeek.setDate(today.getDate() - diffToMonday);
-    startOfWeek.setHours(0, 0, 0, 0);
-
-    // Mes (desde el día 1)
-    const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-
-    // Ingresos diarios
-    const dailyResult = await SalesModel.aggregate([
-      {
-        $match: {
-          date: { $gte: startOfDay, $lt: endOfDay },
-        },
-      },
-      {
-        $group: {
-          _id: null,
-          total: { $sum: "$total" },
-        },
-      },
+    const daily = await SalesModel.aggregate([
+      { $group: {
+          _id: {
+            day: { $dayOfMonth: "$date" },
+            month: { $month: "$date" },
+            year: { $year: "$date" },
+          },
+          total: { $sum: "$total" }
+        }},
+      { $sort: { "_id.year": -1, "_id.month": -1, "_id.day": -1 } }
     ]);
 
-    // Ingresos semanales
-    const weeklyResult = await SalesModel.aggregate([
-      {
-        $match: {
-          date: { $gte: startOfWeek, $lt: endOfDay },
-        },
-      },
-      {
-        $group: {
-          _id: null,
-          total: { $sum: "$total" },
-        },
-      },
+    const monthly = await SalesModel.aggregate([
+      { $group: {
+          _id: {
+            month: { $month: "$date" },
+            year: { $year: "$date" },
+          },
+          total: { $sum: "$total" }
+        }},
+      { $sort: { "_id.year": -1, "_id.month": -1 } }
     ]);
 
-    // Ingresos mensuales
-    const monthlyResult = await SalesModel.aggregate([
-      {
-        $match: {
-          date: { $gte: startOfMonth, $lt: endOfDay },
-        },
-      },
-      {
-        $group: {
-          _id: null,
-          total: { $sum: "$total" },
-        },
-      },
+    const yearly = await SalesModel.aggregate([
+      { $group: {
+          _id: { year: { $year: "$date" }},
+          total: { $sum: "$total" }
+        }},
+      { $sort: { "_id.year": -1 } }
     ]);
 
-    res.status(200).json({
-      dailyIncome: dailyResult[0]?.total || 0,
-      weeklyIncome: weeklyResult[0]?.total || 0,
-      monthlyIncome: monthlyResult[0]?.total || 0,
-    });
+    // devuelvo los tres resúmenes juntos
+    res.status(200).json({ daily, monthly, yearly });
   } catch (error) {
-    console.error("❌ Error en getSalesSummary:", error);
-    res.status(500).json({ message: "Error al obtener resumen de ventas" });
+    console.error(error);
+    res.status(500).json({ message: "Error al obtener resumen" });
   }
 };
 

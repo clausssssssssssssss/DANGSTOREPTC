@@ -17,6 +17,11 @@
   --divider: #E5E7EB;
   --input-bg: #F9FAFB;
   --input-border: #E5E7EB;
+  
+  /* Nuevas variables para el botón de login */
+  --login-button-bg: #059669;
+  --login-button-hover: #047857;
+  --login-button-disabled: #D1D5DB;
 }
 
 /* ===== RESET ===== */
@@ -315,7 +320,7 @@ input[type="password"]::-webkit-contacts-auto-fill-button {
 /* ===== BOTONES PRINCIPALES ===== */
 .auth-button {
   width: 100%;
-  padding: 0.875rem;
+  padding: 0.75rem 1.5rem; /* Reducido de 0.875rem a 0.75rem para hacer el botón menos alto */
   background: var(--primary-main);
   color: white;
   border: none;
@@ -324,7 +329,8 @@ input[type="password"]::-webkit-contacts-auto-fill-button {
   cursor: pointer;
   transition: all 0.25s ease;
   margin-top: 0.5rem;
-  font-size: 0.95rem;
+  font-size: 0.9rem; /* Reducido de 0.95rem a 0.9rem */
+  min-height: auto; /* Permitir altura natural */
 }
 
 .auth-button:hover {
@@ -333,7 +339,25 @@ input[type="password"]::-webkit-contacts-auto-fill-button {
 }
 
 .auth-button:disabled {
-  background: #D1D5DB;
+  background: var(--login-button-disabled);
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ===== BOTÓN DE LOGIN ESPECÍFICO ===== */
+.login-button {
+  background: var(--login-button-bg) !important;
+  padding: 0.7rem 1.5rem; /* Botón aún más compacto para login */
+  font-size: 0.9rem;
+}
+
+.login-button:hover {
+  background: var(--login-button-hover) !important;
+  transform: translateY(-1px);
+}
+
+.login-button:disabled {
+  background: var(--login-button-disabled) !important;
   cursor: not-allowed;
   transform: none;
 }

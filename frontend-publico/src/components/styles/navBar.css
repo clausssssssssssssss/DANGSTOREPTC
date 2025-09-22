@@ -1,4 +1,4 @@
-/* NavBar.css - Versión Responsive Corregida */
+/* NavBar.css - Versión Responsive Corregida con Iconos Ajustados */
 :root {
   --spacing-xs: 0.25rem;
   --spacing-sm: 0.5rem;
@@ -248,9 +248,11 @@
   background: rgba(77, 208, 225, 0.05);
 }
 
+/* ICONOS MÓVILES AJUSTADOS */
 .mobile-nav-icon {
   width: 20px;
   height: 20px;
+  flex-shrink: 0; /* Evita que se compriman */
 }
 
 .mobile-separator {
@@ -277,15 +279,16 @@
   border-radius: 50%;
 }
 
-/* Action Icons */
+/* Action Icons - AJUSTES PRINCIPALES */
 .action-icons {
   display: flex;
   align-items: center;
-  gap: var(--spacing-lg);
+  gap: var(--spacing-md); /* Reducido de var(--spacing-lg) */
 }
 
+/* ICONOS DE ACCIÓN CORREGIDOS */
 .icon-link {
-  padding: var(--spacing-sm);
+  padding: 8px; /* Reducido de var(--spacing-sm) */
   color: #cbd5e1;
   border-radius: var(--border-radius-lg);
   text-decoration: none;
@@ -293,38 +296,50 @@
   align-items: center;
   justify-content: center;
   position: relative;
-  width: 44px;
-  height: 44px;
+  width: 40px; /* Reducido de 44px */
+  height: 40px; /* Reducido de 44px */
+  transition: all 0.3s ease;
 }
 
 .icon-link:hover {
   color: #4DD0E1;
+  background: rgba(77, 208, 225, 0.1);
 }
 
+/* SVG ICONOS DENTRO DE ICON-LINK */
+.icon-link svg,
+.icon-link .lucide {
+  width: 20px; /* Tamaño específico para iconos */
+  height: 20px;
+  flex-shrink: 0;
+}
+
+/* BADGES AJUSTADOS */
 .cart-badge {
   position: absolute;
-  top: 4px;
-  right: 4px;
+  top: 2px; /* Ajustado de 4px */
+  right: 2px; /* Ajustado de 4px */
   background: #4DD0E1;
   color: white;
   font-family: var(--font-family-primary);
-  font-size: var(--font-size-xs);
-  padding: 2px 5px;
+  font-size: 10px; /* Reducido de var(--font-size-xs) */
+  padding: 1px 4px; /* Reducido de 2px 5px */
   border-radius: 50%;
-  min-width: 16px;
-  height: 16px;
+  min-width: 14px; /* Reducido de 16px */
+  height: 14px; /* Reducido de 16px */
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: var(--font-weight-bold);
+  line-height: 1;
 }
 
 .notification-dot {
   position: absolute;
-  top: 8px;
-  right: 8px;
-  width: 8px;
-  height: 8px;
+  top: 6px; /* Ajustado de 8px */
+  right: 6px; /* Ajustado de 8px */
+  width: 6px; /* Reducido de 8px */
+  height: 6px; /* Reducido de 8px */
   background: #ff3b30;
   border-radius: 50%;
 }
@@ -334,7 +349,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: var(--spacing-sm) var(--spacing-md);
+  padding: 8px 12px; /* Reducido de var(--spacing-sm) var(--spacing-md) */
   background: linear-gradient(135deg, #4DD0E1 0%, #BA68C8 100%);
   color: white;
   text-decoration: none;
@@ -345,11 +360,13 @@
   transition: all 0.3s ease;
   border: none;
   cursor: pointer;
-  min-height: 44px;
+  height: 36px; /* Altura específica */
+  white-space: nowrap;
 }
 
 .login-button-nav:hover {
   background: linear-gradient(135deg, #26C6DA 0%, #AB47BC 100%);
+  transform: translateY(-1px);
 }
 
 /* RESPONSIVE DESIGN */
@@ -384,7 +401,26 @@
   .navbar-right {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px; /* Reducido */
+  }
+  
+  /* Iconos en tablets */
+  .icon-link {
+    width: 36px;
+    height: 36px;
+    padding: 6px;
+  }
+  
+  .icon-link svg,
+  .icon-link .lucide {
+    width: 18px;
+    height: 18px;
+  }
+  
+  .login-button-nav {
+    padding: 6px 10px;
+    height: 32px;
+    font-size: 0.8rem;
   }
 }
 
@@ -417,18 +453,42 @@
     height: 2px;
   }
   
-  .login-button-nav {
-    padding: 6px 12px;
-    font-size: var(--font-size-xs);
-  }
-  
+  /* Iconos en móviles */
   .action-icons {
-    gap: var(--spacing-md);
+    gap: 6px; /* Más compacto */
   }
   
   .icon-link {
-    width: 40px;
-    height: 40px;
+    width: 32px; /* Más pequeño en móvil */
+    height: 32px;
+    padding: 4px;
+  }
+  
+  .icon-link svg,
+  .icon-link .lucide {
+    width: 16px; /* Iconos más pequeños */
+    height: 16px;
+  }
+  
+  .cart-badge {
+    font-size: 9px;
+    min-width: 12px;
+    height: 12px;
+    top: 1px;
+    right: 1px;
+  }
+  
+  .notification-dot {
+    width: 5px;
+    height: 5px;
+    top: 4px;
+    right: 4px;
+  }
+  
+  .login-button-nav {
+    padding: 5px 8px;
+    font-size: 0.7rem;
+    height: 28px;
   }
 }
 
@@ -443,9 +503,26 @@
     height: 30px;
   }
   
+  .action-icons {
+    gap: 4px;
+  }
+  
+  .icon-link {
+    width: 30px;
+    height: 30px;
+    padding: 3px;
+  }
+  
+  .icon-link svg,
+  .icon-link .lucide {
+    width: 14px;
+    height: 14px;
+  }
+  
   .login-button-nav {
-    padding: 5px 10px;
-    font-size: 0.7rem;
+    padding: 4px 6px;
+    font-size: 0.65rem;
+    height: 26px;
   }
 }
 

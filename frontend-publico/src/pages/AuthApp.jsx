@@ -75,6 +75,29 @@ const AuthApp = () => {
   // Estado para reenvío de código
   const [isResending, setIsResending] = useState(false);
 
+  // ——— FUNCIONALIDAD "RECORDARME" ———
+  // Al cargar el componente, verificar si hay datos guardados
+  useEffect(() => {
+    const savedEmail = localStorage.getItem('rememberedEmail');
+    const savedRememberMe = localStorage.getItem('rememberMe') === 'true';
+    
+    if (savedEmail && savedRememberMe) {
+      setLoginData(prev => ({ ...prev, email: savedEmail }));
+      setRememberMe(true);
+    }
+  }, []);
+
+  // Función para guardar/eliminar datos recordados
+  const handleRememberMe = (email, remember) => {
+    if (remember) {
+      localStorage.setItem('rememberedEmail', email);
+      localStorage.setItem('rememberMe', 'true');
+    } else {
+      localStorage.removeItem('rememberedEmail');
+      localStorage.removeItem('rememberMe');
+    }
+  };
+
   // ——— FUNCIÓN PARA MANEJAR CUANDO EL SPLASH TERMINA ———
   const handleSplashComplete = () => {
     setShowSplash(false);
@@ -96,13 +119,14 @@ const AuthApp = () => {
     }
   };
 
-  // ——— FUNCIÓN DE LOGIN MODIFICADA PARA MOSTRAR SPLASH ———
+  // ——— FUNCIÓN DE LOGIN MODIFICADA PARA MANEJAR "RECORDARME" ———
   const handleLogin = async () => {
     const { email, password } = loginData;
     if (!email || !password) {
       showError('Por favor completa todos los campos');
       return;
     }
+    
     try {
       const res = await fetch(`${API_URL}/customers/login`, {
         method: 'POST',
@@ -120,6 +144,9 @@ const AuthApp = () => {
         
         setUser(user);
         console.log('👤 User set in context:', user);
+        
+        // ——— MANEJAR LA FUNCIONALIDAD "RECORDARME" ———
+        handleRememberMe(email, rememberMe);
         
         // ——— GUARDAR DATOS DEL USUARIO Y MOSTRAR SPLASH ———
         setUserData({
@@ -150,7 +177,6 @@ const AuthApp = () => {
         // Si hay un mensaje del servidor, usarlo
         errorMessage = data.message;
       }
-      
       
       showError(errorMessage);
       return;
@@ -462,7 +488,7 @@ const AuthApp = () => {
             <button
               type="button"
               onClick={handleLogin}
-              className="auth-button"
+              className="auth-button login-button"
             >
               Iniciar Sesión
             </button>

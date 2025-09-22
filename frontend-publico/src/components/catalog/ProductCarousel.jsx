@@ -168,10 +168,6 @@ const ProductCarousel = ({
                       alt={product.name}
                       style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                     />
-                    <div className="popular-badge-overlay">
-                      <Star size={16} fill="gold" />
-                      <span>Popular</span>
-                    </div>
                   </div>
                   <div className="product-info">
                     <p className="product-subtitle">{product.category}</p>

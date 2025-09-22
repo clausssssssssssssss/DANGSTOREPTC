@@ -475,22 +475,7 @@
   padding: 0.6rem 1rem;
 }
 
-/* Badge popular en el carrusel */
-.carousel-item .popular-badge-overlay {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  background: linear-gradient(135deg, #8b5cf6, #06b6d4);
-  color: white;
-  padding: 0.25rem 0.6rem;
-  border-radius: 12px;
-  font-size: 0.7rem;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  box-shadow: 0 2px 8px rgba(139, 92, 246, 0.3);
-}
+/* Badge "Popular" eliminado - cards más limpias */
 
 /* ====== RESPONSIVE DESIGN ====== */
 
@@ -562,6 +547,7 @@
     padding: 0.5rem 0.8rem;
   }
   
+  
   .carousel-wrapper {
     padding: 0 1rem;
     gap: 0.5rem;
@@ -617,12 +603,6 @@
     height: 32px;
   }
   
-  .carousel-item .popular-badge-overlay {
-    top: 6px;
-    right: 6px;
-    padding: 0.2rem 0.4rem;
-    font-size: 0.65rem;
-  }
   
   .product-carousel-card {
     height: 260px;

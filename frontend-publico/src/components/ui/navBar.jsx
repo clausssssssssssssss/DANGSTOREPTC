@@ -92,24 +92,24 @@ export default function NavBar() {
             </Link>
 
             <div className="nav-links">
-              <Link to="/encargo" className="nav-link">
-                Encargo
-              </Link>
               <Link to="/catalogo" className="nav-link">
                 Catálogo
+              </Link>
+              <Link to="/encargo" className="nav-link">
+                Encargo
               </Link>
               <Link to="/contacto" className="nav-link">
                 Contacto
               </Link>
               <Link to="/acerca" className="nav-link">
-                Acerca
+                Sobre nosotros
               </Link>
             </div>
 
             <div className="navbar-right">
               <div className="action-icons desktop-only">
                 <Link to="/carrito" className="icon-link" aria-label="Carrito de compras">
-                  <ShoppingCart size={20} />
+                  <ShoppingCart className="cart-icon" size={23} />
                   {itemCount > 0 && <span className="cart-badge">{itemCount}</span>}
                 </Link>
 
@@ -155,14 +155,14 @@ export default function NavBar() {
         </div>
 
         <div className="mobile-nav-links">
-          <Link to="/encargo" className="mobile-nav-link" onClick={closeMobileMenu}>
-            <Package className="mobile-nav-icon" size={20} />
-            Encargo Personalizado
-          </Link>
-
           <Link to="/catalogo" className="mobile-nav-link" onClick={closeMobileMenu}>
             <Grid3X3 className="mobile-nav-icon" size={20} />
             Catálogo de Productos
+          </Link>
+
+          <Link to="/encargo" className="mobile-nav-link" onClick={closeMobileMenu}>
+            <Package className="mobile-nav-icon" size={20} />
+            Encargo Personalizado
           </Link>
 
           <Link to="/contacto" className="mobile-nav-link" onClick={closeMobileMenu}>
@@ -172,13 +172,13 @@ export default function NavBar() {
 
           <Link to="/acerca" className="mobile-nav-link" onClick={closeMobileMenu}>
             <Info className="mobile-nav-icon" size={20} />
-            Acerca de Nosotros
+            Sobre nosotros
           </Link>
 
           <div className="mobile-separator" />
 
           <Link to="/carrito" className="mobile-nav-link" onClick={closeMobileMenu}>
-            <ShoppingCart className="mobile-nav-icon" size={20} />
+            <ShoppingCart className="mobile-nav-icon" size={23} />
             Mi Carrito
             {itemCount > 0 && (
               <span className="mobile-cart-badge">

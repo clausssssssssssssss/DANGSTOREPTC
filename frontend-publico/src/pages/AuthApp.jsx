@@ -3,6 +3,7 @@ import { Eye, EyeOff, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import "../components/styles/AuthApp.css";  
 import logoIcon from "../assets/DANGSTORELOGOPRUEBA.PNG";
+import fondoDangStore from "../assets/FondoDangStore.jpg";
 
 // ——— imports para el login y contexto ———
 import { useAuth, parseJwt } from '../hooks/useAuth.jsx';
@@ -12,24 +13,6 @@ import SplashScreen from '../components/SplashScreen';
 
 // URL del servidor local para desarrollo
 const API_URL = 'http://localhost:4000/api';
-
-// ——— COMPONENTE DECORATIVO ———
-const DecorativeElements = () => (
-  <div className="decorative-elements">
-    {/* Círculos decorativos de fondo */}
-    <div className="decorative-circle decorative-circle-1"></div>
-    <div className="decorative-circle decorative-circle-2"></div>
-    <div className="decorative-circle decorative-circle-3"></div>
-    
-    {/* Formas geométricas */}
-    <div className="decorative-shape decorative-triangle"></div>
-    <div className="decorative-shape decorative-square"></div>
-    
-    {/* Líneas decorativas */}
-    <div className="decorative-line decorative-line-1"></div>
-    <div className="decorative-line decorative-line-2"></div>
-  </div>
-);
 
 const AuthApp = () => {
   const navigate = useNavigate();
@@ -393,8 +376,8 @@ const AuthApp = () => {
       <SplashScreen 
         onComplete={handleSplashComplete}
         userInfo={userData}
-        duration={5000} // 5 segundos para mejor experiencia
-        logoSrc={logoIcon} // ← PASAR TU LOGO AQUÍ
+        duration={5000}
+        logoSrc={logoIcon}
       />
     );
   }
@@ -404,7 +387,7 @@ const AuthApp = () => {
     // Vista de Login
     if (currentView === 'login') {
       return (
-        <div className="auth-card">
+        <div className="auth-card compact">
           <Logo />
           
           <h1 className="auth-title">Iniciar sesión</h1>
@@ -437,12 +420,12 @@ const AuthApp = () => {
                   onClick={() => setShowLoginPassword(!showLoginPassword)}
                   className="password-toggle"
                 >
-                  {showLoginPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                  {showLoginPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
             </div>
             
-            <div className="remember-forgot">
+            <div className="remember-forgot-row">
               <label className="remember-me">
                 <input
                   type="checkbox"
@@ -464,7 +447,7 @@ const AuthApp = () => {
             <button
               type="button"
               onClick={handleLogin}
-              className="auth-button"
+              className="auth-button login-button"
             >
               Iniciar Sesión
             </button>
@@ -486,7 +469,7 @@ const AuthApp = () => {
     // Vista de Registro
     if (currentView === 'register') {
       return (
-        <div className="auth-card">
+        <div className="auth-card compact">
           <Logo />
           
           <h1 className="auth-title">REGISTRO</h1>
@@ -542,7 +525,7 @@ const AuthApp = () => {
                   onClick={() => setShowRegisterPassword(!showRegisterPassword)}
                   className="password-toggle"
                 >
-                  {showRegisterPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                  {showRegisterPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
             </div>
@@ -572,7 +555,7 @@ const AuthApp = () => {
     // Vista de Recuperar Contraseña - Paso 1
     if (currentView === 'forgot-password') {
       return (
-        <div className="auth-card">
+        <div className="auth-card compact">
           <Logo />
           
           <h1 className="auth-title">Recuperar Contraseña</h1>
@@ -630,7 +613,7 @@ const AuthApp = () => {
     // Vista de Código de Verificación
     if (currentView === 'verification') {
       return (
-        <div className="auth-card">
+        <div className="auth-card compact">
           <Logo />
           <h1 className="auth-title">Código de verificación</h1>
           <div className="verification-inputs">
@@ -661,7 +644,7 @@ const AuthApp = () => {
     // Vista de Nueva Contraseña
     if (currentView === 'reset-password') {
       return (
-        <div className="auth-card">
+        <div className="auth-card compact">
           <Logo />
           
           <h1 className="auth-title">Nueva Contraseña</h1>
@@ -683,7 +666,7 @@ const AuthApp = () => {
                   onClick={() => setShowNewPassword(!showNewPassword)}
                   className="password-toggle"
                 >
-                  {showNewPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                  {showNewPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
               {newPasswordData.password && !isPasswordValid && (
@@ -706,7 +689,7 @@ const AuthApp = () => {
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                   className="password-toggle"
                 >
-                  {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                  {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
               {newPasswordData.confirmPassword && !doPasswordsMatch && (
@@ -747,7 +730,7 @@ const AuthApp = () => {
 
     // Fallback por defecto
     return (
-      <div className="auth-card">
+      <div className="auth-card compact">
         <div style={{textAlign: 'center', color: '#1f2937'}}>
           <h1 className="auth-title">Vista no encontrada</h1>
           <button
@@ -765,8 +748,16 @@ const AuthApp = () => {
   // ——— RENDERIZADO PRINCIPAL ———
   return (
     <>
-      <div className="auth-container">
-        <DecorativeElements />
+      <div 
+        className="auth-container"
+        style={{
+          backgroundImage: `url(${fondoDangStore})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+          backgroundAttachment: 'fixed'
+        }}
+      >
         {renderAuthContent()}
       </div>
       <ToastContainer toasts={toasts} removeToast={removeToast} />

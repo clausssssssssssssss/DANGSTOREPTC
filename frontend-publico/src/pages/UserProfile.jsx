@@ -16,7 +16,7 @@ import UserSection from '../components/profile/UserSection';
 import QuotesSection from '../components/profile/QuotesSection';
 
 // URL del servidor en producción (Render)
-const API_URL = 'https://dangstoreptc.onrender.com/api';
+const API_URL = 'https://dangstoreptc-production.up.railway.app/api';
 
 const UserProfile = () => {
   const { user, logout } = useAuth();

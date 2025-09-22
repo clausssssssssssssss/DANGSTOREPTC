@@ -1,6 +1,6 @@
 // src/services/api.js
 // URL del servidor en producción (Render)
-const API_URL = 'https://dangstoreptc.onrender.com/api';
+const API_URL = 'https://dangstoreptc-production.up.railway.app/api';
 
 const getAuthHeaders = () => {
   const token = localStorage.getItem('token')

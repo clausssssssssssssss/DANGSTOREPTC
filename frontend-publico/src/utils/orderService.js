@@ -1,5 +1,5 @@
-const API_URL = import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/api` : '/api';
-
+const API_URL = 'https://dangstoreptc-production.up.railway.app/api';
+ 
 export const checkout = async () => {
   try {
     const res = await fetch(`${API_URL}/orders/checkout`, {
@@ -8,27 +8,27 @@ export const checkout = async () => {
         'Content-Type': 'application/json'
       }
     });
-
+ 
     if (!res.ok) {
       const errorData = await res.json().catch(() => ({}));
       throw errorData.message || `Error: ${res.status}`;
     }
-
+ 
     return await res.json();
   } catch (error) {
     throw error.message || 'Error en checkout';
   }
 };
-
+ 
 export const getHistory = async () => {
   try {
     const res = await fetch(`${API_URL}/orders/history`);
-
+ 
     if (!res.ok) {
       const errorData = await res.json().catch(() => ({}));
       throw errorData.message || `Error: ${res.status}`;
     }
-
+ 
     return await res.json();
   } catch (error) {
     throw error.message || 'Error en getHistory';

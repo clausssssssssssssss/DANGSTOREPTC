@@ -12,7 +12,7 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(false);
   const [savedCredentials, setSavedCredentials] = useState(null);
 
-  const API_URL = "http://192.168.0.9:4000/api";
+  const API_URL = "http://10.10.2.33:4000/api";
 
   useEffect(() => {
     const loadStoredData = async () => {

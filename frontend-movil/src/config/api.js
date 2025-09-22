@@ -3,13 +3,13 @@
 
 export const API_CONFIG = {
   // URL base para desarrollo local
-  LOCAL: 'http://192.168.0.9:4000/api',
+  LOCAL: 'http://10.10.2.33:4000/api',
   
   // URL base para producción
-  PRODUCTION: 'https://dangstoreptc.onrender.com/api',
+  PRODUCTION: 'https://dangstoreptc-production.up.railway.app/api',
   
   // URL actualmente activa 
-  BASE_URL: 'http://192.168.0.9:4000/api', // Cambiar a PRODUCTION para producción
+  BASE_URL: 'http://10.10.2.33:4000/api', // Cambiar a PRODUCTION para producción
 };
 
 // Endpoints específicos

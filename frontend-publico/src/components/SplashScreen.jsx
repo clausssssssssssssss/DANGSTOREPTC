@@ -98,6 +98,21 @@ const SplashScreen = ({ onComplete, userInfo, duration = 6000, logoSrc }) => {
 
       {/* Contenido principal */}
       <div className="splash-content">
+        {/* Logo */}
+        <div className="logo-section">
+          {logoSrc ? (
+            <img 
+              src={logoSrc} 
+              alt="DangStore Logo" 
+              className="logo-image-clean"
+            />
+          ) : (
+            <div className="logo-placeholder-clean">
+              <span className="logo-text-clean">DS</span>
+            </div>
+          )}
+        </div>
+
         {/* Título principal */}
         <div className="title-section">
           <h1 className="main-title">

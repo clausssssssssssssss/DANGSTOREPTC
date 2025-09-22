@@ -186,14 +186,14 @@
   }
 }
 
-/* ====== LOGO ====== */
+/* ====== LOGO LIMPIO ====== */
 
-.logo-container {
+.logo-section {
   margin-bottom: 1.5rem;
-  animation: logoFloat 3s ease-in-out infinite;
   display: flex;
   justify-content: center;
   align-items: center;
+  animation: logoFloat 3s ease-in-out infinite;
 }
 
 @keyframes logoFloat {
@@ -205,51 +205,30 @@
   }
 }
 
-.logo-wrapper {
-  position: relative;
-  display: inline-block;
-  margin: 0 auto;
+/* Logo sin forma - solo la imagen limpia */
+.logo-image-clean {
+  width: 120px;
+  height: 120px;
+  object-fit: contain;
+  /* Sin bordes, sin sombras, sin fondo - solo la imagen */
 }
 
-.logo-glow {
-  position: absolute;
-  inset: -20px;
-  border-radius: 25px;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.3), transparent);
-  filter: blur(25px);
-  animation: glowPulse 3s ease-in-out infinite;
-}
-
-@keyframes glowPulse {
-  0%, 100% {
-    transform: scale(1);
-    opacity: 0.3;
-  }
-  50% {
-    transform: scale(1.05);
-    opacity: 0.5;
-  }
-}
-
-.logo-image,
-.logo-placeholder {
-  width: 140px;
-  height: 140px;
-  border-radius: 20px;
-  object-fit: cover;
-  border: 3px solid rgba(255, 255, 255, 0.3);
-  box-shadow: 
-    0 20px 40px rgba(0, 0, 0, 0.2),
-    inset 0 2px 4px rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  background: rgba(255, 255, 255, 0.1);
-}
-
-.logo-placeholder {
+.logo-placeholder-clean {
+  width: 120px;
+  height: 120px;
   display: flex;
   align-items: center;
   justify-content: center;
+  /* Sin bordes, sin sombras, sin fondo */
+}
+
+.logo-text-clean {
   font-size: 3rem;
+  font-weight: bold;
+  background: linear-gradient(45deg, #8b5cf6, #06b6d4);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 /* ====== TÍTULO ====== */

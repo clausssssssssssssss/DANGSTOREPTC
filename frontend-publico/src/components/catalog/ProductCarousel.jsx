@@ -176,7 +176,6 @@ const ProductCarousel = ({
                   <div className="product-info">
                     <p className="product-subtitle">{product.category}</p>
                     <div className="product-footer">
-                      <p className="product-price">${formatPrice(product.price)}</p>
                       <button
                         className="view-more-btn"
                         onClick={handleViewMoreClick}

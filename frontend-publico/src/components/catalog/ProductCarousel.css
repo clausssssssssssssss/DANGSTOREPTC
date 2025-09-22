@@ -427,6 +427,71 @@
   font-weight: 500;
 }
 
+/* ====== ESTILOS ESPECÍFICOS PARA CARDS DEL CARRUSEL ====== */
+
+/* Cards del carrusel - más compactas y responsive */
+.carousel-item .product-card {
+  height: auto;
+  min-height: 280px;
+  margin: 0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.carousel-item .product-image {
+  height: 160px;
+  position: relative;
+}
+
+.carousel-item .product-info {
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: calc(100% - 160px);
+  min-height: 120px;
+}
+
+.carousel-item .product-subtitle {
+  font-size: 0.9rem;
+  color: #666;
+  margin: 0 0 0.75rem 0;
+  font-weight: 500;
+}
+
+.carousel-item .product-footer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: auto;
+}
+
+.carousel-item .view-more-btn {
+  width: 100%;
+  justify-content: center;
+  font-size: 0.85rem;
+  padding: 0.6rem 1rem;
+}
+
+/* Badge popular en el carrusel */
+.carousel-item .popular-badge-overlay {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: linear-gradient(135deg, #8b5cf6, #06b6d4);
+  color: white;
+  padding: 0.25rem 0.6rem;
+  border-radius: 12px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  box-shadow: 0 2px 8px rgba(139, 92, 246, 0.3);
+}
+
 /* ====== RESPONSIVE DESIGN ====== */
 
 @media (max-width: 1024px) {
@@ -438,8 +503,12 @@
     font-size: 1.5rem;
   }
   
-  .product-carousel-card {
-    height: 300px;
+  .carousel-item .product-card {
+    min-height: 260px;
+  }
+  
+  .carousel-item .product-image {
+    height: 150px;
   }
   
   .carousel-btn {
@@ -470,12 +539,27 @@
     height: 38px;
   }
   
-  .product-carousel-card {
-    height: 280px;
+  .carousel-item .product-card {
+    min-height: 240px;
+    margin: 0 0.25rem;
   }
   
-  .product-carousel-image {
-    height: 180px;
+  .carousel-item .product-image {
+    height: 140px;
+  }
+  
+  .carousel-item .product-info {
+    padding: 0.75rem;
+    min-height: 100px;
+  }
+  
+  .carousel-item .product-subtitle {
+    font-size: 0.85rem;
+  }
+  
+  .carousel-item .view-more-btn {
+    font-size: 0.8rem;
+    padding: 0.5rem 0.8rem;
   }
   
   .carousel-wrapper {
@@ -498,9 +582,46 @@
     font-size: 1.1rem;
   }
   
+  .carousel-item .product-card {
+    min-height: 220px;
+    margin: 0 0.125rem;
+    border-radius: 8px;
+  }
+  
+  .carousel-item .product-image {
+    height: 120px;
+  }
+  
+  .carousel-item .product-info {
+    padding: 0.6rem;
+    min-height: 100px;
+  }
+  
+  .carousel-item .product-subtitle {
+    font-size: 0.8rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .carousel-item .view-more-btn {
+    font-size: 0.75rem;
+    padding: 0.4rem 0.6rem;
+    gap: 0.25rem;
+  }
+  
+  .carousel-item .view-more-btn span {
+    display: none; /* Solo mostrar el ícono en móviles muy pequeños */
+  }
+  
   .carousel-btn {
-    width: 34px;
-    height: 34px;
+    width: 32px;
+    height: 32px;
+  }
+  
+  .carousel-item .popular-badge-overlay {
+    top: 6px;
+    right: 6px;
+    padding: 0.2rem 0.4rem;
+    font-size: 0.65rem;
   }
   
   .product-carousel-card {

@@ -37,7 +37,7 @@ export default function NavBar() {
         });
         if (!res.ok) return;
         const orders = await res.json();
-        if (orders.some(o => o.status === 'quoted')) {
+        if (Array.isArray(orders) && orders.some(o => o.status === 'quoted')) {
           setHasQuotes(true);
         }
       } catch (err) {

@@ -98,7 +98,7 @@ export const createCustomOrder = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('❌ Error creando orden:', error);
+    console.error(' Error creando orden:', error);
     console.error(' Stack trace:', error.stack);
     
     // Error específico de MongoDB
@@ -337,6 +337,55 @@ export const respondCustomOrder = async (req, res) => {
 
   } catch (error) {
     console.error('Error respondiendo orden:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error interno del servidor'
+    });
+  }
+};
+
+/**
+ * Eliminar orden personalizada
+ */
+export const deleteCustomOrder = async (req, res) => {
+  try {
+    console.log('Eliminando orden personalizada...');
+    console.log('ID:', req.params.id);
+    console.log('Usuario:', req.user);
+    
+    const orderId = req.params.id;
+    const userId = req.user?.id || req.user?.userId;
+    
+    // Buscar la orden
+    const order = await CustomizedOrder.findById(orderId);
+    
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: 'Orden personalizada no encontrada'
+      });
+    }
+    
+    // Verificar que el usuario sea el propietario de la orden
+    if (order.userId.toString() !== userId) {
+      return res.status(403).json({
+        success: false,
+        message: 'No tienes permisos para eliminar esta orden'
+      });
+    }
+    
+    // Eliminar la orden
+    await CustomizedOrder.findByIdAndDelete(orderId);
+    
+    console.log(' Orden personalizada eliminada exitosamente');
+    
+    res.json({
+      success: true,
+      message: 'Orden personalizada eliminada correctamente'
+    });
+    
+  } catch (error) {
+    console.error(' Error eliminando orden personalizada:', error);
     res.status(500).json({
       success: false,
       message: 'Error interno del servidor'

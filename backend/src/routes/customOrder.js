@@ -8,7 +8,8 @@ import {
   getAllOrders,
   quoteCustomOrder,
   respondCustomOrder,
-  getCustomOrderById 
+  getCustomOrderById,
+  deleteCustomOrder
 } from '../controllers/customizedOrdersController.js';
 
 const router = Router();
@@ -61,6 +62,13 @@ router.put(
   '/:id/respond',
   authMiddleware(),
   respondCustomOrder
+);
+
+// Eliminar orden personalizada (usuario)
+router.delete(
+  '/:id',
+  authMiddleware(),
+  deleteCustomOrder
 );
 
 export default router;

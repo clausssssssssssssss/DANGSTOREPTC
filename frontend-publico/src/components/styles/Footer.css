@@ -218,17 +218,36 @@ html, body {
     padding: 20px 12px;
   }
   
+  .footer-container {
+    padding: 0 12px;
+  }
+  
   .footer-sections {
+    grid-template-columns: 1fr;
     gap: 1.5rem;
+    text-align: center;
+  }
+  
+  .footer-section {
+    text-align: center;
   }
   
   .footer-section h3 {
     font-size: 1.1rem;
+    margin-bottom: 0.8rem;
   }
   
   .footer-section p,
   .footer-links a {
     font-size: 0.85rem;
+    line-height: 1.4;
+  }
+  
+  .footer-links {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: center;
   }
   
   .footer-bottom {

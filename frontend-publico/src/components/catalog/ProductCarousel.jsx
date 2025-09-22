@@ -1,14 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ChevronLeft, ChevronRight, Heart, ShoppingCart, Star } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Star, ArrowRight } from 'lucide-react';
 import PropTypes from 'prop-types';
+import { useNavigate } from 'react-router-dom';
 import './ProductCarousel.css';
 
 const ProductCarousel = ({ 
   products, 
-  onAddToCart, 
-  onProductClick, 
-  favorites = [], 
-  onToggleFavorite,
   autoPlay = true,
   autoPlayInterval = 4000
 }) => {
@@ -16,6 +13,7 @@ const ProductCarousel = ({
   const [isAnimating, setIsAnimating] = useState(false);
   const intervalRef = useRef(null);
   const carouselRef = useRef(null);
+  const navigate = useNavigate();
 
   // Configuración del carrusel
   const itemsPerView = 3; // Mostrar 3 productos a la vez
@@ -95,14 +93,8 @@ const ProductCarousel = ({
     return isNaN(numPrice) ? '0.00' : numPrice.toFixed(2);
   };
 
-  const handleFavoriteClick = (e, productId) => {
-    e.stopPropagation();
-    onToggleFavorite(productId);
-  };
-
-  const handleAddToCartClick = (e, product) => {
-    e.stopPropagation();
-    onAddToCart(product);
+  const handleViewMoreClick = () => {
+    navigate('/catalogo');
   };
 
   if (!products || products.length === 0) {
@@ -168,42 +160,30 @@ const ProductCarousel = ({
                   index >= currentIndex && index < currentIndex + itemsPerView ? 'visible' : ''
                 }`}
                 style={{ width: `${100 / products.length}%` }}
-                onClick={() => onProductClick(product)}
               >
-                <div className="product-carousel-card">
-                  <div className="product-carousel-image">
+                <div className="product-card">
+                  <div className="product-image">
                     <img 
                       src={product.image || product.images?.[0] || '/src/assets/llavero.png'} 
                       alt={product.name}
-                      loading="lazy"
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                     />
-                    <div className="popular-badge">
-                      <Star size={14} fill="gold" />
+                    <div className="popular-badge-overlay">
+                      <Star size={16} fill="gold" />
                       <span>Popular</span>
                     </div>
-                    <button
-                      className={`favorite-btn ${favorites.includes(product.id || product._id) ? 'active' : ''}`}
-                      onClick={(e) => handleFavoriteClick(e, product.id || product._id)}
-                      aria-label={favorites.includes(product.id || product._id) ? 'Quitar de favoritos' : 'Agregar a favoritos'}
-                    >
-                      <Heart 
-                        size={18} 
-                        fill={favorites.includes(product.id || product._id) ? 'currentColor' : 'none'} 
-                      />
-                    </button>
                   </div>
-                  
-                  <div className="product-carousel-info">
-                    <h3 className="product-carousel-title">{product.name}</h3>
-                    <p className="product-carousel-category">{product.category}</p>
-                    <div className="product-carousel-footer">
-                      <span className="product-carousel-price">${formatPrice(product.price)}</span>
+                  <div className="product-info">
+                    <p className="product-subtitle">{product.category}</p>
+                    <div className="product-footer">
+                      <p className="product-price">${formatPrice(product.price)}</p>
                       <button
-                        className="carousel-add-to-cart"
-                        onClick={(e) => handleAddToCartClick(e, product)}
-                        aria-label="Agregar al carrito"
+                        className="view-more-btn"
+                        onClick={handleViewMoreClick}
+                        aria-label="Ver más productos"
                       >
-                        <ShoppingCart size={16} />
+                        <ArrowRight size={16} />
+                        <span>Ver más</span>
                       </button>
                     </div>
                   </div>
@@ -250,10 +230,6 @@ ProductCarousel.propTypes = {
       category: PropTypes.string,
     })
   ).isRequired,
-  onAddToCart: PropTypes.func.isRequired,
-  onProductClick: PropTypes.func.isRequired,
-  favorites: PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.string, PropTypes.number])),
-  onToggleFavorite: PropTypes.func.isRequired,
   autoPlay: PropTypes.bool,
   autoPlayInterval: PropTypes.number,
 };

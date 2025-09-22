@@ -3,7 +3,7 @@
 /* Estructura principal */
 .user-profile-container {
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #ffffff;
   padding: 0;
   margin: 0;
 }
@@ -1515,7 +1515,36 @@
 }
 
 /* ===== RESPONSIVE DESIGN ===== */
+
+/* Desktop Large */
+@media (max-width: 1400px) {
+  .profile-layout {
+    max-width: 1200px;
+  }
+  
+  .profile-sidebar {
+    width: 280px;
+  }
+  
+  .quotes-list {
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  }
+  
+  .orders-grid {
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  }
+  
+  .favorites-grid {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  }
+}
+
+/* Desktop Medium */
 @media (max-width: 1200px) {
+  .profile-sidebar {
+    width: 260px;
+  }
+  
   .quotes-list {
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   }
@@ -1527,8 +1556,13 @@
   .favorites-grid {
     grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
   }
+  
+  .profile-main {
+    padding: 28px;
+  }
 }
 
+/* Tablet Large */
 @media (max-width: 1024px) {
   .profile-layout {
     flex-direction: column;
@@ -1540,18 +1574,15 @@
     position: static;
     border-right: none;
     border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    display: none;
   }
   
   .profile-main {
-    padding: 20px;
+    padding: 24px;
   }
   
   .mobile-header {
     display: flex;
-  }
-  
-  .profile-sidebar {
-    display: none;
   }
   
   .profile-sidebar.mobile-open {
@@ -1564,28 +1595,52 @@
     z-index: 99;
     height: calc(100vh - 64px);
     overflow-y: auto;
+    width: 100%;
+  }
+  
+  .quotes-list {
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 20px;
+  }
+  
+  .orders-grid {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+  }
+  
+  .favorites-grid {
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 20px;
   }
 }
 
+/* Tablet Small */
 @media (max-width: 768px) {
+  .profile-main {
+    padding: 20px;
+  }
+  
   .form-grid {
     grid-template-columns: 1fr;
     gap: 16px;
   }
   
   .content-card {
-    padding: 16px;
+    padding: 18px;
+    margin-bottom: 20px;
   }
   
   .card-header {
     flex-direction: column;
     align-items: flex-start;
     gap: 16px;
+    margin-bottom: 20px;
   }
   
   .edit-actions {
     flex-direction: column;
     width: 100%;
+    gap: 10px;
   }
   
   .edit-button,
@@ -1593,10 +1648,12 @@
   .save-button {
     width: 100%;
     justify-content: center;
+    padding: 12px 20px;
   }
   
   .form-actions {
     flex-direction: column;
+    gap: 12px;
   }
   
   .save-button {
@@ -1606,17 +1663,21 @@
   .quotes-header {
     flex-direction: column;
     align-items: flex-start;
+    gap: 16px;
   }
   
   .quotes-filter {
     width: 100%;
     justify-content: center;
+    gap: 8px;
   }
   
   .filter-btn {
     flex: 1;
     text-align: center;
-    min-width: 120px;
+    min-width: 100px;
+    padding: 10px 16px;
+    font-size: 0.9rem;
   }
   
   .quote-header {
@@ -1627,17 +1688,19 @@
   
   .quote-price-row {
     flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
+    align-items: stretch;
+    gap: 12px;
   }
   
   .quote-actions {
     flex-direction: column;
     width: 100%;
+    gap: 10px;
   }
   
   .btn-quote {
     width: 100%;
+    padding: 12px 20px;
   }
   
   .order-card-header {
@@ -1668,40 +1731,74 @@
   
   .requirements-list {
     grid-template-columns: 1fr;
+    gap: 10px;
   }
   
   .modal-actions {
     flex-direction: column;
+    gap: 10px;
   }
   
   .btn-modal {
     width: 100%;
   }
+  
+  .quotes-list {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  .orders-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  .favorites-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
 }
 
+/* Mobile Large */
 @media (max-width: 480px) {
   .profile-main {
     padding: 16px;
   }
   
   .content-title {
-    font-size: 1.5rem;
+    font-size: 1.4rem;
   }
   
   .content-subtitle {
     font-size: 0.9rem;
   }
   
+  .content-card {
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+  
+  .card-header {
+    margin-bottom: 16px;
+  }
+  
+  .card-title h3 {
+    font-size: 1.3rem;
+  }
+  
   .quotes-list {
     grid-template-columns: 1fr;
+    gap: 12px;
   }
   
   .orders-grid {
     grid-template-columns: 1fr;
+    gap: 12px;
   }
   
   .favorites-grid {
     grid-template-columns: 1fr;
+    gap: 12px;
   }
   
   .quote-image {
@@ -1717,24 +1814,25 @@
   }
   
   .logout-modal {
-    width: 340px;
-    padding: 28px 24px;
+    width: 320px;
+    padding: 24px 20px;
     border-radius: 12px;
+    margin: 0 16px;
   }
   
   .logout-modal h3 {
     font-size: 1.2rem;
-    margin-bottom: 24px;
+    margin-bottom: 20px;
   }
   
   .modal-actions {
     flex-direction: column;
-    gap: 10px;
+    gap: 8px;
   }
   
   .btn-modal {
     width: 100%;
-    padding: 14px 20px;
+    padding: 12px 18px;
     font-size: 0.9rem;
     border-radius: 8px;
   }
@@ -1754,16 +1852,16 @@
   }
   
   .nav-button {
-    padding: 10px 12px;
+    padding: 12px 14px;
     font-size: 0.85rem;
   }
   
   .empty-state {
-    padding: 40px 16px;
+    padding: 32px 16px;
   }
   
   .empty-icon {
-    font-size: 3rem;
+    font-size: 2.5rem;
   }
   
   .empty-state h4 {
@@ -1773,9 +1871,29 @@
   .empty-state p {
     font-size: 0.9rem;
   }
+  
+  .filter-btn {
+    padding: 8px 12px;
+    font-size: 0.8rem;
+    min-width: 80px;
+  }
+  
+  .btn-quote {
+    padding: 10px 16px;
+    font-size: 0.85rem;
+  }
+  
+  .form-input {
+    padding: 10px 14px;
+    font-size: 0.9rem;
+  }
+  
+  .form-label {
+    font-size: 0.85rem;
+  }
 }
 
-/* Pequeños ajustes para dispositivos muy pequeños */
+/* Mobile Small */
 @media (max-width: 320px) {
   .profile-main {
     padding: 12px;
@@ -1783,9 +1901,14 @@
   
   .content-card {
     padding: 12px;
+    margin-bottom: 12px;
   }
   
   .card-title h3 {
+    font-size: 1.1rem;
+  }
+  
+  .content-title {
     font-size: 1.2rem;
   }
   
@@ -1794,19 +1917,246 @@
   }
   
   .quote-title {
-    font-size: 1rem;
+    font-size: 0.95rem;
   }
   
   .quote-price {
-    padding: 8px 12px;
+    padding: 6px 10px;
+    font-size: 0.9rem;
   }
   
   .price-value {
-    font-size: 1rem;
+    font-size: 0.9rem;
   }
   
   .filter-btn {
+    padding: 6px 10px;
+    font-size: 0.75rem;
+    min-width: 70px;
+  }
+  
+  .btn-quote {
     padding: 8px 12px;
+    font-size: 0.8rem;
+  }
+  
+  .form-input {
+    padding: 8px 12px;
+    font-size: 0.85rem;
+  }
+  
+  .form-label {
+    font-size: 0.8rem;
+  }
+  
+  .user-section {
+    padding: 12px;
+  }
+  
+  .user-avatar {
+    width: 50px;
+    height: 50px;
+    font-size: 1.2rem;
+  }
+  
+  .user-details h3 {
+    font-size: 1rem;
+  }
+  
+  .nav-button {
+    padding: 10px 12px;
+    font-size: 0.8rem;
+  }
+  
+  .logout-modal {
+    width: 280px;
+    padding: 20px 16px;
+    margin: 0 12px;
+  }
+  
+  .logout-modal h3 {
+    font-size: 1.1rem;
+    margin-bottom: 16px;
+  }
+  
+  .btn-modal {
+    padding: 10px 16px;
+    font-size: 0.85rem;
+  }
+  
+  .empty-state {
+    padding: 24px 12px;
+  }
+  
+  .empty-icon {
+    font-size: 2rem;
+  }
+  
+  .empty-state h4 {
+    font-size: 1rem;
+  }
+  
+  .empty-state p {
+    font-size: 0.85rem;
+  }
+}
+
+/* ===== MEJORAS ADICIONALES RESPONSIVE ===== */
+
+/* Mejoras para el menú móvil */
+@media (max-width: 1024px) {
+  .sidebar-content {
+    padding: 20px;
+  }
+  
+  .profile-navigation {
+    gap: 12px;
+  }
+  
+  .nav-button {
+    padding: 12px 16px;
     font-size: 0.9rem;
+  }
+}
+
+/* Mejoras para el header móvil */
+.mobile-header h2 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.mobile-menu-toggle {
+  color: #666;
+  transition: color 0.2s ease;
+}
+
+.mobile-menu-toggle:hover {
+  color: #6c5ce7;
+}
+
+/* Mejoras para el overlay del menú móvil */
+.profile-sidebar.mobile-open {
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(10px);
+  border-right: none;
+}
+
+/* Mejoras para formularios responsive */
+@media (max-width: 768px) {
+  .password-input-container {
+    position: relative;
+    width: 100%;
+  }
+  
+  .password-toggle-btn {
+    right: 12px;
+  }
+}
+
+/* Mejoras para botones responsive */
+@media (max-width: 480px) {
+  .edit-button,
+  .cancel-button,
+  .save-button {
+    font-size: 0.9rem;
+  }
+  
+  .btn-quote {
+    font-weight: 600;
+  }
+}
+
+/* Mejoras para iconos responsive */
+@media (max-width: 320px) {
+  .nav-icon {
+    width: 16px;
+    height: 16px;
+  }
+  
+  .section-icon {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+/* Mejoras para el estado de carga */
+@media (max-width: 768px) {
+  .loading-state {
+    padding: 30px 16px;
+  }
+  
+  .spinner {
+    width: 28px;
+    height: 28px;
+  }
+}
+
+/* Mejoras para mensajes de error */
+@media (max-width: 480px) {
+  .error-state {
+    padding: 30px 16px;
+  }
+  
+  .error-icon {
+    font-size: 2.5rem;
+  }
+  
+  .error-state h4 {
+    font-size: 1rem;
+  }
+  
+  .error-state p {
+    font-size: 0.85rem;
+  }
+  
+  .retry-button {
+    padding: 8px 16px;
+    font-size: 0.85rem;
+  }
+}
+
+/* Mejoras para el grid de favoritos */
+@media (max-width: 768px) {
+  .favorite-card {
+    min-height: 350px;
+  }
+  
+  .favorite-image-container {
+    height: 160px;
+  }
+  
+  .favorite-info {
+    padding: 14px;
+  }
+  
+  .favorite-actions {
+    padding: 14px;
+  }
+}
+
+/* Mejoras para el grid de órdenes */
+@media (max-width: 768px) {
+  .order-card {
+    min-height: auto;
+  }
+  
+  .order-card-header {
+    padding: 16px;
+  }
+  
+  .order-card-body {
+    padding: 16px;
+  }
+}
+
+/* Mejoras para el grid de cotizaciones */
+@media (max-width: 768px) {
+  .quote-card {
+    min-height: auto;
+  }
+  
+  .quote-details {
+    gap: 12px;
   }
 }

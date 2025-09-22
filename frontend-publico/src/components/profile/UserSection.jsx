@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../hooks/useAuth';
-import { User, Mail, Phone, MapPin, Edit, Save, X, AlertTriangle } from 'lucide-react';
+import { User, Mail, Phone, MapPin, Edit, Save, X } from 'lucide-react';
 
 // URL del servidor local para desarrollo
 const API_BASE = 'https://dangstoreptc.onrender.com/api';
@@ -36,10 +36,6 @@ const UserSection = ({ userId }) => {
           <h3>{user.name}</h3>
           <p>{user.email}</p>
         </div>
-      </div>
-      <div className="verification-badge">
-        <AlertTriangle className="verification-badge-icon" />
-        Verificado
       </div>
     </div>
   );

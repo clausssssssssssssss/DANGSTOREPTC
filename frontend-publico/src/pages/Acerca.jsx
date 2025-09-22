@@ -142,38 +142,6 @@ const About = () => {
         </div>
       </section>
 
-      {/* Carrusel de Productos Populares */}
-      <section className="popular-products-carousel-section animate-on-scroll" style={{ background: '#ffffff', padding: '4rem 0' }}>
-        <div className="container" style={{ maxWidth: '100%', padding: '0 2rem' }}>
-          {productsLoading ? (
-            <div className="carousel-loading-state">
-              <div className="loading-spinner">
-                <div className="spinner"></div>
-                <p>Cargando productos populares...</p>
-              </div>
-            </div>
-          ) : productsError ? (
-            <div className="carousel-error-state">
-              <p>Error al cargar productos populares: {productsError}</p>
-            </div>
-          ) : popularProducts.length > 0 ? (
-            <ProductCarousel
-              products={popularProducts}
-              onAddToCart={handleAddToCart}
-              onProductClick={handleProductClick}
-              favorites={favorites}
-              onToggleFavorite={handleToggleFavorite}
-              autoPlay={true}
-              autoPlayInterval={5000}
-            />
-          ) : (
-            <div className="no-popular-products">
-              <p>No hay productos populares disponibles en este momento</p>
-            </div>
-          )}
-        </div>
-      </section>
-
       {/* ¿Qué hacemos? - Cards */}
       <section className="what-cards animate-on-scroll" style={{ background: '#fafafa', position: 'relative' }}>
         {/* Decoraciones adicionales para la sección de cards */}
@@ -217,6 +185,34 @@ const About = () => {
             </div>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* Carrusel de Productos Populares */}
+      <section className="popular-products-carousel-section animate-on-scroll" style={{ background: '#ffffff', padding: '4rem 0' }}>
+        <div className="container" style={{ maxWidth: '100%', padding: '0 2rem' }}>
+          {productsLoading ? (
+            <div className="carousel-loading-state">
+              <div className="loading-spinner">
+                <div className="spinner"></div>
+                <p>Cargando productos populares...</p>
+              </div>
+            </div>
+          ) : productsError ? (
+            <div className="carousel-error-state">
+              <p>Error al cargar productos populares: {productsError}</p>
+            </div>
+          ) : popularProducts.length > 0 ? (
+            <ProductCarousel
+              products={popularProducts}
+              autoPlay={true}
+              autoPlayInterval={5000}
+            />
+          ) : (
+            <div className="no-popular-products">
+              <p>No hay productos populares disponibles en este momento</p>
+            </div>
+          )}
         </div>
       </section>
 

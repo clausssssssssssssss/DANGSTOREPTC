@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Gift } from 'lucide-react';
+import { Gift, Trash2, AlertTriangle, X } from 'lucide-react';
 import '../styles/QuotesSection.css';
 
-// URL del servidor local para desarrollo
+// URL del servidor para producción
 const API_BASE = 'https://dangstoreptc.onrender.com/api';
+const API_URL = API_BASE;
 
 // Función helper para construir URLs de imágenes correctamente
 const getImageUrl = (imagePath) => {
@@ -29,6 +30,8 @@ const QuotesSection = ({ setHasQuotesFlag, showSuccess, showError, showWarning }
   const [loadingQuotes, setLoadingQuotes] = useState(false);
   const [errorQuotes, setErrorQuotes] = useState('');
   const [quotesFilter, setQuotesFilter] = useState('all');
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [quoteToDelete, setQuoteToDelete] = useState(null);
 
   // --- Carga inicial de cotizaciones ---
   useEffect(() => {
@@ -180,6 +183,56 @@ const QuotesSection = ({ setHasQuotesFlag, showSuccess, showError, showWarning }
     setQuotesFilter(filter);
   };
 
+  const handleDeleteQuote = (quoteId) => {
+    setQuoteToDelete(quoteId);
+    setShowDeleteModal(true);
+  };
+
+  const confirmDeleteQuote = async () => {
+    if (!quoteToDelete) return;
+
+    try {
+      const response = await fetch(`${API_URL}/custom-orders/${quoteToDelete}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`Error ${response.status}: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      
+      if (data.success) {
+        // Remover la cotización de la lista local
+        setQuotes(prevQuotes => prevQuotes.filter(quote => quote._id !== quoteToDelete));
+        
+        // Actualizar el flag de cotizaciones pendientes si es necesario
+        const remainingQuotes = quotes.filter(quote => quote._id !== quoteToDelete);
+        if (!remainingQuotes.some(q => q.status === 'quoted')) {
+          setHasQuotesFlag(false);
+        }
+        
+        showSuccess('Cotización eliminada correctamente');
+      } else {
+        throw new Error(data.message || 'Error eliminando la cotización');
+      }
+    } catch (error) {
+      console.error('Error al eliminar cotización:', error);
+      showError(`Error al eliminar la cotización: ${error.message}`);
+    } finally {
+      setShowDeleteModal(false);
+      setQuoteToDelete(null);
+    }
+  };
+
+  const cancelDeleteQuote = () => {
+    setShowDeleteModal(false);
+    setQuoteToDelete(null);
+  };
+
   const getStatusBadge = (status) => {
     switch (status) {
       case 'quoted':
@@ -296,6 +349,14 @@ const QuotesSection = ({ setHasQuotesFlag, showSuccess, showError, showWarning }
                   >
                     <Gift size={24} />
                   </div>
+                  {/* Botón de eliminar */}
+                  <button
+                    className="delete-quote-btn"
+                    onClick={() => handleDeleteQuote(quote._id)}
+                    title="Eliminar cotización"
+                  >
+                    <Trash2 size={16} />
+                  </button>
                 </div>
 
                 <div className="quote-details">
@@ -348,6 +409,45 @@ const QuotesSection = ({ setHasQuotesFlag, showSuccess, showError, showWarning }
               </div>
             );
           })}
+        </div>
+      )}
+
+      {/* Modal de confirmación de eliminación */}
+      {showDeleteModal && (
+        <div className="delete-modal-overlay" onClick={cancelDeleteQuote}>
+          <div className="delete-modal" onClick={e => e.stopPropagation()}>
+            <div className="delete-modal-header">
+              <div className="delete-modal-icon">
+                <AlertTriangle size={24} />
+              </div>
+              <button 
+                className="delete-modal-close"
+                onClick={cancelDeleteQuote}
+              >
+                <X size={20} />
+              </button>
+            </div>
+            
+            <div className="delete-modal-content">
+              <h3>¿Eliminar cotización?</h3>
+              <p>Esta acción no se puede deshacer. La cotización será eliminada permanentemente.</p>
+            </div>
+            
+            <div className="delete-modal-actions">
+              <button 
+                className="delete-modal-btn cancel"
+                onClick={cancelDeleteQuote}
+              >
+                Cancelar
+              </button>
+              <button 
+                className="delete-modal-btn confirm"
+                onClick={confirmDeleteQuote}
+              >
+                Eliminar
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

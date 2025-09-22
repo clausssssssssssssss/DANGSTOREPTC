@@ -48,7 +48,7 @@ export function useCart(userId) {
     (async () => {
       try {
         const data = await authFetch(`/cart`);
-        setCart((data.products || []).map(p => ({
+        setCart((data.products || []).filter(p => p.product && p.product._id).map(p => ({
           product: {
             id: p.product._id,
             name: p.product.name,

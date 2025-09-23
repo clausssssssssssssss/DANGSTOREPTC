@@ -2,6 +2,8 @@
 import React, { createContext, useState, useCallback, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ToastAndroid } from 'react-native';
+import { API_CONFIG } from '../config/api';
+import { decode as atob } from 'base-64';
 
 const AuthContext = createContext(null);
 export { AuthContext };
@@ -11,9 +13,9 @@ export const AuthProvider = ({ children }) => {
   const [authToken, setAuthToken] = useState(null);
   const [loading, setLoading] = useState(false);
   const [savedCredentials, setSavedCredentials] = useState(null);
-
-  const API_URL = "http://192.168.0.9:4000/api";
-
+  
+  const API_URL = API_CONFIG.BASE_URL;
+  
   useEffect(() => {
     const loadStoredData = async () => {
       try {

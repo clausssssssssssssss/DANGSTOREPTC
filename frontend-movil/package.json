@@ -22,6 +22,7 @@
     "axios": "^1.11.0",
     "base-64": "^1.0.0",
     "expo": "^54.0.0",
+    "expo-cli": "^6.3.12",
     "expo-image-picker": "~17.0.8",
     "expo-linear-gradient": "~15.0.7",
     "multer": "^2.0.2",

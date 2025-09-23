@@ -19,7 +19,7 @@ import { AuthContext } from '../context/AuthContext';
 import { useProducts } from '../hooks/useProducts';
 import { ProductosStyles } from '../components/styles/ProductosStyles';
 
-const API_URL = 'http://192.168.0.16:4000/api/products'; // URL consistente con el backend
+const API_URL = 'http://10.10.1.8:4000/api/products'; // URL consistente con el backend
 
 const Productos = ({ navigation }) => {
   const { products: productosHook, loading: loadingHook, lastStockUpdate, refresh: refreshProducts } = useProducts();

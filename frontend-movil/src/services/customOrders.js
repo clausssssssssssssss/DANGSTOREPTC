@@ -2,7 +2,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // URL base del backend - debe coincidir con AuthContext
-const API_URL = 'http://192.168.0.16:4000/api';
+const API_URL = 'https://dangstoreptc-production.up.railway.app/api';
 
 // Función helper para hacer peticiones autenticadas
 const authenticatedFetch = async (url, options = {}) => {

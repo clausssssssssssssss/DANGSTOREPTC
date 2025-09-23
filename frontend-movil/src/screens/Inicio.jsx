@@ -8,7 +8,7 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
-import { useFocusEffect } from '@react-navigation/native'; // AGREGAR ESTA IMPORTACIÓN
+import { useFocusEffect } from '@react-navigation/native';
 import { AuthContext } from '../context/AuthContext.js';
 import { inicioStyles as styles } from '../components/styles/InicioStyles';
 import { salesAPI } from '../services/salesReport';
@@ -35,7 +35,62 @@ const Inicio = ({ navigation }) => {
   // Estado para controlar si estamos cargando datos
   const [loading, setLoading] = useState(false);
 
-  // CAMBIO: Usar useFocusEffect en lugar de useEffect para actualización automática
+  // NUEVO: Estado para el contador de notificaciones
+  const [notificationCount, setNotificationCount] = useState(0);
+
+  // Función para obtener el número real de notificaciones
+  const fetchNotificationCount = async () => {
+    try {
+      // OPCIÓN 1: Si tienes una API específica para notificaciones
+      // const count = await salesAPI.getUnreadNotificationsCount();
+      // setNotificationCount(count);
+
+      // OPCIÓN 2: Calcular basado en datos del negocio
+      let count = 0;
+
+      // Contar pedidos pendientes
+      try {
+        const pendingOrders = await salesAPI.getPendingOrders?.() || [];
+        if (pendingOrders.length > 0) {
+          count += 1; // Una notificación por pedidos pendientes
+        }
+      } catch (error) {
+        console.log('No se pudieron verificar pedidos pendientes');
+      }
+
+      // Contar otras alertas del negocio
+      try {
+        const alerts = await salesAPI.getBusinessAlerts?.() || [];
+        count += alerts.length;
+      } catch (error) {
+        console.log('No hay alertas adicionales');
+      }
+
+      // OPCIÓN 3: Usar datos que ya tienes
+      // Por ejemplo, si ventas bajas = 1 notificación
+      if (summary.daily < 10 && summary.daily > 0) {
+        count += 1;
+      }
+
+      // Si alcanzaste meta semanal = 1 notificación
+      const weeklyGoal = 50;
+      if (summary.weekly >= weeklyGoal) {
+        count += 1;
+      }
+
+      // OPCIÓN 4: Valor fijo mientras implementas el sistema completo
+      // count = 3; // Descomenta esta línea para usar un valor fijo temporal
+
+      setNotificationCount(count);
+      console.log('📱 Contador de notificaciones actualizado:', count);
+
+    } catch (error) {
+      console.error('Error al obtener contador de notificaciones:', error);
+      setNotificationCount(0);
+    }
+  };
+
+  // Usar useFocusEffect para actualización automática
   useFocusEffect(
     React.useCallback(() => {
       const fetchSummary = async () => {
@@ -50,19 +105,22 @@ const Inicio = ({ navigation }) => {
             weekly: data?.weeklyIncome || 0,
             monthly: data?.monthlyIncome || 0,
           });
+          
+          // Actualizar notificaciones después de cargar ventas
+          await fetchNotificationCount();
+          
         } catch (error) {
           console.error('❌ Error al cargar resumen de ventas:', error);
-          // Mantener valores anteriores en caso de error de red
         } finally {
           setLoading(false);
         }
       };
 
       fetchSummary();
-    }, []) // Array vacío - sin dependencias
+    }, [])
   );
 
-  // Meta semanal para calcular porcentaje - Ajustada para negocio de llaveros
+  // Meta semanal para calcular porcentaje
   const weeklyGoal = 50;
   const weeklyPercentage = Math.min(
     Math.round((summary.weekly / weeklyGoal) * 100),
@@ -80,9 +138,14 @@ const Inicio = ({ navigation }) => {
           <View style={styles.bellIcon}>
             <Ionicons name="notifications" size={24} color="#1F2937" />
           </View>
-          <View style={styles.notificationBadge}>
-            <Text style={styles.badgeText}>5</Text>
-          </View>
+          {/* Solo mostrar el badge si hay notificaciones */}
+          {notificationCount > 0 && (
+            <View style={styles.notificationBadge}>
+              <Text style={styles.badgeText}>
+                {notificationCount > 99 ? '99+' : notificationCount}
+              </Text>
+            </View>
+          )}
         </TouchableOpacity>
 
         {/* Contenido principal con fondo degradado */}
@@ -104,7 +167,6 @@ const Inicio = ({ navigation }) => {
                   <Text style={styles.weekPercentage}>
                     {weeklyPercentage}%
                   </Text>
-                  {/* AGREGAR: Mostrar el monto semanal también */}
                   <Text style={[styles.weekPercentage, { fontSize: 12, opacity: 0.8 }]}>
                     ${summary.weekly.toLocaleString()}
                   </Text>
@@ -192,7 +254,7 @@ const Inicio = ({ navigation }) => {
             </TouchableOpacity>
           </View>
 
-          {/* AGREGAR: Indicador de última actualización */}
+          {/* Indicador de última actualización */}
           {!loading && (
             <Text style={{ 
               textAlign: 'center', 

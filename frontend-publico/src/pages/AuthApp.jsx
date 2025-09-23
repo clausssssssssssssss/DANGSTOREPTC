@@ -807,10 +807,7 @@ const AuthApp = () => {
       <div 
         className="auth-container"                                       
         style={{
-          backgroundImage: `url(${fondoDangStore})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat',
+          background: 'linear-gradient(135deg, #8B5CF6 0%, #A78BFA 25%, #C4B5FD 50%, #DDD6FE 75%, #F3F4F6 100%)',
           backgroundAttachment: 'fixed'
         }}
       >

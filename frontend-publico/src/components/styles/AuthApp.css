@@ -35,7 +35,9 @@
 html, body, #root {
   height: 100%;
   width: 100%;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
+  background-color: transparent;
 }
 
 body {
@@ -53,13 +55,8 @@ body {
   min-height: 100vh;
   width: 100%;
   margin: 0;
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  padding: 1rem;
-  overflow: hidden;
+  padding: 2rem 1rem;
+  background-attachment: scroll;
 }
 
 .auth-card {
@@ -68,8 +65,8 @@ body {
   background: rgba(255, 255, 255, 0.96);
   border-radius: 20px;
   box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
-  padding: 3rem;
-  overflow: hidden;
+  padding: 2.5rem;
+  overflow: visible;
   position: relative;
   border: 1px solid rgba(255, 255, 255, 0.3);
   backdrop-filter: blur(12px);
@@ -80,7 +77,8 @@ body {
 /* ===== ESTILOS COMPACTOS ===== */
 .auth-card.compact {
   padding: 2rem;
-  max-width: 400px;
+  max-width: 420px;
+  overflow: visible;
 }
 
 .auth-card.compact .auth-logo {

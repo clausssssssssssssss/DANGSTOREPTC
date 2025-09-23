@@ -1,4 +1,4 @@
-import React, { useContext, useMemo, useEffect, useState } from 'react';
+import React, { useContext, useMemo, useState } from 'react';
 import {
   View,
   Text,
@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
+import { useFocusEffect } from '@react-navigation/native'; // AGREGAR ESTA IMPORTACIÓN
 import { AuthContext } from '../context/AuthContext.js';
 import { inicioStyles as styles } from '../components/styles/InicioStyles';
 import { salesAPI } from '../services/salesReport';
@@ -31,36 +32,38 @@ const Inicio = ({ navigation }) => {
     monthly: 0,
   });
 
-  // Llamada al backend al cargar el componente - ACTUALIZADO
-  useEffect(() => {
-    const fetchSummary = async () => {
-      try {
-        console.log('📊 Cargando resumen del dashboard...');
-        // CAMBIO: Usar getDashboardSummary en lugar de getSalesSummary
-        const data = await salesAPI.getDashboardSummary();
-        console.log('✅ Datos recibidos del dashboard:', data);
-        
-        setSummary({
-          daily: data?.dailyIncome || 0,
-          weekly: data?.weeklyIncome || 0,
-          monthly: data?.monthlyIncome || 0,
-        });
-      } catch (error) {
-        console.error('❌ Error al cargar resumen de ventas:', error);
-        // Mantener valores por defecto en caso de error
-        setSummary({
-          daily: 0,
-          weekly: 0,
-          monthly: 0,
-        });
-      }
-    };
+  // Estado para controlar si estamos cargando datos
+  const [loading, setLoading] = useState(false);
 
-    fetchSummary();
-  }, []);
+  // CAMBIO: Usar useFocusEffect en lugar de useEffect para actualización automática
+  useFocusEffect(
+    React.useCallback(() => {
+      const fetchSummary = async () => {
+        setLoading(true);
+        try {
+          console.log('📊 Cargando resumen del dashboard...');
+          const data = await salesAPI.getDashboardSummary();
+          console.log('✅ Datos recibidos del dashboard:', data);
+          
+          setSummary({
+            daily: data?.dailyIncome || 0,
+            weekly: data?.weeklyIncome || 0,
+            monthly: data?.monthlyIncome || 0,
+          });
+        } catch (error) {
+          console.error('❌ Error al cargar resumen de ventas:', error);
+          // Mantener valores anteriores en caso de error de red
+        } finally {
+          setLoading(false);
+        }
+      };
 
-  // Meta semanal para calcular porcentaje (puedes ajustar esto)
-  const weeklyGoal = 20000;
+      fetchSummary();
+    }, []) // Array vacío - sin dependencias
+  );
+
+  // Meta semanal para calcular porcentaje - Ajustada para negocio de llaveros
+  const weeklyGoal = 50;
   const weeklyPercentage = Math.min(
     Math.round((summary.weekly / weeklyGoal) * 100),
     100
@@ -100,6 +103,10 @@ const Inicio = ({ navigation }) => {
                   <Text style={styles.weekTitle}>Esta semana</Text>
                   <Text style={styles.weekPercentage}>
                     {weeklyPercentage}%
+                  </Text>
+                  {/* AGREGAR: Mostrar el monto semanal también */}
+                  <Text style={[styles.weekPercentage, { fontSize: 12, opacity: 0.8 }]}>
+                    ${summary.weekly.toLocaleString()}
                   </Text>
                 </View>
                 <TouchableOpacity
@@ -184,6 +191,29 @@ const Inicio = ({ navigation }) => {
               <Text style={styles.verTodoText}>ver todo</Text>
             </TouchableOpacity>
           </View>
+
+          {/* AGREGAR: Indicador de última actualización */}
+          {!loading && (
+            <Text style={{ 
+              textAlign: 'center', 
+              fontSize: 10, 
+              color: 'rgba(255,255,255,0.6)', 
+              marginTop: 10 
+            }}>
+              Última actualización: {new Date().toLocaleTimeString()}
+            </Text>
+          )}
+          
+          {loading && (
+            <Text style={{ 
+              textAlign: 'center', 
+              fontSize: 10, 
+              color: 'rgba(255,255,255,0.8)', 
+              marginTop: 10 
+            }}>
+              Actualizando datos...
+            </Text>
+          )}
         </LinearGradient>
       </ScrollView>
     </SafeAreaView>

@@ -31,11 +31,15 @@ const Inicio = ({ navigation }) => {
     monthly: 0,
   });
 
-  // Llamada al backend al cargar el componente
+  // Llamada al backend al cargar el componente - ACTUALIZADO
   useEffect(() => {
     const fetchSummary = async () => {
       try {
-        const data = await salesAPI.getSalesSummary();
+        console.log('📊 Cargando resumen del dashboard...');
+        // CAMBIO: Usar getDashboardSummary en lugar de getSalesSummary
+        const data = await salesAPI.getDashboardSummary();
+        console.log('✅ Datos recibidos del dashboard:', data);
+        
         setSummary({
           daily: data?.dailyIncome || 0,
           weekly: data?.weeklyIncome || 0,
@@ -43,6 +47,12 @@ const Inicio = ({ navigation }) => {
         });
       } catch (error) {
         console.error('❌ Error al cargar resumen de ventas:', error);
+        // Mantener valores por defecto en caso de error
+        setSummary({
+          daily: 0,
+          weekly: 0,
+          monthly: 0,
+        });
       }
     };
 

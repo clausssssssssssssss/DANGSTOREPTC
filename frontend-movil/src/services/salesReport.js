@@ -34,7 +34,7 @@ export const salesAPI = {
     }
   },
 
-  // Obtener resumen de ventas (diarias, mensuales, anuales)
+  // 👇 EXISTENTE: Obtener resumen de ventas (diarias, mensuales, anuales) - PARA LAS GRÁFICAS
   async getSalesSummary() {
     try {
       const response = await fetch(`${API_URL}/sales/summary`);
@@ -45,6 +45,21 @@ export const salesAPI = {
       return data;
     } catch (error) {
       console.error("❌ Error en getSalesSummary:", error);
+      throw error;
+    }
+  },
+
+  // 👇 NUEVO: Obtener resumen específico para el dashboard de inicio
+  async getDashboardSummary() {
+    try {
+      const response = await fetch(`${API_URL}/sales/dashboard-summary`);
+      if (!response.ok) {
+        throw new Error(`Error al obtener resumen del dashboard: ${response.status}`);
+      }
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error("❌ Error en getDashboardSummary:", error);
       throw error;
     }
   },

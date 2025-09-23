@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 
 // URLs alternativas para probar conexión
 const API_BASES = [
-  'http://10.10.2.33:4000/api', // IP principal
+  'http://192.168.0.16:4000/api', // IP principal
 ];
 
 export function useProducts() {

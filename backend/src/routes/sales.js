@@ -3,10 +3,13 @@ import salesController from "../controllers/salesReportController.js";
 
 const router = Router();
 
-// 👇 IMPORTANTE: La ruta /latest debe estar ANTES que las otras rutas específicas
+// IMPORTANTE: La ruta /latest debe estar ANTES que las otras rutas específicas
 router.get("/latest", salesController.getLatestSales);
 
-// Reportes específicos
+// NUEVO: Endpoint específico para el dashboard de inicio
+router.get("/dashboard-summary", salesController.getDashboardSummary);
+
+// Reportes específicos (mantener existentes para las gráficas)
 router.get("/summary", salesController.getSalesSummary);
 router.get("/by-category", salesController.getSalesByCategory);
 router.get("/income-range", salesController.getIncomeByDateRange);

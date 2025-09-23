@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Package, Calendar, DollarSign, MapPin } from 'lucide-react';
 
 // URL del servidor local para desarrollo
-const API_BASE = 'https://dangstoreptc.onrender.com/api';
+const API_BASE = 'https://dangstoreptc-production.up.railway.app/api';
 
 const OrdersSection = ({ userId }) => {
   const [orders, setOrders] = useState([]);

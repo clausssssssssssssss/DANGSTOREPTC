@@ -5,13 +5,13 @@ const ENV_URL = process.env.EXPO_PUBLIC_API_URL;
 
 export const API_CONFIG = {
   // URL base para desarrollo local
-  LOCAL: 'http://10.10.0.253:4000/api',
+  LOCAL: 'http://10.10.2.33:4000/api',
   
   // URL base para producción
-  PRODUCTION: 'https://dangstoreptc.onrender.com/api',
+  PRODUCTION: 'https://dangstoreptc-production.up.railway.app/api',
   
   // URL actualmente activa (puede sobreescribirse con EXPO_PUBLIC_API_URL)
-  BASE_URL: ENV_URL || 'http://10.10.0.253:4000/api',
+  BASE_URL: ENV_URL || 'http://10.10.2.33:4000/api',
 };
 
 // Endpoints específicos

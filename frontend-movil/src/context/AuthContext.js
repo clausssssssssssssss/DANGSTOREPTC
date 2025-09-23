@@ -15,7 +15,6 @@ export const AuthProvider = ({ children }) => {
   const [savedCredentials, setSavedCredentials] = useState(null);
   
   const API_URL = API_CONFIG.BASE_URL;
-  
   useEffect(() => {
     const loadStoredData = async () => {
       try {

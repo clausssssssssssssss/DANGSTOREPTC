@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Lock, Eye, EyeOff, AlertCircle, CheckCircle } from 'lucide-react';
 
 // URL del servidor local para desarrollo
-const API_BASE = 'https://dangstoreptc.onrender.com/api';
+const API_BASE = 'https://dangstoreptc-production.up.railway.app/api';
 
 const PasswordSection = ({ showSuccess, showError }) => {
   const [currentPassword, setCurrentPassword] = useState('');

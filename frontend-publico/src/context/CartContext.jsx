@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, useEffect, useCallback } fr
 import { handleAuthError } from '../utils/authUtils';
 
 // URL del servidor en producción (Render)
-const API_BASE = 'https://dangstoreptc.onrender.com/api';
+const API_BASE = 'https://dangstoreptc-production.up.railway.app/api';
 
 const CartContext = createContext();
 

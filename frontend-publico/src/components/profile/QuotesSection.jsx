@@ -3,7 +3,7 @@ import { Gift, Trash2, AlertTriangle, X } from 'lucide-react';
 import '../styles/QuotesSection.css';
 
 // URL del servidor para producción
-const API_BASE = 'https://dangstoreptc.onrender.com/api';
+const API_BASE = 'https://dangstoreptc-production.up.railway.app/api';
 const API_URL = API_BASE;
 
 // Función helper para construir URLs de imágenes correctamente

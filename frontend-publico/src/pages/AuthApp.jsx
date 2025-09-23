@@ -11,7 +11,7 @@ import { useToast } from '../hooks/useToast';
 import ToastContainer from '../components/ui/ToastContainer';
 import SplashScreen from '../components/SplashScreen';
 
-// URL del servidor local para desarrollo
+// URL del servidor local para desarrollo // agregue el link de railway 
 const API_URL = 'https://dangstoreptc-production.up.railway.app/api';
 
 const AuthApp = () => {

@@ -90,7 +90,7 @@ export function useCart(userId) {
           id: p.product._id,
           name: p.product.name || p.product.nombre,
           price: p.product.price || p.product.precio,
-          image: p.product.images?.[0] || p.product.image || '',
+          image: p.product.images?.[0] || p.product.imagen || '',
           description: p.product.description || p.product.descripcion || ''
         },
         quantity: p.quantity

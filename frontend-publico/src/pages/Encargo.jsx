@@ -177,9 +177,9 @@ const { categories, loading: categoriasLoading, error: categoriasError } = useCa
             >
               <option value="">Selecciona...</option>
               {categories && categories.map((categoria, index) => (
-                <option key={index} value={categoria.name.toLowerCase()}>
-                  {categoria.name}
-                </option>
+           <option key={index} value={categoria.name}>
+     {categoria.name}
+   </option>
               ))}
             </select>
             {categoriasLoading && (

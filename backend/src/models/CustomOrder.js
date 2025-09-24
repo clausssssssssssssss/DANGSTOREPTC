@@ -1,3 +1,5 @@
+// models/CustomOrder.js - VERSIÓN MEJORADA
+
 import { Schema, model, Types } from 'mongoose';
 
 const customizedOrderSchema = new Schema(
@@ -13,8 +15,22 @@ const customizedOrderSchema = new Schema(
     },
     modelType: {
       type: String,
-      enum: ['cuadro_chico', 'llavero', 'cuadro_grande'],
+      // QUITAR el enum para permitir valores dinámicos de las categorías
       required: true,
+      validate: {
+        validator: async function(value) {
+          // Validación personalizada: verificar que el modelType existe en las categorías
+          const Category = model('Category'); // Asumiendo que tienes un modelo Category
+          const category = await Category.findOne({ 
+            $or: [
+              { name: value },
+              { name: { $regex: new RegExp(`^${value}$`, 'i') } } // case insensitive
+            ]
+          });
+          return !!category;
+        },
+        message: 'El tipo de modelo debe corresponder a una categoría válida'
+      }
     },
     description: {
       type: String,

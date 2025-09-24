@@ -1,6 +1,17 @@
 import { StyleSheet, Platform, Dimensions } from 'react-native';
 
 const { width, height } = Dimensions.get('window');
+// Escalado responsivo simple por tipo de dispositivo
+const isTablet = Math.min(width, height) >= 768;
+const isSmallPhone = width < 360;
+const isMediumPhone = width >= 360 && width < 400;
+const isLargePhone = width >= 400 && !isTablet;
+
+// Factor de escala (reducimos tamaños generales, card y fuentes)
+const baseScale = isTablet ? 0.9 : (isSmallPhone ? 0.85 : (isMediumPhone ? 0.9 : (isLargePhone ? 0.95 : 0.92)));
+
+// Ancho máximo de card según dispositivo para mantenerla más compacta
+const cardMaxWidth = isTablet ? Math.min(520, width * 0.6) : Math.min(420, width * 0.9);
 
 const AuthAppStyles = StyleSheet.create({
   safeArea: { 
@@ -15,14 +26,14 @@ const AuthAppStyles = StyleSheet.create({
     flexGrow: 1, 
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: Math.max(16, width * 0.05),
-    paddingVertical: 20
+    paddingHorizontal: Math.max(14, width * 0.045),
+    paddingVertical: Math.max(16, 20 * baseScale)
   },
   pageTitle: { 
     marginTop: 2,
     marginBottom: 25,
     color: '#FFFFFF',
-    fontSize: Math.max(26, width * 0.065), 
+    fontSize: Math.max(22, width * 0.065 * baseScale), 
     fontWeight: '800', 
     textAlign: 'center',
     textShadowColor: 'rgba(0,0,0,0.45)', 
@@ -58,12 +69,12 @@ const AuthAppStyles = StyleSheet.create({
     transform: [{ scaleX: -1 }, { rotate: '-8deg' }],
   },
   card: { 
-    width: '95%', 
+    width: Math.min(width * 0.9, cardMaxWidth), 
     backgroundColor: '#FFFFFF',
     borderRadius: 16, 
-    paddingTop: Math.max(23, height * 0.02),
-    paddingBottom: Math.max(36, height * 0.03),
-    paddingHorizontal: Math.max(20, width * 0.06), 
+    paddingTop: Math.max(18, height * 0.02 * baseScale),
+    paddingBottom: Math.max(26, height * 0.028 * baseScale),
+    paddingHorizontal: Math.max(16, width * 0.055 * baseScale), 
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 }, 
     shadowOpacity: 0.22, 
@@ -72,24 +83,24 @@ const AuthAppStyles = StyleSheet.create({
   },
   logo: { 
     alignSelf: 'center', 
-    width: 75, 
-    height: 85, 
-    marginBottom: 6, 
+    width: 72 * baseScale, 
+    height: 82 * baseScale, 
+    marginBottom: Math.max(4, 6 * baseScale), 
     marginTop: -6 
   },
   label: { 
     color: '#5A48D8', 
-    fontSize: 12, 
+    fontSize: Math.max(10, 12 * baseScale), 
     fontWeight: '600', 
-    marginBottom: 6 
+    marginBottom: Math.max(4, 6 * baseScale) 
   },
   field: { 
     width: '100%',
-    height: 50, 
+    height: Math.max(42, 50 * baseScale), 
     backgroundColor: '#ECEAF5', 
     borderRadius: 10, 
-    paddingHorizontal: 16, 
-    fontSize: 14, 
+    paddingHorizontal: Math.max(12, 16 * baseScale), 
+    fontSize: Math.max(12, 14 * baseScale), 
     color: '#1F2937', 
     borderWidth: 1, 
     borderColor: 'transparent' 
@@ -102,14 +113,14 @@ const AuthAppStyles = StyleSheet.create({
     position: 'relative' 
   },
   passwordField: { 
-    paddingRight: 38 
+    paddingRight: Math.max(30, 38 * baseScale) 
   },
   eyeButton: { 
     position: 'absolute', 
     right: 7, 
-    top: 10, 
-    width: 30, 
-    height: 28, 
+    top: Math.max(8, 10 * baseScale), 
+    width: Math.max(24, 30 * baseScale), 
+    height: Math.max(24, 28 * baseScale), 
     alignItems: 'center', 
     justifyContent: 'center' 
   },
@@ -117,16 +128,16 @@ const AuthAppStyles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: 12,
-    marginBottom: 16
+    marginTop: Math.max(8, 12 * baseScale),
+    marginBottom: Math.max(12, 16 * baseScale)
   },
   rememberContainer: {
     flexDirection: 'row',
     alignItems: 'center'
   },
   checkbox: {
-    width: 18,
-    height: 18,
+    width: Math.max(14, 18 * baseScale),
+    height: Math.max(14, 18 * baseScale),
     borderRadius: 4,
     borderWidth: 1,
     borderColor: '#D1D5DB',
@@ -140,23 +151,23 @@ const AuthAppStyles = StyleSheet.create({
   },
   checkmark: {
     color: 'white',
-    fontSize: 12,
+    fontSize: Math.max(10, 12 * baseScale),
     fontWeight: 'bold'
   },
   rememberText: {
     color: '#6B7280',
-    fontSize: 13
+    fontSize: Math.max(11, 13 * baseScale)
   },
   forgotText: {
     color: '#5A48D8',
-    fontSize: 12,
+    fontSize: Math.max(10, 12 * baseScale),
     fontWeight: '500'
   },
   cta: { 
     marginTop: 8 
   },
   ctaBg: { 
-    height: 50, 
+    height: Math.max(42, 50 * baseScale), 
     borderRadius: 10, 
     alignItems: 'center',
     justifyContent: 'center', 
@@ -168,13 +179,13 @@ const AuthAppStyles = StyleSheet.create({
   },
   ctaText: { 
     color: '#FFFFFF',
-    fontSize: 16, 
+    fontSize: Math.max(14, 16 * baseScale), 
     fontWeight: '700' 
   },
   errorMessage: {
     color: '#EF4444',
-    fontSize: 12,
-    marginTop: 6,
+    fontSize: Math.max(10, 12 * baseScale),
+    marginTop: Math.max(4, 6 * baseScale),
     fontWeight: '500' 
   },
 });

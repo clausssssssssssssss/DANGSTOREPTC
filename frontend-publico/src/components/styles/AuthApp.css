@@ -35,7 +35,9 @@
 html, body, #root {
   height: 100%;
   width: 100%;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
+  background-color: transparent;
 }
 
 body {
@@ -53,6 +55,7 @@ body {
   min-height: 100vh;
   width: 100%;
   margin: 0;
+<<<<<<< HEAD
   position: fixed;
   top: 0;
   left: 0;
@@ -62,6 +65,10 @@ body {
   overflow: hidden;
   background: #ffffff;
   position: relative;
+=======
+  padding: 2rem 1rem;
+  background-attachment: scroll;
+>>>>>>> c788779681d02bd925ab3eb96f0d1ea01cf8d9e5
 }
 
 /* ===== DECORACIONES PIXELADAS GLOBALES ===== */
@@ -167,6 +174,7 @@ body {
 /* ===== TARJETA COMPACTA OPTIMIZADA ===== */
 .auth-card {
   width: 100%;
+<<<<<<< HEAD
   max-width: 380px;
   background: rgba(255, 255, 255, 0.98);
   border-radius: 16px;
@@ -175,6 +183,14 @@ body {
     0 0 0 1px rgba(255, 255, 255, 0.3);
   padding: 2rem;
   overflow: hidden;
+=======
+  max-width: 450px;
+  background: rgba(255, 255, 255, 0.96);
+  border-radius: 20px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+  padding: 2.5rem;
+  overflow: visible;
+>>>>>>> c788779681d02bd925ab3eb96f0d1ea01cf8d9e5
   position: relative;
   border: 1px solid rgba(255, 255, 255, 0.4);
   backdrop-filter: blur(15px);
@@ -211,8 +227,14 @@ body {
 
 /* ===== ESTILOS COMPACTOS OPTIMIZADOS ===== */
 .auth-card.compact {
+<<<<<<< HEAD
   padding: 1.8rem;
   max-width: 360px;
+=======
+  padding: 2rem;
+  max-width: 420px;
+  overflow: visible;
+>>>>>>> c788779681d02bd925ab3eb96f0d1ea01cf8d9e5
 }
 
 .auth-card.compact .auth-logo {

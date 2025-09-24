@@ -3,7 +3,6 @@ import { Eye, EyeOff, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import "../components/styles/AuthApp.css";  
 import logoIcon from "../assets/DANGSTORELOGOPRUEBA.PNG";
-import fondoDangStore from "../assets/FondoDangStore.jpg";
 
 // ——— imports para el login y contexto ———
 import { useAuth, parseJwt } from '../hooks/useAuth.jsx';
@@ -416,6 +415,37 @@ const AuthApp = () => {
     </div>
   );
 
+ // ——— COMPONENTE FONDO PIXELADO COMPACTO ———
+const PixelBackground = () => (
+  <>
+    <div className="pixel-grid"></div>
+    {/* Píxeles flotantes reducidos */}
+    {Array.from({ length: 8 }).map((_, i) => (
+      <div
+        key={`pixel-${i}`}
+        className="pixel-float pixel-decoration"
+        style={{
+          left: `${Math.random() * 100}%`,
+          top: `${Math.random() * 100}%`,
+          animationDelay: `${-Math.random() * 8}s`
+        }}
+      ></div>
+    ))}
+    {/* Hama beads reducidos */}
+    {Array.from({ length: 5 }).map((_, i) => (
+      <div
+        key={`hama-${i}`}
+        className="hama-bead pixel-decoration"
+        style={{
+          left: `${Math.random() * 100}%`,
+          top: `${Math.random() * 100}%`,
+          animationDelay: `${-Math.random() * 6}s`
+        }}
+      ></div>
+    ))}
+  </>
+);
+
   // ——— RENDERIZAR EL SPLASH SCREEN ———
   if (showSplash) {
     return (
@@ -804,16 +834,8 @@ const AuthApp = () => {
   // ——— RENDERIZADO PRINCIPAL ———
   return (
     <>
-      <div 
-        className="auth-container"                                       
-        style={{
-          backgroundImage: `url(${fondoDangStore})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat',
-          backgroundAttachment: 'fixed'
-        }}
-      >
+      <div className="auth-container">
+        <PixelBackground />
         {renderAuthContent()}
       </div>
       <ToastContainer toasts={toasts} removeToast={removeToast} />

@@ -163,6 +163,92 @@ salesController.getSalesByCategory = async (req, res) => {
   }
 };
 
+// AGREGAR este nuevo método a tu salesReportController.js
+// NO reemplaces el getSalesSummary existente
+
+salesController.getDashboardSummary = async (req, res) => {
+  try {
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    
+    // Inicio de la semana (lunes)
+    const startOfWeek = new Date(today);
+    const dayOfWeek = startOfWeek.getDay();
+    const diff = dayOfWeek === 0 ? -6 : 1 - dayOfWeek; // Si es domingo (0), retrocede 6 días
+    startOfWeek.setDate(startOfWeek.getDate() + diff);
+    
+    // Inicio del mes
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    
+    // Ventas de hoy
+    const dailyResult = await SalesModel.aggregate([
+      {
+        $match: {
+          date: {
+            $gte: today,
+            $lt: new Date(today.getTime() + 24 * 60 * 60 * 1000) // Hasta mañana
+          }
+        }
+      },
+      {
+        $group: {
+          _id: null,
+          total: { $sum: "$total" }
+        }
+      }
+    ]);
+
+    // Ventas de esta semana
+    const weeklyResult = await SalesModel.aggregate([
+      {
+        $match: {
+          date: {
+            $gte: startOfWeek,
+            $lt: new Date(now.getTime() + 24 * 60 * 60 * 1000)
+          }
+        }
+      },
+      {
+        $group: {
+          _id: null,
+          total: { $sum: "$total" }
+        }
+      }
+    ]);
+
+    // Ventas de este mes
+    const monthlyResult = await SalesModel.aggregate([
+      {
+        $match: {
+          date: {
+            $gte: startOfMonth,
+            $lt: new Date(now.getTime() + 24 * 60 * 60 * 1000)
+          }
+        }
+      },
+      {
+        $group: {
+          _id: null,
+          total: { $sum: "$total" }
+        }
+      }
+    ]);
+
+    // Formatear respuesta específicamente para el dashboard
+    const summary = {
+      dailyIncome: dailyResult[0]?.total || 0,
+      weeklyIncome: weeklyResult[0]?.total || 0,
+      monthlyIncome: monthlyResult[0]?.total || 0
+    };
+
+    console.log('📊 Dashboard summary calculado:', summary);
+    res.status(200).json(summary);
+  } catch (error) {
+    console.error('❌ Error en getDashboardSummary:', error);
+    res.status(500).json({ message: "Error al obtener resumen del dashboard", error: error.message });
+  }
+};
+
 //  aquí calculo las ganancias en un rango de fechas
 salesController.getIncomeByDateRange = async (req, res) => {
   try {

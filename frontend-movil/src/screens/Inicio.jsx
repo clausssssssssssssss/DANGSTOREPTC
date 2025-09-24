@@ -1,4 +1,4 @@
-import React, { useContext, useMemo, useEffect, useState } from 'react';
+import React, { useContext, useMemo, useState } from 'react';
 import {
   View,
   Text,
@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
+import { useFocusEffect } from '@react-navigation/native';
 import { AuthContext } from '../context/AuthContext.js';
 import { inicioStyles as styles } from '../components/styles/InicioStyles';
 import { salesAPI } from '../services/salesReport';
@@ -31,26 +32,96 @@ const Inicio = ({ navigation }) => {
     monthly: 0,
   });
 
-  // Llamada al backend al cargar el componente
-  useEffect(() => {
-    const fetchSummary = async () => {
+  // Estado para controlar si estamos cargando datos
+  const [loading, setLoading] = useState(false);
+
+  // NUEVO: Estado para el contador de notificaciones
+  const [notificationCount, setNotificationCount] = useState(0);
+
+  // Función para obtener el número real de notificaciones
+  const fetchNotificationCount = async () => {
+    try {
+      // OPCIÓN 1: Si tienes una API específica para notificaciones
+      // const count = await salesAPI.getUnreadNotificationsCount();
+      // setNotificationCount(count);
+
+      // OPCIÓN 2: Calcular basado en datos del negocio
+      let count = 0;
+
+      // Contar pedidos pendientes
       try {
-        const data = await salesAPI.getSalesSummary();
-        setSummary({
-          daily: data?.dailyIncome || 0,
-          weekly: data?.weeklyIncome || 0,
-          monthly: data?.monthlyIncome || 0,
-        });
+        const pendingOrders = await salesAPI.getPendingOrders?.() || [];
+        if (pendingOrders.length > 0) {
+          count += 1; // Una notificación por pedidos pendientes
+        }
       } catch (error) {
-        console.error('❌ Error al cargar resumen de ventas:', error);
+        console.log('No se pudieron verificar pedidos pendientes');
       }
-    };
 
-    fetchSummary();
-  }, []);
+      // Contar otras alertas del negocio
+      try {
+        const alerts = await salesAPI.getBusinessAlerts?.() || [];
+        count += alerts.length;
+      } catch (error) {
+        console.log('No hay alertas adicionales');
+      }
 
-  // Meta semanal para calcular porcentaje (puedes ajustar esto)
-  const weeklyGoal = 20000;
+      // OPCIÓN 3: Usar datos que ya tienes
+      // Por ejemplo, si ventas bajas = 1 notificación
+      if (summary.daily < 10 && summary.daily > 0) {
+        count += 1;
+      }
+
+      // Si alcanzaste meta semanal = 1 notificación
+      const weeklyGoal = 50;
+      if (summary.weekly >= weeklyGoal) {
+        count += 1;
+      }
+
+      // OPCIÓN 4: Valor fijo mientras implementas el sistema completo
+      // count = 3; // Descomenta esta línea para usar un valor fijo temporal
+
+      setNotificationCount(count);
+      console.log('📱 Contador de notificaciones actualizado:', count);
+
+    } catch (error) {
+      console.error('Error al obtener contador de notificaciones:', error);
+      setNotificationCount(0);
+    }
+  };
+
+  // Usar useFocusEffect para actualización automática
+  useFocusEffect(
+    React.useCallback(() => {
+      const fetchSummary = async () => {
+        setLoading(true);
+        try {
+          console.log('📊 Cargando resumen del dashboard...');
+          const data = await salesAPI.getDashboardSummary();
+          console.log('✅ Datos recibidos del dashboard:', data);
+          
+          setSummary({
+            daily: data?.dailyIncome || 0,
+            weekly: data?.weeklyIncome || 0,
+            monthly: data?.monthlyIncome || 0,
+          });
+          
+          // Actualizar notificaciones después de cargar ventas
+          await fetchNotificationCount();
+          
+        } catch (error) {
+          console.error('❌ Error al cargar resumen de ventas:', error);
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      fetchSummary();
+    }, [])
+  );
+
+  // Meta semanal para calcular porcentaje
+  const weeklyGoal = 50;
   const weeklyPercentage = Math.min(
     Math.round((summary.weekly / weeklyGoal) * 100),
     100
@@ -67,9 +138,14 @@ const Inicio = ({ navigation }) => {
           <View style={styles.bellIcon}>
             <Ionicons name="notifications" size={24} color="#1F2937" />
           </View>
-          <View style={styles.notificationBadge}>
-            <Text style={styles.badgeText}>5</Text>
-          </View>
+          {/* Solo mostrar el badge si hay notificaciones */}
+          {notificationCount > 0 && (
+            <View style={styles.notificationBadge}>
+              <Text style={styles.badgeText}>
+                {notificationCount > 99 ? '99+' : notificationCount}
+              </Text>
+            </View>
+          )}
         </TouchableOpacity>
 
         {/* Contenido principal con fondo degradado */}
@@ -90,6 +166,9 @@ const Inicio = ({ navigation }) => {
                   <Text style={styles.weekTitle}>Esta semana</Text>
                   <Text style={styles.weekPercentage}>
                     {weeklyPercentage}%
+                  </Text>
+                  <Text style={[styles.weekPercentage, { fontSize: 12, opacity: 0.8 }]}>
+                    ${summary.weekly.toLocaleString()}
                   </Text>
                 </View>
                 <TouchableOpacity
@@ -174,6 +253,29 @@ const Inicio = ({ navigation }) => {
               <Text style={styles.verTodoText}>ver todo</Text>
             </TouchableOpacity>
           </View>
+
+          {/* Indicador de última actualización */}
+          {!loading && (
+            <Text style={{ 
+              textAlign: 'center', 
+              fontSize: 10, 
+              color: 'rgba(255,255,255,0.6)', 
+              marginTop: 10 
+            }}>
+              Última actualización: {new Date().toLocaleTimeString()}
+            </Text>
+          )}
+          
+          {loading && (
+            <Text style={{ 
+              textAlign: 'center', 
+              fontSize: 10, 
+              color: 'rgba(255,255,255,0.8)', 
+              marginTop: 10 
+            }}>
+              Actualizando datos...
+            </Text>
+          )}
         </LinearGradient>
       </ScrollView>
     </SafeAreaView>

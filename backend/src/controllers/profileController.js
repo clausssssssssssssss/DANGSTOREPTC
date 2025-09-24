@@ -173,15 +173,21 @@ const orders = await Order.find({ user: req.user._id })
     }
   },
 
-  /**
+  
+/**
    * GET /api/profile/favorites
    * Devuelve los productos favoritos con detalles (nombre e imagen).
    */
   getFavorites: async (req, res) => {
     try {
       const favorites = req.user.favorites || [];
+      
+      // CORRECCIÓN: usar los nombres correctos de los campos según tu modelo
       const products = await Product.find({ _id: { $in: favorites } })
-        .select("name images");
+        .select("nombre imagen descripcion precio categoria"); // Campos en español como en tu modelo
+      
+      console.log('Products found for favorites:', products); // DEBUG
+      
       res.json(products);
     } catch (err) {
       console.error("getFavorites error:", err);

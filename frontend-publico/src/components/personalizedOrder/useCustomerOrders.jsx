@@ -2,7 +2,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 
-// URL del servidor local para desarrollo
 const API_URL = 'https://dangstoreptc-production.up.railway.app/api';
 
 export default function useCustomerOrders() {
@@ -25,7 +24,6 @@ export default function useCustomerOrders() {
   const clearImage = () => {
     setImage(null);
     setPreview(null);
-    // También limpiar el input file
     const input = document.getElementById('image-upload');
     if (input) {
       input.value = '';
@@ -33,7 +31,11 @@ export default function useCustomerOrders() {
   };
 
   const submit = async () => {
-    console.log('submit called', { image, modelType, description });
+    console.log('=== SUBMIT CALLED ===');
+    console.log('Image:', image);
+    console.log('ModelType:', modelType);
+    console.log('Description:', description);
+    
     setLoading(true);
     setError(null);
 
@@ -55,23 +57,49 @@ export default function useCustomerOrders() {
       form.append('modelType', modelType);
       form.append('description', description);
 
-              const res = await fetch(`${API_URL}/custom-orders`, {
+      // Log para ver qué se está enviando
+      console.log('=== FORM DATA ===');
+      for (let pair of form.entries()) {
+        console.log(pair[0] + ': ', pair[1]);
+      }
+
+      console.log('Enviando request a:', `${API_URL}/custom-orders`);
+      console.log('Token:', token ? 'Presente' : 'Ausente');
+
+      const res = await fetch(`${API_URL}/custom-orders`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` },
         body: form
       });
 
+      console.log('Response status:', res.status);
+      console.log('Response ok:', res.ok);
+
       if (!res.ok) {
-        const errBody = await res.json().catch(() => null);
-        throw new Error(errBody?.message || 'Error al enviar el encargo');
+        // Intentar obtener más información del error
+        const errText = await res.text();
+        console.log('Error response text:', errText);
+        
+        let errBody;
+        try {
+          errBody = JSON.parse(errText);
+        } catch (e) {
+          console.log('No se pudo parsear como JSON');
+          errBody = { message: errText || 'Error desconocido' };
+        }
+        
+        console.log('Error body:', errBody);
+        throw new Error(errBody?.message || 'Datos de validación incorrectos');
       }
 
       const data = await res.json();
+      console.log('Success response:', data);
       setSuccess(true);
-      // El toast se maneja desde el componente padre
 
     } catch (err) {
-      console.error('CATCH en submit:', err);
+      console.error('=== CATCH en submit ===');
+      console.error('Error:', err);
+      console.error('Error message:', err.message);
       setError(err.message);
     } finally {
       setLoading(false);

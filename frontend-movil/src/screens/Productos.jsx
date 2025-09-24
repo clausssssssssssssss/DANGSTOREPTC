@@ -19,7 +19,7 @@ import { AuthContext } from '../context/AuthContext';
 import { useProducts } from '../hooks/useProducts';
 import { ProductosStyles } from '../components/styles/ProductosStyles';
 
-const API_URL = 'http://192.168.0.9:4000/api/products'; // URL consistente con el backend
+const API_URL = 'https://dangstoreptc-production.up.railway.app/api/products'; // URL consistente con el backend
 
 const Productos = ({ navigation }) => {
   const { products: productosHook, loading: loadingHook, lastStockUpdate, refresh: refreshProducts } = useProducts();
@@ -113,7 +113,7 @@ const Productos = ({ navigation }) => {
 
   const obtenerCategorias = async () => {
     try {
-      const response = await fetch('http://192.168.0.9:4000/api/categories');
+      const response = await fetch('https://dangstoreptc-production.up.railway.app/api/categories');
       if (!response.ok) {
         throw new Error(`HTTP ${response.status} ${response.statusText}`);
       }

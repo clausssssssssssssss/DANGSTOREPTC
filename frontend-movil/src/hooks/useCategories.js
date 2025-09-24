@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 
 // URLs alternativas para probar conexión
 const API_BASES = [
-  'http://10.10.2.33:4000/api', // IP principal
+  'https://dangstoreptc-production.up.railway.app/api', // IP principal
  
 ];
 

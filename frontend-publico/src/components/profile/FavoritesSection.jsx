@@ -35,6 +35,8 @@ const FavoritesSection = ({ userId }) => {
 
       const products = await response.json();
       
+      console.log('Favorites data received:', products); // DEBUG
+      
       // El backend ya devuelve los productos completos con detalles
       setFavorites(products);
       
@@ -156,76 +158,89 @@ const FavoritesSection = ({ userId }) => {
         </div>
       ) : (
         <div className="favorites-grid">
-          {favorites.map(product => (
-            <div className="favorite-card" key={product._id}>
-              {/* Imagen del producto */}
-              <div className="favorite-image-container">
-                {product.images && product.images.length > 0 ? (
-                  <img 
-                    src={product.images[0]} 
-                    alt={product.name}
-                    className="favorite-image"
-                    onError={(e) => {
-                      e.target.style.display = 'none';
-                      e.target.nextSibling.style.display = 'flex';
-                    }}
-                  />
-                ) : null}
-                <div 
-                  className="favorite-image-placeholder"
-                  style={{display: product.images && product.images.length > 0 ? 'none' : 'flex'}}
-                >
-                  <Package size={32} />
-                  <span>{product.name}</span>
+          {favorites.map(product => {
+            // DEBUG: Ver qué campos están disponibles
+            console.log('Product in favorites:', product);
+            
+            // Usar los nombres correctos de los campos según tu modelo (priorizar español)
+            const productName = product.nombre || product.name || 'Producto sin nombre';
+            const productImage = product.imagen || product.image || product.images?.[0];
+            const productDescription = product.descripcion || product.description;
+            const productPrice = product.precio || product.price;
+            const productCategory = product.categoria || product.category;
+            
+            return (
+              <div className="favorite-card" key={product._id}>
+                {/* Imagen del producto */}
+                <div className="favorite-image-container">
+                  {productImage ? (
+                    <img 
+                      src={productImage} 
+                      alt={productName}
+                      className="favorite-image"
+                      onError={(e) => {
+                        console.log('Image load error for:', productImage);
+                        e.target.style.display = 'none';
+                        e.target.nextSibling.style.display = 'flex';
+                      }}
+                    />
+                  ) : null}
+                  <div 
+                    className="favorite-image-placeholder"
+                    style={{display: productImage ? 'none' : 'flex'}}
+                  >
+                    <Package size={32} />
+                    <span>{productName}</span>
+                  </div>
+                  
+                  {/* Botón de quitar favorito */}
+                  <button 
+                    className="remove-favorite-btn" 
+                    onClick={() => removeFavorite(product._id)}
+                    title="Quitar de favoritos"
+                  >
+                    <Heart size={16} className="heart-icon-filled" />
+                  </button>
                 </div>
-                
-                {/* Botón de quitar favorito */}
-                <button 
-                  className="remove-favorite-btn" 
-                  onClick={() => removeFavorite(product._id)}
-                  title="Quitar de favoritos"
-                >
-                  <Heart size={16} className="heart-icon-filled" />
-                </button>
-              </div>
 
-              {/* Información del producto */}
-              <div className="favorite-info">
-                <h4 className="favorite-name">{product.name}</h4>
-                
-                {product.description && (
-                  <p className="favorite-description">
-                    {product.description.length > 80 
-                      ? `${product.description.substring(0, 80)}...` 
-                      : product.description
-                    }
-                  </p>
-                )}
-                
-                {product.price && (
-                  <div className="favorite-price">
-                    <span className="price-label">Precio:</span>
-                    <span className="price-value">${product.price.toFixed(2)}</span>
-                  </div>
-                )}
-                
-                {product.category && (
-                  <div className="favorite-category">
-                    <span className="category-label">Categoría:</span>
-                    <span className="category-value">{product.category}</span>
-                  </div>
-                )}
-              </div>
+                {/* Información del producto */}
+                <div className="favorite-info">
+                  <h4 className="favorite-name">{productName}</h4>
+                  
+                  {productDescription && (
+                    <p className="favorite-description">
+                      {productDescription.length > 80 
+                        ? `${productDescription.substring(0, 80)}...` 
+                        : productDescription
+                      }
+                    </p>
+                  )}
+                  
+                  {productPrice && (
+                    <div className="favorite-price">
+                      <span className="price-label">Precio:</span>
+                      <span className="price-value">${productPrice.toFixed(2)}</span>
+                    </div>
+                  )}
+                  
+                  {productCategory && (
+                    <div className="favorite-category">
+                      <span className="category-label">Categoría:</span>
+                      <span className="category-value">{productCategory}</span>
+                    </div>
+                  )}
+                </div>
 
-              {/* Acciones */}
-              <div className="favorite-actions">
-                <button className="view-product-btn">
-                  <Package size={16} />
-                  Ver Producto
-                </button>
+                {/* Acciones */}
+                <div className="favorite-actions">
+                  <button className="view-product-btn">
+                    <Package size={16} />
+                    Ver Producto
+                  </button>
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>

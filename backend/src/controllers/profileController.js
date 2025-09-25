@@ -155,126 +155,45 @@ const profileController = {
     }
   },
 
-/**
- * GET /api/profile/orders
- * Devuelve el historial de pedidos del usuario, con detalles completos de productos e ítems personalizados.
- */
-ggetOrders: async (req, res) => {
-  try {
-    if (!req.user || !req.user._id) {
-      return res.status(401).json({ message: "Usuario no autenticado" });
+  /**
+   * GET /api/profile/orders
+   * Devuelve el historial de pedidos del usuario.
+   */
+  getOrders: async (req, res) => {
+    try {
+// Después
+const orders = await Order.find({ user: req.user._id })
+  .populate('items.product', 'name price')
+  .sort({ createdAt: -1 });
+
+      res.json(orders);
+    } catch (err) {
+      console.error("getOrders error:", err);
+      res.status(500).json({ message: "Error al obtener pedidos" });
     }
-
-    const orders = await Order.find({ user: req.user._id })
-      .sort({ createdAt: -1 })
-      .populate({
-        path: 'items.product',
-        select: 'nombre name precio price images imagen description descripcion disponibles'
-      })
-      .populate({
-        path: 'items.customItem',
-        select: 'nombre name precio price images imagen description descripcion'
-      });
-
-    // Normalizar pedidos
-    const normalizedOrders = (orders || []).map(order => {
-      const normalizedItems = (order.items || []).map(item => {
-        const product = item.product || item.customItem || {};
-        return {
-          product: {
-            id: product._id,
-            name: product.name || product.nombre || 'Producto eliminado',
-            price: product.price ?? product.precio ?? 0,
-            image: product.images?.[0] || product.imagen || '',
-            description: product.description || product.descripcion || ''
-          },
-          quantity: item.quantity ?? 1
-        };
-      });
-
-      const totalAmount = normalizedItems.reduce(
-        (sum, i) => sum + (i.quantity * i.product.price),
-        0
-      );
-
-      return {
-        _id: order._id,
-        createdAt: order.createdAt,
-        status: order.status || 'pending',
-        items: normalizedItems,
-        total: totalAmount
-      };
-    });
-
-    res.json(normalizedOrders);
-
-  } catch (err) {
-    console.error("getOrders error:", err);
-    // Siempre devolver array aunque haya error
-    res.status(200).json([]);
-  }
-},
-
+  },
 
   
 /**
- * GET /api/profile/orders
- * Devuelve el historial de pedidos del usuario, con detalles completos de productos e ítems personalizados.
- */
-getOrders: async (req, res) => {
-  try {
-    const userId = req.user._id;
-
-    // Buscamos las órdenes del usuario, ordenadas de más recientes a más antiguas
-    const orders = await Order.find({ user: userId })
-      .sort({ createdAt: -1 })
-      .populate({
-        path: 'items.product',
-        select: 'nombre name precio price images imagen description descripcion disponibles'
-      })
-      .populate({
-        path: 'items.customItem', // si tienes ítems personalizados
-        select: 'nombre name precio price images imagen description descripcion'
-      });
-
-    // Normalizamos los datos para frontend
-    const normalizedOrders = orders.map(order => {
-      const normalizedItems = order.items.map(item => {
-        const product = item.product || item.customItem || {};
-        return {
-          product: {
-            id: product._id,
-            name: product.name || product.nombre || 'Producto eliminado',
-            price: product.price ?? product.precio ?? 0,
-            image: product.images?.[0] || product.imagen || '',
-            description: product.description || product.descripcion || ''
-          },
-          quantity: item.quantity
-        };
-      });
-
-      // Calculamos total si quieres sobrescribir
-      const totalAmount = normalizedItems.reduce(
-        (sum, i) => sum + (i.quantity * i.product.price),
-        0
-      );
-
-      return {
-        _id: order._id,
-        createdAt: order.createdAt,
-        status: order.status,
-        items: normalizedItems,
-        total: totalAmount
-      };
-    });
-
-    res.json(normalizedOrders);
-
-  } catch (err) {
-    console.error("getOrders error:", err);
-    res.status(500).json({ message: "Error al obtener pedidos" });
-  }
-},
+   * GET /api/profile/favorites
+   * Devuelve los productos favoritos con detalles (nombre e imagen).
+   */
+  getFavorites: async (req, res) => {
+    try {
+      const favorites = req.user.favorites || [];
+      
+      // CORRECCIÓN: usar los nombres correctos de los campos según tu modelo
+      const products = await Product.find({ _id: { $in: favorites } })
+        .select("nombre imagen descripcion precio categoria"); // Campos en español como en tu modelo
+      
+      console.log('Products found for favorites:', products); // DEBUG
+      
+      res.json(products);
+    } catch (err) {
+      console.error("getFavorites error:", err);
+      res.status(500).json({ message: "Error al obtener favoritos" });
+    }
+  },
 
   /**
    * POST /api/profile/favorites/:productId

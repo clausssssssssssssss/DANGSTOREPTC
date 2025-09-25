@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Package, Calendar, DollarSign, MapPin } from 'lucide-react';
 
+// URL del servidor local para desarrollo
 const API_BASE = 'https://dangstoreptc-production.up.railway.app/api';
 
 const OrdersSection = ({ userId }) => {
@@ -9,45 +10,38 @@ const OrdersSection = ({ userId }) => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchOrders = async () => {
-      try {
-        const res = await fetch(`${API_BASE}/profile/orders`, {
-          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-        });
-        const data = await res.json();
-
-        // Validar que sea array
-        if (!Array.isArray(data)) {
-          console.error('Orders API did not return an array:', data);
-          setOrders([]);
-          setError(data.message || 'Error al cargar pedidos');
-        } else {
-          setOrders(data);
-          setError(null);
-        }
-      } catch (err) {
-        console.error('Error fetching orders:', err);
-        setError('Error al cargar las órdenes');
-        setOrders([]);
-      } finally {
-        setLoading(false);
+    fetch(`${API_BASE}/profile/orders`, {
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
       }
-    };
-
-    if (userId) fetchOrders();
+    })
+    .then(res => res.json())
+    .then(data => {
+      console.log('Orders data:', data); // Para debugging
+      setOrders(data);
+      setLoading(false);
+    })
+    .catch(err => {
+      console.error('Error fetching orders:', err);
+      setError('Error al cargar las órdenes');
+      setLoading(false);
+    });
   }, [userId]);
 
-  const formatDate = (dateString) =>
-    new Date(dateString).toLocaleDateString('es-ES', {
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('es-ES', {
       year: 'numeric',
       month: 'short',
       day: 'numeric',
       hour: '2-digit',
       minute: '2-digit'
     });
+  };
 
   const getStatusColor = (status) => {
-    switch (status.toLowerCase()) {
+    const statusLower = status.toLowerCase();
+    switch (statusLower) {
       case 'pending': return 'pending';
       case 'completed': return 'completed';
       case 'cancelled': return 'cancelled';
@@ -57,7 +51,8 @@ const OrdersSection = ({ userId }) => {
   };
 
   const getStatusText = (status) => {
-    switch (status.toLowerCase()) {
+    const statusLower = status.toLowerCase();
+    switch (statusLower) {
       case 'pending': return 'PENDIENTE';
       case 'completed': return 'COMPLETADO';
       case 'cancelled': return 'CANCELADO';
@@ -66,15 +61,48 @@ const OrdersSection = ({ userId }) => {
     }
   };
 
-  if (loading) return <p>Cargando pedidos...</p>;
-  if (error) return <p>{error}</p>;
+  if (loading) {
+    return (
+      <div className="content-card">
+        <div className="card-header">
+          <div className="card-title">
+            <h3>Historial de Pedidos</h3>
+          </div>
+        </div>
+        <div className="loading-state">
+          <div className="spinner"></div>
+          <p>Cargando pedidos...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="content-card">
+        <div className="card-header">
+          <div className="card-title">
+            <h3>Historial de Pedidos</h3>
+          </div>
+        </div>
+        <div className="error-state">
+          <p>{error}</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="content-card">
       <div className="card-header">
-        <h3>Historial de Pedidos</h3>
+        <div className="card-title">
+          <h3>Historial de Pedidos</h3>
+        </div>
         <div className="orders-summary">
-          <MapPin size={16} /> {orders.length} pedido{orders.length !== 1 ? 's' : ''}
+          <span className="orders-count">
+            <MapPin size={16} />
+            {orders.length} pedido{orders.length !== 1 ? 's' : ''}
+          </span>
         </div>
       </div>
 
@@ -82,38 +110,69 @@ const OrdersSection = ({ userId }) => {
         <div className="empty-state">
           <div className="empty-icon">📋</div>
           <h4>No hay pedidos registrados</h4>
-          <p>Aún no has realizado ningún pedido.</p>
+          <p>Aún no has realizado ningún pedido. ¡Explora nuestro catálogo y encuentra productos increíbles!</p>
         </div>
       ) : (
         <div className="orders-grid">
           {orders.map(order => (
             <div className="order-card" key={order._id}>
+              {/* Header de la orden */}
               <div className="order-card-header">
-                <Package size={20} />
-                <div>
-                  Orden #{order._id.slice(-8)} - {formatDate(order.createdAt)}
-                </div>
-                <span className={`order-status-badge ${getStatusColor(order.status)}`}>
-                  {getStatusText(order.status)}
-                </span>
-              </div>
-
-              <div className="order-card-body">
-                {order.items.map((item, i) => (
-                  <div className="order-item" key={i}>
-                    <div>
-                      <strong>{item.product?.name || 'Producto eliminado'}</strong>
-                      <div>Cantidad: {item.quantity} × ${item.product?.price?.toFixed(2) || '0.00'}</div>
-                    </div>
-                    <div>
-                      ${((item.quantity || 0) * (item.product?.price || 0)).toFixed(2)}
+                <div className="order-header-left">
+                  <div className="order-icon">
+                    <Package size={20} />
+                  </div>
+                  <div className="order-info">
+                    <div className="order-id">Orden #{order._id.slice(-8)}</div>
+                    <div className="order-date">
+                      <Calendar size={14} />
+                      {formatDate(order.createdAt)}
                     </div>
                   </div>
-                ))}
+                </div>
+                <div className={`order-status-badge ${getStatusColor(order.status)}`}>
+                  {getStatusText(order.status)}
+                </div>
+              </div>
 
+              {/* Cuerpo de la orden */}
+              <div className="order-card-body">
+                <div className="order-items">
+                  {order.items.map((item, i) => {
+                    // CORRECCIÓN: Usar el precio guardado en el item de la orden, no del producto poblado
+                    const productName = item.product?.name || 'Producto no disponible';
+                    const itemPrice = item.price || 0; // ✅ Usar item.price en lugar de item.product.price
+                    const subtotal = (item.quantity || 0) * itemPrice;
+
+                    console.log('Item:', item); // Para debugging
+
+                    return (
+                      <div className="order-item" key={i}>
+                        <div className="order-item-info">
+                          <div className="order-item-name">
+                            {productName}
+                          </div>
+                          <div className="order-item-meta">
+                            Cantidad: {item.quantity} × ${itemPrice.toFixed(2)}
+                          </div>
+                        </div>
+                        <div className="order-item-subtotal">
+                          ${subtotal.toFixed(2)}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Total */}
                 <div className="order-total-section">
-                  <strong>Total: </strong>
-                  <DollarSign size={16} /> {order.total?.toFixed(2) || '0.00'}
+                  <div className="order-total-line">
+                    <span className="total-label">Total:</span>
+                    <span className="order-total">
+                      <DollarSign size={16} />
+                      ${order.total.toFixed(2)}
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>

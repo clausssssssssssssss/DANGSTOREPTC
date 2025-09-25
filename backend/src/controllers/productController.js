@@ -30,22 +30,22 @@ productController.getProducts = async (req, res) => {
     const products = await productModel.find().lean();
     
     // Transformar los datos para mantener consistencia con el frontend
-    const transformedProducts = products.map(product => ({
-      _id: product._id,
-      nombre: product.nombre,
-      descripcion: product.descripcion,
-      precio: product.precio,
-      disponibles: product.disponibles,
-      categoria: product.categoria,
-      imagen: product.imagen,
-      // Campos adicionales para compatibilidad
-      name: product.nombre,
-      description: product.descripcion,
-      price: product.precio,
-      stock: product.disponibles,
-      category: product.categoria,
-      images: product.imagen ? [product.imagen] : []
-    }));
+const transformedProducts = products.map(product => ({
+  _id: product._id,
+  nombre: product.nombre,
+  descripcion: product.descripcion,
+  precio: product.precio,
+  disponibles: product.disponibles,
+  categoria: product.categoria,
+  imagen: product.imagen,
+  // Campos adicionales para compatibilidad - MEJORADOS
+  name: product.nombre || product.name,
+  description: product.descripcion || product.description,
+  price: product.precio || product.price,  // ← CLAVE: Intentar ambos campos
+  stock: product.disponibles || product.stock,
+  category: product.categoria || product.category,
+  images: product.imagen ? [product.imagen] : (product.images || [])
+}));
 
     res.json(transformedProducts);
   } catch (error) {

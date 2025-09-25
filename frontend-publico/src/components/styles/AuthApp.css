@@ -68,7 +68,9 @@ body {
 
   padding: 2rem 1rem;
   background-attachment: scroll;
-
+  position: relative;
+  overflow: hidden;
+  background: #ffffff;
 }
 
 /* ===== DECORACIONES PIXELADAS GLOBALES ===== */
@@ -190,7 +192,6 @@ body {
   box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
   padding: 2.5rem;
   overflow: visible;
-
   position: relative;
   border: 1px solid rgba(255, 255, 255, 0.4);
   backdrop-filter: blur(15px);
@@ -227,14 +228,9 @@ body {
 
 /* ===== ESTILOS COMPACTOS OPTIMIZADOS ===== */
 .auth-card.compact {
-
-  padding: 1.8rem;
-  max-width: 360px;
-
   padding: 2rem;
   max-width: 420px;
   overflow: visible;
-
 }
 
 .auth-card.compact .auth-logo {

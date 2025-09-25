@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Eye, EyeOff, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import "../components/styles/AuthApp.css";  
+import "../components/styles/AuthApp.css";
+import "../components/styles/PixelDecorations.css";
 import logoIcon from "../assets/DANGSTORELOGOPRUEBA.PNG";
 
 // ——— imports para el login y contexto ———
@@ -831,15 +832,15 @@ const PixelBackground = () => (
     );
   };
 
-// ——— RENDERIZADO PRINCIPAL ———
-return (
-  <>
-    <div className="auth-container">
-      <PixelBackground />
-      {renderAuthContent()}
-    </div>
-    <ToastContainer toasts={toasts} removeToast={removeToast} />
-  </>
-);
+  // ——— RENDERIZADO PRINCIPAL ———
+  return (
+    <>
+      <div className="auth-container">
+        <PixelBackground />
+        {renderAuthContent()}
+      </div>
+      <ToastContainer toasts={toasts} removeToast={removeToast} />
+    </>
+  );
 };
 export default AuthApp;

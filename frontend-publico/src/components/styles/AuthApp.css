@@ -57,6 +57,13 @@ body {
   margin: 0;
   padding: 2rem 1rem;
   background-attachment: scroll;
+  position: relative;
+  overflow: hidden;
+}
+
+/* ===== FONDO SIMPLE ===== */
+.auth-container {
+  background: #ffffff;
 }
 
 .auth-card {
@@ -70,7 +77,7 @@ body {
   position: relative;
   border: 1px solid rgba(255, 255, 255, 0.3);
   backdrop-filter: blur(12px);
-  z-index: 2;
+  z-index: 10;
   margin: auto;
 }
 

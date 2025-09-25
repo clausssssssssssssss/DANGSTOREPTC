@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Eye, EyeOff, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import "../components/styles/AuthApp.css";  
+import "../components/styles/AuthApp.css";
+import "../components/styles/PixelDecorations.css";
 import logoIcon from "../assets/DANGSTORELOGOPRUEBA.PNG";
 import fondoDangStore from "../assets/FondoDangStore.jpg";
 
@@ -804,13 +805,41 @@ const AuthApp = () => {
   // ——— RENDERIZADO PRINCIPAL ———
   return (
     <>
-      <div 
-        className="auth-container"                                       
-        style={{
-          background: 'linear-gradient(135deg, #8B5CF6 0%, #A78BFA 25%, #C4B5FD 50%, #DDD6FE 75%, #F3F4F6 100%)',
-          backgroundAttachment: 'fixed'
-        }}
-      >
+      <div className="auth-container">
+        {/* Decoraciones pixeladas distribuidas */}
+        <div className="pixel-decoration" style={{ top: '8%', left: '5%' }}>
+          <div className="pixel-float" style={{ top: '0px', left: '0px' }}></div>
+          <div className="hama-bead" style={{ top: '25px', left: '30px' }}></div>
+          <div className="pixel-float" style={{ top: '50px', left: '10px' }}></div>
+        </div>
+        
+        <div className="pixel-decoration" style={{ top: '25%', right: '8%' }}>
+          <div className="hama-bead" style={{ top: '0px', left: '0px' }}></div>
+          <div className="pixel-float" style={{ top: '35px', left: '20px' }}></div>
+        </div>
+        
+        <div className="pixel-decoration" style={{ bottom: '20%', left: '12%' }}>
+          <div className="pixel-float" style={{ top: '0px', left: '0px' }}></div>
+          <div className="hama-bead" style={{ top: '30px', left: '25px' }}></div>
+          <div className="pixel-float" style={{ top: '60px', left: '5px' }}></div>
+        </div>
+        
+        <div className="pixel-decoration" style={{ top: '65%', right: '15%' }}>
+          <div className="hama-bead" style={{ top: '0px', left: '0px' }}></div>
+          <div className="pixel-float" style={{ top: '25px', left: '20px' }}></div>
+        </div>
+        
+        <div className="pixel-decoration" style={{ top: '45%', left: '80%' }}>
+          <div className="pixel-float" style={{ top: '0px', left: '0px' }}></div>
+          <div className="hama-bead" style={{ top: '20px', left: '15px' }}></div>
+        </div>
+        
+        <div className="pixel-decoration" style={{ top: '15%', left: '60%' }}>
+          <div className="hama-bead" style={{ top: '0px', left: '0px' }}></div>
+          <div className="pixel-float" style={{ top: '30px', left: '18px' }}></div>
+        </div>
+
+        <div className="pixel-grid"></div>
         {renderAuthContent()}
       </div>
       <ToastContainer toasts={toasts} removeToast={removeToast} />

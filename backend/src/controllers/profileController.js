@@ -155,23 +155,64 @@ const profileController = {
     }
   },
 
-  /**
-   * GET /api/profile/orders
-   * Devuelve el historial de pedidos del usuario.
-   */
-  getOrders: async (req, res) => {
-    try {
-// Después
-const orders = await Order.find({ user: req.user._id })
-  .populate('items.product', 'name price')
-  .sort({ createdAt: -1 });
+/**
+ * GET /api/profile/orders
+ * Devuelve el historial de pedidos del usuario, con detalles completos de productos e ítems personalizados.
+ */
+getOrders: async (req, res) => {
+  try {
+    const userId = req.user._id;
 
-      res.json(orders);
-    } catch (err) {
-      console.error("getOrders error:", err);
-      res.status(500).json({ message: "Error al obtener pedidos" });
-    }
-  },
+    // Buscamos las órdenes del usuario, ordenadas de más recientes a más antiguas
+    const orders = await Order.find({ user: userId })
+      .sort({ createdAt: -1 })
+      .populate({
+        path: 'items.product',
+        select: 'nombre name precio price images imagen description descripcion disponibles'
+      })
+      .populate({
+        path: 'items.customItem', // si tienes ítems personalizados
+        select: 'nombre name precio price images imagen description descripcion'
+      });
+
+    // Normalizamos los datos para frontend
+    const normalizedOrders = orders.map(order => {
+      const normalizedItems = order.items.map(item => {
+        const product = item.product || item.customItem || {};
+        return {
+          product: {
+            id: product._id,
+            name: product.name || product.nombre || 'Producto eliminado',
+            price: product.price ?? product.precio ?? 0,
+            image: product.images?.[0] || product.imagen || '',
+            description: product.description || product.descripcion || ''
+          },
+          quantity: item.quantity
+        };
+      });
+
+      // Calculamos total si quieres sobrescribir
+      const totalAmount = normalizedItems.reduce(
+        (sum, i) => sum + (i.quantity * i.product.price),
+        0
+      );
+
+      return {
+        _id: order._id,
+        createdAt: order.createdAt,
+        status: order.status,
+        items: normalizedItems,
+        total: totalAmount
+      };
+    });
+
+    res.json(normalizedOrders);
+
+  } catch (err) {
+    console.error("getOrders error:", err);
+    res.status(500).json({ message: "Error al obtener pedidos" });
+  }
+},
 
   
 /**

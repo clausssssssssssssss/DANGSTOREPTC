@@ -831,26 +831,15 @@ const PixelBackground = () => (
     );
   };
 
-  // ——— RENDERIZADO PRINCIPAL ———
-  return (
-    <>
-<<<<<<< HEAD
-      <div className="auth-container">
-        <PixelBackground />
-=======
-      <div 
-        className="auth-container"                                       
-        style={{
-          background: 'linear-gradient(135deg, #8B5CF6 0%, #A78BFA 25%, #C4B5FD 50%, #DDD6FE 75%, #F3F4F6 100%)',
-          backgroundAttachment: 'fixed'
-        }}
-      >
->>>>>>> c788779681d02bd925ab3eb96f0d1ea01cf8d9e5
-        {renderAuthContent()}
-      </div>
-      <ToastContainer toasts={toasts} removeToast={removeToast} />
-    </>
-  );
+// ——— RENDERIZADO PRINCIPAL ———
+return (
+  <>
+    <div className="auth-container">
+      <PixelBackground />
+      {renderAuthContent()}
+    </div>
+    <ToastContainer toasts={toasts} removeToast={removeToast} />
+  </>
+);
 };
-
 export default AuthApp;

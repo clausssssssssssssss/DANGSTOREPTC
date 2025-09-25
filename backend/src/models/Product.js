@@ -1,35 +1,35 @@
 import mongoose from 'mongoose';
 
 const productSchema = new mongoose.Schema({
-  name: {
+  nombre: {
     type: String,
     required: [true, 'El nombre del producto es obligatorio'],
     trim: true,
     maxLength: [100, 'El nombre no puede exceder los 100 caracteres']
   },
-  description: {
+  descripcion: {
     type: String,
     required: [true, 'La descripción del producto es obligatoria'],
     maxLength: [500, 'La descripción no puede exceder los 500 caracteres']
   },
-  price: {
+  precio: {
     type: Number,
     required: [true, 'El precio del producto es obligatorio'],
     min: [0, 'El precio no puede ser negativo']
   },
-  stock: {
+  disponibles: {
     type: Number,
     required: [true, 'La cantidad disponible es obligatoria'],
     min: [0, 'La cantidad disponible no puede ser negativa']
   },
-  category: {
+  categoria: {
     type: String,
     required: [true, 'La categoría del producto es obligatoria'],
     trim: true
   },
-  images: {
-    type: [String], // Array de strings para múltiples imágenes
-    default: []
+  imagen: {
+    type: String,
+    default: null
   }
 }, {
   timestamps: true

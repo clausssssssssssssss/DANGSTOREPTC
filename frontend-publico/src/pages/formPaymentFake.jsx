@@ -21,7 +21,12 @@ const FormPaymentFake = () => {
   const [isQuotePayment, setIsQuotePayment] = useState(false);
 
   // calcula total y cantidad - incluye cotizaciones
-  const total = quoteItem ? quoteItem.price : cart.reduce((sum, item) => sum + (item.product?.price || 0) * (item.quantity || 0), 0);
+  const total = quoteItem 
+  ? (quoteItem.price ?? quoteItem.precio ?? 0)
+  : cart.reduce((sum, item) => {
+      const price = item.product?.price ?? item.product?.precio ?? 0;
+      return sum + price * (item.quantity || 0);
+    }, 0);
 
   // Asegurar que el carrito se cargue cuando el componente se monte
   useEffect(() => {
@@ -282,6 +287,14 @@ const FormPaymentFake = () => {
       }));
       console.log('Items del carrito para orden:', itemsParaOrden);
     }
+
+    console.table(cart.map(item => ({
+  id: item.product.id,
+  name: item.product.name,
+  price: item.product.price,
+  quantity: item.quantity
+})));
+
 
     showInfo('Procesando pago simulado...', 2000);
 

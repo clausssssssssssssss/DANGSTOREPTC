@@ -28,10 +28,7 @@ export function useCart(userId) {
       }
     });
 
-    // Si es GET y no existe el carrito → devolvemos estructura vacía
-    if (opts.method == null && res.status === 404) {
-      return { products: [] };
-    }
+    if (opts.method == null && res.status === 404) return { products: [] };
 
     if (!res.ok) {
       const text = await res.text();
@@ -41,35 +38,52 @@ export function useCart(userId) {
     return res.json();
   }
 
+  // Función para normalizar cualquier producto del backend
+  function normalizeProduct(p) {
+    if (!p.product || !p.product._id) return null;
+    return {
+      product: {
+        id: p.product._id,
+        name: p.product.name || p.product.nombre || 'Sin nombre',
+        price: p.product.price ?? p.product.precio ?? 0,
+        image: p.product.images?.[0] || p.product.imagen || '',
+        description: p.product.description || p.product.descripcion || ''
+      },
+      quantity: p.quantity
+    };
+  }
+
+  // Normaliza también ítems personalizados
+  function normalizeCustomItem(item) {
+    if (!item.item || !item.item._id) return null;
+    return {
+      product: {
+        id: item.item._id,
+        name: item.item.name || item.item.nombre || 'Sin nombre',
+        price: item.item.price ?? item.item.precio ?? 0,
+        image: item.item.images?.[0] || item.item.imagen || '',
+        description: item.item.description || item.item.descripcion || ''
+      },
+      quantity: item.quantity
+    };
+  }
+
   // Carga inicial del carrito
   useEffect(() => {
     if (!userId) return;
 
     (async () => {
       try {
-        const cartData = await authFetch(`/cart`); // Este es el carrito completo
+        const cartData = await authFetch(`/cart`);
         console.log('Cart data received:', cartData);
-        
-        // cartData ya es el objeto completo del carrito, no solo productos
-        // Accedemos a cartData.products, no data.products
-        const products = cartData.products || [];
-        
-        setCart(products
-          .filter(p => p.product && p.product._id)
-          .map(p => ({
-            product: {
-              id: p.product._id,
-              name: p.product.name || p.product.nombre, // Por si acaso uses 'nombre' en algunos productos
-              price: p.product.price || p.product.precio, // Por si acaso uses 'precio'
-              image: p.product.images?.[0] || p.product.imagen || '',
-              description: p.product.description || p.product.descripcion || ''
-            },
-            quantity: p.quantity
-          }))
-        );
+
+        const products = (cartData.products || []).map(normalizeProduct).filter(Boolean);
+        const customized = (cartData.customizedProducts || []).map(normalizeCustomItem).filter(Boolean);
+
+        setCart([...products, ...customized]);
       } catch (err) {
         console.error('useCart load:', err);
-        setCart([]); // En caso de error, carrito vacío
+        setCart([]);
       } finally {
         setLoading(false);
       }
@@ -79,23 +93,11 @@ export function useCart(userId) {
   // Sincroniza el estado local con la respuesta del backend
   function sync(cartDoc) {
     console.log('Sync cart data:', cartDoc);
-    
-    // cartDoc es el carrito completo, no solo los productos
-    const products = cartDoc.products || [];
-    
-    const newCart = products
-      .filter(p => p.product && p.product._id)
-      .map(p => ({
-        product: {
-          id: p.product._id,
-          name: p.product.name || p.product.nombre,
-          price: p.product.price || p.product.precio,
-          image: p.product.images?.[0] || p.product.imagen || '',
-          description: p.product.description || p.product.descripcion || ''
-        },
-        quantity: p.quantity
-      }));
-      
+
+    const products = (cartDoc.products || []).map(normalizeProduct).filter(Boolean);
+    const customized = (cartDoc.customizedProducts || []).map(normalizeCustomItem).filter(Boolean);
+
+    const newCart = [...products, ...customized];
     console.log('New cart state:', newCart);
     setCart(newCart);
   }
@@ -108,7 +110,6 @@ export function useCart(userId) {
         body: JSON.stringify({ productId, quantity })
       });
       
-      // El backend devuelve { message: 'Carrito actualizado', cart: ... }
       const cartData = json.cart || json;
       sync(cartData);
     } catch (error) {

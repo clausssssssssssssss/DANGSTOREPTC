@@ -44,7 +44,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 64px;
+  height: 56px;
 }
 
 /* Logo Styles */
@@ -405,7 +405,7 @@
 /* Tablets (768px y menor) */
 @media (max-width: 768px) {
   .navbar-content {
-    height: 60px;
+    height: 52px;
   }
   
   .nav-links {
@@ -462,7 +462,7 @@
   }
   
   .navbar-content {
-    height: 56px;
+    height: 48px;
   }
   
   .logo-text {

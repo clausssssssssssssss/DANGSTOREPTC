@@ -163,11 +163,11 @@ const FavoritesSection = ({ userId }) => {
             console.log('Product in favorites:', product);
             
             // Usar los nombres correctos de los campos según tu modelo (priorizar español)
-            const productName = product.nombre || product.name || 'Producto sin nombre';
-            const productImage = product.imagen || product.image || product.images?.[0];
-            const productDescription = product.descripcion || product.description;
-            const productPrice = product.precio || product.price;
-            const productCategory = product.categoria || product.category;
+const productName = product.name || product.nombre || 'Producto sin nombre';
+const productImage = product.images?.[0] || product.imagen || product.image;
+const productDescription = product.description || product.descripcion;
+const productPrice = product.price || product.precio;
+const productCategory = product.category || product.categoria;
             
             return (
               <div className="favorite-card" key={product._id}>

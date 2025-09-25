@@ -4,7 +4,6 @@ import { useNavigate } from 'react-router-dom';
 import "../components/styles/AuthApp.css";
 import "../components/styles/PixelDecorations.css";
 import logoIcon from "../assets/DANGSTORELOGOPRUEBA.PNG";
-import fondoDangStore from "../assets/FondoDangStore.jpg";
 
 // ——— imports para el login y contexto ———
 import { useAuth, parseJwt } from '../hooks/useAuth.jsx';
@@ -417,6 +416,37 @@ const AuthApp = () => {
     </div>
   );
 
+ // ——— COMPONENTE FONDO PIXELADO COMPACTO ———
+const PixelBackground = () => (
+  <>
+    <div className="pixel-grid"></div>
+    {/* Píxeles flotantes reducidos */}
+    {Array.from({ length: 8 }).map((_, i) => (
+      <div
+        key={`pixel-${i}`}
+        className="pixel-float pixel-decoration"
+        style={{
+          left: `${Math.random() * 100}%`,
+          top: `${Math.random() * 100}%`,
+          animationDelay: `${-Math.random() * 8}s`
+        }}
+      ></div>
+    ))}
+    {/* Hama beads reducidos */}
+    {Array.from({ length: 5 }).map((_, i) => (
+      <div
+        key={`hama-${i}`}
+        className="hama-bead pixel-decoration"
+        style={{
+          left: `${Math.random() * 100}%`,
+          top: `${Math.random() * 100}%`,
+          animationDelay: `${-Math.random() * 6}s`
+        }}
+      ></div>
+    ))}
+  </>
+);
+
   // ——— RENDERIZAR EL SPLASH SCREEN ———
   if (showSplash) {
     return (
@@ -806,45 +836,11 @@ const AuthApp = () => {
   return (
     <>
       <div className="auth-container">
-        {/* Decoraciones pixeladas distribuidas */}
-        <div className="pixel-decoration" style={{ top: '8%', left: '5%' }}>
-          <div className="pixel-float" style={{ top: '0px', left: '0px' }}></div>
-          <div className="hama-bead" style={{ top: '25px', left: '30px' }}></div>
-          <div className="pixel-float" style={{ top: '50px', left: '10px' }}></div>
-        </div>
-        
-        <div className="pixel-decoration" style={{ top: '25%', right: '8%' }}>
-          <div className="hama-bead" style={{ top: '0px', left: '0px' }}></div>
-          <div className="pixel-float" style={{ top: '35px', left: '20px' }}></div>
-        </div>
-        
-        <div className="pixel-decoration" style={{ bottom: '20%', left: '12%' }}>
-          <div className="pixel-float" style={{ top: '0px', left: '0px' }}></div>
-          <div className="hama-bead" style={{ top: '30px', left: '25px' }}></div>
-          <div className="pixel-float" style={{ top: '60px', left: '5px' }}></div>
-        </div>
-        
-        <div className="pixel-decoration" style={{ top: '65%', right: '15%' }}>
-          <div className="hama-bead" style={{ top: '0px', left: '0px' }}></div>
-          <div className="pixel-float" style={{ top: '25px', left: '20px' }}></div>
-        </div>
-        
-        <div className="pixel-decoration" style={{ top: '45%', left: '80%' }}>
-          <div className="pixel-float" style={{ top: '0px', left: '0px' }}></div>
-          <div className="hama-bead" style={{ top: '20px', left: '15px' }}></div>
-        </div>
-        
-        <div className="pixel-decoration" style={{ top: '15%', left: '60%' }}>
-          <div className="hama-bead" style={{ top: '0px', left: '0px' }}></div>
-          <div className="pixel-float" style={{ top: '30px', left: '18px' }}></div>
-        </div>
-
-        <div className="pixel-grid"></div>
+        <PixelBackground />
         {renderAuthContent()}
       </div>
       <ToastContainer toasts={toasts} removeToast={removeToast} />
     </>
   );
 };
-
 export default AuthApp;

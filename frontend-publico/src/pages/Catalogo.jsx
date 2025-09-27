@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Search, RefreshCw, Heart, ShoppingCart, X, Star, TrendingUp, Plus, Check, Filter } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth.jsx';
 import { useProducts } from '../components/catalog/hook/useProducts.jsx';
@@ -24,6 +25,7 @@ export default function Catalogo() {
   const { addToCart } = useCart(userId);
   const { favorites, toggleFavorite } = useFavorites(userId);
   const { toasts, showSuccess, showError, showWarning, showInfo, removeToast } = useToast();
+  const [searchParams, setSearchParams] = useSearchParams();
   
   // Función helper para formatear precios de forma segura
   const formatPrice = (price) => {
@@ -37,8 +39,10 @@ export default function Catalogo() {
   const [searchTerm, setSearchTerm] = useState('');
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [priceRange, setPriceRange] = useState([0, 10]);
-  const [selectedCategory, setSelectedCategory] = useState('');
   const [selectedProduct, setSelectedProduct] = useState(null);
+  
+  // Obtener categoría seleccionada desde los parámetros de URL
+  const selectedCategory = searchParams.get('category') || '';
 
   // Calcular el rango de precios dinámicamente basado en los productos
   const priceRangeDynamic = useMemo(() => {
@@ -329,58 +333,12 @@ export default function Catalogo() {
                 Buscar
               </button>
 
-              {/* Dropdown de filtros */}
-              <div className="filter-dropdown-container">
-                <button 
-                  className="filter-dropdown-trigger"
-                  onClick={() => setIsSearchOpen(!isSearchOpen)}
-                >
-                  <span>Filtrar por categoría</span>
-                  <div className={`dropdown-arrow ${isSearchOpen ? 'open' : ''}`}>^</div>
-                </button>
-
-                {/* Panel de filtros con checkboxes */}
-                {isSearchOpen && (
-                  <div className="filter-dropdown-panel">
-                    <div className="filter-options">
-                      <label className="filter-option">
-                    <input
-                          type="checkbox"
-                          checked={selectedCategory === ''}
-                          onChange={() => setSelectedCategory('')}
-                        />
-                        <span className="checkmark"></span>
-                        <span>Todas las categorías</span>
-                      </label>
-                      
-                      {categoriesLoading ? (
-                        <div className="loading-option">Cargando categorías...</div>
-                      ) : categoriesError ? (
-                        <div className="error-option">Error al cargar categorías</div>
-                      ) : (
-                        categories.map((category) => (
-                          <label key={category._id} className="filter-option">
-                    <input
-                              type="checkbox"
-                              checked={selectedCategory === category.name}
-                              onChange={() => setSelectedCategory(category.name)}
-                            />
-                            <span className="checkmark"></span>
-                            <span>{category.name}</span>
-                          </label>
-                        ))
-                      )}
-                  </div>
-                </div>
-                )}
-              </div>
-
               {/* Botón de limpiar */}
               <button 
                 className="clear-button"
                 onClick={() => {
                   setSearchTerm('');
-                  setSelectedCategory('');
+                  setSearchParams({});
                   setPriceRange(priceRangeDynamic);
                   showInfo('Filtros limpiados');
                 }}
@@ -395,7 +353,11 @@ export default function Catalogo() {
         {/* Información de resultados */}
         <div className="results-info">
           <p>
-            Mostrando {filteredProducts.length} de {products.length} productos
+            {selectedCategory ? (
+              <>Mostrando {filteredProducts.length} de {products.length} productos en la categoría "{selectedCategory}"</>
+            ) : (
+              <>Mostrando {filteredProducts.length} de {products.length} productos</>
+            )}
           </p>
         </div>
 

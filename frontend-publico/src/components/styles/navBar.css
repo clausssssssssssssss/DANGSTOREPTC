@@ -658,3 +658,122 @@ html::after,
   background: transparent !important;
   box-shadow: none !important;
 }
+
+/* ESTILOS PARA EL MENÚ DESPLEGABLE DE CATEGORÍAS */
+.nav-link-with-dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.nav-link-with-dropdown .nav-link {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.dropdown-icon {
+  transition: transform 0.3s ease;
+}
+
+.nav-link-with-dropdown:hover .dropdown-icon {
+  transform: rotate(180deg);
+}
+
+.categories-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 1002;
+  margin-top: 8px;
+  min-width: 200px;
+  animation: dropdownFadeIn 0.3s ease;
+}
+
+@keyframes dropdownFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dropdown-content {
+  background: rgba(30, 41, 59, 0.98);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(186, 104, 200, 0.3);
+  border-radius: var(--border-radius-lg);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+}
+
+.dropdown-item {
+  display: block;
+  width: 100%;
+  padding: 12px 16px;
+  background: none;
+  border: none;
+  color: #e2e8f0;
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-bottom: 1px solid rgba(186, 104, 200, 0.1);
+}
+
+.dropdown-item:last-child {
+  border-bottom: none;
+}
+
+.dropdown-item:hover {
+  background: rgba(77, 208, 225, 0.15);
+  color: #4DD0E1;
+  transform: translateX(4px);
+}
+
+.dropdown-item.loading {
+  color: #94a3b8;
+  font-style: italic;
+  cursor: default;
+}
+
+.dropdown-item.loading:hover {
+  background: none;
+  transform: none;
+}
+
+.dropdown-item.error {
+  color: #f87171;
+  font-style: italic;
+  cursor: default;
+}
+
+.dropdown-item.error:hover {
+  background: none;
+  transform: none;
+}
+
+/* Responsive para el menú desplegable */
+@media (max-width: 768px) {
+  .categories-dropdown {
+    position: fixed;
+    top: 56px;
+    left: 0;
+    right: 0;
+    width: 100%;
+    margin-top: 0;
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+  }
+  
+  .dropdown-content {
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+  }
+}

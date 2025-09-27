@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { useCart } from '../cart/hook/useCart';
+import useCategories from '../../hooks/useCategories';
 import { 
   ShoppingCart, 
   User, 
@@ -9,7 +10,8 @@ import {
   Package,
   Grid3X3,
   Info,
-  MessageCircle
+  MessageCircle,
+  ChevronDown
 } from 'lucide-react';
 import '../styles/navBar.css';
 import logo from '../../assets/DANGSTORELOGOPRUEBA__1.png';
@@ -23,7 +25,9 @@ export default function NavBar() {
   const userId = user?.id;
   
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isCategoriesDropdownOpen, setIsCategoriesDropdownOpen] = useState(false);
   const { cart } = useCart(userId);
+  const { categories, loading: categoriesLoading, error: categoriesError } = useCategories();
   const itemCount = Array.isArray(cart) ? cart.reduce((sum, i) => sum + i.quantity, 0) : 0;
   const [hasQuotes, setHasQuotes] = useState(false);
 
@@ -79,6 +83,17 @@ export default function NavBar() {
     setIsMobileMenuOpen(false);
   };
 
+  const handleCategorySelect = (categoryName) => {
+    // Navegar al catálogo con la categoría seleccionada
+    navigate(`/catalogo?category=${encodeURIComponent(categoryName)}`);
+    setIsCategoriesDropdownOpen(false);
+  };
+
+  const handleShowAllCategories = () => {
+    navigate('/catalogo');
+    setIsCategoriesDropdownOpen(false);
+  };
+
   return (
     <>
       <nav className="navbar">
@@ -92,9 +107,47 @@ export default function NavBar() {
             </Link>
 
             <div className="nav-links">
-              <Link to="/catalogo" className="nav-link">
-                Catálogo
-              </Link>
+              <div 
+                className="nav-link-with-dropdown"
+                onMouseEnter={() => setIsCategoriesDropdownOpen(true)}
+                onMouseLeave={() => setIsCategoriesDropdownOpen(false)}
+              >
+                <Link to="/catalogo" className="nav-link">
+                  Catálogo
+                  <ChevronDown size={14} className="dropdown-icon" />
+                </Link>
+                
+                {/* Menú desplegable de categorías */}
+                {isCategoriesDropdownOpen && (
+                  <div className="categories-dropdown">
+                    <div className="dropdown-content">
+                      <button 
+                        className="dropdown-item"
+                        onClick={handleShowAllCategories}
+                      >
+                        Todas las categorías
+                      </button>
+                      
+                      {categoriesLoading ? (
+                        <div className="dropdown-item loading">Cargando categorías...</div>
+                      ) : categoriesError ? (
+                        <div className="dropdown-item error">Error al cargar categorías</div>
+                      ) : (
+                        categories.map((category) => (
+                          <button
+                            key={category._id}
+                            className="dropdown-item"
+                            onClick={() => handleCategorySelect(category.name)}
+                          >
+                            {category.name}
+                          </button>
+                        ))
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+              
               <Link to="/encargo" className="nav-link">
                 Encargo
               </Link>

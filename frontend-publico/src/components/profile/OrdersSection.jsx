@@ -64,7 +64,7 @@ const OrdersSection = ({ userId }) => {
   if (loading) {
     return (
       <div className="content-card">
-        <div className="card-header">
+        <div className="card-header centered-title">
           <div className="card-title">
             <h3>Historial de Pedidos</h3>
           </div>
@@ -80,7 +80,7 @@ const OrdersSection = ({ userId }) => {
   if (error) {
     return (
       <div className="content-card">
-        <div className="card-header">
+        <div className="card-header centered-title">
           <div className="card-title">
             <h3>Historial de Pedidos</h3>
           </div>
@@ -94,7 +94,7 @@ const OrdersSection = ({ userId }) => {
 
   return (
     <div className="content-card">
-      <div className="card-header">
+      <div className="card-header centered-title">
         <div className="card-title">
           <h3>Historial de Pedidos</h3>
         </div>

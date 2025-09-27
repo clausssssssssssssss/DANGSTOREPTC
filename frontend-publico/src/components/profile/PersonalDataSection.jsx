@@ -114,7 +114,7 @@ const PersonalDataSection = ({ userId, showSuccess, showError }) => {
 
   return (
     <div className="content-card">
-      <div className="card-header">
+      <div className="card-header centered-title">
         <div className="card-title">
           <h3>Datos Personales</h3>
         </div>

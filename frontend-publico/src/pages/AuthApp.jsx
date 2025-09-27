@@ -10,6 +10,7 @@ import { useAuth, parseJwt } from '../hooks/useAuth.jsx';
 import { useToast } from '../hooks/useToast';
 import ToastContainer from '../components/ui/ToastContainer';
 import SplashScreen from '../components/SplashScreen';
+import TerminosModal from '../components/TerminosModal';
 
 // URL del servidor local para desarrollo // agregue el link de railway 
 const API_URL = 'https://dangstoreptc-production.up.railway.app/api';
@@ -61,6 +62,10 @@ const AuthApp = () => {
 
   // Estado para reenvío de código
   const [isResending, setIsResending] = useState(false);
+
+  // Estados para términos y condiciones
+  const [showTermsModal, setShowTermsModal] = useState(false);
+  const [termsAccepted, setTermsAccepted] = useState(false);
 
   // ——— FUNCIÓN PARA MANEJAR CUANDO EL SPLASH TERMINA ———
   const handleSplashComplete = () => {
@@ -156,6 +161,12 @@ const AuthApp = () => {
       showError('Por favor completa todos los campos');
       return;
     }
+
+    if (!termsAccepted) {
+      showError('Debes aceptar los términos y condiciones para registrarte');
+      setShowTermsModal(true);
+      return;
+    }
     
     setLoading(true);
     
@@ -167,7 +178,8 @@ const AuthApp = () => {
           name: nombre,
           email,
           telephone: telefono,
-          password
+          password,
+          termsAccepted: true
         })
       });
       const data = await res.json();
@@ -178,6 +190,7 @@ const AuthApp = () => {
         showSuccess('¡Registro exitoso!');
         setCurrentView('login');
         setRegisterData({ nombre: '', email: '', telefono: '', password: '' });
+        setTermsAccepted(false);
       }
     } catch (err) {
       console.error('Error de red:', err);
@@ -185,6 +198,23 @@ const AuthApp = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  // ——— FUNCIONES PARA MANEJAR TÉRMINOS Y CONDICIONES ———
+  const handleTermsAccept = () => {
+    setTermsAccepted(true);
+    setShowTermsModal(false);
+    showSuccess('Términos y condiciones aceptados');
+  };
+
+  const handleTermsReject = () => {
+    setTermsAccepted(false);
+    setShowTermsModal(false);
+    showError('Debes aceptar los términos y condiciones para registrarte');
+  };
+
+  const handleShowTerms = () => {
+    setShowTermsModal(true);
   };
 
   // ——— FUNCIÓN PARA RECUPERAR CONTRASEÑA (CON ENDPOINTS CORRECTOS) ———
@@ -607,6 +637,27 @@ const PixelBackground = () => (
                 </button>
               </div>
             </div>
+
+            <div className="terms-section">
+              <label className="terms-checkbox">
+                <input
+                  type="checkbox"
+                  checked={termsAccepted}
+                  onChange={(e) => setTermsAccepted(e.target.checked)}
+                  className="auth-checkbox"
+                />
+                <span className="checkbox-label">
+                  Acepto los{' '}
+                  <button
+                    type="button"
+                    onClick={handleShowTerms}
+                    className="terms-link"
+                  >
+                    términos y condiciones
+                  </button>
+                </span>
+              </label>
+            </div>
             
             <button
               type="button"
@@ -840,6 +891,12 @@ const PixelBackground = () => (
         {renderAuthContent()}
       </div>
       <ToastContainer toasts={toasts} removeToast={removeToast} />
+      <TerminosModal
+        isOpen={showTermsModal}
+        onClose={() => setShowTermsModal(false)}
+        onAccept={handleTermsAccept}
+        onReject={handleTermsReject}
+      />
     </>
   );
 };

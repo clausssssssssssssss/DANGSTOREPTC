@@ -87,6 +87,19 @@ const customerSchema = new Schema({
     }
   ],
 
+  /** Aceptación de términos y condiciones */
+  termsAccepted: {
+    type: Boolean,
+    default: false,
+    required: true,
+  },
+
+  /** Fecha de aceptación de términos */
+  termsAcceptedAt: {
+    type: Date,
+    default: null,
+  },
+
 }, {
   // Agrega campos createdAt y updatedAt automáticamente
   timestamps: true,

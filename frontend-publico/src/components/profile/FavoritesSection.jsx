@@ -100,7 +100,7 @@ const FavoritesSection = ({ userId }) => {
   if (loading) {
     return (
       <div className="content-card">
-        <div className="card-header">
+        <div className="card-header centered-title">
           <div className="card-title">
             <Heart size={20} className="section-icon" />
             <h3>Mis Favoritos</h3>
@@ -117,7 +117,7 @@ const FavoritesSection = ({ userId }) => {
   if (error) {
     return (
       <div className="content-card">
-        <div className="card-header">
+        <div className="card-header centered-title">
           <div className="card-title">
             <Heart size={20} className="section-icon" />
             <h3>Mis Favoritos</h3>
@@ -137,7 +137,7 @@ const FavoritesSection = ({ userId }) => {
 
   return (
     <div className="content-card">
-      <div className="card-header">
+      <div className="card-header centered-title">
         <div className="card-title">
           <Heart size={20} className="section-icon" />
           <h3>Mis Favoritos</h3>

@@ -9,11 +9,18 @@ const customerController = {};
 // Registrar un nuevo cliente
 export const registerCustomer = async (req, res) => {
   try {
-    const { name, email, password, telephone } = req.body;
+    const { name, email, password, telephone, termsAccepted } = req.body;
 
     // Validar campos obligatorios
     if (!name || !email || !password || !telephone) {
       return res.status(400).json({ message: "Faltan datos obligatorios" });
+    }
+
+    // Validar aceptación de términos
+    if (!termsAccepted) {
+      return res.status(400).json({ 
+        message: "Debe aceptar los términos y condiciones para registrarse" 
+      });
     }
 
     // Verificar si el email ya está registrado
@@ -30,6 +37,8 @@ export const registerCustomer = async (req, res) => {
       email,
       password: hashed,
       telephone,
+      termsAccepted: true,
+      termsAcceptedAt: new Date(),
     });
 
     // Crear token JWT

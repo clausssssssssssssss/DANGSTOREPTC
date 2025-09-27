@@ -13,6 +13,7 @@ const PasswordSection = ({ showSuccess, showError }) => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
+  const [isEditing, setIsEditing] = useState(false);
 
   const validateForm = () => {
     const newErrors = {};
@@ -76,10 +77,11 @@ const PasswordSection = ({ showSuccess, showError }) => {
 
       showSuccess('¡Contraseña actualizada exitosamente!');
       
-      // Limpiar formulario
+      // Limpiar formulario y salir del modo edición
       setCurrentPassword('');
       setNewPassword('');
       setConfirmPassword('');
+      setIsEditing(false);
       
     } catch (error) {
       console.error('Error changing password:', error);
@@ -87,6 +89,14 @@ const PasswordSection = ({ showSuccess, showError }) => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleCancel = () => {
+    setCurrentPassword('');
+    setNewPassword('');
+    setConfirmPassword('');
+    setErrors({});
+    setIsEditing(false);
   };
 
   const getPasswordStrength = (password) => {
@@ -119,175 +129,192 @@ const PasswordSection = ({ showSuccess, showError }) => {
           <Lock size={20} className="section-icon" />
           <h3>Cambiar Contraseña</h3>
         </div>
+        {!isEditing ? (
+          <button className="edit-button" onClick={() => setIsEditing(true)}>
+            <Lock size={16} /> Cambiar
+          </button>
+        ) : (
+          <div className="edit-actions">
+            <button className="cancel-button" onClick={handleCancel}>
+              Cancelar
+            </button>
+            <button 
+              className="save-button" 
+              onClick={handleSubmit} 
+              disabled={loading || errors.currentPassword || errors.newPassword || errors.confirmPassword}
+            >
+              {loading ? (
+                <>
+                  <div className="spinner"></div>
+                  Actualizando...
+                </>
+              ) : (
+                <>
+                  <Lock size={16} />
+                  Guardar
+                </>
+              )}
+            </button>
+          </div>
+        )}
       </div>
 
-      <form onSubmit={handleSubmit} className="password-form">
-        <div className="form-grid">
-          {/* Contraseña actual */}
-          <div className="form-field">
-            <label htmlFor="currentPassword" className="form-label">
-              Contraseña actual <span className="required">*</span>
-            </label>
-            <div className="password-input-container">
-              <input
-                type={showCurrentPassword ? 'text' : 'password'}
-                id="currentPassword"
-                value={currentPassword}
-                onChange={(e) => setCurrentPassword(e.target.value)}
-                className={`form-input ${errors.currentPassword ? 'error' : ''}`}
-                placeholder="Ingresa tu contraseña actual"
-                required
-              />
-              <button
-                type="button"
-                className="password-toggle-btn"
-                onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                title={showCurrentPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
-              >
-                {showCurrentPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-              </button>
-            </div>
-            {errors.currentPassword && (
-              <div className="field-error">
-                <AlertCircle size={14} />
-                <span>{errors.currentPassword}</span>
+      {isEditing && (
+        <form onSubmit={handleSubmit} className="password-form">
+          <div className="form-grid">
+            {/* Contraseña actual */}
+            <div className="form-field">
+              <label htmlFor="currentPassword" className="form-label">
+                Contraseña actual <span className="required">*</span>
+              </label>
+              <div className="password-input-container">
+                <input
+                  type={showCurrentPassword ? 'text' : 'password'}
+                  id="currentPassword"
+                  value={currentPassword}
+                  onChange={(e) => setCurrentPassword(e.target.value)}
+                  className={`form-input ${errors.currentPassword ? 'error' : ''}`}
+                  placeholder="Ingresa tu contraseña actual"
+                  required
+                />
+                <button
+                  type="button"
+                  className="password-toggle-btn"
+                  onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                  title={showCurrentPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                >
+                  {showCurrentPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
               </div>
-            )}
-          </div>
-
-          {/* Nueva contraseña */}
-          <div className="form-field">
-            <label htmlFor="newPassword" className="form-label">
-              Nueva contraseña <span className="required">*</span>
-            </label>
-            <div className="password-input-container">
-              <input
-                type={showNewPassword ? 'text' : 'password'}
-                id="newPassword"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                className={`form-input ${errors.newPassword ? 'error' : ''}`}
-                placeholder="Mínimo 8 caracteres"
-                required
-              />
-              <button
-                type="button"
-                className="password-toggle-btn"
-                onClick={() => setShowNewPassword(!showNewPassword)}
-                title={showNewPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
-              >
-                {showNewPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-              </button>
-            </div>
-            
-            {/* Indicador de fortaleza de contraseña */}
-            {newPassword.length > 0 && (
-              <div className="password-strength">
-                <div className="strength-bar">
-                  <div 
-                    className="strength-fill" 
-                    style={{ 
-                      width: `${(passwordStrength.level + 1) * 20}%`,
-                      backgroundColor: passwordStrength.color 
-                    }}
-                  ></div>
+              {errors.currentPassword && (
+                <div className="field-error">
+                  <AlertCircle size={14} />
+                  <span>{errors.currentPassword}</span>
                 </div>
-                <span className="strength-text" style={{ color: passwordStrength.color }}>
-                  {passwordStrength.text}
-                </span>
-              </div>
-            )}
-
-            {errors.newPassword && (
-              <div className="field-error">
-                <AlertCircle size={14} />
-                <span>{errors.newPassword}</span>
-              </div>
-            )}
-          </div>
-
-          {/* Confirmar nueva contraseña */}
-          <div className="form-field">
-            <label htmlFor="confirmPassword" className="form-label">
-              Confirmar nueva contraseña <span className="required">*</span>
-            </label>
-            <div className="password-input-container">
-              <input
-                type={showConfirmPassword ? 'text' : 'password'}
-                id="confirmPassword"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                className={`form-input ${errors.confirmPassword ? 'error' : ''}`}
-                placeholder="Repite la nueva contraseña"
-                required
-              />
-              <button
-                type="button"
-                className="password-toggle-btn"
-                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                title={showConfirmPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
-              >
-                {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-              </button>
+              )}
             </div>
-            {errors.confirmPassword && (
-              <div className="field-error">
-                <AlertCircle size={14} />
-                <span>{errors.confirmPassword}</span>
+
+            {/* Nueva contraseña */}
+            <div className="form-field">
+              <label htmlFor="newPassword" className="form-label">
+                Nueva contraseña <span className="required">*</span>
+              </label>
+              <div className="password-input-container">
+                <input
+                  type={showNewPassword ? 'text' : 'password'}
+                  id="newPassword"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  className={`form-input ${errors.newPassword ? 'error' : ''}`}
+                  placeholder="Mínimo 8 caracteres"
+                  required
+                />
+                <button
+                  type="button"
+                  className="password-toggle-btn"
+                  onClick={() => setShowNewPassword(!showNewPassword)}
+                  title={showNewPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                >
+                  {showNewPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
               </div>
-            )}
+              
+              {/* Indicador de fortaleza de contraseña */}
+              {newPassword.length > 0 && (
+                <div className="password-strength">
+                  <div className="strength-bar">
+                    <div 
+                      className="strength-fill" 
+                      style={{ 
+                        width: `${(passwordStrength.level + 1) * 20}%`,
+                        backgroundColor: passwordStrength.color 
+                      }}
+                    ></div>
+                  </div>
+                  <span className="strength-text" style={{ color: passwordStrength.color }}>
+                    {passwordStrength.text}
+                  </span>
+                </div>
+              )}
+
+              {errors.newPassword && (
+                <div className="field-error">
+                  <AlertCircle size={14} />
+                  <span>{errors.newPassword}</span>
+                </div>
+              )}
+            </div>
+
+            {/* Confirmar nueva contraseña */}
+            <div className="form-field">
+              <label htmlFor="confirmPassword" className="form-label">
+                Confirmar nueva contraseña <span className="required">*</span>
+              </label>
+              <div className="password-input-container">
+                <input
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  id="confirmPassword"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className={`form-input ${errors.confirmPassword ? 'error' : ''}`}
+                  placeholder="Repite la nueva contraseña"
+                  required
+                />
+                <button
+                  type="button"
+                  className="password-toggle-btn"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  title={showConfirmPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                >
+                  {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
+              {errors.confirmPassword && (
+                <div className="field-error">
+                  <AlertCircle size={14} />
+                  <span>{errors.confirmPassword}</span>
+                </div>
+              )}
+            </div>
+          </div>
+
+        </form>
+      )}
+
+      {!isEditing && (
+        <div className="password-info-section">
+          <div className="edit-hint">
+            <Lock size={16} />
+            <span>Haz clic en "Cambiar" para modificar tu contraseña de forma segura.</span>
+          </div>
+          
+          {/* Mostrar requisitos siempre */}
+          <div className="password-requirements">
+            <h4 className="requirements-title">
+              <Lock size={16} />
+              Requisitos de la nueva contraseña:
+            </h4>
+            <ul className="requirements-list">
+              <li>
+                <CheckCircle size={14} />
+                Mínimo 8 caracteres
+              </li>
+              <li>
+                <CheckCircle size={14} />
+                Al menos una letra mayúscula
+              </li>
+              <li>
+                <CheckCircle size={14} />
+                Al menos una letra minúscula
+              </li>
+              <li>
+                <CheckCircle size={14} />
+                Al menos un número
+              </li>
+            </ul>
           </div>
         </div>
-
-        {/* Requisitos de contraseña */}
-        <div className="password-requirements">
-          <h4 className="requirements-title">
-            <Lock size={16} />
-            Requisitos de la nueva contraseña:
-          </h4>
-          <ul className="requirements-list">
-            <li className={newPassword.length >= 8 ? 'valid' : ''}>
-              <CheckCircle size={14} />
-              Mínimo 8 caracteres
-            </li>
-            <li className={/[A-Z]/.test(newPassword) ? 'valid' : ''}>
-              <CheckCircle size={14} />
-              Al menos una letra mayúscula
-            </li>
-            <li className={/[a-z]/.test(newPassword) ? 'valid' : ''}>
-              <CheckCircle size={14} />
-              Al menos una letra minúscula
-            </li>
-            <li className={/[0-9]/.test(newPassword) ? 'valid' : ''}>
-              <CheckCircle size={14} />
-              Al menos un número
-            </li>
-          </ul>
-        </div>
-
-        {/* Botones de acción */}
-        <div className="form-actions">
-          <button
-            type="submit"
-            className="save-button"
-            disabled={loading || errors.currentPassword || errors.newPassword || errors.confirmPassword}
-          >
-            {loading ? (
-              <>
-                <div className="spinner"></div>
-                Actualizando...
-              </>
-            ) : (
-              <>
-                <Lock size={16} />
-                Actualizar Contraseña
-              </>
-            )}
-          </button>
-          
-
-        </div>
-      </form>
+      )}
     </div>
   );
 };

@@ -1,6 +1,6 @@
 // src/pages/UserProfile.jsx
 import React, { useState, useEffect } from 'react';
-import { Heart, ShoppingCart, User, Gift, LogOut, Lock, Menu, X } from 'lucide-react';
+import { Heart, ShoppingCart, User, Gift, LogOut, Lock, Menu, X, FileText } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { useNavigate, useLocation } from 'react-router-dom';
 import '../components/styles/UserProfile.css';
@@ -217,10 +217,8 @@ const UserProfile = () => {
                 onClick={() => handleSectionChange('quotes')}
                 className={`nav-button ${activeSection === 'quotes' ? 'active' : ''}`}
               >
-                <div className="nav-content">
-                  <Gift className="nav-icon" />
-                  <span>Cotizaciones</span>
-                </div>
+                <Gift className="nav-icon" />
+                <span>Cotizaciones</span>
                 {hasQuotesFlag && <span className="notification-dot" />}
               </button>
               
@@ -237,6 +235,17 @@ const UserProfile = () => {
 
         {/* Main Content */}
         <main className="profile-main">
+          {/* Botón de Términos y Condiciones */}
+          <div className="terms-button-container">
+            <button
+              onClick={() => navigate('/terminos')}
+              className="terms-button-static"
+            >
+              <FileText className="terms-icon" />
+              <span>Términos y Condiciones</span>
+            </button>
+          </div>
+          
           {renderSection()}
         </main>
       </div>
@@ -245,22 +254,20 @@ const UserProfile = () => {
       {showLogoutModal && (
         <div className="modal-overlay" onClick={() => setShowLogoutModal(false)}>
           <div className="logout-modal" onClick={e => e.stopPropagation()}>
-            <div className="modal-content">
-              <h3>¿Quieres salir de tu cuenta?</h3>
-              <div className="modal-actions">
-                <button 
-                  className="btn-modal cancel"
-                  onClick={() => setShowLogoutModal(false)}
-                >
-                  Cancelar
-                </button>
-                <button 
-                  className="btn-modal confirm"
-                  onClick={handleLogout}
-                >
-                  Salir
-                </button>
-              </div>
+            <h3>¿Quieres salir de tu cuenta?</h3>
+            <div className="modal-actions">
+              <button 
+                className="btn-modal cancel"
+                onClick={() => setShowLogoutModal(false)}
+              >
+                Cancelar
+              </button>
+              <button 
+                className="btn-modal confirm"
+                onClick={handleLogout}
+              >
+                Salir
+              </button>
             </div>
           </div>
         </div>

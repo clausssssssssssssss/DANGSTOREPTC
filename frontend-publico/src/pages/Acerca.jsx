@@ -212,6 +212,7 @@ const About = () => {
                 <li><a href="/carrito">Carrito de Compras</a></li>
                 <li><a href="/perfil">Mi Perfil</a></li>
                 <li><a href="/acerca">Sobre Nosotros</a></li>
+                <li><a href="/terminos">Términos y Condiciones</a></li>
               </ul>
             </div>
 

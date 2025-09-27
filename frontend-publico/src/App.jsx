@@ -9,6 +9,7 @@ import Contacto from './pages/Contacto'
 import Acerca from './pages/Acerca'
 import UserProfile from './pages/UserProfile'
 import FormPaymentFake from './pages/formPaymentFake'
+import TerminosCondiciones from './pages/TerminosCondiciones'
 import { AuthProvider } from './hooks/useAuth'
 import { FavoritesProvider } from './context/FavoritesContext'
 import { CartProvider } from './context/CartContext'
@@ -111,6 +112,7 @@ const App = () => {
                     <Route path="/contacto" element={<Contacto />} />
                     <Route path="/acerca" element={<Acerca />} />
                     <Route path="/perfil" element={<UserProfile />} />
+                    <Route path="/terminos" element={<TerminosCondiciones />} />
                     <Route path="*" element={<Navigate to="/" replace />} />
                   </Route>
                 </Routes>

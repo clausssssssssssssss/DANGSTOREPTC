@@ -262,7 +262,7 @@ const QuotesSection = ({ setHasQuotesFlag, showSuccess, showError, showWarning }
 
   return (
     <div className="content-card">
-      <div className="card-header">
+      <div className="card-header centered-title">
         <div className="card-title">
           <Gift className="section-icon" />
           <h3>Mis cotizaciones</h3>
@@ -355,7 +355,20 @@ const QuotesSection = ({ setHasQuotesFlag, showSuccess, showError, showWarning }
                   
                   <div className="favorite-price">
                     <span className="price-label">Precio:</span>
-                    <span className="price-value">${quote.price ? quote.price.toFixed(2) : '0.00'}</span>
+                    <span className={`price-value ${
+                      quote.price && quote.price > 0 
+                        ? '' 
+                        : quote.status === 'pending' 
+                          ? 'pending' 
+                          : 'no-price'
+                    }`}>
+                      {quote.price && quote.price > 0 
+                        ? `$${quote.price.toFixed(2)}` 
+                        : quote.status === 'pending' 
+                          ? 'Pendiente de cotización' 
+                          : 'Sin precio'
+                      }
+                    </span>
                   </div>
                   
                   <div className="favorite-category">

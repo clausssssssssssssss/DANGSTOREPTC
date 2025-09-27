@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Gift, Trash2, AlertTriangle, X } from 'lucide-react';
+import { Gift, Trash2, AlertTriangle, X, Check, Clock } from 'lucide-react';
 import '../styles/QuotesSection.css';
 
 // URL del servidor para producción
@@ -43,22 +43,16 @@ const QuotesSection = ({ setHasQuotesFlag, showSuccess, showError, showWarning }
     setErrorQuotes('');
     
     // Debug info
-    console.log('DEBUG - Fetching quotes...');
-    console.log('API_URL:', API_URL);
-    console.log('Token:', localStorage.getItem('token') ? 'EXISTS' : 'MISSING');
-    console.log('Filter:', quotesFilter);
     
     try {
       const res = await fetch(`${API_URL}/custom-orders/me`, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
       });
       
-      console.log('Response status:', res.status);
       
       if (!res.ok) throw new Error(`Status ${res.status}`);
       const response = await res.json();
 
-      console.log('Raw data from API:', response);
       
       // La API devuelve { success: true, data: [...] }
       const data = response.data;
@@ -70,22 +64,10 @@ const QuotesSection = ({ setHasQuotesFlag, showSuccess, showError, showWarning }
         return;
       }
       
-      console.log('Number of items:', data.length);
       
-      // Debug: mostrar información de imágenes
-      data.forEach((item, index) => {
-        console.log(`Item ${index}:`, {
-          id: item._id,
-          modelType: item.modelType,
-          imageUrl: item.imageUrl,
-          imageUrlType: typeof item.imageUrl,
-          hasImage: !!item.imageUrl
-        });
-      });
       
       // Mostrar todos los estados únicos que existen
       const uniqueStatuses = [...new Set(data.map(item => item.status))];
-      console.log('Unique statuses found:', uniqueStatuses);
 
       
 
@@ -101,8 +83,6 @@ const QuotesSection = ({ setHasQuotesFlag, showSuccess, showError, showWarning }
         filteredQuotes = data; // Cambiado: mostrar todo
       }
 
-      console.log('Filtered quotes:', filteredQuotes);
-      console.log('Filtered count:', filteredQuotes.length);
 
       setQuotes(filteredQuotes);
       // Puntito de notificación si hay alguna 'quoted'
@@ -248,6 +228,17 @@ const QuotesSection = ({ setHasQuotesFlag, showSuccess, showError, showWarning }
     }
   };
 
+  const getStatusText = (status) => {
+    const statusTexts = {
+      'pending': 'Pendiente',
+      'quoted': 'Cotizada',
+      'accepted': 'Aceptada',
+      'rejected': 'Rechazada'
+    };
+    
+    return statusTexts[status] || 'Desconocido';
+  };
+
   if (loadingQuotes) {
     return (
       <div className="content-card">
@@ -315,24 +306,17 @@ const QuotesSection = ({ setHasQuotesFlag, showSuccess, showError, showWarning }
           </p>
         </div>
       ) : (
-        <div className="quotes-list">
+        <div className="favorites-grid">
           {quotes.map((quote) => {
-            // Debug: mostrar información de la imagen
-            console.log('Renderizando cotización:', {
-              id: quote._id,
-              modelType: quote.modelType,
-              imageUrl: quote.imageUrl,
-              processedImageUrl: getImageUrl(quote.imageUrl),
-              API_URL: API_URL
-            });
-            
             return (
-              <div key={quote._id} className="quote-card">
-                <div className="quote-image">
+              <div key={quote._id} className="favorite-card">
+                {/* Imagen de la cotización */}
+                <div className="favorite-image-container">
                   {quote.imageUrl ? (
                     <img
                       src={getImageUrl(quote.imageUrl)}
                       alt={quote.modelType}
+                      className="favorite-image"
                       onError={(e) => {
                         console.warn('Error cargando imagen:', quote.imageUrl, 'Error:', e);
                         e.target.style.display = 'none';
@@ -344,66 +328,82 @@ const QuotesSection = ({ setHasQuotesFlag, showSuccess, showError, showWarning }
                     />
                   ) : null}
                   <div
-                    className="quote-placeholder"
+                    className="favorite-image-placeholder"
                     style={{ display: quote.imageUrl ? 'none' : 'flex' }}
                   >
-                    <Gift size={24} />
+                    <Gift size={32} />
+                    <span>{quote.modelType}</span>
                   </div>
-                  {/* Botón de eliminar */}
-                  <button
-                    className="delete-quote-btn"
-                    onClick={() => handleDeleteQuote(quote._id)}
-                    title="Eliminar cotización"
-                  >
-                    <Trash2 size={16} />
-                  </button>
                 </div>
 
-                <div className="quote-details">
-                  <div className="quote-header">
-                    <h4 className="quote-title">{quote.modelType}</h4>
-                    {getStatusBadge(quote.status)}
-                  </div>
-                  
-                 
-                  
-                 
-                  
-                  <div className="quote-price-row">
-                    <span className="quote-price">
-                      ${quote.price ? quote.price.toFixed(2) : '0.00'}
-                    </span>
-                    
-                    <div className="quote-actions">
-                      {quote.status === 'quoted' && (
-                        <>
-                          <button
-                            onClick={() => handleDecision(quote._id, 'accept')}
-                            className="btn-quote accept"
-                          >
-                            ACEPTAR
-                          </button>
-                          <button
-                            onClick={() => handleDecision(quote._id, 'reject')}
-                            className="btn-quote reject"
-                          >
-                            RECHAZAR
-                          </button>
-                        </>
-                      )}
-                    </div>
-                  </div>
+                {/* Botón de eliminar - Movido arriba */}
+                <button
+                  className="remove-favorite-btn"
+                  onClick={() => handleDeleteQuote(quote._id)}
+                  title="Eliminar cotización"
+                >
+                  <Trash2 size={16} />
+                </button>
 
-                  {quote.status === 'accepted' && (
-                    <p className="status-message success">
-                      Aprobada – En espera de entrega
-                    </p>
+                {/* Información de la cotización */}
+                <div className="favorite-info">
+                  <h4 className="favorite-name">{quote.modelType}</h4>
+                  
+                  <div className="favorite-description">
+                    {quote.description || 'Cotización personalizada'}
+                  </div>
+                  
+                  <div className="favorite-price">
+                    <span className="price-label">Precio:</span>
+                    <span className="price-value">${quote.price ? quote.price.toFixed(2) : '0.00'}</span>
+                  </div>
+                  
+                  <div className="favorite-category">
+                    <span className="category-label">Estado:</span>
+                    <span className="category-value">{getStatusText(quote.status)}</span>
+                  </div>
+                </div>
+
+                {/* Acciones */}
+                <div className="favorite-actions">
+                  {quote.status === 'quoted' && (
+                    <>
+                      <button 
+                        className="view-product-btn accept"
+                        onClick={() => handleDecision(quote._id, 'accept')}
+                      >
+                        <Check size={16} />
+                        Aceptar
+                      </button>
+                      <button 
+                        className="view-product-btn reject"
+                        onClick={() => handleDecision(quote._id, 'reject')}
+                      >
+                        <X size={16} />
+                        Rechazar
+                      </button>
+                    </>
                   )}
-
+                  
+                  {quote.status === 'accepted' && (
+                    <button className="view-product-btn success">
+                      <Check size={16} />
+                      Aprobada - En espera de entrega
+                    </button>
+                  )}
+                  
+                  {quote.status === 'rejected' && (
+                    <button className="view-product-btn rejected">
+                      <X size={16} />
+                      Cotización rechazada
+                    </button>
+                  )}
+                  
                   {quote.status === 'pending' && (
-                    <p className="status-message pending">
-                      Esperando cotización del administrador...
-                    </p>
+                    <button className="view-product-btn pending">
+                      <Clock size={16} />
+                      En revisión
+                    </button>
                   )}
                 </div>
               </div>

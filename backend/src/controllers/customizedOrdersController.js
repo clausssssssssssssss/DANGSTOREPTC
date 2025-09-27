@@ -349,10 +349,6 @@ export const respondCustomOrder = async (req, res) => {
  */
 export const deleteCustomOrder = async (req, res) => {
   try {
-    console.log('Eliminando orden personalizada...');
-    console.log('ID:', req.params.id);
-    console.log('Usuario:', req.user);
-    
     const orderId = req.params.id;
     const userId = req.user?.id || req.user?.userId;
     
@@ -367,7 +363,13 @@ export const deleteCustomOrder = async (req, res) => {
     }
     
     // Verificar que el usuario sea el propietario de la orden
-    if (order.user.toString() !== userId) {
+    console.log('Debug eliminación:', {
+      orderUserId: order.user.toString(),
+      requestUserId: userId.toString(),
+      areEqual: order.user.toString() === userId.toString()
+    });
+    
+    if (order.user.toString() !== userId.toString()) {
       return res.status(403).json({
         success: false,
         message: 'No tienes permisos para eliminar esta orden'
@@ -377,15 +379,13 @@ export const deleteCustomOrder = async (req, res) => {
     // Eliminar la orden
     await CustomizedOrder.findByIdAndDelete(orderId);
     
-    console.log(' Orden personalizada eliminada exitosamente');
-    
     res.json({
       success: true,
       message: 'Orden personalizada eliminada correctamente'
     });
     
   } catch (error) {
-    console.error(' Error eliminando orden personalizada:', error);
+    console.error('Error eliminando orden personalizada:', error);
     res.status(500).json({
       success: false,
       message: 'Error interno del servidor'

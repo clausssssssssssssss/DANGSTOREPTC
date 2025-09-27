@@ -131,7 +131,7 @@ export const createCustomOrder = async (req, res) => {
  */
 export const getMyCustomOrders = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user?.id || req.user?.userId;
     
     const orders = await CustomizedOrder
       .find({ user: userId })
@@ -367,7 +367,7 @@ export const deleteCustomOrder = async (req, res) => {
     }
     
     // Verificar que el usuario sea el propietario de la orden
-    if (order.userId.toString() !== userId) {
+    if (order.user.toString() !== userId) {
       return res.status(403).json({
         success: false,
         message: 'No tienes permisos para eliminar esta orden'

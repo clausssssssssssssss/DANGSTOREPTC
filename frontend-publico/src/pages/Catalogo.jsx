@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Search, RefreshCw, Heart, ShoppingCart, X, Star, TrendingUp, Plus, Check, Filter } from 'lucide-react';
+import { Heart, ShoppingCart, X, Star, TrendingUp, Plus, Check } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth.jsx';
 import { useProducts } from '../components/catalog/hook/useProducts.jsx';
 import useCategories from '../hooks/useCategories.jsx';
@@ -36,51 +36,11 @@ export default function Catalogo() {
     return numPrice.toFixed(2);
   };
   
-  const [searchTerm, setSearchTerm] = useState('');
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [priceRange, setPriceRange] = useState([0, 10]);
   const [selectedProduct, setSelectedProduct] = useState(null);
   
   // Obtener categoría seleccionada desde los parámetros de URL
   const selectedCategory = searchParams.get('category') || '';
 
-  // Calcular el rango de precios dinámicamente basado en los productos
-  const priceRangeDynamic = useMemo(() => {
-    if (!products || products.length === 0) return [0, 10];
-    
-    // Filtrar precios válidos y convertir a números
-    const validPrices = products
-      .map(p => Number(p.price))
-      .filter(price => !isNaN(price) && isFinite(price) && price > 0);
-    
-    if (validPrices.length === 0) return [0, 10];
-    
-    const minPrice = Math.floor(Math.min(...validPrices));
-    const maxPrice = Math.ceil(Math.max(...validPrices));
-    
-    // Asegurar que los valores sean números válidos
-    return [
-      isNaN(minPrice) ? 0 : minPrice,
-      isNaN(maxPrice) ? 10 : maxPrice
-    ];
-  }, [products]);
-
-  // Inicializar el rango de precios cuando se cargan los productos
-  useEffect(() => {
-    if (products && products.length > 0) {
-      // Solo inicializar si el priceRange actual es el valor por defecto [0, 10]
-      if (priceRange[0] === 0 && priceRange[1] === 10) {
-        setPriceRange(priceRangeDynamic);
-      }
-    }
-  }, [priceRangeDynamic, products]);
-
-  // Validar y corregir priceRange si tiene valores inválidos
-  useEffect(() => {
-    if (isNaN(priceRange[0]) || isNaN(priceRange[1]) || !isFinite(priceRange[0]) || !isFinite(priceRange[1])) {
-      setPriceRange(priceRangeDynamic);
-    }
-  }, [priceRange, priceRangeDynamic]);
 
   // Hook para manejar reseñas del producto seleccionado
   const { 
@@ -107,28 +67,13 @@ export default function Catalogo() {
     if (!products || products.length === 0) return [];
     
     return products.filter(product => {
-      // Filtro por búsqueda de texto
-      const matchesSearch = searchTerm === '' || 
-        product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (product.category && product.category.toLowerCase().includes(searchTerm.toLowerCase()));
-      
       // Filtro por categoría
       const matchesCategory = selectedCategory === '' || 
         product.category === selectedCategory;
       
-      // Filtro por rango de precios
-      const productPrice = Number(product.price);
-      if (isNaN(productPrice) || !isFinite(productPrice)) {
-        return matchesSearch && matchesCategory; // Si el precio no es válido, aplicar filtros de búsqueda y categoría
-      }
-      
-      // Usar el rango dinámico si el actual no es válido
-      const currentPriceRange = (isNaN(priceRange[0]) || isNaN(priceRange[1])) ? priceRangeDynamic : priceRange;
-      const matchesPrice = productPrice >= currentPriceRange[0] && productPrice <= currentPriceRange[1];
-      
-      return matchesSearch && matchesCategory && matchesPrice;
+      return matchesCategory;
     });
-  }, [products, searchTerm, selectedCategory, priceRange, priceRangeDynamic]);
+  }, [products, selectedCategory]);
 
   // Productos populares (modificado para usar los productos con mejor rating)
   const popularProducts = useMemo(() => {
@@ -192,7 +137,7 @@ export default function Catalogo() {
     return (
       <div className="catalog-page">
         <div className="loading-container">
-          <RefreshCw className="animate-spin" size={48} />
+          <Star className="animate-spin" size={48} />
           <p>Cargando productos...</p>
         </div>
       </div>
@@ -312,43 +257,6 @@ export default function Catalogo() {
           </div>
         )}
 
-        {/* Filtro Horizontal Elegante */}
-        <div className="elegant-filter-section">
-          <div className="filter-container">
-            <div className="horizontal-filter-bar">
-              {/* Campo de búsqueda */}
-              <div className="search-field">
-                <Search className="search-icon" size={18} />
-                <input
-                  type="text"
-                  placeholder="Buscar productos..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="search-input"
-                />
-              </div>
-
-              {/* Botón de búsqueda */}
-              <button className="search-button">
-                Buscar
-              </button>
-
-              {/* Botón de limpiar */}
-              <button 
-                className="clear-button"
-                onClick={() => {
-                  setSearchTerm('');
-                  setSearchParams({});
-                  setPriceRange(priceRangeDynamic);
-                  showInfo('Filtros limpiados');
-                }}
-              >
-                <RefreshCw size={16} />
-                Limpiar
-              </button>
-            </div>
-          </div>
-        </div>
 
         {/* Información de resultados */}
         <div className="results-info">

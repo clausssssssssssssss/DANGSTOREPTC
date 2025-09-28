@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
 // URL del servidor local para desarrollo
-const API_BASE = 'https://dangstoreptc.onrender.com/api';
+const API_BASE = 'https://dangstoreptc-production.up.railway.app/api';
 
 export default function useContactForm() {
   const [name, setName] = useState('');
@@ -34,7 +34,13 @@ export default function useContactForm() {
       setSuccess(true);
     } catch (err) {
       console.error('Error al enviar el mensaje:', err);
-      setError(err.message || 'Error al enviar el mensaje');
+      if (err.message.includes('Failed to fetch')) {
+        setError('Error de conexión. Verifica tu conexión a internet e intenta nuevamente.');
+      } else if (err.message.includes('500')) {
+        setError('Error del servidor. El servicio de correo no está disponible temporalmente.');
+      } else {
+        setError(err.message || 'Error al enviar el mensaje');
+      }
     } finally {
       setLoading(false);
     }

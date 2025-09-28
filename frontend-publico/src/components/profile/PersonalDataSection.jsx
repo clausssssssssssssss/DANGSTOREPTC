@@ -3,7 +3,7 @@ import { useAuth } from '../../hooks/useAuth';
 import { User, Mail, Phone, MapPin, Edit, Save, X } from 'lucide-react';
 
 // URL del servidor local para desarrollo
-const API_BASE = 'https://dangstoreptc.onrender.com/api';
+const API_BASE = 'https://dangstoreptc-production.up.railway.app/api';
 
 const PersonalDataSection = ({ userId, showSuccess, showError }) => {
   const [personalData, setPersonalData] = useState({

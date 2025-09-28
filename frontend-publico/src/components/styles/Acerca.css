@@ -387,7 +387,7 @@ html, body {
 .footer {
   background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
   color: white;
-  padding: 4rem 0 2rem;
+  padding: 2.5rem 0 1.5rem;
   position: relative;
 }
 
@@ -410,14 +410,22 @@ html, body {
 .footer-sections {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 2.5rem;
-  margin-bottom: 2rem;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+/* Footer responsive para pantallas más grandes */
+@media (min-width: 768px) {
+  .footer-sections {
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 2rem;
+  }
 }
 
 .footer-section h3 {
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   font-weight: 700;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
   background: linear-gradient(135deg, #4DD0E1, #9C27B0);
   background-clip: text;
   -webkit-background-clip: text;
@@ -439,9 +447,9 @@ html, body {
 
 .footer-text {
   color: #b0b0b0;
-  line-height: 1.7;
-  margin-bottom: 1rem;
-  font-size: 1rem;
+  line-height: 1.5;
+  margin-bottom: 0.75rem;
+  font-size: 0.9rem;
 }
 
 .footer-links {
@@ -449,14 +457,14 @@ html, body {
 }
 
 .footer-links li {
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.5rem;
 }
 
 .footer-links a {
   color: #b0b0b0;
   text-decoration: none;
   transition: all 0.3s ease;
-  font-size: 1rem;
+  font-size: 0.9rem;
   position: relative;
   padding-left: 0;
   transition: padding-left 0.3s ease;

@@ -20,22 +20,50 @@ const FormPaymentFake = () => {
   // Estado para manejar cotizaciones aceptadas
   const [quoteItem, setQuoteItem] = useState(null);
   const [isQuotePayment, setIsQuotePayment] = useState(false);
+  const [originalTotal, setOriginalTotal] = useState(0);
+  
+  // Estado para datos del carrito desde la navegación
+  const [cartFromState, setCartFromState] = useState(null);
+  const [totalFromState, setTotalFromState] = useState(0);
 
   // calcula total y cantidad - incluye cotizaciones
   const total = quoteItem 
   ? (quoteItem.price ?? quoteItem.precio ?? 0)
+  : cartFromState && cartFromState.length > 0
+  ? totalFromState
   : cart.reduce((sum, item) => {
       const price = item.product?.price ?? item.product?.precio ?? 0;
       return sum + price * (item.quantity || 0);
     }, 0);
 
+  // Debug: Log del total y carrito (comentado para producción)
+  // console.log('FormPaymentFake - Total calculado:', total);
+  // console.log('FormPaymentFake - Carrito actual:', cart);
+  // console.log('FormPaymentFake - Carrito desde state:', cartFromState);
+  // console.log('FormPaymentFake - Total desde state:', totalFromState);
+  // console.log('FormPaymentFake - QuoteItem:', quoteItem);
+
+  // Guardar el total original cuando se carga el componente
+  useEffect(() => {
+    if (total > 0 && originalTotal === 0) {
+      setOriginalTotal(total);
+      // console.log('FormPaymentFake - Total original guardado:', total);
+    }
+  }, [total, originalTotal]);
+
   // Asegurar que el carrito se cargue cuando el componente se monte
   useEffect(() => {
     if (userId) {
-      console.log('FormPaymentFake: Loading cart for user:', userId);
+      // console.log('FormPaymentFake: Loading cart for user:', userId);
       loadCart(userId);
     }
   }, [userId, loadCart]);
+
+  // Debug: Log del carrito cuando cambia (comentado para producción)
+  // useEffect(() => {
+  //   console.log('FormPaymentFake - Carrito actualizado:', cart);
+  //   console.log('FormPaymentFake - Loading state:', loading);
+  // }, [cart, loading]);
 
   // Detectar si hay una cotización en la URL
   useEffect(() => {
@@ -57,16 +85,22 @@ const FormPaymentFake = () => {
 
   // Detectar si hay una cotización en el estado de navegación
   useEffect(() => {
-    console.log('FormPaymentFake - location.state:', location.state);
-    console.log('FormPaymentFake - location.pathname:', location.pathname);
+    // console.log('FormPaymentFake - location.state:', location.state);
+    // console.log('FormPaymentFake - location.pathname:', location.pathname);
     
     if (location.state && location.state.quoteItem) {
       setQuoteItem(location.state.quoteItem);
       setIsQuotePayment(location.state.isQuotePayment || true);
-      console.log('Cotización detectada desde state:', location.state.quoteItem);
-      console.log('isQuotePayment establecido a:', location.state.isQuotePayment || true);
+      // console.log('Cotización detectada desde state:', location.state.quoteItem);
+      // console.log('isQuotePayment establecido a:', location.state.isQuotePayment || true);
+    } else if (location.state && location.state.items) {
+      // Datos del carrito desde la navegación
+      setCartFromState(location.state.items);
+      setTotalFromState(location.state.total);
+      // console.log('Carrito detectado desde state:', location.state.items);
+      // console.log('Total detectado desde state:', location.state.total);
     } else {
-      console.log('No hay quoteItem en location.state');
+      // console.log('No hay datos en location.state');
     }
   }, [location.state]);
 
@@ -280,16 +314,17 @@ const FormPaymentFake = () => {
 
 
   const onPay = async () => {
-    console.log('=== INICIANDO PROCESO DE PAGO ===');
-    console.log('Cart items:', cart);
-    console.log('Quote item:', quoteItem);
-    console.log('Total calculado:', total);
-    console.log('isQuotePayment:', isQuotePayment);
-    console.log('formData:', formData);
+    console.log('=== BOTÓN CONFIRMAR PAGO PRESIONADO ===');
+    // console.log('=== INICIANDO PROCESO DE PAGO ===');
+    // console.log('Cart items:', cart);
+    // console.log('Quote item:', quoteItem);
+    // console.log('Total calculado:', total);
+    // console.log('isQuotePayment:', isQuotePayment);
+    // console.log('formData:', formData);
     
     // Validar formulario antes de proceder
     const validation = validateForm();
-    console.log('Validación del formulario:', validation);
+    // console.log('Validación del formulario:', validation);
     
     if (!validation.isValid) {
       showError(validation.message);
@@ -305,45 +340,47 @@ const FormPaymentFake = () => {
         quantity: quoteItem.quantity,
         price: quoteItem.price,
       }];
-      console.log('Items de cotización para orden:', itemsParaOrden);
+      // console.log('Items de cotización para orden:', itemsParaOrden);
     } else {
-      // Pago del carrito normal
-      itemsParaOrden = cart.map(item => ({
+      // Pago del carrito normal - usar datos del state si están disponibles
+      const cartToUse = cartFromState && cartFromState.length > 0 ? cartFromState : cart;
+      itemsParaOrden = cartToUse.map(item => ({
         product: item.product?._id || item.product?.id,
         quantity: item.quantity || 1,
         price: item.product?.price || 0,
       }));
-      console.log('Items del carrito para orden:', itemsParaOrden);
+      // console.log('Items del carrito para orden:', itemsParaOrden);
+      // console.log('Carrito usado:', cartToUse);
     }
 
-    console.table(cart.map(item => ({
-  id: item.product.id,
-  name: item.product.name,
-  price: item.product.price,
-  quantity: item.quantity
-})));
+    // console.table(cart.map(item => ({
+    //   id: item.product.id,
+    //   name: item.product.name,
+    //   price: item.product.price,
+    //   quantity: item.quantity
+    // })));
 
 
     showInfo('Procesando pago simulado...', 2000);
 
-    console.log('Llamando a handleFakePayment con:', { 
-      userId, 
-      items: itemsParaOrden,
-      total, 
-      clientData: formData 
-    });
+    const totalToSend = originalTotal > 0 ? originalTotal : total;
+    // console.log('=== DEBUG PAGO ===');
+    // console.log('Items para orden:', itemsParaOrden);
+    // console.log('Total original guardado:', originalTotal);
+    // console.log('Total actual calculado:', total);
+    // console.log('Total que se enviará:', totalToSend);
+    // console.log('Carrito actual:', cart);
+    // console.log('==================');
 
     const result = await handleFakePayment({ 
-      userId, 
       items: itemsParaOrden,
-      total, 
-      clientData: formData 
+      total: originalTotal > 0 ? originalTotal : total
     });
 
-    console.log('Resultado de handleFakePayment:', result);
+    // console.log('Resultado de handleFakePayment:', result);
 
     if (result?.success) {
-      console.log('✅ Pago exitoso, procediendo con limpieza...');
+      // console.log('✅ Pago exitoso, procediendo con limpieza...');
       showSuccess('¡Pago simulado exitoso!', 4000);
       
       // Si es pago de cotización, limpiar la URL
@@ -356,7 +393,7 @@ const FormPaymentFake = () => {
       // Solo limpiar el carrito después de que la orden se haya guardado exitosamente
       try {
         await clearCart();
-        console.log('✅ Carrito limpiado exitosamente');
+        // console.log('✅ Carrito limpiado exitosamente');
       } catch (err) {
         console.error('Error al limpiar carrito:', err);
       }
@@ -364,7 +401,8 @@ const FormPaymentFake = () => {
       limpiarFormulario();
       setFieldErrors({});
       setCurrentStep(4); // Ir al paso de confirmación exitosa
-      console.log('✅ Navegando al paso 4 (confirmación exitosa)');
+      // console.log('✅ Navegando al paso 4 (confirmación exitosa)');
+      // console.log('✅ CurrentStep establecido a:', 4);
     } else {
       console.error('❌ Error en pago:', result?.error);
       showError(`Error al procesar el pago simulado: ${result?.error?.message || 'Error desconocido'}`, 4000);
@@ -478,6 +516,9 @@ const FormPaymentFake = () => {
     setCurrentStep(prev => prev - 1);
   };
 
+  // Debug: Log del currentStep (comentado para producción)
+  // console.log('FormPaymentFake - CurrentStep actual:', currentStep);
+
   return (
     <div className={`payment-page ${currentStep === 4 ? 'success-active' : ''}`}>
       <div className="payment-wrapper">
@@ -514,7 +555,7 @@ const FormPaymentFake = () => {
                 ) : (
                   <div className="cart-summary-content-row">
                     <div className="cart-summary-products">
-                      <strong>Productos:</strong> {loading ? 'Cargando...' : `${cart.length} ${cart.length === 1 ? 'producto' : 'productos'}`}
+                      <strong>Productos:</strong> {loading ? 'Cargando...' : `${(cartFromState || cart).length} ${(cartFromState || cart).length === 1 ? 'producto' : 'productos'}`}
                     </div>
                     <div className="cart-summary-total">
                       Total: {loading ? 'Cargando...' : `$${total.toFixed(2)}`}
@@ -822,7 +863,7 @@ const FormPaymentFake = () => {
                   <h4 className="confirmation-summary-title">Resumen de la Compra</h4>
                   <div className="confirmation-summary-row">
                      <span className="confirmation-summary-label">Productos:</span>
-                     <strong className="confirmation-summary-value">{cart.length} {cart.length === 1 ? 'producto' : 'productos'}</strong>
+                     <strong className="confirmation-summary-value">{(cartFromState || cart).length} {(cartFromState || cart).length === 1 ? 'producto' : 'productos'}</strong>
                   </div>
                   <div className="confirmation-summary-row">
                      <span className="confirmation-summary-label">Total:</span>
@@ -851,6 +892,7 @@ const FormPaymentFake = () => {
                     {/* PASO 4: PAGO EXITOSO */}
           {currentStep === 4 && (
             <div className="card-form">
+              {/* {console.log('🎉 RENDERIZANDO PASO 4 - PAGO EXITOSO')} */}
             <div className="section-header">
                 <h2 className="section-title success-title">
                   <CheckCircle size={24} />
@@ -858,9 +900,6 @@ const FormPaymentFake = () => {
                 </h2>
                 <p className="section-subtitle">
                   Tu pedido ha sido procesado correctamente y guardado en nuestra base de datos. Recibirás un correo de confirmación con los detalles de tu compra.
-                </p>
-                <p className="section-subtitle redirect-notice">
-                  ⏰ Serás redirigido al catálogo en 19 segundos...
                 </p>
             </div>
 

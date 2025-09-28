@@ -4,7 +4,6 @@
 const ENV_URL = process.env.EXPO_PUBLIC_API_URL;
 
 export const API_CONFIG = {
-
   
   // URL base para producción
   PRODUCTION: 'https://dangstoreptc-production.up.railway.app/api',

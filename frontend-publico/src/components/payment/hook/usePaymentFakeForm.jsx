@@ -325,7 +325,11 @@ const usePaymentFakeForm = () => {
   // Función para procesar pago simulado y guardar orden
   const handleFakePayment = async ({ items, total }) => {
     try {
-      console.log('Iniciando handleFakePayment con:', { items, total });
+      // console.log('=== HOOK PAGO ===');
+      // console.log('Items recibidos:', items);
+      // console.log('Total recibido:', total);
+      // console.log('Tipo de total:', typeof total);
+      // console.log('================');
       
       // Verificar token de autenticación
       const token = localStorage.getItem("token");
@@ -343,7 +347,7 @@ const usePaymentFakeForm = () => {
         ),
       }));
 
-      console.log('Items formateados:', formattedItems);
+      // console.log('Items formateados:', formattedItems);
 
       const orderData = {
         items: formattedItems,
@@ -352,11 +356,11 @@ const usePaymentFakeForm = () => {
         wompiStatus: "COMPLETED",
       };
 
-      console.log('Datos de orden a enviar:', orderData);
+      // console.log('Datos de orden a enviar:', orderData);
 
       // Enviar orden al servidor
       const url = `${API_BASE}/cart/order`;
-      console.log('URL de la API:', url);
+      // console.log('URL de la API:', url);
       
       const response = await fetch(url, {
         method: "POST",
@@ -368,7 +372,7 @@ const usePaymentFakeForm = () => {
       });
 
       const responseData = await response.json();
-      console.log('Respuesta del servidor:', { status: response.status, data: responseData });
+      // console.log('Respuesta del servidor:', { status: response.status, data: responseData });
 
       if (!response.ok) {
         throw new Error(`Error del servidor (${response.status}): ${responseData.message || responseData.error || 'Error desconocido'}`);

@@ -180,7 +180,7 @@ const usePaymentForm = () => {
 
       console.log("Enviando orden al backend:", orderData);
 
-      const base = 'https://dangstoreptc.onrender.com';
+      const base = 'https://dangstoreptc-production.up.railway.app';
       const response = await fetch(`${base}/api/cart/order`, {
         method: "POST",
         headers: {
@@ -190,7 +190,7 @@ const usePaymentForm = () => {
         body: JSON.stringify(orderData),
       });
 
-              console.log("URL completa:", "https://dangstoreptc.onrender.com/cart/order");
+              console.log("URL completa:", "https://dangstoreptc-production.up.railway.app/api/cart/order");
               console.log("Haciendo petición...");
 
       const responseData = await response.json();

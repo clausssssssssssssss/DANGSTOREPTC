@@ -206,12 +206,9 @@ const About = () => {
               <h3 className="footer-title">Enlaces Rápidos</h3>
               <ul className="footer-links">
                 <li><a href="/catalogo">Catálogo</a></li>
-                <li><a href="/encargo">Encargos Personalizados</a></li>
+                <li><a href="/encargo">Encargos</a></li>
                 <li><a href="/contacto">Contacto</a></li>
-                <li><a href="/busqueda">Búsqueda</a></li>
-                <li><a href="/carrito">Carrito de Compras</a></li>
                 <li><a href="/perfil">Mi Perfil</a></li>
-                <li><a href="/acerca">Sobre Nosotros</a></li>
                 <li><a href="/terminos">Términos y Condiciones</a></li>
               </ul>
             </div>

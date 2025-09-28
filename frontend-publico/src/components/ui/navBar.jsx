@@ -16,7 +16,7 @@ import {
 import '../styles/navBar.css';
 import logo from '../../assets/DANGSTORELOGOPRUEBA__1.png';
 
-const base = 'https://dangstoreptc.onrender.com/api';
+const base = 'https://dangstoreptc-production.up.railway.app/api';
 
 export default function NavBar() {
   const location = useLocation();

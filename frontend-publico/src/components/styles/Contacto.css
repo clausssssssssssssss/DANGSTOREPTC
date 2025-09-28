@@ -15,7 +15,6 @@ body {
 
 /* ===== MAIN CONTAINER ===== */
 .contact-page {
-  min-height: 100vh;
   padding: var(--spacing-lg) var(--spacing-sm);
   padding-top: 2rem;
   background: white;
@@ -24,7 +23,8 @@ body {
   justify-content: flex-start;
   align-items: center;
   position: relative;
-  overflow-x: hidden;
+  overflow: hidden;
+  min-height: calc(100vh - 3.5rem);
 }
 
 /* ===== HEADER STYLES ===== */
@@ -103,7 +103,6 @@ body {
   z-index: 2;
   backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.6);
-  min-height: 600px;
   animation: cardEntrance 0.8s ease-out 0.3s both;
 }
 

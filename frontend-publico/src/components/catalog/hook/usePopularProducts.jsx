@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://dangstoreptc.onrender.com';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://dangstoreptc-production.up.railway.app';
 
 // Productos de ejemplo con IDs válidos de MongoDB
 const getFallbackProducts = () => [

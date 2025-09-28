@@ -4,9 +4,20 @@ import './SplashScreen.css';
 const SplashScreen = ({ onComplete, userInfo, duration = 3000, logoSrc }) => {
   const [progress, setProgress] = useState(0);
   const [isVisible, setIsVisible] = useState(true);
+  const [particles, setParticles] = useState([]);
 
   useEffect(() => {
-    // Progreso simple
+    // Crear partículas flotantes
+    const newParticles = Array.from({ length: 30 }, (_, i) => ({
+      id: i,
+      x: Math.random() * 100,
+      y: Math.random() * 100,
+      size: Math.random() * 4 + 2,
+      delay: Math.random() * 2,
+    }));
+    setParticles(newParticles);
+
+    // Progreso con animación suave
     const increment = 100 / (duration / 50);
     const progressTimer = setInterval(() => {
       setProgress(prev => {
@@ -35,44 +46,70 @@ const SplashScreen = ({ onComplete, userInfo, duration = 3000, logoSrc }) => {
   };
 
   return (
-    <div className="splash-screen-simple">
-      <div className="splash-content-simple">
-        {/* Logo */}
-        <div className="logo-section-simple">
-          {logoSrc ? (
-            <img 
-              src={logoSrc} 
-              alt="DANGSTORE Logo" 
-              className="logo-image-simple"
-            />
-          ) : (
-            <div className="logo-placeholder-simple">
-              <span className="logo-text-simple">DS</span>
-            </div>
-          )}
+    <div className="splash-screen-modern">
+      {/* Partículas de fondo */}
+      <div className="particles-container">
+        {particles.map((particle) => (
+          <div
+            key={particle.id}
+            className="particle"
+            style={{
+              left: `${particle.x}%`,
+              top: `${particle.y}%`,
+              width: `${particle.size}px`,
+              height: `${particle.size}px`,
+              animationDelay: `${particle.delay}s`,
+            }}
+          />
+        ))}
+      </div>
+
+      {/* Contenido principal */}
+      <div className="splash-content-modern">
+        {/* Logo con efecto de resplandor */}
+        <div className="logo-section-modern">
+          <div className="logo-wrapper-modern">
+            {logoSrc ? (
+              <img 
+                src={logoSrc} 
+                alt="DANGSTORE Logo" 
+                className="logo-image-modern"
+              />
+            ) : (
+              <div className="logo-placeholder-modern">
+                <span className="logo-text-modern">DS</span>
+              </div>
+            )}
+            <div className="logo-glow-modern"></div>
+          </div>
         </div>
 
-        {/* Título */}
-        <div className="title-section-simple">
-          <h1 className="main-title-simple">
-            Bienvenido a <span className="brand-name-simple">DANGSTORE</span>
-          </h1>
-          <p className="user-greeting-simple">
-            Hola, <span className="user-name-simple">{getUserName()}</span>
+        {/* Título principal */}
+        <div className="title-section-modern">
+          <h1 className="welcome-text-modern">Bienvenido a</h1>
+          <h2 className="brand-text-modern">DANGSTORE</h2>
+          <p className="subtitle-text-modern">Donde la creatividad cobra vida</p>
+        </div>
+
+        {/* Saludo personalizado */}
+        <div className="greeting-section-modern">
+          <p className="user-greeting-modern">
+            Hola, <span className="user-name-modern">{getUserName()}</span>
           </p>
         </div>
 
-        {/* Barra de progreso simple */}
-        <div className="progress-section-simple">
-          <div className="progress-bar-simple">
+        {/* Barra de progreso animada */}
+        <div className="progress-section-modern">
+          <div className="progress-bar-modern">
             <div 
-              className="progress-fill-simple"
+              className="progress-fill-modern"
               style={{ width: `${progress}%` }}
             />
           </div>
-          <p className="loading-text-simple">
+          <p className="loading-text-modern">
             Cargando tu experiencia...
           </p>
+          <p className="progress-text-modern">{Math.round(progress)}%</p>
         </div>
       </div>
     </div>

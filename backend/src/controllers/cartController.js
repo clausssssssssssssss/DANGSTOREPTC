@@ -210,7 +210,8 @@ export const createOrder = async (req, res) => {
         await sendEmail({ to: customer.email, subject, html, text: `Orden ${savedOrder._id} por $${totalAmount.toFixed(2)}` });
       }
     } catch (mailErr) {
-      console.warn('No se pudo enviar correo de confirmación:', mailErr.message);
+      console.error('❌ ERROR ENVIANDO CORREO DE CONFIRMACIÓN:', mailErr.message);
+      console.error('❌ Detalles del error:', mailErr);
     }
 
     return res.status(201).json({ success: true, message: "Orden y venta registradas con éxito", order: savedOrder });

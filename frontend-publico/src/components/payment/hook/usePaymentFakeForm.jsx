@@ -325,14 +325,15 @@ const usePaymentFakeForm = () => {
   // Función para procesar pago simulado y guardar orden
   const handleFakePayment = async ({ items, total }) => {
     try {
-      // console.log('=== HOOK PAGO ===');
-      // console.log('Items recibidos:', items);
-      // console.log('Total recibido:', total);
-      // console.log('Tipo de total:', typeof total);
-      // console.log('================');
+      console.log('=== HOOK PAGO ===');
+      console.log('Items recibidos:', items);
+      console.log('Total recibido:', total);
+      console.log('Tipo de total:', typeof total);
+      console.log('================');
       
       // Verificar token de autenticación
       const token = localStorage.getItem("token");
+      console.log('🔑 Token encontrado:', token ? 'Sí' : 'No');
       
       if (!token) {
         throw new Error("No hay token de autenticación. Por favor, inicia sesión.");
@@ -347,7 +348,7 @@ const usePaymentFakeForm = () => {
         ),
       }));
 
-      // console.log('Items formateados:', formattedItems);
+      console.log('📦 Items formateados:', formattedItems);
 
       const orderData = {
         items: formattedItems,
@@ -356,32 +357,49 @@ const usePaymentFakeForm = () => {
         wompiStatus: "COMPLETED",
       };
 
-      // console.log('Datos de orden a enviar:', orderData);
+      console.log('📋 Datos de orden a enviar:', orderData);
 
       // Enviar orden al servidor
       const url = `${API_BASE}/cart/order`;
-      // console.log('URL de la API:', url);
+      console.log('🌐 URL de la API:', url);
       
-      const response = await fetch(url, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(orderData),
-      });
+      console.log('🚀 Enviando petición HTTP...');
+      let response;
+      try {
+        response = await fetch(url, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(orderData),
+        });
+        console.log('✅ Petición HTTP completada');
+      } catch (networkError) {
+        console.error('❌ Error de red:', networkError);
+        throw new Error(`Error de red: ${networkError.message}`);
+      }
 
+      console.log('📡 Respuesta recibida - Status:', response.status);
+      console.log('📡 Respuesta recibida - OK:', response.ok);
+      console.log('📡 Respuesta recibida - Headers:', response.headers);
+      
       const responseData = await response.json();
-      // console.log('Respuesta del servidor:', { status: response.status, data: responseData });
+      console.log('📋 Respuesta del servidor:', { status: response.status, data: responseData });
 
       if (!response.ok) {
+        console.error('❌ Error del servidor:', response.status, responseData);
         throw new Error(`Error del servidor (${response.status}): ${responseData.message || responseData.error || 'Error desconocido'}`);
       }
 
+      console.log('✅ Pago procesado exitosamente');
+      console.log('🔄 Retornando resultado exitoso desde handleFakePayment');
       return { success: true, data: responseData };
 
     } catch (error) {
-      console.error('Error completo en handleFakePayment:', error);
+      console.error('❌ Error completo en handleFakePayment:', error);
+      console.error('❌ Stack trace:', error.stack);
+      console.log('🔄 Retornando resultado de error desde handleFakePayment');
       return { success: false, error };
     }
   };

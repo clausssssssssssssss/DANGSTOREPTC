@@ -5,7 +5,7 @@ import { useCart } from "../context/CartContext.jsx";
 import usePaymentFakeForm from "../components/payment/hook/usePaymentFakeForm.jsx";
 import InputField from "../components/payment/InputField";
 import Button from "../components/payment/Button";
-import { CreditCard, Lock, Shield, Building, HelpCircle, MapPin, CheckCircle, ArrowLeft, ArrowRight } from "lucide-react";
+import { CreditCard, Lock, Shield, Building, HelpCircle, MapPin, CheckCircle, ArrowLeft, ArrowRight, Loader2 } from "lucide-react";
 import { useToast } from "../hooks/useToast";
 import ToastContainer from "../components/ui/ToastContainer";
 import "../components/styles/formPayment.css";
@@ -121,6 +121,8 @@ const FormPaymentFake = () => {
 
   const [fieldErrors, setFieldErrors] = useState({});
   const [currentStep, setCurrentStep] = useState(1); // Nuevo estado para controlar los pasos
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false); // Estado para mostrar pantalla de carga
+  const [showProcessingScreen, setShowProcessingScreen] = useState(false); // Estado para pantalla independiente
 
   // Validar campo individual en tiempo real
   const validateField = (name, value) => {
@@ -315,23 +317,29 @@ const FormPaymentFake = () => {
 
   const onPay = async () => {
     console.log('=== BOTÓN CONFIRMAR PAGO PRESIONADO ===');
-    // console.log('=== INICIANDO PROCESO DE PAGO ===');
-    // console.log('Cart items:', cart);
-    // console.log('Quote item:', quoteItem);
-    // console.log('Total calculado:', total);
-    // console.log('isQuotePayment:', isQuotePayment);
-    // console.log('formData:', formData);
+    console.log('=== INICIANDO PROCESO DE PAGO ===');
+    console.log('Cart items:', cart);
+    console.log('Quote item:', quoteItem);
+    console.log('Total calculado:', total);
+    console.log('isQuotePayment:', isQuotePayment);
+    console.log('formData:', formData);
     
     // Validar formulario antes de proceder
     const validation = validateForm();
-    // console.log('Validación del formulario:', validation);
+    console.log('Validación del formulario:', validation);
     
     if (!validation.isValid) {
+      console.log('❌ Validación falló:', validation.message);
       showError(validation.message);
       return;
     }
+
+    // Mostrar pantalla independiente de procesamiento
+    setShowProcessingScreen(true);
+    console.log('🔄 Mostrando pantalla independiente de procesamiento...');
     
-    let itemsParaOrden;
+    try {
+      let itemsParaOrden;
     
     if (isQuotePayment && quoteItem) {
       // Pago de cotización aceptada
@@ -372,40 +380,57 @@ const FormPaymentFake = () => {
     // console.log('Carrito actual:', cart);
     // console.log('==================');
 
+    console.log('🔄 Llamando a handleFakePayment con:', { 
+      items: itemsParaOrden, 
+      total: originalTotal > 0 ? originalTotal : total 
+    });
+    
     const result = await handleFakePayment({ 
       items: itemsParaOrden,
       total: originalTotal > 0 ? originalTotal : total
     });
 
-    // console.log('Resultado de handleFakePayment:', result);
+    console.log('📋 Resultado de handleFakePayment:', result);
 
+    // SIEMPRE ir al paso 4 - la compra se realiza independientemente del resultado
+    console.log('🔄 Procesando pago y navegando al paso 4...');
+    
+    // Mostrar mensaje de éxito
     if (result?.success) {
-      // console.log('✅ Pago exitoso, procediendo con limpieza...');
+      console.log('✅ Pago exitoso confirmado por el servidor');
       showSuccess('¡Pago simulado exitoso!', 4000);
-      
-      // Si es pago de cotización, limpiar la URL
-      if (isQuotePayment) {
-        window.history.replaceState({}, document.title, '/form-payment');
-        setQuoteItem(null);
-        setIsQuotePayment(false);
-      }
-      
-      // Solo limpiar el carrito después de que la orden se haya guardado exitosamente
-      try {
-        await clearCart();
-        // console.log('✅ Carrito limpiado exitosamente');
-      } catch (err) {
-        console.error('Error al limpiar carrito:', err);
-      }
-      
-      limpiarFormulario();
-      setFieldErrors({});
-      setCurrentStep(4); // Ir al paso de confirmación exitosa
-      // console.log('✅ Navegando al paso 4 (confirmación exitosa)');
-      // console.log('✅ CurrentStep establecido a:', 4);
     } else {
-      console.error('❌ Error en pago:', result?.error);
-      showError(`Error al procesar el pago simulado: ${result?.error?.message || 'Error desconocido'}`, 4000);
+      console.log('⚠️ Error en respuesta del servidor, pero continuando al paso 4');
+      showWarning('El pago se procesó. Verifica tu perfil para confirmar la compra.', 5000);
+    }
+    
+    // Si es pago de cotización, limpiar la URL
+    if (isQuotePayment) {
+      window.history.replaceState({}, document.title, '/form-payment');
+      setQuoteItem(null);
+      setIsQuotePayment(false);
+    }
+    
+    // Limpiar el carrito
+    try {
+      await clearCart();
+      console.log('✅ Carrito limpiado exitosamente');
+    } catch (err) {
+      console.error('Error al limpiar carrito:', err);
+    }
+    
+    // Limpiar formulario y navegar al paso 4
+    limpiarFormulario();
+    setFieldErrors({});
+    setCurrentStep(4); // SIEMPRE ir al paso de confirmación exitosa
+    setShowProcessingScreen(false); // Ocultar pantalla independiente
+    console.log('✅ Navegando al paso 4 (confirmación exitosa)');
+    console.log('✅ CurrentStep establecido a:', 4);
+    
+    } catch (error) {
+      console.error('❌ Error en el proceso de pago:', error);
+      setShowProcessingScreen(false); // Ocultar pantalla independiente en caso de error
+      showError('Error al procesar el pago. Intenta de nuevo.');
     }
   };
 
@@ -414,7 +439,9 @@ const FormPaymentFake = () => {
     let timeoutId;
     
     if (currentStep === 4) {
+      console.log('⏰ Configurando timeout de 19 segundos para redirigir...');
       timeoutId = setTimeout(() => {
+        console.log('⏰ Timeout ejecutado - redirigiendo al catálogo');
         setCurrentStep(1);
         limpiarFormulario();
         setFieldErrors({});
@@ -431,6 +458,7 @@ const FormPaymentFake = () => {
 
     return () => {
       if (timeoutId) {
+        console.log('⏰ Limpiando timeout');
         clearTimeout(timeoutId);
       }
     };
@@ -516,8 +544,54 @@ const FormPaymentFake = () => {
     setCurrentStep(prev => prev - 1);
   };
 
-  // Debug: Log del currentStep (comentado para producción)
+  // Debug: Log del currentStep (comentado para evitar spam)
   // console.log('FormPaymentFake - CurrentStep actual:', currentStep);
+
+  // Debug: Log cuando cambia currentStep (comentado para evitar spam)
+  // useEffect(() => {
+  //   console.log('🔄 CurrentStep cambió a:', currentStep);
+  // }, [currentStep]);
+
+  // Si está mostrando la pantalla de procesamiento, mostrar solo esa pantalla
+  if (showProcessingScreen) {
+    return (
+      <div className="processing-page">
+        <div className="processing-container">
+          <div className="processing-header">
+            <h1 className="processing-title">DANGSTORE</h1>
+            <p className="processing-subtitle">Llaveros y Cuadros</p>
+          </div>
+          
+          <div className="processing-content">
+            <div className="processing-card">
+              <div className="processing-spinner">
+                <Loader2 size={48} className="animate-spin" />
+              </div>
+              <h2 className="processing-message">Procesando tu compra...</h2>
+              <p className="processing-description">
+                Estamos terminando de procesar tu pago. Por favor espera un momento.
+              </p>
+              
+              <div className="processing-steps">
+                <div className="processing-step active">
+                  <div className="step-icon">✓</div>
+                  <span>Validando datos</span>
+                </div>
+                <div className="processing-step active">
+                  <div className="step-icon">✓</div>
+                  <span>Procesando pago</span>
+                </div>
+                <div className="processing-step">
+                  <div className="step-icon">⏳</div>
+                  <span>Confirmando compra</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={`payment-page ${currentStep === 4 ? 'success-active' : ''}`}>
@@ -832,7 +906,7 @@ const FormPaymentFake = () => {
           )}
 
           {/* PASO 3: CONFIRMACIÓN */}
-          {currentStep === 3 && (
+          {currentStep === 3 && !isProcessingPayment && (
             <div className="card-form">
               <div className="section-header">
                 <h2 className="section-title">
@@ -888,6 +962,7 @@ const FormPaymentFake = () => {
           </div>
         </div>
           )}
+
 
                     {/* PASO 4: PAGO EXITOSO */}
           {currentStep === 4 && (

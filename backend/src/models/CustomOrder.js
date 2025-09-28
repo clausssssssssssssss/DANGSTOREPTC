@@ -53,6 +53,19 @@ const customizedOrderSchema = new Schema(
     decisionDate: {
       type: Date,
     },
+    // Campos para rechazo del admin
+    rejectionReason: {
+      type: String,
+    },
+    rejectionDate: {
+      type: Date,
+    },
+    // Referencia al producto creado en el catálogo cuando el encargo es aceptado
+    catalogProductId: {
+      type: Types.ObjectId,
+      ref: 'Product',
+      default: null,
+    },
   },
   {
     timestamps: true,

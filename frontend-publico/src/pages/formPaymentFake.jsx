@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from "../hooks/useAuth.jsx";
 import { useCart } from "../context/CartContext.jsx";
 import usePaymentFakeForm from "../components/payment/hook/usePaymentFakeForm.jsx";
@@ -13,6 +13,7 @@ import "../components/styles/formPayment.css";
 const FormPaymentFake = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const userId = user?.id;
   const { cart, clearCart, loadCart, loading } = useCart();
   
@@ -46,13 +47,28 @@ const FormPaymentFake = () => {
         const parsedQuote = JSON.parse(decodeURIComponent(quoteParam));
         setQuoteItem(parsedQuote);
         setIsQuotePayment(true);
-        console.log('Cotización detectada:', parsedQuote);
+        console.log('Cotización detectada desde URL:', parsedQuote);
       } catch (error) {
         console.error('Error parsing quote:', error);
         showError('Error al procesar la cotización');
       }
     }
   }, []);
+
+  // Detectar si hay una cotización en el estado de navegación
+  useEffect(() => {
+    console.log('FormPaymentFake - location.state:', location.state);
+    console.log('FormPaymentFake - location.pathname:', location.pathname);
+    
+    if (location.state && location.state.quoteItem) {
+      setQuoteItem(location.state.quoteItem);
+      setIsQuotePayment(location.state.isQuotePayment || true);
+      console.log('Cotización detectada desde state:', location.state.quoteItem);
+      console.log('isQuotePayment establecido a:', location.state.isQuotePayment || true);
+    } else {
+      console.log('No hay quoteItem en location.state');
+    }
+  }, [location.state]);
 
   const {
     formData,
@@ -264,9 +280,21 @@ const FormPaymentFake = () => {
 
 
   const onPay = async () => {
+    console.log('=== INICIANDO PROCESO DE PAGO ===');
     console.log('Cart items:', cart);
     console.log('Quote item:', quoteItem);
     console.log('Total calculado:', total);
+    console.log('isQuotePayment:', isQuotePayment);
+    console.log('formData:', formData);
+    
+    // Validar formulario antes de proceder
+    const validation = validateForm();
+    console.log('Validación del formulario:', validation);
+    
+    if (!validation.isValid) {
+      showError(validation.message);
+      return;
+    }
     
     let itemsParaOrden;
     
@@ -298,6 +326,13 @@ const FormPaymentFake = () => {
 
     showInfo('Procesando pago simulado...', 2000);
 
+    console.log('Llamando a handleFakePayment con:', { 
+      userId, 
+      items: itemsParaOrden,
+      total, 
+      clientData: formData 
+    });
+
     const result = await handleFakePayment({ 
       userId, 
       items: itemsParaOrden,
@@ -305,12 +340,15 @@ const FormPaymentFake = () => {
       clientData: formData 
     });
 
+    console.log('Resultado de handleFakePayment:', result);
+
     if (result?.success) {
+      console.log('✅ Pago exitoso, procediendo con limpieza...');
       showSuccess('¡Pago simulado exitoso!', 4000);
       
       // Si es pago de cotización, limpiar la URL
       if (isQuotePayment) {
-        window.history.replaceState({}, document.title, '/form-payment-fake');
+        window.history.replaceState({}, document.title, '/form-payment');
         setQuoteItem(null);
         setIsQuotePayment(false);
       }
@@ -318,14 +356,17 @@ const FormPaymentFake = () => {
       // Solo limpiar el carrito después de que la orden se haya guardado exitosamente
       try {
         await clearCart();
+        console.log('✅ Carrito limpiado exitosamente');
       } catch (err) {
         console.error('Error al limpiar carrito:', err);
       }
+      
       limpiarFormulario();
       setFieldErrors({});
       setCurrentStep(4); // Ir al paso de confirmación exitosa
+      console.log('✅ Navegando al paso 4 (confirmación exitosa)');
     } else {
-      console.error('Error en pago:', result?.error);
+      console.error('❌ Error en pago:', result?.error);
       showError(`Error al procesar el pago simulado: ${result?.error?.message || 'Error desconocido'}`, 4000);
     }
   };

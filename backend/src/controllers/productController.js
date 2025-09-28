@@ -1,5 +1,6 @@
 import { v2 as cloudinary } from 'cloudinary';
 import productModel from "../models/Product.js";
+import CustomizedOrder from '../models/CustomOrder.js';
 import { config } from '../../config.js';
 
 // Configurar Cloudinary
@@ -172,6 +173,64 @@ productController.deleteProduct = async (req, res) => {
   } catch (error) {
     console.error("Error al eliminar producto:", error);
     res.status(500).json({ message: "Error al eliminar producto" });
+  }
+};
+
+/**
+ * Crear producto desde encargo personalizado aceptado
+ * Esta función se llama automáticamente cuando un encargo es aceptado
+ */
+productController.createProductFromCustomOrder = async (customOrderId) => {
+  try {
+    console.log('🔄 Creando producto desde encargo personalizado:', customOrderId);
+    
+    // Buscar el encargo personalizado
+    const customOrder = await CustomizedOrder.findById(customOrderId)
+      .populate('user', 'name email');
+    
+    if (!customOrder) {
+      throw new Error('Encargo personalizado no encontrado');
+    }
+    
+    if (customOrder.status !== 'accepted') {
+      throw new Error('El encargo debe estar aceptado para crear el producto');
+    }
+    
+    if (!customOrder.price) {
+      throw new Error('El encargo debe tener precio asignado');
+    }
+    
+    // Verificar si ya existe un producto para este encargo
+    const existingProduct = await productModel.findOne({
+      originalCustomOrderId: customOrderId
+    });
+    
+    if (existingProduct) {
+      console.log('⚠️ Ya existe un producto para este encargo:', customOrderId);
+      return existingProduct;
+    }
+    
+    // Crear el producto desde el encargo
+    const newProduct = new productModel({
+      nombre: `${customOrder.modelType} - ${customOrder.description?.substring(0, 50) || 'Personalizado'}`,
+      descripcion: customOrder.description || `Producto personalizado de tipo ${customOrder.modelType}`,
+      precio: customOrder.price,
+      disponibles: 1, // Stock inicial de 1 para productos personalizados
+      categoria: customOrder.modelType,
+      imagen: customOrder.imageUrl,
+      isFromCustomOrder: true,
+      originalCustomOrderId: customOrder._id,
+      originalCustomer: customOrder.user._id
+    });
+    
+    const savedProduct = await newProduct.save();
+    console.log('✅ Producto creado exitosamente desde encargo:', savedProduct._id);
+    
+    return savedProduct;
+    
+  } catch (error) {
+    console.error('❌ Error creando producto desde encargo personalizado:', error);
+    throw error;
   }
 };
 

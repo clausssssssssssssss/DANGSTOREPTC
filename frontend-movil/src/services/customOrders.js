@@ -94,14 +94,12 @@ export const customOrdersAPI = {
   },
 
   // Rechazar una orden (admin)
-  rejectOrder: async (orderId, comment) => {
+  rejectOrder: async (orderId, reason) => {
     try {
-      const response = await authenticatedFetch(`/custom-orders/${orderId}/quote`, {
+      const response = await authenticatedFetch(`/custom-orders/${orderId}/reject`, {
         method: 'PUT',
         body: JSON.stringify({
-          price: 0,
-          comment: comment?.trim() || 'Orden rechazada',
-          status: 'rejected',
+          reason: reason?.trim() || 'Orden rechazada',
         }),
       });
       

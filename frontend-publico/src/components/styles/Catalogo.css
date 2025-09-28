@@ -1820,3 +1820,92 @@ img {
     max-width: 320px;
   }
 }
+
+/* ===== ESTILOS PARA PRODUCTOS DE ENCARGOS PERSONALIZADOS ===== */
+
+/* Badge para productos personalizados */
+.custom-order-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: linear-gradient(135deg, #e879f9, #d946ef);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  z-index: 10;
+  box-shadow: 0 2px 8px rgba(232, 121, 249, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(4px);
+}
+
+.custom-order-badge span {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Estilos especiales para tarjetas de productos personalizados */
+.product-card.custom-order-product,
+.popular-product-card.custom-order-product {
+  border: 2px solid #e879f9;
+  box-shadow: 0 4px 20px rgba(232, 121, 249, 0.15);
+  position: relative;
+  overflow: visible;
+}
+
+.product-card.custom-order-product::before,
+.popular-product-card.custom-order-product::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #e879f9, #d946ef, #c026d3);
+  border-radius: 16px 16px 0 0;
+  z-index: 1;
+}
+
+.product-card.custom-order-product:hover,
+.popular-product-card.custom-order-product:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 8px 30px rgba(232, 121, 249, 0.25);
+  border-color: #d946ef;
+}
+
+/* Animación para el badge */
+.custom-order-badge {
+  animation: customBadgePulse 2s ease-in-out infinite;
+}
+
+@keyframes customBadgePulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 2px 8px rgba(232, 121, 249, 0.3);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(232, 121, 249, 0.4);
+  }
+}
+
+/* Responsive para el badge */
+@media (max-width: 768px) {
+  .custom-order-badge {
+    font-size: 0.7rem;
+    padding: 3px 6px;
+    top: 8px;
+    right: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .custom-order-badge {
+    font-size: 0.65rem;
+    padding: 2px 5px;
+    top: 6px;
+    right: 6px;
+  }
+}

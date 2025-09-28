@@ -30,6 +30,21 @@ const productSchema = new mongoose.Schema({
   imagen: {
     type: String,
     default: null
+  },
+  // Campos para productos que provienen de encargos personalizados
+  isFromCustomOrder: {
+    type: Boolean,
+    default: false
+  },
+  originalCustomOrderId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'CustomizedOrder',
+    default: null
+  },
+  originalCustomer: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Customer',
+    default: null
   }
 }, {
   timestamps: true

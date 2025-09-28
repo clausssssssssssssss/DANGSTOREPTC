@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Gift, Trash2, AlertTriangle, X, Check, Clock } from 'lucide-react';
 import '../styles/QuotesSection.css';
 
@@ -26,6 +27,7 @@ const getImageUrl = (imagePath) => {
 };
 
 const QuotesSection = ({ setHasQuotesFlag, showSuccess, showError, showWarning }) => {
+  const navigate = useNavigate();
   const [quotes, setQuotes] = useState([]);
   const [loadingQuotes, setLoadingQuotes] = useState(false);
   const [errorQuotes, setErrorQuotes] = useState('');
@@ -68,6 +70,24 @@ const QuotesSection = ({ setHasQuotesFlag, showSuccess, showError, showWarning }
       
       // Mostrar todos los estados únicos que existen
       const uniqueStatuses = [...new Set(data.map(item => item.status))];
+      console.log('Estados únicos encontrados en las cotizaciones:', uniqueStatuses);
+      console.log('Cotizaciones con detalles:', data.map(item => ({ 
+        id: item._id, 
+        status: item.status, 
+        modelType: item.modelType 
+      })));
+      
+      // Log detallado de cada cotización
+      data.forEach((quote, index) => {
+        console.log(`Cotización ${index + 1}:`, {
+          id: quote._id,
+          status: quote.status,
+          modelType: quote.modelType,
+          price: quote.price,
+          decision: quote.decision,
+          status: quote.status
+        });
+      });
 
       
 
@@ -98,6 +118,7 @@ const QuotesSection = ({ setHasQuotesFlag, showSuccess, showError, showWarning }
 
   const handleDecision = async (orderId, decision) => {
           console.log('Handle decision:', { orderId, decision });
+          console.log('Available quotes:', quotes.map(q => ({ id: q._id, status: q.status })));
     
     try {
       const res = await fetch(`${API_URL}/custom-orders/${orderId}/respond`, {
@@ -132,6 +153,14 @@ const QuotesSection = ({ setHasQuotesFlag, showSuccess, showError, showWarning }
 
       if (decision === 'accept') {
         showSuccess('¡Has aceptado la cotización! Redirigiendo al pago...');
+        
+        // Encontrar la cotización específica
+        const quote = quotes.find(q => q._id === orderId);
+        if (!quote) {
+          showError('No se pudo encontrar la cotización');
+          return;
+        }
+        
         setTimeout(() => {
           // Crear un item con la información de la cotización aceptada
           const quoteItem = {
@@ -146,8 +175,15 @@ const QuotesSection = ({ setHasQuotesFlag, showSuccess, showError, showWarning }
             price: quote.price
           };
           
-          // Navegar directamente al pago simulado con la cotización
-          window.location.href = `/form-payment-fake?quote=${encodeURIComponent(JSON.stringify(quoteItem))}`;
+          console.log('Navegando con quoteItem:', quoteItem);
+          
+          // Navegar directamente al pago simulado con la cotización usando React Router
+          navigate('/form-payment', { 
+            state: { 
+              quoteItem: quoteItem,
+              isQuotePayment: true 
+            } 
+          });
         }, 2000);
       } else {
         showSuccess('Cotización rechazada correctamente');
@@ -406,10 +442,15 @@ const QuotesSection = ({ setHasQuotesFlag, showSuccess, showError, showWarning }
                   )}
                   
                   {quote.status === 'rejected' && (
-                    <button className="view-product-btn rejected">
-                      <X size={16} />
-                      Cotización rechazada
-                    </button>
+                    <div className="rejected-message">
+                      <div className="rejected-icon">
+                        <X size={20} />
+                      </div>
+                      <div className="rejected-text">
+                        <strong>Tu pedido fue rechazado</strong>
+                        <p>Lo sentimos, no pudimos procesar tu solicitud</p>
+                      </div>
+                    </div>
                   )}
                   
                   {quote.status === 'pending' && (

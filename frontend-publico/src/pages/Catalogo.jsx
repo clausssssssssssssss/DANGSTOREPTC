@@ -213,7 +213,7 @@ export default function Catalogo() {
             
             <div className="popular-products-centered">
               {popularProducts.map(product => (
-                <div key={product._id} className="popular-product-card" onClick={() => openDetail(product)}>
+                <div key={product._id} className={`popular-product-card ${product.isFromCustomOrder ? 'custom-order-product' : ''}`} onClick={() => openDetail(product)}>
                   <div className="popular-product-image">
                     <img 
                       src={product.images?.[0] || '/src/assets/llavero.png'} 
@@ -224,6 +224,12 @@ export default function Catalogo() {
                       <Star size={16} fill="gold" />
                       <span>Popular</span>
                     </div>
+                    {/* Badge para productos de encargos personalizados */}
+                    {product.isFromCustomOrder && (
+                      <div className="custom-order-badge">
+                        <span>✨ Personalizado</span>
+                      </div>
+                    )}
                     <button
                       className={`favorite-btn ${favorites.includes(product._id) ? 'active' : ''}`}
                       onClick={(e) => handleFavoriteClick(e, product._id)}
@@ -272,7 +278,7 @@ export default function Catalogo() {
         {/* Grid de Productos */}
         <div className="product-grid">
           {filteredProducts.map(product => (
-            <div key={product._id} className="product-card" onClick={() => openDetail(product)}>
+            <div key={product._id} className={`product-card ${product.isFromCustomOrder ? 'custom-order-product' : ''}`} onClick={() => openDetail(product)}>
               <div className="product-image">
                 <img 
                   src={product.images?.[0] || '/src/assets/llavero.png'} 
@@ -288,6 +294,12 @@ export default function Catalogo() {
                     fill={favorites.includes(product._id) ? 'currentColor' : 'none'} 
                   />
                 </button>
+                {/* Badge para productos de encargos personalizados */}
+                {product.isFromCustomOrder && (
+                  <div className="custom-order-badge">
+                    <span>✨ Personalizado</span>
+                  </div>
+                )}
               </div>
               <div className="product-info">
                 <h3 className="product-title">{product.name}</h3>

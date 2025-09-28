@@ -90,12 +90,15 @@ const Pendientes = ({ navigation }) => {
           onPress: async () => {
             setSubmitting(true);
             try {
-              await customOrdersAPI.rejectOrder(selectedOrder._id, comment);
+              // Usar el comentario como razón del rechazo, o un mensaje por defecto
+              const rejectionReason = comment?.trim() || 'Orden rechazada por el administrador';
+              await customOrdersAPI.rejectOrder(selectedOrder._id, rejectionReason);
               Alert.alert('Orden rechazada', 'La orden ha sido rechazada');
               closeModal();
               refresh();
             } catch (error) {
-              Alert.alert('Error', 'No se pudo rechazar la orden');
+              console.error('Error rechazando orden:', error);
+              Alert.alert('Error', `No se pudo rechazar la orden: ${error.message || 'Error desconocido'}`);
             } finally {
               setSubmitting(false);
             }

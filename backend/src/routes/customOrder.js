@@ -7,6 +7,7 @@ import {
   getAllPendingOrders,
   getAllOrders,
   quoteCustomOrder,
+  rejectCustomOrder,
   respondCustomOrder,
   getCustomOrderById,
   deleteCustomOrder
@@ -55,6 +56,13 @@ router.put(
   '/:id/quote',
   authMiddleware(['admin']),
   quoteCustomOrder
+);
+
+// Rechazar (admin)
+router.put(
+  '/:id/reject',
+  authMiddleware(['admin']),
+  rejectCustomOrder
 );
 
 // Aceptar / rechazar (usuario)

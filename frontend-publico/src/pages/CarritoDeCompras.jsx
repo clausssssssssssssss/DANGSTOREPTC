@@ -4,6 +4,8 @@ import { useAuth } from '../hooks/useAuth';
 import { useCart } from '../components/cart/hook/useCart.jsx';
 import { useToast } from '../hooks/useToast';
 import usePaymentFakeForm from '../components/payment/hook/usePaymentFakeForm';
+import useStoreLimits from '../hooks/useStoreLimits';
+import LimitAlert from '../components/LimitAlert';
 import ToastContainer from '../components/ui/ToastContainer';
 import { ShoppingBag, Trash2, Plus, Minus, ArrowLeft, CreditCard, Check, Shield, Truck, RefreshCw } from 'lucide-react';
 import '../components/styles/CarritoDeCompras.css';
@@ -18,6 +20,15 @@ const CarritoDeCompras = () => {
   const location = useLocation();
   
   const { handleFakePayment } = usePaymentFakeForm();
+  
+  // Hook para verificar límites de la tienda
+  const { 
+    canAcceptOrders, 
+    isOrderLimitReached, 
+    getOrderLimitMessage,
+    checkMultipleProductsStock,
+    loading: limitsLoading 
+  } = useStoreLimits();
 
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -250,6 +261,20 @@ const CarritoDeCompras = () => {
             </div>
           ) : (
             <div className="cart-layout">
+              {/* Alertas de límites */}
+              {!limitsLoading && (
+                <>
+                  {isOrderLimitReached && (
+                    <LimitAlert
+                      type="order_limit"
+                      title="Límite de Pedidos Alcanzado"
+                      message={getOrderLimitMessage()?.message}
+                      show={true}
+                    />
+                  )}
+                </>
+              )}
+              
               <div className="cart-items">
                 <div className="items-header">
                   <h3>Productos ({itemCount})</h3>

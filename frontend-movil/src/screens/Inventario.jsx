@@ -16,6 +16,7 @@ import { Picker } from '@react-native-picker/picker';
 import { InventarioStyles } from '../components/styles/InventarioStyles';
 import { getMaterials, createMaterial, updateMaterial, deleteMaterial } from '../services/materialService';
 import { API_CONFIG } from '../config/api';
+import AlertComponent from '../components/ui/Alert';
 
 const Inventario = ({ navigation }) => {
   const [materials, setMaterials] = useState([]);
@@ -32,7 +33,7 @@ const Inventario = ({ navigation }) => {
   });
   const [quantityError, setQuantityError] = useState('');
   const [investmentError, setInvestmentError] = useState('');
-  const [customAlert, setCustomAlert] = useState({
+  const [alert, setAlert] = useState({
     visible: false,
     title: '',
     message: '',
@@ -51,22 +52,18 @@ const Inventario = ({ navigation }) => {
     obtenerMateriales();
   }, []);
 
-  const showCustomAlert = (title, message, type = 'info', options = {}) => {
-    setCustomAlert({
+  const showAlert = (title, message, type = 'info', options = {}) => {
+    setAlert({
       visible: true,
       title,
       message,
       type,
-      onConfirm: options.onConfirm || null,
-      onCancel: options.onCancel || null,
+      onConfirm: options.onConfirm || (() => setAlert(prev => ({ ...prev, visible: false }))),
+      onCancel: options.onCancel || (() => setAlert(prev => ({ ...prev, visible: false }))),
       confirmText: options.confirmText || 'OK',
       cancelText: options.cancelText || 'Cancelar',
       showCancel: options.showCancel || false,
     });
-  };
-
-  const hideCustomAlert = () => {
-    setCustomAlert(prev => ({ ...prev, visible: false }));
   };
 
   const obtenerMateriales = async () => {
@@ -74,7 +71,7 @@ const Inventario = ({ navigation }) => {
       const data = await getMaterials(API_BASE);
       setMaterials(data);
     } catch (error) {
-      showCustomAlert('Error', 'No se pudieron cargar los materiales. Verifica la conexión.', 'error');
+      showAlert('Error', 'No se pudieron cargar los materiales. Verifica la conexión.', 'error');
     }
   };
 
@@ -126,19 +123,19 @@ const Inventario = ({ navigation }) => {
   const agregarMaterial = async () => {
     // Validar campos obligatorios
     if (!nuevoMaterial.name.trim()) {
-      showCustomAlert('Error', 'El nombre del material es obligatorio', 'error');
+      showAlert('Error', 'El nombre del material es obligatorio', 'error');
       return;
     }
     if (!nuevoMaterial.type.trim()) {
-      showCustomAlert('Error', 'El tipo de material es obligatorio', 'error');
+      showAlert('Error', 'El tipo de material es obligatorio', 'error');
       return;
     }
     if (!nuevoMaterial.quantity.trim()) {
-      showCustomAlert('Error', 'El stock es obligatorio', 'error');
+      showAlert('Error', 'El stock es obligatorio', 'error');
       return;
     }
     if (!nuevoMaterial.investment.trim()) {
-      showCustomAlert('Error', 'La inversión es obligatoria', 'error');
+      showAlert('Error', 'La inversión es obligatoria', 'error');
       return;
     }
 
@@ -156,18 +153,18 @@ const Inventario = ({ navigation }) => {
       if (editItem) {
         // Editar material existente
         response = await updateMaterial(API_BASE, editItem._id, materialData);
-        showCustomAlert('Éxito', 'Material actualizado correctamente', 'success');
+        showAlert('Éxito', 'Material actualizado correctamente', 'success');
       } else {
         // Crear nuevo material
         response = await createMaterial(API_BASE, materialData);
-        showCustomAlert('Éxito', 'Material agregado correctamente', 'success');
+        showAlert('Éxito', 'Material agregado correctamente', 'success');
       }
       
       setModalVisible(false);
       obtenerMateriales();
       resetForm();
     } catch (error) {
-      showCustomAlert('Error', error.message || 'Error al procesar la solicitud', 'error');
+      showAlert('Error', error.message || 'Error al procesar la solicitud', 'error');
     }
   };
 
@@ -185,7 +182,7 @@ const Inventario = ({ navigation }) => {
   };
 
   const confirmDelete = async (id) => {
-    showCustomAlert(
+    showAlert(
       'Confirmar eliminación',
       '¿Estás seguro de eliminar este material?',
       'warning',
@@ -196,14 +193,14 @@ const Inventario = ({ navigation }) => {
         onConfirm: async () => {
           try { 
             await deleteMaterial(API_BASE, id);
-            showCustomAlert('Éxito', 'Material eliminado correctamente', 'success');
+            showAlert('Éxito', 'Material eliminado correctamente', 'success');
             obtenerMateriales(); 
           }
           catch (error) { 
-            showCustomAlert('Error', 'No se pudo eliminar el material', 'error'); 
+            showAlert('Error', 'No se pudo eliminar el material', 'error'); 
           }
         },
-        onCancel: () => hideCustomAlert(),
+        onCancel: () => setAlert(prev => ({ ...prev, visible: false })),
       }
     );
   };
@@ -383,41 +380,18 @@ const Inventario = ({ navigation }) => {
         </View>
       </Modal>
 
-      {/* Alerta personalizada */}
-      {customAlert.visible && (
-        <View style={InventarioStyles.alertOverlay}>
-          <View style={InventarioStyles.alertContainer}>
-            <View style={[InventarioStyles.alertIcon, InventarioStyles[`alertIcon${customAlert.type.charAt(0).toUpperCase() + customAlert.type.slice(1)}`]]}>
-              <Text style={[InventarioStyles.alertIconText, InventarioStyles[`alertIconText${customAlert.type.charAt(0).toUpperCase() + customAlert.type.slice(1)}`]]}>
-                {customAlert.type === 'success' ? '✓' :
-                 customAlert.type === 'error' ? '✕' :
-                 customAlert.type === 'warning' ? '⚠' : 'ℹ'}
-              </Text>
-            </View>
-
-            <Text style={InventarioStyles.alertTitle}>{customAlert.title}</Text>
-            <Text style={InventarioStyles.alertMessage}>{customAlert.message}</Text>
-
-            <View style={InventarioStyles.alertButtons}>
-              {customAlert.showCancel && (
-                <TouchableOpacity
-                  style={[InventarioStyles.alertButton, InventarioStyles.alertButtonCancel]}
-                  onPress={customAlert.onCancel || hideCustomAlert}
-                >
-                  <Text style={InventarioStyles.alertButtonCancelText}>{customAlert.cancelText}</Text>
-                </TouchableOpacity>
-              )}
-
-              <TouchableOpacity
-                style={[InventarioStyles.alertButton, InventarioStyles[`alertButton${customAlert.type.charAt(0).toUpperCase() + customAlert.type.slice(1)}`]]}
-                onPress={customAlert.onConfirm || hideCustomAlert}
-              >
-                <Text style={InventarioStyles.alertButtonText}>{customAlert.confirmText}</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      )}
+      {/* Componente de alerta unificado */}
+      <AlertComponent
+        visible={alert.visible}
+        title={alert.title}
+        message={alert.message}
+        type={alert.type}
+        onConfirm={alert.onConfirm}
+        onCancel={alert.onCancel}
+        confirmText={alert.confirmText}
+        cancelText={alert.cancelText}
+        showCancel={alert.showCancel}
+      />
     </SafeAreaView>
   );
 };

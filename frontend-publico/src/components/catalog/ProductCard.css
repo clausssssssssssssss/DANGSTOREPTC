@@ -690,3 +690,98 @@ button.add-to-cart-btn.btn {
   width: auto !important;
   min-width: fit-content !important;
 }
+
+/* ===== ESTILOS PARA INFORMACIÓN DE STOCK ===== */
+
+.stock-info {
+  margin: var(--spacing-xs) 0 !important;
+  text-align: center !important;
+  font-size: var(--font-size-xs) !important;
+  font-weight: 500 !important;
+  padding: 4px 8px !important;
+  border-radius: 4px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-height: 20px !important;
+}
+
+.stock-loading {
+  color: var(--color-text-muted) !important;
+  font-style: italic !important;
+  background: #f8f9fa !important;
+  border: 1px solid #e9ecef !important;
+}
+
+.stock-out {
+  color: #dc3545 !important;
+  background: #f8d7da !important;
+  border: 1px solid #f5c6cb !important;
+  font-weight: 600 !important;
+}
+
+.stock-low {
+  color: #856404 !important;
+  background: #fff3cd !important;
+  border: 1px solid #ffeaa7 !important;
+  font-weight: 600 !important;
+}
+
+.stock-available {
+  color: #155724 !important;
+  background: #d4edda !important;
+  border: 1px solid #c3e6cb !important;
+  font-weight: 500 !important;
+}
+
+/* Estados del botón de agregar al carrito */
+.add-to-cart-btn.disabled {
+  background: #6c757d !important;
+  color: #ffffff !important;
+  cursor: not-allowed !important;
+  opacity: 0.6 !important;
+}
+
+.add-to-cart-btn.disabled:hover {
+  background: #6c757d !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+.add-to-cart-btn.loading {
+  background: #6c757d !important;
+  color: #ffffff !important;
+  cursor: not-allowed !important;
+  opacity: 0.8 !important;
+}
+
+.add-to-cart-btn.loading:hover {
+  background: #6c757d !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* Responsive para información de stock */
+@media (max-width: 480px) {
+  .stock-info {
+    font-size: 11px !important;
+    padding: 3px 6px !important;
+    min-height: 18px !important;
+  }
+}
+
+@media (min-width: 481px) and (max-width: 768px) {
+  .stock-info {
+    font-size: 12px !important;
+    padding: 4px 8px !important;
+    min-height: 20px !important;
+  }
+}
+
+@media (min-width: 769px) {
+  .stock-info {
+    font-size: 13px !important;
+    padding: 5px 10px !important;
+    min-height: 22px !important;
+  }
+}

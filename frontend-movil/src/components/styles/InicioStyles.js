@@ -296,4 +296,64 @@ export const inicioStyles = StyleSheet.create({
     color: '#8B5CF6',
     fontWeight: '600',
   },
+
+  // Gestión de Límites
+  limitsSection: {
+    marginTop: 20,
+    paddingHorizontal: 20,
+  },
+  limitsTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: 'white',
+    marginBottom: 15,
+    textAlign: 'center',
+  },
+  limitsButtons: {
+    gap: 12,
+  },
+  limitButton: {
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    borderRadius: 12,
+    padding: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+  },
+  limitButtonIcon: {
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    padding: 12,
+    borderRadius: 8,
+    marginRight: 15,
+  },
+  limitButtonContent: {
+    flex: 1,
+  },
+  limitButtonTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: 'white',
+    marginBottom: 2,
+  },
+  limitButtonSubtitle: {
+    fontSize: 14,
+    color: 'rgba(255, 255, 255, 0.7)',
+  },
+  logoutButtonTop: {
+    position: 'absolute',
+    left: 20,
+    top: 40,
+    zIndex: 999,
+    width: 45,
+    height: 45,
+  },
+  logoutIcon: {
+    width: 45,
+    height: 45,
+    backgroundColor: '#EF4444',
+    borderRadius: 22.5,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
 });

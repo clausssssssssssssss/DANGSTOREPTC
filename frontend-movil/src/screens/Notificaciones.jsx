@@ -12,6 +12,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useNotifications } from '../hooks/useNotifications.js';
 import { NotificacionesStyles } from '../components/styles/NotificacionesStyles';
+import AlertComponent from '../components/ui/Alert';
 
 const Notificaciones = ({ navigation }) => {
   const {
@@ -28,9 +29,34 @@ const Notificaciones = ({ navigation }) => {
   } = useNotifications();
 
   const [refreshing, setRefreshing] = useState(false);
+  const [alert, setAlert] = useState({
+    visible: false,
+    title: '',
+    message: '',
+    type: 'info',
+    onConfirm: null,
+    onCancel: null,
+    confirmText: 'OK',
+    cancelText: 'Cancelar',
+    showCancel: false,
+  });
   
   // Estado para filtros
   const [activeFilter, setActiveFilter] = useState('all'); // 'all', 'unread', 'read'
+
+  const showAlert = (title, message, type = 'info', options = {}) => {
+    setAlert({
+      visible: true,
+      title,
+      message,
+      type,
+      onConfirm: options.onConfirm || (() => setAlert(prev => ({ ...prev, visible: false }))),
+      onCancel: options.onCancel || (() => setAlert(prev => ({ ...prev, visible: false }))),
+      confirmText: options.confirmText || 'OK',
+      cancelText: options.cancelText || 'Cancelar',
+      showCancel: options.showCancel || false,
+    });
+  };
 
   // Función para filtrar notificaciones
   const getFilteredNotifications = () => {
@@ -63,7 +89,7 @@ const Notificaciones = ({ navigation }) => {
     try {
       await markAsRead(notificationId); // markAsRead ya actualiza el conteo localmente
     } catch (error) {
-      Alert.alert('Error', 'No se pudo marcar como leída');
+      showAlert('Error', 'No se pudo marcar como leída');
     }
   };
 
@@ -71,15 +97,15 @@ const Notificaciones = ({ navigation }) => {
   const handleMarkAllAsRead = async () => {
     try {
       await markAllAsRead(); // markAllAsRead ya actualiza el conteo localmente
-      Alert.alert('Éxito', 'Todas las notificaciones marcadas como leídas');
+      showAlert('Éxito', 'Todas las notificaciones marcadas como leídas');
     } catch (error) {
-      Alert.alert('Error', 'No se pudieron marcar todas como leídas');
+      showAlert('Error', 'No se pudieron marcar todas como leídas');
     }
   };
 
   // Eliminar notificación
   const handleDelete = async (notificationId) => {
-    Alert.alert(
+    showAlert(
       'Eliminar Notificación',
       '¿Estás seguro de que quieres eliminar esta notificación?',
       [
@@ -91,7 +117,7 @@ const Notificaciones = ({ navigation }) => {
             try {
               await deleteNotification(notificationId); // deleteNotification ya actualiza el conteo localmente
             } catch (error) {
-              Alert.alert('Error', 'No se pudo eliminar la notificación');
+              showAlert('Error', 'No se pudo eliminar la notificación');
             }
           }
         }
@@ -101,7 +127,7 @@ const Notificaciones = ({ navigation }) => {
 
   // Eliminar todas
   const deleteAllNotifications = () => {
-    Alert.alert(
+    showAlert(
       'Eliminar Todas',
       '¿Estás seguro que deseas eliminar todas las notificaciones?',
       [
@@ -112,9 +138,9 @@ const Notificaciones = ({ navigation }) => {
           onPress: async () => {
             try {
               await deleteAllNotificationsFromHook();
-              Alert.alert('Éxito', 'Todas las notificaciones eliminadas');
+              showAlert('Éxito', 'Todas las notificaciones eliminadas');
             } catch (error) {
-              Alert.alert('Error', 'No se pudieron eliminar todas las notificaciones');
+              showAlert('Error', 'No se pudieron eliminar todas las notificaciones');
             }
           }
         }
@@ -407,6 +433,19 @@ const Notificaciones = ({ navigation }) => {
           <View style={NotificacionesStyles.bottomPadding} />
         </ScrollView>
       )}
+
+      {/* Componente de alerta unificado */}
+      <AlertComponent
+        visible={alert.visible}
+        title={alert.title}
+        message={alert.message}
+        type={alert.type}
+        onConfirm={alert.onConfirm}
+        onCancel={alert.onCancel}
+        confirmText={alert.confirmText}
+        cancelText={alert.cancelText}
+        showCancel={alert.showCancel}
+      />
     </View>
   );
 };

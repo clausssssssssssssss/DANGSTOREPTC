@@ -89,6 +89,34 @@ class NotificationService {
   }
 
   /**
+   * Crear notificación de stock bajo
+   */
+  static async createLowStockNotification(productData) {
+    try {
+      const notification = new Notification({
+        title: 'Stock Agotado',
+        message: `El producto "${productData.productName}" se ha agotado (${productData.available} unidades disponibles)`,
+        type: 'low_stock',
+        priority: 'high',
+        data: {
+          productId: productData.productId,
+          productName: productData.productName,
+          available: productData.available
+        },
+        icon: '⚠️',
+      });
+
+      const savedNotification = await notification.save();
+      console.log(' Notificación de stock bajo creada:', savedNotification._id);
+      
+      return savedNotification;
+    } catch (error) {
+      console.error(' Error creando notificación de stock bajo:', error);
+      throw error;
+    }
+  }
+
+  /**
    * Crear notificación para orden cotizada
    */
   static async createQuoteNotification(orderData) {

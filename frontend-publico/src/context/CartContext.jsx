@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { handleAuthError } from '../utils/authUtils';
+import storeConfigService from '../services/storeConfigService';
 
 // URL del servidor en producción (Render)
 const API_BASE = 'https://dangstoreptc-production.up.railway.app/api';
@@ -89,13 +90,30 @@ export const CartProvider = ({ children }) => {
     }
   };
 
-  const addToCart = async ({ productId, quantity = 1 }) => {
-    const json = await authFetch('/cart', {
-      method: 'POST',
-      body: JSON.stringify({ productId, quantity })
-    });
-    const cartData = json.cart || json;
-    sync(cartData);
+  const addToCart = async ({ productId, quantity = 1, productName = 'Producto' }) => {
+    try {
+      // Verificar límites de pedidos
+      const orderLimits = await storeConfigService.canAcceptOrders();
+      if (!orderLimits.success || !orderLimits.canAccept) {
+        throw new Error(`Lo sentimos, hemos alcanzado el límite máximo de ${orderLimits.weeklyMaxOrders || 15} pedidos semanales. Por favor, intenta nuevamente la próxima semana.`);
+      }
+
+      // Verificar stock del producto
+      const stockCheck = await storeConfigService.checkProductStock(productId, quantity);
+      if (!stockCheck.success || !stockCheck.hasStock) {
+        throw new Error(`Lo sentimos, no hay suficiente stock disponible para "${productName}". Solo quedan ${stockCheck.available || 0} unidades.`);
+      }
+
+      const json = await authFetch('/cart', {
+        method: 'POST',
+        body: JSON.stringify({ productId, quantity })
+      });
+      const cartData = json.cart || json;
+      sync(cartData);
+    } catch (error) {
+      // Re-lanzar el error para que el componente pueda manejarlo
+      throw error;
+    }
   };
 
   const updateQuantity = async (productId, quantity) => {

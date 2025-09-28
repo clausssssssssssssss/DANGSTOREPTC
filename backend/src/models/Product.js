@@ -45,9 +45,32 @@ const productSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Customer',
     default: null
+  },
+  // Límites de stock
+  stockLimits: {
+    maxStock: {
+      type: Number,
+      default: null // null significa usar el límite por defecto de la tienda
+    },
+    isStockLimitActive: {
+      type: Boolean,
+      default: true
+    }
   }
 }, {
   timestamps: true
 });
+
+// Método para verificar si hay stock disponible
+productSchema.methods.hasStockAvailable = function(quantity = 1) {
+  if (!this.stockLimits.isStockLimitActive) return true;
+  return this.disponibles >= quantity;
+};
+
+// Método para obtener el límite de stock efectivo
+productSchema.methods.getEffectiveStockLimit = function(storeConfig) {
+  if (!this.stockLimits.isStockLimitActive) return null;
+  return this.stockLimits.maxStock || storeConfig.stockLimits.defaultMaxStock;
+};
 
 export default mongoose.model('Product', productSchema);

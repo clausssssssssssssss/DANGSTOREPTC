@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { View, Text } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -17,6 +17,7 @@ import Inventario from '../screens/Inventario';
 import Ventas from '../screens/Ventas';
 import Notificaciones from '../screens/Notificaciones';
 import Pendientes from '../screens/Pendientes';
+import StockLimites from '../screens/StockLimites';
 import { AuthContext } from '../context/AuthContext';
 
 const Tab = createBottomTabNavigator();
@@ -32,6 +33,7 @@ const InicioStack = () => (
     <Stack.Screen name="InicioMain" component={Inicio} />
     <Stack.Screen name="Notificaciones" component={Notificaciones} />
     <Stack.Screen name="Pendientes" component={Pendientes} />
+    <Stack.Screen name="StockLimites" component={StockLimites} />
   </Stack.Navigator>
 );
 
@@ -42,23 +44,30 @@ const VentasStack = () => (
   </Stack.Navigator>
 );
 
-// Botón de logout para la tab bar
-const LogoutButton = () => {
+// Botón de configuración para la tab bar
+const ConfigButton = () => {
   const navigation = useNavigation();
-  const { logout } = useContext(AuthContext);
+  const [isFocused, setIsFocused] = useState(false);
 
-  const handleLogout = async () => {
-    await logout(); // Limpia el estado de autenticación
-    navigation.replace('AuthApp');
-  };
+  // Detectar si la pantalla está activa
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('state', (e) => {
+      const currentRoute = navigation.getState()?.routes[navigation.getState()?.index];
+      const isConfigActive = currentRoute?.name === 'StockLimites';
+      setIsFocused(isConfigActive);
+    });
+
+    return unsubscribe;
+  }, [navigation]);
 
   return (
-    <TouchableOpacity onPress={handleLogout} style={{ alignItems: 'center', justifyContent: 'center', flex: 1 }}>
-      <Ionicons name="log-out-outline" size={28} color="#EF4444" />
-      <Text style={{ fontSize: 12, color: '#EF4444', fontWeight: '600' }}>Salir</Text>
+    <TouchableOpacity onPress={() => navigation.navigate('StockLimites')} style={{ alignItems: 'center', justifyContent: 'center', flex: 1 }}>
+      <Ionicons name="settings-outline" size={24} color={isFocused ? "#8B5CF6" : "#6B7280"} />
+      <Text style={{ fontSize: 10, color: isFocused ? "#8B5CF6" : "#6B7280", fontWeight: '600' }}>Configuración</Text>
     </TouchableOpacity>
   );
 };
+
 
 // Tab Navigator para la aplicación principal (después de la autenticación)
 const MainTabNavigator = () => {
@@ -137,11 +146,11 @@ const MainTabNavigator = () => {
         }}
       />
       <Tab.Screen
-        name="Logout"
-        component={EmptyComponent}
+        name="StockLimites"
+        component={StockLimites}
         options={{
-          tabBarLabel: 'Salir',
-          tabBarButton: (props) => <LogoutButton {...props} />,
+          tabBarLabel: 'Configuración',
+          tabBarButton: (props) => <ConfigButton {...props} />,
         }}
       />
     </Tab.Navigator>

@@ -17,6 +17,7 @@ import { AuthContext } from '../context/AuthContext';
 import { pendientesStyles as styles } from '../components/styles/PendientesStyles';
 import DateFilter from '../components/DateFilter';
 import { useOrdersWithFilters } from '../hooks/useOrdersWithFilters';
+import AlertComponent from '../components/ui/Alert';
 
 const Pendientes = ({ navigation }) => {
   const { authToken, user } = useContext(AuthContext);
@@ -28,10 +29,35 @@ const Pendientes = ({ navigation }) => {
   const [comment, setComment] = useState('');
   const [priceError, setPriceError] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [alert, setAlert] = useState({
+    visible: false,
+    title: '',
+    message: '',
+    type: 'info',
+    onConfirm: null,
+    onCancel: null,
+    confirmText: 'OK',
+    cancelText: 'Cancelar',
+    showCancel: false,
+  });
 
   const onRefresh = () => {
     setRefreshing(true);
     refresh().finally(() => setRefreshing(false));
+  };
+
+  const showAlert = (title, message, type = 'info', options = {}) => {
+    setAlert({
+      visible: true,
+      title,
+      message,
+      type,
+      onConfirm: options.onConfirm || (() => setAlert(prev => ({ ...prev, visible: false }))),
+      onCancel: options.onCancel || (() => setAlert(prev => ({ ...prev, visible: false }))),
+      confirmText: options.confirmText || 'OK',
+      cancelText: options.cancelText || 'Cancelar',
+      showCancel: options.showCancel || false,
+    });
   };
 
   const openQuoteModal = (order) => {
@@ -68,11 +94,11 @@ const Pendientes = ({ navigation }) => {
     setSubmitting(true);
     try {
       await customOrdersAPI.quoteOrder(selectedOrder._id, price, comment);
-      Alert.alert('Éxito', 'Cotización enviada correctamente');
+        showAlert('Éxito', 'Cotización enviada correctamente', 'success');
       closeModal();
       refresh(); // Refrescar la lista
     } catch (error) {
-      Alert.alert('Error', 'No se pudo enviar la cotización');
+      showAlert('Error', 'No se pudo enviar la cotización', 'error');
     } finally {
       setSubmitting(false);
     }
@@ -423,6 +449,19 @@ const Pendientes = ({ navigation }) => {
           </View>
         </View>
       </Modal>
+
+      {/* Componente de alerta unificado */}
+      <AlertComponent
+        visible={alert.visible}
+        title={alert.title}
+        message={alert.message}
+        type={alert.type}
+        onConfirm={alert.onConfirm}
+        onCancel={alert.onCancel}
+        confirmText={alert.confirmText}
+        cancelText={alert.cancelText}
+        showCancel={alert.showCancel}
+      />
     </SafeAreaView>
   );
 };

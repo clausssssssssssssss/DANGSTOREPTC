@@ -321,7 +321,8 @@ export const pendientesStyles = StyleSheet.create({
   // Estilos para filtros
   filterContainer: {
     paddingHorizontal: 20,
-    paddingVertical: 15,
+    paddingTop: 20,
+    paddingBottom: 15,
     backgroundColor: '#f8f9fa',
     borderBottomWidth: 1,
     borderBottomColor: '#e9ecef',

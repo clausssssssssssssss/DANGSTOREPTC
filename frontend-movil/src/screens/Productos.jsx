@@ -18,6 +18,7 @@ import { Picker } from '@react-native-picker/picker';
 import { AuthContext } from '../context/AuthContext';
 import { useProducts } from '../hooks/useProducts';
 import { ProductosStyles } from '../components/styles/ProductosStyles';
+import AlertComponent from '../components/ui/Alert';
 
 const API_URL = 'https://dangstoreptc-production.up.railway.app/api/products'; // URL consistente con el backend
 
@@ -36,11 +37,11 @@ const Productos = ({ navigation }) => {
   const [productoSeleccionado, setProductoSeleccionado] = useState(null);
   const [cargando, setCargando] = useState(false);
   const [nuevaCategoria, setNuevaCategoria] = useState('');
-  const [customAlert, setCustomAlert] = useState({
+  const [alert, setAlert] = useState({
     visible: false,
     title: '',
     message: '',
-    type: 'info', // 'success', 'error', 'warning', 'info'
+    type: 'info',
     onConfirm: null,
     onCancel: null,
     confirmText: 'OK',
@@ -48,10 +49,18 @@ const Productos = ({ navigation }) => {
     showCancel: false,
   });
 
-  // Debug: Log cuando cambie el estado de customAlert
+  // Estados para gestión de stock
+  const [modalStockVisible, setModalStockVisible] = useState(false);
+  const [productoStockSeleccionado, setProductoStockSeleccionado] = useState(null);
+  const [nuevoStock, setNuevoStock] = useState('');
+  const [maxStock, setMaxStock] = useState('');
+  const [stockLimitActive, setStockLimitActive] = useState(true);
+  const [guardandoStock, setGuardandoStock] = useState(false);
+
+  // Debug: Log cuando cambie el estado de alert
   useEffect(() => {
-    console.log('customAlert state cambió:', customAlert);
-  }, [customAlert]);
+    console.log('alert state cambió:', alert);
+  }, [alert]);
   const [nuevoProducto, setNuevoProducto] = useState({
     nombre: '',
     descripcion: '',
@@ -74,24 +83,98 @@ const Productos = ({ navigation }) => {
     setProductos(productosHook || []);
   }, [productosHook]);
 
-  const showCustomAlert = (title, message, type = 'info', options = {}) => {
-    console.log('showCustomAlert llamado con:', { title, message, type, options });
-    setCustomAlert({
+  const showAlert = (title, message, type = 'info', options = {}) => {
+    setAlert({
       visible: true,
       title,
       message,
       type,
-      onConfirm: options.onConfirm || null,
-      onCancel: options.onCancel || null,
+      onConfirm: options.onConfirm || (() => setAlert(prev => ({ ...prev, visible: false }))),
+      onCancel: options.onCancel || (() => setAlert(prev => ({ ...prev, visible: false }))),
       confirmText: options.confirmText || 'OK',
       cancelText: options.cancelText || 'Cancelar',
       showCancel: options.showCancel || false,
     });
-    console.log('customAlert state actualizado');
   };
 
-  const hideCustomAlert = () => {
-    setCustomAlert(prev => ({ ...prev, visible: false }));
+  // Funciones para gestión de stock
+  const abrirModalStock = (producto) => {
+    setProductoStockSeleccionado(producto);
+    setNuevoStock(producto.disponibles?.toString() || '0');
+    setMaxStock(producto.stockLimits?.maxStock?.toString() || '');
+    setStockLimitActive(producto.stockLimits?.isStockLimitActive !== false);
+    setModalStockVisible(true);
+  };
+
+  const guardarStock = async () => {
+    if (!productoStockSeleccionado) return;
+
+    try {
+      setGuardandoStock(true);
+
+      // Actualizar stock disponible
+      const stockActualizado = parseInt(nuevoStock) || 0;
+      const maxStockActualizado = parseInt(maxStock) || null;
+
+      // Actualizar el producto localmente
+      setProductos(prev => prev.map(p => 
+        p._id === productoStockSeleccionado._id 
+          ? { 
+              ...p, 
+              disponibles: stockActualizado,
+              stockLimits: {
+                ...p.stockLimits, // Mantener otros campos de stockLimits
+                maxStock: maxStockActualizado,
+                isStockLimitActive: stockLimitActive
+              }
+            }
+          : p
+      ));
+
+      showAlert(
+        'Éxito',
+        'Stock actualizado correctamente',
+        'success'
+      );
+
+      setModalStockVisible(false);
+    } catch (error) {
+      console.error('Error guardando stock:', error);
+      showAlert(
+        'Error',
+        'No se pudo actualizar el stock',
+        'error'
+      );
+    } finally {
+      setGuardandoStock(false);
+    }
+  };
+
+  const getStockStatus = (producto) => {
+    if (!producto.stockLimits?.isStockLimitActive) return 'unlimited';
+    if (producto.disponibles === 0) return 'out';
+    if (producto.disponibles <= 3) return 'low';
+    return 'normal';
+  };
+
+  const getStockStatusColor = (status) => {
+    switch (status) {
+      case 'out': return '#EF4444';
+      case 'low': return '#F59E0B';
+      case 'normal': return '#10B981';
+      case 'unlimited': return '#6B7280';
+      default: return '#6B7280';
+    }
+  };
+
+  const getStockStatusText = (status) => {
+    switch (status) {
+      case 'out': return 'Sin stock';
+      case 'low': return 'Stock bajo';
+      case 'normal': return 'En stock';
+      case 'unlimited': return 'Sin límite';
+      default: return 'Desconocido';
+    }
   };
 
   const obtenerProductos = async () => {
@@ -105,7 +188,7 @@ const Productos = ({ navigation }) => {
       setProductos(data);
     } catch (error) {
       console.log('Error obteniendo productos:', error);
-      showCustomAlert('Error', 'No se pudieron cargar los productos', 'error');
+      showAlert('Error', 'No se pudieron cargar los productos', 'error');
     } finally {
       setCargando(false);
     }
@@ -135,12 +218,12 @@ const Productos = ({ navigation }) => {
   const agregarProducto = async () => {
     // Validaciones
     if (!nuevoProducto.nombre || !nuevoProducto.descripcion || !nuevoProducto.precio || !nuevoProducto.disponibles) {
-      showCustomAlert('Error', 'Por favor completa todos los campos obligatorios (nombre, descripción, precio y disponibles)', 'error');
+      showAlert('Error', 'Por favor completa todos los campos obligatorios (nombre, descripción, precio y disponibles)', 'error');
       return;
     }
 
     if (!nuevoProducto.imagen) {
-      showCustomAlert('Error', 'Por favor selecciona una imagen', 'error');
+      showAlert('Error', 'Por favor selecciona una imagen', 'error');
       return;
     }
 
@@ -189,7 +272,7 @@ const Productos = ({ navigation }) => {
       }
 
       if (response.status === 201) {
-        showCustomAlert('Éxito', 'Producto agregado correctamente', 'success');
+        showAlert('Éxito', 'Producto agregado correctamente', 'success');
         setModalVisible(false);
         refreshProducts();
         setNuevoProducto({
@@ -204,7 +287,7 @@ const Productos = ({ navigation }) => {
     } catch (error) {
       console.log('Error al agregar producto:', error);
       const errorMessage = error.message || 'No se pudo agregar el producto';
-      showCustomAlert('Error', `Error al guardar el producto: ${errorMessage}`, 'error');
+      showAlert('Error', `Error al guardar el producto: ${errorMessage}`, 'error');
     } finally {
       setCargando(false);
     }
@@ -224,7 +307,7 @@ const Productos = ({ navigation }) => {
       }
     } catch (error) {
       console.log('Error seleccionando imagen:', error);
-      showCustomAlert('Error', 'No se pudo seleccionar la imagen', 'error');
+      showAlert('Error', 'No se pudo seleccionar la imagen', 'error');
     }
   };
 
@@ -242,7 +325,7 @@ const Productos = ({ navigation }) => {
 
   const eliminarProducto = async (productId) => {
     console.log('Botón eliminar presionado para producto ID:', productId);
-    showCustomAlert(
+    showAlert(
       'Confirmar eliminación',
       '¿Estás seguro de que quieres eliminar este producto? Esta acción no se puede deshacer.',
       'warning',
@@ -272,13 +355,12 @@ const Productos = ({ navigation }) => {
             
             // Recargar la lista usando el hook
             refreshProducts();
-            showCustomAlert('Éxito', 'Producto eliminado correctamente', 'success');
+            showAlert('Éxito', 'Producto eliminado correctamente', 'success');
           } catch (error) {
             console.log('Error eliminando producto:', error);
-            showCustomAlert('Error', 'No se pudo eliminar el producto', 'error');
+            showAlert('Error', 'No se pudo eliminar el producto', 'error');
           }
         },
-        onCancel: () => hideCustomAlert(),
       }
     );
   };
@@ -319,7 +401,7 @@ const Productos = ({ navigation }) => {
     } catch (error) {
       console.log('Error editando producto:', error);
       const errorMessage = error.message || 'No se pudo editar el producto';
-      showCustomAlert('Error', `Error al editar el producto: ${errorMessage}`, 'error');
+      showAlert('Error', `Error al editar el producto: ${errorMessage}`, 'error');
     }
   };
 
@@ -338,7 +420,7 @@ const Productos = ({ navigation }) => {
 
   const crearCategoria = async () => {
     if (!nuevaCategoria.trim()) {
-      showCustomAlert('Error', 'Por favor ingresa un nombre para la categoría', 'error');
+      showAlert('Error', 'Por favor ingresa un nombre para la categoría', 'error');
       return;
     }
 
@@ -359,7 +441,7 @@ const Productos = ({ navigation }) => {
         throw new Error(errorData.message || `HTTP ${response.status} ${response.statusText}`);
       }
 
-      showCustomAlert('Éxito', 'Categoría creada correctamente', 'success');
+      showAlert('Éxito', 'Categoría creada correctamente', 'success');
       setModalCategoriaVisible(false);
       setNuevaCategoria('');
       // Recargar las categorías para incluir la nueva
@@ -367,7 +449,7 @@ const Productos = ({ navigation }) => {
     } catch (error) {
       console.log('Error creando categoría:', error);
       const errorMessage = error.message || 'No se pudo crear la categoría';
-      showCustomAlert('Error', errorMessage, 'error');
+      showAlert('Error', errorMessage, 'error');
     } finally {
       setCargando(false);
     }
@@ -376,7 +458,7 @@ const Productos = ({ navigation }) => {
   const eliminarCategoria = async (categoriaId, categoriaNombre) => {
     const confirmMessage = `¿Estás seguro de que quieres eliminar la categoría "${categoriaNombre}"?\n\n⚠️ ATENCIÓN: También se eliminarán TODOS los productos que pertenecen a esta categoría.\n\nEsta acción no se puede deshacer.`;
 
-    showCustomAlert(
+    showAlert(
       'Confirmar eliminación',
       confirmMessage,
       'warning',
@@ -405,7 +487,7 @@ const Productos = ({ navigation }) => {
               ? `Categoría "${result.categoryName}" eliminada correctamente.\n\n${result.deletedProducts} productos también fueron eliminados.`
               : `Categoría "${result.categoryName}" eliminada correctamente.`;
             
-            showCustomAlert('Éxito', message, 'success');
+            showAlert('Éxito', message, 'success');
             
             // Recargar las categorías para actualizar la lista
             obtenerCategorias();
@@ -414,12 +496,12 @@ const Productos = ({ navigation }) => {
           } catch (error) {
             console.log('Error eliminando categoría:', error);
             const errorMessage = error.message || 'No se pudo eliminar la categoría';
-            showCustomAlert('Error', errorMessage, 'error');
+            showAlert('Error', errorMessage, 'error');
           } finally {
             setCargando(false);
           }
         },
-        onCancel: () => hideCustomAlert(),
+        onCancel: () => setAlert(prev => ({ ...prev, visible: false })),
       }
     );
   };
@@ -433,7 +515,7 @@ const Productos = ({ navigation }) => {
 
   const actualizarCategoria = async () => {
     if (!nuevoNombreCategoria.trim()) {
-      showCustomAlert('Error', 'Por favor ingresa un nombre para la categoría', 'error');
+      showAlert('Error', 'Por favor ingresa un nombre para la categoría', 'error');
       return;
     }
 
@@ -456,7 +538,7 @@ const Productos = ({ navigation }) => {
         throw new Error(errorData.message || `HTTP ${response.status} ${response.statusText}`);
       }
 
-      showCustomAlert('Éxito', 'Categoría actualizada correctamente', 'success');
+      showAlert('Éxito', 'Categoría actualizada correctamente', 'success');
       setModalEditarCategoriaVisible(false);
       setCategoriaEditando(null);
       setNuevoNombreCategoria('');
@@ -465,7 +547,7 @@ const Productos = ({ navigation }) => {
     } catch (error) {
       console.log('Error actualizando categoría:', error);
       const errorMessage = error.message || 'No se pudo actualizar la categoría';
-      showCustomAlert('Error', errorMessage, 'error');
+      showAlert('Error', errorMessage, 'error');
     } finally {
       setCargando(false);
     }
@@ -515,39 +597,63 @@ const Productos = ({ navigation }) => {
     p.nombre && p.nombre.toLowerCase().includes(busqueda.toLowerCase())
   );
 
-  const renderProducto = ({ item }) => (
-    <View style={ProductosStyles.card}>
-      <Image 
-        source={{ uri: item.imagen || 'https://via.placeholder.com/150' }} 
-        style={ProductosStyles.cardImage} 
-      />
-      <Text style={ProductosStyles.cardTitle}>{item.nombre}</Text>
-      <Text style={ProductosStyles.cardText}>Precio: ${item.precio}</Text>
-      <Text style={[ProductosStyles.cardText, item.stock <= 5 && ProductosStyles.lowStockText]}>
-        Disponibles: {item.disponibles || item.stock || 0}
-        {(item.stock <= 5 || item.disponibles <= 5) && ' ⚠️'}
-      </Text>
-      
-      <View style={ProductosStyles.cardActions}>
-        <TouchableOpacity 
-          style={ProductosStyles.editButton}
-          onPress={() => abrirModalEditar(item)}
-        >
-          <Text style={ProductosStyles.editButtonText}>✎</Text>
-        </TouchableOpacity>
+  const renderProducto = ({ item }) => {
+    const stockStatus = getStockStatus(item);
+    const statusColor = getStockStatusColor(stockStatus);
+    const statusText = getStockStatusText(stockStatus);
+
+    return (
+      <View style={ProductosStyles.card}>
+        <Image 
+          source={{ uri: item.imagen || 'https://via.placeholder.com/150' }} 
+          style={ProductosStyles.cardImage} 
+        />
+        <Text style={ProductosStyles.cardTitle}>{item.nombre}</Text>
+        <Text style={ProductosStyles.cardText}>Precio: ${item.precio}</Text>
         
-        <TouchableOpacity 
-          style={ProductosStyles.deleteButton}
-          onPress={() => {
-            console.log('TouchableOpacity delete presionado');
-            eliminarProducto(item._id);
-          }}
-        >
-          <Text style={ProductosStyles.deleteButtonText}>✕</Text>
-        </TouchableOpacity>
+        {/* Información de stock mejorada */}
+        <View style={ProductosStyles.stockInfo}>
+          <Text style={[ProductosStyles.cardText, { color: statusColor }]}>
+            Disponibles: {item.disponibles || item.stock || 0}
+          </Text>
+          <Text style={[ProductosStyles.stockStatusText, { color: statusColor }]}>
+            {statusText}
+          </Text>
+          {item.stockLimits?.maxStock && (
+            <Text style={ProductosStyles.stockLimitText}>
+              Límite: {item.stockLimits.maxStock}
+            </Text>
+          )}
+        </View>
+        
+        <View style={ProductosStyles.cardActions}>
+          <TouchableOpacity 
+            style={ProductosStyles.stockButton}
+            onPress={() => abrirModalStock(item)}
+          >
+            <Text style={ProductosStyles.stockButtonText}>⚙</Text>
+          </TouchableOpacity>
+          
+          <TouchableOpacity 
+            style={ProductosStyles.editButton}
+            onPress={() => abrirModalEditar(item)}
+          >
+            <Text style={ProductosStyles.editButtonText}>✎</Text>
+          </TouchableOpacity>
+          
+          <TouchableOpacity 
+            style={ProductosStyles.deleteButton}
+            onPress={() => {
+              console.log('TouchableOpacity delete presionado');
+              eliminarProducto(item._id);
+            }}
+          >
+            <Text style={ProductosStyles.deleteButtonText}>✕</Text>
+          </TouchableOpacity>
+        </View>
       </View>
-    </View>
-  );
+    );
+  };
 
   return (
     <SafeAreaView style={ProductosStyles.container}>
@@ -991,43 +1097,104 @@ const Productos = ({ navigation }) => {
         </View>
       </Modal>
 
-      {/* Alerta personalizada - fuera de todos los modales */}
-      {customAlert.visible && (
-        <View style={[ProductosStyles.alertOverlay, { zIndex: 10000 }]}>
-          <View style={[ProductosStyles.alertContainer, { zIndex: 10001 }]}>
-            <View style={[ProductosStyles.alertIcon, ProductosStyles[`alertIcon${customAlert.type.charAt(0).toUpperCase() + customAlert.type.slice(1)}`]]}>
-              <Text style={[ProductosStyles.alertIconText, ProductosStyles[`alertIconText${customAlert.type.charAt(0).toUpperCase() + customAlert.type.slice(1)}`]]}>
-                {customAlert.type === 'success' ? '✓' :
-                 customAlert.type === 'error' ? '✕' :
-                 customAlert.type === 'warning' ? '⚠' : 'ℹ'}
+      {/* Modal para gestión de stock */}
+      <Modal
+        visible={modalStockVisible}
+        animationType="fade"
+        transparent
+        onRequestClose={() => !guardandoStock && setModalStockVisible(false)}
+      >
+        <View style={[ProductosStyles.modalOverlay, { zIndex: 200 }]}>
+          <View style={[ProductosStyles.modalBox, { zIndex: 201 }]}>
+            <TouchableOpacity
+              style={ProductosStyles.modalBack}
+              onPress={() => !guardandoStock && setModalStockVisible(false)}
+              disabled={guardandoStock}
+            >
+              <Text style={ProductosStyles.backButtonText}>←</Text>
+            </TouchableOpacity>
+            <ScrollView contentContainerStyle={ProductosStyles.modalContent}>
+              <Text style={ProductosStyles.modalTitle}>
+                Gestionar Stock - {productoStockSeleccionado?.nombre}
               </Text>
-            </View>
 
-            <Text style={ProductosStyles.alertTitle}>{customAlert.title}</Text>
-            <Text style={ProductosStyles.alertMessage}>{customAlert.message}</Text>
+              {/* Stock actual */}
+              <View style={ProductosStyles.stockSection}>
+                <Text style={ProductosStyles.sectionTitle}>Stock Actual</Text>
+                <TextInput
+                  style={ProductosStyles.stockInput}
+                  placeholder="Cantidad disponible"
+                  value={nuevoStock}
+                  onChangeText={setNuevoStock}
+                  keyboardType="numeric"
+                  editable={!guardandoStock}
+                />
+              </View>
 
-            <View style={ProductosStyles.alertButtons}>
-              {customAlert.showCancel && (
+              {/* Límite de stock */}
+              <View style={ProductosStyles.stockSection}>
+                <Text style={ProductosStyles.sectionTitle}>Límite de Stock</Text>
+                <TextInput
+                  style={ProductosStyles.stockInput}
+                  placeholder="Stock máximo (opcional)"
+                  value={maxStock}
+                  onChangeText={setMaxStock}
+                  keyboardType="numeric"
+                  editable={!guardandoStock}
+                />
+              </View>
+
+              {/* Switch para activar/desactivar límite */}
+              <View style={ProductosStyles.switchContainer}>
+                <Text style={ProductosStyles.switchLabel}>Activar límite de stock</Text>
                 <TouchableOpacity
-                  style={[ProductosStyles.alertButton, ProductosStyles.alertButtonCancel]}
-                  onPress={customAlert.onCancel || hideCustomAlert}
+                  style={[ProductosStyles.switch, stockLimitActive && ProductosStyles.switchActive]}
+                  onPress={() => setStockLimitActive(!stockLimitActive)}
+                  disabled={guardandoStock}
                 >
-                  <Text style={ProductosStyles.alertButtonCancelText}>{customAlert.cancelText}</Text>
+                  <View style={[ProductosStyles.switchThumb, stockLimitActive && ProductosStyles.switchThumbActive]} />
                 </TouchableOpacity>
-              )}
+              </View>
 
-              <TouchableOpacity
-                style={[ProductosStyles.alertButton, ProductosStyles[`alertButton${customAlert.type.charAt(0).toUpperCase() + customAlert.type.slice(1)}`]]}
-                onPress={customAlert.onConfirm || hideCustomAlert}
-              >
-                <Text style={ProductosStyles.alertButtonText}>
-                  {customAlert.confirmText}
-                </Text>
-              </TouchableOpacity>
-            </View>
+              {/* Botones de acción */}
+              <View style={ProductosStyles.stockButtonsContainer}>
+                <TouchableOpacity
+                  style={[ProductosStyles.cancelButton, guardandoStock && ProductosStyles.btnDeshabilitado]}
+                  onPress={() => setModalStockVisible(false)}
+                  disabled={guardandoStock}
+                >
+                  <Text style={ProductosStyles.cancelButtonText}>Cancelar</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={[ProductosStyles.agregarBtn, guardandoStock && ProductosStyles.btnDeshabilitado]}
+                  onPress={guardarStock}
+                  disabled={guardandoStock}
+                >
+                  {guardandoStock ? (
+                    <ActivityIndicator color="#fff" />
+                  ) : (
+                    <Text style={ProductosStyles.agregarBtnText}>Guardar Stock</Text>
+                  )}
+                </TouchableOpacity>
+              </View>
+            </ScrollView>
           </View>
         </View>
-      )}
+      </Modal>
+
+      {/* Componente de alerta unificado */}
+      <AlertComponent
+        visible={alert.visible}
+        title={alert.title}
+        message={alert.message}
+        type={alert.type}
+        onConfirm={alert.onConfirm}
+        onCancel={alert.onCancel}
+        confirmText={alert.confirmText}
+        cancelText={alert.cancelText}
+        showCancel={alert.showCancel}
+      />
 
     </SafeAreaView>
   );

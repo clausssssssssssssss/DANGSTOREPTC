@@ -157,6 +157,36 @@ export const createOrder = async (req, res) => {
       return res.status(400).json({ success: false, message: "Items inválidos" });
     }
 
+    // Verificar límites de pedidos semanales
+    const StoreConfig = (await import('../models/StoreConfig.js')).default;
+    const config = await StoreConfig.findOne();
+    
+    if (config && !config.canAcceptOrders()) {
+      return res.status(400).json({
+        success: false,
+        message: `Lo sentimos, hemos alcanzado el límite máximo de ${config.orderLimits.weeklyMaxOrders} pedidos semanales. Por favor, intenta nuevamente la próxima semana.`,
+        code: 'ORDER_LIMIT_REACHED'
+      });
+    }
+
+    // Verificar stock disponible para cada producto
+    const Product = (await import('../models/Product.js')).default;
+    for (const item of items) {
+      if (item.product && item.quantity) {
+        const product = await Product.findById(item.product);
+        if (product && !product.hasStockAvailable(item.quantity)) {
+          return res.status(400).json({
+            success: false,
+            message: `Lo sentimos, no hay suficiente stock disponible para "${product.nombre}". Solo quedan ${product.disponibles} unidades.`,
+            code: 'INSUFFICIENT_STOCK',
+            productId: product._id,
+            available: product.disponibles,
+            requested: item.quantity
+          });
+        }
+      }
+    }
+
     const totalAmount = items.reduce(
       (sum, item) => sum + (item.price ?? 0) * (item.quantity ?? 0),
       0
@@ -175,12 +205,30 @@ export const createOrder = async (req, res) => {
     await Customer.findByIdAndUpdate(userId, { $push: { orders: savedOrder._id } });
 
     if (wompiStatus === "COMPLETED") {
+      // Incrementar contador de pedidos semanales
+      if (config) {
+        await config.incrementOrderCount();
+      }
+
       for (const item of items) {
         if (item.product && item.quantity) {
           const product = await Product.findById(item.product);
           if (product) {
             const newStock = Math.max(0, product.disponibles - item.quantity);
             await Product.findByIdAndUpdate(item.product, { disponibles: newStock });
+            
+            // Verificar si el producto se agotó y enviar notificación
+            if (newStock === 0 && config?.notifications?.lowStockEnabled) {
+              try {
+                await NotificationService.createLowStockNotification({
+                  productId: product._id,
+                  productName: product.nombre,
+                  available: newStock
+                });
+              } catch (notificationError) {
+                console.error('Error creando notificación de stock bajo:', notificationError);
+              }
+            }
           }
         }
       }

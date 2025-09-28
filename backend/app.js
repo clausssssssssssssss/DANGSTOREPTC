@@ -20,6 +20,7 @@ import ratingsRoutes from './src/routes/ratings.js';
 import notificationsRoutes from './src/routes/notifications.js';
 import salesRoutes from './src/routes/sales.js';
 import categoryRoutes from './src/routes/category.js';
+import storeConfigRoutes from './src/routes/storeConfig.js';
 import swaggerUi from "swagger-ui-express";
 import fs from "fs";
 
@@ -135,6 +136,9 @@ app.use('/api/notifications', notificationsRoutes);
 app.use('/api/sales', salesRoutes);
 
 app.use('/api/categories', categoryRoutes);
+
+// Configuración de la tienda (límites de pedidos y stock)
+app.use('/api/store-config', storeConfigRoutes);
 
 // Ruta de prueba para subida de imágenes
 app.post('/api/upload-test', upload.single('imagen'), (req, res) => {

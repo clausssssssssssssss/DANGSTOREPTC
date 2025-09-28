@@ -5,6 +5,7 @@ import {
   TouchableOpacity,
   ScrollView,
   SafeAreaView,
+  Alert,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
@@ -13,6 +14,7 @@ import { AuthContext } from '../context/AuthContext.js';
 import { inicioStyles as styles } from '../components/styles/InicioStyles';
 import { salesAPI } from '../services/salesReport';
 import { useNotifications } from '../hooks/useNotifications';
+import AlertComponent from '../components/ui/Alert';
 
 const Inicio = ({ navigation }) => {
   const { user } = useContext(AuthContext);
@@ -39,6 +41,7 @@ const Inicio = ({ navigation }) => {
 
   // Estado para controlar si estamos cargando datos
   const [loading, setLoading] = useState(false);
+  const [showLogoutAlert, setShowLogoutAlert] = useState(false);
 
 
   // Usar useFocusEffect para actualización automática
@@ -78,6 +81,16 @@ const Inicio = ({ navigation }) => {
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView style={styles.scrollView}>
+        {/* Botón de cerrar sesión fijo arriba a la izquierda */}
+        <TouchableOpacity
+          style={styles.logoutButtonTop}
+          onPress={() => setShowLogoutAlert(true)}
+        >
+          <View style={styles.logoutIcon}>
+            <Ionicons name="log-out-outline" size={24} color="#FFFFFF" />
+          </View>
+        </TouchableOpacity>
+
         {/* Botón de notificaciones */}
         <TouchableOpacity
           style={styles.notificationButton}
@@ -207,6 +220,7 @@ const Inicio = ({ navigation }) => {
             </TouchableOpacity>
           </View>
 
+
           {/* Indicador de última actualización */}
           {!loading && (
             <Text style={{ 
@@ -218,6 +232,7 @@ const Inicio = ({ navigation }) => {
               Última actualización: {new Date().toLocaleTimeString()}
             </Text>
           )}
+
           
           {loading && (
             <Text style={{ 
@@ -230,9 +245,25 @@ const Inicio = ({ navigation }) => {
             </Text>
           )}
         </LinearGradient>
-      </ScrollView>
-    </SafeAreaView>
-  );
-};
+        </ScrollView>
 
-export default Inicio;
+        {/* Componente de alerta para cerrar sesión */}
+        <AlertComponent
+          visible={showLogoutAlert}
+          title="Cerrar Sesión"
+          message="¿Estás seguro de que quieres cerrar sesión?"
+          type="warning"
+          onConfirm={() => {
+            setShowLogoutAlert(false);
+            navigation.replace('AuthApp');
+          }}
+          onCancel={() => setShowLogoutAlert(false)}
+          confirmText="Cerrar Sesión"
+          cancelText="Cancelar"
+          showCancel={true}
+        />
+      </SafeAreaView>
+    );
+  };
+
+  export default Inicio;

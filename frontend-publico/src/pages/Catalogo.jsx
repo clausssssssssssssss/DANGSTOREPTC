@@ -99,13 +99,13 @@ export default function Catalogo() {
     document.body.style.overflow = 'auto';
   };
 
-  const handleAddToCart = async (productId) => {
+  const handleAddToCart = async (productId, productName = 'Producto') => {
     if (!user) {
       showWarning("Debes iniciar sesión para agregar productos al carrito");
       return;
     }
     try {
-      await addToCart({ productId, quantity: 1 });
+      await addToCart({ productId, quantity: 1, productName });
       showSuccess('Producto añadido al carrito');
     } catch (err) {
       console.error('Error adding to cart:', err);
@@ -331,7 +331,7 @@ export default function Catalogo() {
                     className="add-to-cart-btn"
                     onClick={(e) => {
                       e.stopPropagation();
-                      handleAddToCart(product._id);
+                      handleAddToCart(product._id, product.name);
                     }}
                     aria-label="Añadir al carrito"
                   >

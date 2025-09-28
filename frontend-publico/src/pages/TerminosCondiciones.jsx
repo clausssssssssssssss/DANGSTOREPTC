@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../hooks/useAuth';
 import { 
   Check, 
   X, 
@@ -28,6 +29,10 @@ import '../components/styles/TerminosCondiciones.css';
 const TerminosCondiciones = ({ onAccept, onReject, isModal = false }) => {
   const [accepted, setAccepted] = useState(false);
   const navigate = useNavigate();
+  const { user } = useAuth();
+  
+  // Si el usuario está autenticado, no mostrar opciones de aceptar/rechazar
+  const isAuthenticated = !!user;
 
   const handleAccept = () => {
     if (accepted) {
@@ -182,39 +187,64 @@ const TerminosCondiciones = ({ onAccept, onReject, isModal = false }) => {
         </div>
       </div>
 
-      <div className="terminos-footer">
-        <div className="acceptance-section">
-          <label className="acceptance-checkbox">
-            <input
-              type="checkbox"
-              checked={accepted}
-              onChange={(e) => setAccepted(e.target.checked)}
-            />
-            <span className="checkmark"></span>
-            <span className="acceptance-text">
-              He leído y acepto los términos y condiciones de DANGSTORE
-            </span>
-          </label>
-        </div>
+      {!isAuthenticated && (
+        <div className="terminos-footer">
+          <div className="acceptance-section">
+            <label className="acceptance-checkbox">
+              <input
+                type="checkbox"
+                checked={accepted}
+                onChange={(e) => setAccepted(e.target.checked)}
+              />
+              <span className="checkmark"></span>
+              <span className="acceptance-text">
+                He leído y acepto los términos y condiciones de DANGSTORE
+              </span>
+            </label>
+          </div>
 
-        <div className="terminos-actions">
-          <button 
-            className="btn-reject"
-            onClick={handleReject}
-          >
-            <X size={18} />
-            Rechazar
-          </button>
-          <button 
-            className={`btn-accept ${accepted ? 'enabled' : 'disabled'}`}
-            onClick={handleAccept}
-            disabled={!accepted}
-          >
-            <Check size={18} />
-            Aceptar Términos
-          </button>
+          <div className="terminos-actions">
+            <button 
+              className="btn-reject"
+              onClick={handleReject}
+            >
+              <X size={18} />
+              Rechazar
+            </button>
+            <button 
+              className={`btn-accept ${accepted ? 'enabled' : 'disabled'}`}
+              onClick={handleAccept}
+              disabled={!accepted}
+            >
+              <Check size={18} />
+              Aceptar Términos
+            </button>
+          </div>
         </div>
-      </div>
+      )}
+
+      {isAuthenticated && (
+        <div className="terminos-footer-authenticated">
+          <div className="authenticated-message">
+            <div className="message-icon">
+              <Check size={24} />
+            </div>
+            <div className="message-content">
+              <h3>Ya has aceptado nuestros términos y condiciones</h3>
+              <p>Puedes revisar el contenido completo en cualquier momento desde tu perfil.</p>
+            </div>
+          </div>
+          <div className="authenticated-actions">
+            <button 
+              className="btn-back-to-profile"
+              onClick={() => navigate('/perfil')}
+            >
+              <FileText size={18} />
+              Volver al Perfil
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

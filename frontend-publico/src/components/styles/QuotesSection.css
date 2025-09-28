@@ -24,9 +24,10 @@
 
 /* ===== BASE STYLES ===== */
 .quotes-section {
-  overflow-y: auto;
-  max-height: calc(100vh - 200px);
+  overflow: visible;
+  max-height: none;
   padding-bottom: 0;
+  min-height: auto;
 }
 
 .quotes-section .quotes-list {

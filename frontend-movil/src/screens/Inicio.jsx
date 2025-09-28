@@ -9,7 +9,6 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AuthContext } from '../context/AuthContext.js';
 import { inicioStyles as styles } from '../components/styles/InicioStyles';
 import { salesAPI } from '../services/salesReport';
@@ -26,28 +25,6 @@ const Inicio = ({ navigation }) => {
     console.log('🔔 Estado de notificaciones:', { unreadCount, hasUnread, loading: notificationsLoading });
   }, [unreadCount, hasUnread, notificationsLoading]);
 
-  // Función para crear notificación de prueba (TEMPORAL)
-  const createTestNotification = async () => {
-    try {
-      const token = await AsyncStorage.getItem('authToken');
-      const response = await fetch('https://dangstoreptc-production.up.railway.app/api/notifications/test', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        }
-      });
-      
-      if (response.ok) {
-        console.log('✅ Notificación de prueba creada');
-        refreshNotifications(); // Refresh inmediato
-      } else {
-        console.log('❌ Error creando notificación de prueba');
-      }
-    } catch (error) {
-      console.error('❌ Error:', error);
-    }
-  };
 
   const greetingTime = useMemo(() => {
     const hour = new Date().getHours();

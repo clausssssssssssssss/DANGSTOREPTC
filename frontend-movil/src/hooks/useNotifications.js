@@ -22,6 +22,8 @@ export const useNotifications = (autoRefresh = 30000) => {
   // Headers para requests
   const getHeaders = async () => {
     const token = await getAuthToken();
+    console.log('🔔 Token obtenido:', token ? 'Sí' : 'No');
+    console.log('🔔 Token (primeros 20 chars):', token ? token.substring(0, 20) + '...' : 'null');
     return {
       'Content-Type': 'application/json',
       ...(token && { 'Authorization': `Bearer ${token}` }),
@@ -31,6 +33,7 @@ export const useNotifications = (autoRefresh = 30000) => {
   // Cargar todas las notificaciones
   const fetchNotifications = useCallback(async () => {
     try {
+      console.log('🔔 Fetching notifications...');
       setLoading(true);
       setError(null);
 
@@ -42,14 +45,16 @@ export const useNotifications = (autoRefresh = 30000) => {
       }
 
       const data = await response.json();
+      console.log('🔔 Notifications response:', data);
       if (data.success) {
         setNotifications(data.data);
+        console.log('🔔 Notifications updated:', data.data.length);
       } else {
         throw new Error(data.message || 'Error desconocido');
       }
     } catch (err) {
       setError(err.message);
-      console.error('Error cargando notificaciones:', err);
+      console.error('❌ Error cargando notificaciones:', err);
     } finally {
       setLoading(false);
     }
@@ -58,19 +63,44 @@ export const useNotifications = (autoRefresh = 30000) => {
   // Cargar conteo de no leídas
   const fetchUnreadCount = useCallback(async () => {
     try {
+      console.log('🔔 Fetching unread count...');
       const headers = await getHeaders();
+      console.log('🔔 Headers para unread count:', headers);
+      
       const response = await fetch(`${API_URL}/notifications/unread-count`, { headers });
+      console.log('🔔 Response status:', response.status);
+      console.log('🔔 Response ok:', response.ok);
       
       if (response.ok) {
         const data = await response.json();
+        console.log('🔔 Unread count response:', data);
         if (data.success) {
           setUnreadCount(data.unreadCount);
+          console.log('🔔 Unread count updated:', data.unreadCount);
+        } else {
+          console.log('🔔 Error en response data:', data.message);
         }
+      } else {
+        const errorText = await response.text();
+        console.log('🔔 Error response:', response.status, response.statusText);
+        console.log('🔔 Error body:', errorText);
+        
+        // WORKAROUND: Calcular conteo localmente si el endpoint falla
+        console.log('🔔 Calculando conteo localmente como workaround...');
+        const unreadCount = notifications.filter(notification => !notification.isRead).length;
+        setUnreadCount(unreadCount);
+        console.log('🔔 Unread count calculado localmente:', unreadCount);
       }
     } catch (err) {
-      console.error('Error cargando conteo no leídas:', err);
+      console.error('❌ Error cargando conteo no leídas:', err);
+      
+      // WORKAROUND: Calcular conteo localmente si hay error
+      console.log('🔔 Calculando conteo localmente como workaround...');
+      const unreadCount = notifications.filter(notification => !notification.isRead).length;
+      setUnreadCount(unreadCount);
+      console.log('🔔 Unread count calculado localmente:', unreadCount);
     }
-  }, []);
+  }, [notifications]);
 
   // Marcar como leída
   const markAsRead = useCallback(async (notificationId) => {

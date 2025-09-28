@@ -9,12 +9,45 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AuthContext } from '../context/AuthContext.js';
 import { inicioStyles as styles } from '../components/styles/InicioStyles';
 import { salesAPI } from '../services/salesReport';
+import { useNotifications } from '../hooks/useNotifications';
 
 const Inicio = ({ navigation }) => {
   const { user } = useContext(AuthContext);
+  
+  // Hook de notificaciones con auto-refresh cada 10 segundos para testing
+  const { unreadCount, hasUnread, loading: notificationsLoading, refresh: refreshNotifications } = useNotifications(10000);
+  
+  // Debug: Log para verificar el estado de las notificaciones
+  React.useEffect(() => {
+    console.log('🔔 Estado de notificaciones:', { unreadCount, hasUnread, loading: notificationsLoading });
+  }, [unreadCount, hasUnread, notificationsLoading]);
+
+  // Función para crear notificación de prueba (TEMPORAL)
+  const createTestNotification = async () => {
+    try {
+      const token = await AsyncStorage.getItem('authToken');
+      const response = await fetch('https://dangstoreptc-production.up.railway.app/api/notifications/test', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      if (response.ok) {
+        console.log('✅ Notificación de prueba creada');
+        refreshNotifications(); // Refresh inmediato
+      } else {
+        console.log('❌ Error creando notificación de prueba');
+      }
+    } catch (error) {
+      console.error('❌ Error:', error);
+    }
+  };
 
   const greetingTime = useMemo(() => {
     const hour = new Date().getHours();
@@ -35,60 +68,6 @@ const Inicio = ({ navigation }) => {
   // Estado para controlar si estamos cargando datos
   const [loading, setLoading] = useState(false);
 
-  // NUEVO: Estado para el contador de notificaciones
-  const [notificationCount, setNotificationCount] = useState(0);
-
-  // Función para obtener el número real de notificaciones
-  const fetchNotificationCount = async () => {
-    try {
-      // OPCIÓN 1: Si tienes una API específica para notificaciones
-      // const count = await salesAPI.getUnreadNotificationsCount();
-      // setNotificationCount(count);
-
-      // OPCIÓN 2: Calcular basado en datos del negocio
-      let count = 0;
-
-      // Contar pedidos pendientes
-      try {
-        const pendingOrders = await salesAPI.getPendingOrders?.() || [];
-        if (pendingOrders.length > 0) {
-          count += 1; // Una notificación por pedidos pendientes
-        }
-      } catch (error) {
-        console.log('No se pudieron verificar pedidos pendientes');
-      }
-
-      // Contar otras alertas del negocio
-      try {
-        const alerts = await salesAPI.getBusinessAlerts?.() || [];
-        count += alerts.length;
-      } catch (error) {
-        console.log('No hay alertas adicionales');
-      }
-
-      // OPCIÓN 3: Usar datos que ya tienes
-      // Por ejemplo, si ventas bajas = 1 notificación
-      if (summary.daily < 10 && summary.daily > 0) {
-        count += 1;
-      }
-
-      // Si alcanzaste meta semanal = 1 notificación
-      const weeklyGoal = 50;
-      if (summary.weekly >= weeklyGoal) {
-        count += 1;
-      }
-
-      // OPCIÓN 4: Valor fijo mientras implementas el sistema completo
-      // count = 3; // Descomenta esta línea para usar un valor fijo temporal
-
-      setNotificationCount(count);
-      console.log('📱 Contador de notificaciones actualizado:', count);
-
-    } catch (error) {
-      console.error('Error al obtener contador de notificaciones:', error);
-      setNotificationCount(0);
-    }
-  };
 
   // Usar useFocusEffect para actualización automática
   useFocusEffect(
@@ -105,9 +84,6 @@ const Inicio = ({ navigation }) => {
             weekly: data?.weeklyIncome || 0,
             monthly: data?.monthlyIncome || 0,
           });
-          
-          // Actualizar notificaciones después de cargar ventas
-          await fetchNotificationCount();
           
         } catch (error) {
           console.error('❌ Error al cargar resumen de ventas:', error);
@@ -133,20 +109,25 @@ const Inicio = ({ navigation }) => {
         {/* Botón de notificaciones */}
         <TouchableOpacity
           style={styles.notificationButton}
-          onPress={() => navigation.navigate('Notificaciones')}
+          onPress={() => {
+            refreshNotifications(); // Refresh manual
+            navigation.navigate('Notificaciones');
+          }}
         >
           <View style={styles.bellIcon}>
             <Ionicons name="notifications" size={24} color="#1F2937" />
           </View>
-          {/* Solo mostrar el badge si hay notificaciones */}
-          {notificationCount > 0 && (
-            <View style={styles.notificationBadge}>
-              <Text style={styles.badgeText}>
-                {notificationCount > 99 ? '99+' : notificationCount}
-              </Text>
-            </View>
-          )}
+          {/* Badge de notificaciones - siempre visible para debug */}
+          <View style={[
+            styles.notificationBadge,
+            { backgroundColor: hasUnread ? '#EF4444' : '#10B981' }
+          ]}>
+            <Text style={styles.badgeText}>
+              {unreadCount > 99 ? '99+' : unreadCount}
+            </Text>
+          </View>
         </TouchableOpacity>
+
 
         {/* Contenido principal con fondo degradado */}
         <LinearGradient colors={['#FFFFFF', '#9281BF']} style={styles.mainContent}>

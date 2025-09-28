@@ -6,7 +6,8 @@ import {
   markAllNotificationsAsRead,
   deleteNotification,
   deleteAllNotifications,
-  getUnreadCount
+  getUnreadCount,
+  createTestNotification
 } from '../controllers/notificationsController.js';
 
 const router = Router();
@@ -51,6 +52,13 @@ router.delete(
   '/',
   authMiddleware(['admin']),
   deleteAllNotifications
+);
+
+// Crear notificación de prueba (TEMPORAL PARA DEBUG)
+router.post(
+  '/test',
+  authMiddleware(['admin']),
+  createTestNotification
 );
 
 export default router;

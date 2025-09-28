@@ -17,7 +17,7 @@ const notificationSchema = new Schema(
     /** Tipo de notificación */
     type: {
       type: String,
-      enum: ['new_order', 'order_updated', 'payment', 'general'],
+      enum: ['new_order', 'order_updated', 'payment', 'purchase', 'rating', 'general'],
       default: 'general',
     },
 
@@ -41,6 +41,12 @@ const notificationSchema = new Schema(
       modelType: String,
       price: Number,
       imageUrl: String,
+      total: Number,
+      itemsCount: Number,
+      productId: String,
+      productName: String,
+      rating: Number,
+      comment: String,
     },
 
     /** Icono para mostrar en la notificación */

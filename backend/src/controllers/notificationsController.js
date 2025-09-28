@@ -132,7 +132,9 @@ export const deleteAllNotifications = async (req, res) => {
  */
 export const getUnreadCount = async (req, res) => {
   try {
+    console.log('🔔 Controller: Obteniendo conteo de no leídas...');
     const count = await NotificationService.getUnreadCount();
+    console.log('🔔 Controller: Conteo obtenido:', count);
     
     res.status(200).json({
       success: true,
@@ -140,7 +142,37 @@ export const getUnreadCount = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Error obteniendo conteo no leídas:', error);
+    console.error('❌ Error obteniendo conteo no leídas:', error);
+    console.error('❌ Stack trace:', error.stack);
+    res.status(500).json({
+      success: false,
+      message: 'Error interno del servidor',
+      error: error.message
+    });
+  }
+};
+
+/**
+ * Crear notificación de prueba (TEMPORAL PARA DEBUG)
+ */
+export const createTestNotification = async (req, res) => {
+  try {
+    const testNotification = await NotificationService.createRatingNotification({
+      productId: 'test-product-id',
+      customerName: 'Cliente de Prueba',
+      rating: 5,
+      productName: 'Producto de Prueba',
+      comment: 'Esta es una notificación de prueba'
+    });
+    
+    res.status(201).json({
+      success: true,
+      message: 'Notificación de prueba creada',
+      data: testNotification
+    });
+
+  } catch (error) {
+    console.error('Error creando notificación de prueba:', error);
     res.status(500).json({
       success: false,
       message: 'Error interno del servidor'

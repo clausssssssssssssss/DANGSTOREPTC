@@ -24,10 +24,28 @@ const Notificaciones = ({ navigation }) => {
     markAsRead,
     markAllAsRead,
     deleteNotification,
-    refreshNotifications
+    deleteAllNotifications: deleteAllNotificationsFromHook,
+    refresh
   } = useNotifications();
 
   const [refreshing, setRefreshing] = useState(false);
+  
+  // Estado para filtros
+  const [activeFilter, setActiveFilter] = useState('all'); // 'all', 'unread', 'read'
+
+  // Función para filtrar notificaciones
+  const getFilteredNotifications = () => {
+    switch (activeFilter) {
+      case 'unread':
+        return notifications.filter(n => !n.isRead);
+      case 'read':
+        return notifications.filter(n => n.isRead);
+      default:
+        return notifications;
+    }
+  };
+
+  const filteredNotifications = getFilteredNotifications();
 
   // Cargar datos al montar el componente
   useEffect(() => {
@@ -99,18 +117,10 @@ const Notificaciones = ({ navigation }) => {
           style: 'destructive',
           onPress: async () => {
             try {
-              const headers = await getHeaders();
-              const response = await fetch(`${API_URL}/notifications`, {
-                method: 'DELETE',
-                headers,
-              });
-
-              if (response.ok) {
-                setNotifications([]);
-                setUnreadCount(0);
-              }
+              await deleteAllNotificationsFromHook();
+              Alert.alert('Éxito', 'Todas las notificaciones eliminadas');
             } catch (error) {
-              console.error('Error eliminando todas:', error);
+              Alert.alert('Error', 'No se pudieron eliminar todas las notificaciones');
             }
           }
         }
@@ -118,11 +128,38 @@ const Notificaciones = ({ navigation }) => {
     );
   };
 
-  // Navegar a detalles de orden
-  const goToOrderDetails = (orderId) => {
-    if (orderId) {
-      // navigation.navigate('DetallesOrden', { orderId });
-      console.log('Navegar a orden:', orderId);
+  // Navegación inteligente según el tipo de notificación
+  const handleNotificationPress = (item) => {
+    if (!item.isRead) {
+      handleMarkAsRead(item._id);
+    }
+
+    // Navegación inteligente según el tipo
+    switch (item.type) {
+      case 'new_order':
+        // Si es un encargo personalizado, ir a Pendientes
+        if (item.data?.modelType && !item.data?.customerName) {
+          navigation.navigate('Pendientes');
+        } else {
+          // Si es una compra normal, ir a Ventas
+          navigation.navigate('Ventas');
+        }
+        break;
+      case 'order_updated':
+        // Orden actualizada, ir a Ventas
+        navigation.navigate('Ventas');
+        break;
+      case 'payment':
+        // Pago, ir a Ventas
+        navigation.navigate('Ventas');
+        break;
+      case 'rating':
+        // Rating, ir a Productos
+        navigation.navigate('Productos');
+        break;
+      default:
+        // Por defecto, ir a Ventas
+        navigation.navigate('Ventas');
     }
   };
 
@@ -135,6 +172,8 @@ const Notificaciones = ({ navigation }) => {
         case 'new_order': return '#8B5CF6';
         case 'order_updated': return '#10B981';
         case 'payment': return '#F59E0B';
+        case 'rating': return '#F97316';
+        case 'purchase': return '#3B82F6';
         default: return '#6B7280';
       }
     };
@@ -144,6 +183,8 @@ const Notificaciones = ({ navigation }) => {
         case 'new_order': return 'bag-add-outline';
         case 'order_updated': return 'checkmark-circle-outline';
         case 'payment': return 'card-outline';
+        case 'rating': return 'star-outline';
+        case 'purchase': return 'receipt-outline';
         default: return 'notifications-outline';
       }
     };
@@ -174,10 +215,7 @@ const Notificaciones = ({ navigation }) => {
           NotificacionesStyles.notificationCard,
           !item.isRead && NotificacionesStyles.unreadCard
         ]}
-        onPress={() => {
-          if (!item.isRead) handleMarkAsRead(item._id);
-          if (item.data?.orderId) goToOrderDetails(item.data.orderId);
-        }}
+        onPress={() => handleNotificationPress(item)}
       >
         <View style={NotificacionesStyles.cardHeader}>
           <View style={[NotificacionesStyles.iconContainer, { backgroundColor: getTypeColor(item.type) + '20' }]}>
@@ -189,8 +227,8 @@ const Notificaciones = ({ navigation }) => {
           </View>
           
           <View style={NotificacionesStyles.cardContent}>
-            <Text style={NotificacionesStyles.cardTitle}>{item.title}</Text>
-            <Text style={NotificacionesStyles.cardMessage}>{item.message}</Text>
+            <Text style={NotificacionesStyles.cardTitle}>{item.title || 'Sin título'}</Text>
+            <Text style={NotificacionesStyles.cardMessage}>{item.message || 'Sin mensaje'}</Text>
             
             {item.data?.customerName && (
               <Text style={NotificacionesStyles.customerName}>Cliente: {item.data.customerName}</Text>
@@ -198,6 +236,22 @@ const Notificaciones = ({ navigation }) => {
             
             {item.data?.modelType && (
               <Text style={NotificacionesStyles.modelType}>Tipo: {item.data.modelType}</Text>
+            )}
+            
+            {item.data?.productName && (
+              <Text style={NotificacionesStyles.modelType}>Producto: {item.data.productName}</Text>
+            )}
+            
+            {item.data?.rating && (
+              <Text style={NotificacionesStyles.modelType}>Calificación: {item.data.rating} ⭐</Text>
+            )}
+            
+            {item.data?.total && (
+              <Text style={NotificacionesStyles.modelType}>Total: ${item.data.total}</Text>
+            )}
+            
+            {item.data?.itemsCount && (
+              <Text style={NotificacionesStyles.modelType}>Items: {item.data.itemsCount}</Text>
             )}
           </View>
           
@@ -213,7 +267,7 @@ const Notificaciones = ({ navigation }) => {
         </View>
         
         <View style={NotificacionesStyles.cardFooter}>
-          <Text style={NotificacionesStyles.timestamp}>{formatDate(item.createdAt)}</Text>
+          <Text style={NotificacionesStyles.timestamp}>{formatDate(item.createdAt || new Date())}</Text>
           
           {item.data?.price && (
             <Text style={NotificacionesStyles.price}>${item.data.price}</Text>
@@ -282,8 +336,56 @@ const Notificaciones = ({ navigation }) => {
         </View>
       </View>
 
+      {/* Filtros */}
+      <View style={NotificacionesStyles.filtersContainer}>
+        <TouchableOpacity
+          style={[
+            NotificacionesStyles.filterButton,
+            activeFilter === 'all' && NotificacionesStyles.activeFilter
+          ]}
+          onPress={() => setActiveFilter('all')}
+        >
+          <Text style={[
+            NotificacionesStyles.filterText,
+            activeFilter === 'all' && NotificacionesStyles.activeFilterText
+          ]}>
+            Total ({notifications.length})
+          </Text>
+        </TouchableOpacity>
+        
+        <TouchableOpacity
+          style={[
+            NotificacionesStyles.filterButton,
+            activeFilter === 'unread' && NotificacionesStyles.activeFilter
+          ]}
+          onPress={() => setActiveFilter('unread')}
+        >
+          <Text style={[
+            NotificacionesStyles.filterText,
+            activeFilter === 'unread' && NotificacionesStyles.activeFilterText
+          ]}>
+            No leídas ({unreadCount})
+          </Text>
+        </TouchableOpacity>
+        
+        <TouchableOpacity
+          style={[
+            NotificacionesStyles.filterButton,
+            activeFilter === 'read' && NotificacionesStyles.activeFilter
+          ]}
+          onPress={() => setActiveFilter('read')}
+        >
+          <Text style={[
+            NotificacionesStyles.filterText,
+            activeFilter === 'read' && NotificacionesStyles.activeFilterText
+          ]}>
+            Leídas ({notifications.filter(n => n.isRead).length})
+          </Text>
+        </TouchableOpacity>
+      </View>
+
       {/* Notifications List */}
-      {notifications.length === 0 ? (
+      {filteredNotifications.length === 0 ? (
         <View style={NotificacionesStyles.emptyContainer}>
           <Ionicons name="notifications-off-outline" size={80} color="#D1D5DB" />
           <Text style={NotificacionesStyles.emptyTitle}>No hay notificaciones</Text>
@@ -304,7 +406,7 @@ const Notificaciones = ({ navigation }) => {
           }
           showsVerticalScrollIndicator={false}
         >
-          {notifications.map((item, index) => (
+          {filteredNotifications.map((item, index) => (
             <NotificationCard key={item._id} item={item} index={index} />
           ))}
           

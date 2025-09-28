@@ -4,6 +4,7 @@ import Customer from "../models/Customers.js";
 import SalesModel from "../models/Sale.js";
 import Product from "../models/Product.js";
 import { sendEmail } from "../utils/mailService.js";
+import NotificationService from '../services/NotificationService.js';
 
 // ─── Función auxiliar para normalizar productos ───
 function normalizeCartProduct(p) {
@@ -184,6 +185,20 @@ export const createOrder = async (req, res) => {
         }
       }
       await Cart.findOneAndUpdate({ user: userId }, { $set: { products: [], customizedProducts: [] } });
+      
+      // Crear notificación para pedido completado
+      try {
+        const customer = await Customer.findById(userId).select('name email');
+        await NotificationService.createPurchaseNotification({
+          orderId: savedOrder._id,
+          customerName: customer?.name || 'Cliente',
+          total: totalAmount,
+          itemsCount: items.length
+        });
+        console.log('✅ Notificación de compra creada:', savedOrder._id);
+      } catch (notificationError) {
+        console.error('❌ Error creando notificación de compra:', notificationError);
+      }
     }
 
     try {

@@ -105,6 +105,43 @@ const NotificacionesStyles = StyleSheet.create({
     marginHorizontal: 10,
   },
 
+  // Filters
+  filtersContainer: {
+    flexDirection: 'row',
+    marginHorizontal: 20,
+    marginBottom: 16,
+    backgroundColor: 'white',
+    borderRadius: 12,
+    padding: 4,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+  },
+  
+  filterButton: {
+    flex: 1,
+    paddingVertical: 12,
+    paddingHorizontal: 8,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  
+  activeFilter: {
+    backgroundColor: '#8B5CF6',
+  },
+  
+  filterText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#6B7280',
+  },
+  
+  activeFilterText: {
+    color: 'white',
+  },
+
   // Notifications List
   scrollContainer: {
     flex: 1,

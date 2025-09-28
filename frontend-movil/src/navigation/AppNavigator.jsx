@@ -25,6 +25,7 @@ const Stack = createStackNavigator();
 // Componente vacío para la pantalla de Logout
 const EmptyComponent = () => null;
 
+
 // Stack para la pantalla de inicio (permite navegar a notificaciones y pendientes)
 const InicioStack = () => (
   <Stack.Navigator screenOptions={{ headerShown: false }}>

@@ -2,6 +2,7 @@ import Rating from "../models/Ratings.js";
 import Customer from "../models/Customers.js";
 import Product from "../models/Product.js";
 import Order from "../models/Order.js";
+import NotificationService from '../services/NotificationService.js';
 
 const ratingsController = {};
 
@@ -135,6 +136,31 @@ ratingsController.createRating = async (req, res) => {
 
     // Poblar la información del cliente para la respuesta
     await newRating.populate('id_customer', 'name');
+
+    // Crear notificación de rating
+    try {
+      console.log('🔔 Intentando crear notificación de rating...');
+      console.log('🔔 Datos del rating:', {
+        productId: id_product,
+        customerName: newRating.id_customer.name,
+        rating: rating,
+        productName: product.nombre,
+        comment: comment.trim()
+      });
+      
+      const notification = await NotificationService.createRatingNotification({
+        productId: id_product,
+        customerName: newRating.id_customer.name,
+        rating: rating,
+        productName: product.nombre,
+        comment: comment.trim()
+      });
+      
+      console.log('✅ Notificación de rating creada exitosamente:', notification._id);
+    } catch (notificationError) {
+      console.error('❌ Error creando notificación de rating:', notificationError);
+      console.error('❌ Stack trace:', notificationError.stack);
+    }
 
     res.status(201).json({
       _id: newRating._id,

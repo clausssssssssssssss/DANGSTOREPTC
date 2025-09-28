@@ -3,7 +3,7 @@ import Notification from '../models/Notifications.js';
 class NotificationService {
   
   /**
-   * Crear notificación para nueva orden
+   * Crear notificación para nueva orden personalizada
    */
   static async createOrderNotification(orderData) {
     try {
@@ -27,6 +27,35 @@ class NotificationService {
       return savedNotification;
     } catch (error) {
       console.error(' Error creando notificación:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Crear notificación para compra normal (catálogo)
+   */
+  static async createPurchaseNotification(orderData) {
+    try {
+      const notification = new Notification({
+        title: ' Nueva Compra Realizada',
+        message: `${orderData.customerName} compró productos por $${orderData.total}`,
+        type: 'purchase',
+        priority: 'normal',
+        data: {
+          orderId: orderData.orderId,
+          customerName: orderData.customerName,
+          total: orderData.total,
+          itemsCount: orderData.itemsCount,
+        },
+        icon: '🛒',
+      });
+
+      const savedNotification = await notification.save();
+      console.log(' Notificación de compra creada:', savedNotification._id);
+      
+      return savedNotification;
+    } catch (error) {
+      console.error(' Error creando notificación de compra:', error);
       throw error;
     }
   }
@@ -115,6 +144,39 @@ class NotificationService {
   }
 
   /**
+   * Crear notificación para rating de producto
+   */
+  static async createRatingNotification(ratingData) {
+    try {
+      console.log('🔔 Creando notificación de rating con datos:', ratingData);
+      
+      const notification = new Notification({
+        title: ' Nueva Calificación',
+        message: `${ratingData.customerName} calificó un producto con ${ratingData.rating} estrellas`,
+        type: 'rating',
+        priority: 'normal',
+        data: {
+          productId: ratingData.productId,
+          customerName: ratingData.customerName,
+          rating: ratingData.rating,
+          productName: ratingData.productName,
+          comment: ratingData.comment,
+        },
+        icon: '⭐',
+      });
+
+      console.log('🔔 Notificación creada, guardando...');
+      const savedNotification = await notification.save();
+      console.log('✅ Notificación de rating creada exitosamente:', savedNotification._id);
+      
+      return savedNotification;
+    } catch (error) {
+      console.error('❌ Error creando notificación de rating:', error);
+      throw error;
+    }
+  }
+
+  /**
    * Obtener todas las notificaciones (más recientes primero)
    */
   static async getAllNotifications(limit = 50) {
@@ -180,6 +242,32 @@ class NotificationService {
       return await Notification.deleteMany({});
     } catch (error) {
       console.error(' Error eliminando todas las notificaciones:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Obtener conteo de notificaciones no leídas
+   */
+  static async getUnreadCount() {
+    try {
+      console.log('🔔 Service: Obteniendo conteo de notificaciones no leídas...');
+      
+      // Verificar que el modelo existe
+      if (!Notification) {
+        throw new Error('Modelo Notification no está definido');
+      }
+      
+      const totalCount = await Notification.countDocuments({});
+      console.log('🔔 Service: Total notificaciones:', totalCount);
+      
+      const unreadCount = await Notification.countDocuments({ isRead: false });
+      console.log('🔔 Service: No leídas:', unreadCount);
+      
+      return unreadCount;
+    } catch (error) {
+      console.error('❌ Service: Error obteniendo conteo no leídas:', error);
+      console.error('❌ Service: Stack trace:', error.stack);
       throw error;
     }
   }

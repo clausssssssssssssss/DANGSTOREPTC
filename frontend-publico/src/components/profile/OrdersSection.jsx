@@ -93,7 +93,7 @@ const OrdersSection = ({ userId }) => {
   }
 
   return (
-    <div className="content-card">
+    <div className="content-card orders-section">
       <div className="card-header centered-title">
         <div className="card-title">
           <h3>Historial de Pedidos</h3>

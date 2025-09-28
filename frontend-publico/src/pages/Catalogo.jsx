@@ -356,70 +356,82 @@ export default function Catalogo() {
               <button className="close-detail" onClick={closeDetail}>
                 <X size={24} />
               </button>
-              <div className="detail-image">
-                <img 
-                  src={selectedProduct.images?.[0] || '/src/assets/llavero.png'} 
-                  alt={selectedProduct.name}
-                  style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '1rem' }}
-                />
-              </div>
-              <h2 className="detail-title">{selectedProduct.name}</h2>
-              <p className="detail-subtitle">{selectedProduct.category}</p>
-              <p className="detail-price">${formatPrice(selectedProduct.price)}</p>
               
-              {/* Rating y Reseñas */}
-              <div className="product-ratings-section">
-                <div className="rating-summary">
-                  <div className="rating-stars">
-                    <RatingStars rating={averageRating} size={24} showNumber={true} />
-                  </div>
-                  <span className="rating-text">
-                    {totalRatings > 0 ? `${totalRatings} reseña${totalRatings !== 1 ? 's' : ''}` : 'Sin reseñas'}
-                  </span>
+              {/* Contenido principal */}
+              <div className="detail-main-content">
+                {/* Imagen del producto - Lado izquierdo */}
+                <div className="detail-image">
+                  <img 
+                    src={selectedProduct.images?.[0] || '/src/assets/llavero.png'} 
+                    alt={selectedProduct.name}
+                    style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '1rem' }}
+                  />
                 </div>
                 
-                {/* Formulario de Reseña */}
-                <RatingForm
-                  onSubmit={submitRating}
-                  onDelete={deleteRating}
-                  userRating={userRating}
-                  loading={ratingsLoading}
-                  productName={selectedProduct.name}
-                  canRate={canRate}
-                  canRateMessage={canRateMessage}
-                  showSuccess={showSuccess}
-                  showError={showError}
-                  showWarning={showWarning}
-                />
-                
-                {/* Lista de Reseñas */}
-                <RatingsList
-                  ratings={ratings}
-                  loading={ratingsLoading}
-                />
-              </div>
-              
-              <div className="action-buttons">
-                <button 
-                  className="btn btn-primary"
-                  onClick={async () => {
-                    await handleAddToCart(selectedProduct._id);
-                    closeDetail();
-                  }}
-                >
-                  <ShoppingCart size={20} />
-                  <span>Añadir al Carrito</span>
-                </button>
-                <button 
-                  className="btn btn-secondary"
-                  onClick={async (e) => {
-                    e.stopPropagation();
-                    handleFavoriteClick(e, selectedProduct._id);
-                  }}
-                >
-                  <Heart size={20} />
-                  <span>Favoritos</span>
-                </button>
+                {/* Contenido del producto - Lado derecho */}
+                <div className="detail-content">
+                  {/* Título, categoría y precio arriba de la valoración */}
+                  <div className="detail-product-info">
+                    <h2 className="detail-title">{selectedProduct.name}</h2>
+                    <p className="detail-subtitle">{selectedProduct.category}</p>
+                    <p className="detail-price">${formatPrice(selectedProduct.price)}</p>
+                  </div>
+                  
+                  {/* Rating y Reseñas */}
+                  <div className="product-ratings-section">
+                    <div className="rating-summary">
+                      <div className="rating-stars">
+                        <RatingStars rating={averageRating} size={24} showNumber={true} />
+                      </div>
+                      <span className="rating-text">
+                        {totalRatings > 0 ? `${totalRatings} reseña${totalRatings !== 1 ? 's' : ''}` : 'Sin reseñas'}
+                      </span>
+                    </div>
+                    
+                    {/* Formulario de Reseña */}
+                    <RatingForm
+                      onSubmit={submitRating}
+                      onDelete={deleteRating}
+                      userRating={userRating}
+                      loading={ratingsLoading}
+                      productName={selectedProduct.name}
+                      canRate={canRate}
+                      canRateMessage={canRateMessage}
+                      showSuccess={showSuccess}
+                      showError={showError}
+                      showWarning={showWarning}
+                    />
+                    
+                    {/* Lista de Reseñas */}
+                    <RatingsList
+                      ratings={ratings}
+                      loading={ratingsLoading}
+                    />
+                  </div>
+                  
+                  <div className="action-buttons">
+                    <button 
+                      className="btn btn-primary"
+                      onClick={async () => {
+                        await handleAddToCart(selectedProduct._id);
+                        closeDetail();
+                      }}
+                    >
+                      <ShoppingCart size={20} />
+                      <span>Añadir al Carrito</span>
+                    </button>
+                    <button 
+                      className="btn btn-secondary"
+                      onClick={async (e) => {
+                        e.stopPropagation();
+                        handleFavoriteClick(e, selectedProduct._id);
+                      }}
+                    >
+                      <Heart size={20} />
+                      <span>Favoritos</span>
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

@@ -17,13 +17,8 @@ import { useNotifications } from '../hooks/useNotifications';
 const Inicio = ({ navigation }) => {
   const { user } = useContext(AuthContext);
   
-  // Hook de notificaciones con auto-refresh cada 10 segundos para testing
-  const { unreadCount, hasUnread, loading: notificationsLoading, refresh: refreshNotifications } = useNotifications(10000);
-  
-  // Debug: Log para verificar el estado de las notificaciones
-  React.useEffect(() => {
-    console.log('🔔 Estado de notificaciones:', { unreadCount, hasUnread, loading: notificationsLoading });
-  }, [unreadCount, hasUnread, notificationsLoading]);
+  // Hook de notificaciones sin auto-refresh para evitar ciclos
+  const { unreadCount, hasUnread, loading: notificationsLoading, refresh: refreshNotifications } = useNotifications();
 
 
   const greetingTime = useMemo(() => {

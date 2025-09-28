@@ -4,6 +4,7 @@ import 'react-native-gesture-handler';
 import AppNavigator from './src/navigation/AppNavigator';
 import { enableScreens } from 'react-native-screens';
 import { AuthProvider } from './src/context/AuthContext.js';
+import { NotificationsProvider } from './src/context/NotificationsContext.js';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
   enableScreens();
@@ -17,9 +18,11 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
         translucent={false}
       />
       <AuthProvider>
-        <View style={{ flex: 1 }}>
-          <AppNavigator />
-        </View>
+        <NotificationsProvider>
+          <View style={{ flex: 1 }}>
+            <AppNavigator />
+          </View>
+        </NotificationsProvider>
       </AuthProvider>
     </SafeAreaProvider>
   );

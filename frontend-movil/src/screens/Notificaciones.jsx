@@ -20,7 +20,6 @@ const Notificaciones = ({ navigation }) => {
     error,
     unreadCount,
     fetchNotifications,
-    fetchUnreadCount,
     markAsRead,
     markAllAsRead,
     deleteNotification,
@@ -50,22 +49,19 @@ const Notificaciones = ({ navigation }) => {
   // Cargar datos al montar el componente
   useEffect(() => {
     fetchNotifications();
-    fetchUnreadCount();
-  }, [fetchNotifications, fetchUnreadCount]);
+  }, []);
 
   // Manejar refresh manual
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    await fetchNotifications();
-    await fetchUnreadCount();
-      setRefreshing(false);
-  }, [fetchNotifications, fetchUnreadCount]);
+    await fetchNotifications(); // fetchNotifications ya actualiza el conteo localmente
+    setRefreshing(false);
+  }, [fetchNotifications]);
 
   // Marcar como leída y actualizar conteo
   const handleMarkAsRead = async (notificationId) => {
     try {
-      await markAsRead(notificationId);
-      await fetchUnreadCount(); // Actualizar conteo
+      await markAsRead(notificationId); // markAsRead ya actualiza el conteo localmente
     } catch (error) {
       Alert.alert('Error', 'No se pudo marcar como leída');
     }
@@ -74,8 +70,7 @@ const Notificaciones = ({ navigation }) => {
   // Marcar todas como leídas
   const handleMarkAllAsRead = async () => {
     try {
-      await markAllAsRead();
-      await fetchUnreadCount(); // Actualizar conteo
+      await markAllAsRead(); // markAllAsRead ya actualiza el conteo localmente
       Alert.alert('Éxito', 'Todas las notificaciones marcadas como leídas');
     } catch (error) {
       Alert.alert('Error', 'No se pudieron marcar todas como leídas');
@@ -94,8 +89,7 @@ const Notificaciones = ({ navigation }) => {
           style: 'destructive',
           onPress: async () => {
             try {
-              await deleteNotification(notificationId);
-              await fetchUnreadCount(); // Actualizar conteo
+              await deleteNotification(notificationId); // deleteNotification ya actualiza el conteo localmente
             } catch (error) {
               Alert.alert('Error', 'No se pudo eliminar la notificación');
             }

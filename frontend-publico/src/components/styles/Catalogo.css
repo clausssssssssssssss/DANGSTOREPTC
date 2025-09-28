@@ -61,6 +61,7 @@
   background: var(--background-color);
   color: var(--text-primary);
   position: relative;
+  overflow-x: hidden; /* Evita scroll horizontal */
 }
 
 .container {
@@ -497,6 +498,8 @@
   /* Scroll personalizado para el modal */
   scrollbar-width: thin;
   scrollbar-color: var(--scrollbar-color) var(--scrollbar-track);
+  /* Evita doble scroll en móvil */
+  -webkit-overflow-scrolling: touch;
 }
 
 .product-detail-overlay::-webkit-scrollbar {
@@ -1088,6 +1091,10 @@
   .catalog-page {
     padding: 0.75rem 0.5rem;
     padding-top: 1rem;
+    /* Evita doble scroll en móvil */
+    overflow-x: hidden;
+    height: auto;
+    min-height: 100vh;
   }
   
   .container {

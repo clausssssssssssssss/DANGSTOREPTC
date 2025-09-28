@@ -176,16 +176,6 @@ body {
 /* ===== TARJETA COMPACTA OPTIMIZADA ===== */
 .auth-card {
   width: 100%;
-
-  max-width: 380px;
-  background: rgba(255, 255, 255, 0.98);
-  border-radius: 16px;
-  box-shadow: 
-    0 12px 30px rgba(139, 92, 246, 0.15),
-    0 0 0 1px rgba(255, 255, 255, 0.3);
-  padding: 2rem;
-  overflow: hidden;
-
   max-width: 450px;
   background: rgba(255, 255, 255, 0.96);
   border-radius: 20px;
@@ -790,26 +780,29 @@ body {
 
 @media (max-width: 640px) {
   .auth-container {
-    padding: 0.2rem;
+    padding: 1rem;
   }
   
   .auth-card {
-    padding: 1.5rem;
-    border-radius: 14px;
-    max-width: 340px;
+    padding: 2rem;
+    border-radius: 16px;
+    max-width: 100%;
+    width: 100%;
+    margin: 0;
   }
   
   .auth-card.compact {
-    padding: 1.3rem;
-    max-width: 320px;
+    padding: 1.8rem;
+    max-width: 100%;
+    width: 100%;
   }
   
   .auth-title {
-    font-size: 1.4rem;
+    font-size: 1.5rem;
   }
   
   .auth-subtitle {
-    font-size: 0.8rem;
+    font-size: 0.9rem;
   }
   
   .verification-input {
@@ -821,31 +814,33 @@ body {
 
 @media (max-width: 480px) {
   .auth-container {
-    padding: 0.1rem;
+    padding: 0.5rem;
   }
   
   .auth-card {
-    padding: 1.2rem;
-    border-radius: 12px;
-    max-width: 300px;
+    padding: 1.5rem;
+    border-radius: 14px;
+    max-width: 100%;
+    width: 100%;
   }
   
   .auth-card.compact {
-    padding: 1rem;
-    max-width: 280px;
+    padding: 1.3rem;
+    max-width: 100%;
+    width: 100%;
   }
   
   .auth-title {
-    font-size: 1.3rem;
+    font-size: 1.4rem;
   }
   
   .auth-subtitle {
-    font-size: 0.75rem;
-    margin-bottom: 1rem;
+    font-size: 0.85rem;
+    margin-bottom: 1.2rem;
   }
   
   .auth-form {
-    gap: 1rem;
+    gap: 1.1rem;
   }
   
   .verification-input {
@@ -875,22 +870,28 @@ body {
 }
 
 @media (max-width: 360px) {
+  .auth-container {
+    padding: 0.3rem;
+  }
+  
   .auth-card {
-    padding: 1rem;
-    max-width: 260px;
+    padding: 1.2rem;
+    max-width: 100%;
+    width: 100%;
   }
   
   .auth-card.compact {
-    padding: 0.8rem;
-    max-width: 240px;
+    padding: 1rem;
+    max-width: 100%;
+    width: 100%;
   }
   
   .auth-title {
-    font-size: 1.2rem;
+    font-size: 1.3rem;
   }
   
   .auth-subtitle {
-    font-size: 0.7rem;
+    font-size: 0.8rem;
   }
   
   .verification-input {

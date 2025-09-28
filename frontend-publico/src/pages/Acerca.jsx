@@ -32,7 +32,7 @@ const About = () => {
     <div className="about-page" style={{ background: '#ffffff' }}>
       {/* Hero con fondo degradado y diseño mejorado */}
       <section className="hero-olas-section">
-        <div className="hero-content-grid container animate-on-scroll" style={{ maxWidth: '100%', padding: '0 2rem' }}>
+        <div className="hero-content-grid container animate-on-scroll">
           <div className="hero-text">
             <h1 className="hero-title">DANGSTORE</h1>
             <p className="hero-subtitle">Tus recuerdos en pixeles, tu estilo en llavero.</p>
@@ -60,7 +60,7 @@ const About = () => {
 
       {/* Descripción breve de la empresa */}
       <section className="company-description animate-on-scroll">
-        <div className="container" style={{ maxWidth: '100%', padding: '0 2rem' }}>
+        <div className="container">
           <div className="gradient-panel">
             <h2 className="section-title centered large">¿Quiénes somos?</h2>
             <div className="company-separator" aria-hidden="true"></div>
@@ -76,7 +76,7 @@ const About = () => {
 
       {/* ¿Qué hacemos? - Cards */}
       <section className="what-cards animate-on-scroll">
-        <div className="container" style={{ maxWidth: '100%', padding: '0 2rem' }}>
+        <div className="container">
           <div className="gradient-panel">
             <h2 className="section-title centered large">¿Qué hacemos?</h2>
             <div className="company-separator" aria-hidden="true"></div>
@@ -114,7 +114,7 @@ const About = () => {
 
       {/* Misión, Visión y Valores */}
       <section className="mvv-section animate-on-scroll">
-        <div className="container" style={{ maxWidth: '100%', padding: '0 2rem' }}>
+        <div className="container">
           <div className="gradient-panel">
             <h2 className="section-title centered large">Nuestra Esencia</h2>
             <div className="company-separator" aria-hidden="true"></div>
@@ -185,7 +185,7 @@ const About = () => {
       </section>
 
       <footer className="footer">
-        <div className="footer-container" style={{ maxWidth: '100%', padding: '0 2rem' }}>
+        <div className="footer-container">
           <div className="footer-sections">
             {/* Columna 1: DANGSTORE */}
             <div className="footer-section">

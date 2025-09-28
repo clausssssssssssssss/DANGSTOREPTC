@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import '../styles/navBar.css';
 import logo from '../../assets/DANGSTORELOGOPRUEBA__1.png';
+import LightingEffect from './LightingEffect';
 
 const base = 'https://dangstoreptc-production.up.railway.app/api';
 
@@ -191,6 +192,8 @@ export default function NavBar() {
             </div>
           </div>
         </div>
+        {/* Efecto de luces animadas dentro del navbar */}
+        <LightingEffect />
       </nav>
 
       <div 

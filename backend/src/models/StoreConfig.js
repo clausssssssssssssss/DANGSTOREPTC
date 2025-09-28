@@ -28,6 +28,30 @@ const storeConfigSchema = new mongoose.Schema({
       type: Boolean,
       default: true
     },
+    // Límites separados por tipo de producto
+    catalog: {
+      defaultMaxStock: {
+        type: Number,
+        default: 10,
+        min: 1
+      },
+      isLimitActive: {
+        type: Boolean,
+        default: true
+      }
+    },
+    customOrders: {
+      defaultMaxStock: {
+        type: Number,
+        default: 20,
+        min: 1
+      },
+      isLimitActive: {
+        type: Boolean,
+        default: true
+      }
+    },
+    // Límite global (para compatibilidad)
     defaultMaxStock: {
       type: Number,
       default: 10,

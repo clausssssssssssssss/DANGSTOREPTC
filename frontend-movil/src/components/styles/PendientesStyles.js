@@ -459,4 +459,48 @@ export const pendientesStyles = StyleSheet.create({
     textAlign: 'center',
     fontWeight: '600',
   },
+  
+  // Estilos para descarga de imágenes
+  imageContainer: {
+    position: 'relative',
+    marginBottom: 12,
+  },
+  downloadButton: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  downloadButtonText: {
+    color: '#FFFFFF',
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  modalImageContainer: {
+    position: 'relative',
+    marginBottom: 16,
+  },
+  modalDownloadButton: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 3,
+  },
+  modalDownloadButtonText: {
+    color: '#FFFFFF',
+    fontSize: 11,
+    fontWeight: '600',
+  },
 });

@@ -108,20 +108,20 @@ const Notificaciones = ({ navigation }) => {
     showAlert(
       'Eliminar Notificación',
       '¿Estás seguro de que quieres eliminar esta notificación?',
-      [
-        { text: 'Cancelar', style: 'cancel' },
-        {
-          text: 'Eliminar',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              await deleteNotification(notificationId); // deleteNotification ya actualiza el conteo localmente
-            } catch (error) {
-              showAlert('Error', 'No se pudo eliminar la notificación');
-            }
+      'warning',
+      {
+        showCancel: true,
+        confirmText: 'Eliminar',
+        cancelText: 'Cancelar',
+        onConfirm: async () => {
+          try {
+            await deleteNotification(notificationId);
+            showAlert('Éxito', 'Notificación eliminada correctamente', 'success');
+          } catch (error) {
+            showAlert('Error', 'No se pudo eliminar la notificación', 'error');
           }
         }
-      ]
+      }
     );
   };
 
@@ -130,21 +130,20 @@ const Notificaciones = ({ navigation }) => {
     showAlert(
       'Eliminar Todas',
       '¿Estás seguro que deseas eliminar todas las notificaciones?',
-      [
-        { text: 'Cancelar', style: 'cancel' },
-        {
-          text: 'Eliminar Todo',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              await deleteAllNotificationsFromHook();
-              showAlert('Éxito', 'Todas las notificaciones eliminadas');
-            } catch (error) {
-              showAlert('Error', 'No se pudieron eliminar todas las notificaciones');
-            }
+      'warning',
+      {
+        showCancel: true,
+        confirmText: 'Eliminar Todo',
+        cancelText: 'Cancelar',
+        onConfirm: async () => {
+          try {
+            await deleteAllNotificationsFromHook();
+            showAlert('Éxito', 'Todas las notificaciones eliminadas', 'success');
+          } catch (error) {
+            showAlert('Error', 'No se pudieron eliminar todas las notificaciones', 'error');
           }
         }
-      ]
+      }
     );
   };
 

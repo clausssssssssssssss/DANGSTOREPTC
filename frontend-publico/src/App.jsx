@@ -17,6 +17,7 @@ import { CartProvider } from './context/CartContext'
 // Importar estilos globales
 import './index.css'
 import './components/styles/GlobalComponents.css'
+import './styles/scrollbar.css'
 import './App.css'
 
 // Spinner para carga inicial

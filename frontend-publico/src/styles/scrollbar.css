@@ -1,0 +1,92 @@
+/* ===== ESTILOS GLOBALES DE SCROLL MORADO ===== */
+
+/* Variables para scroll */
+:root {
+  --scrollbar-color: #8B5CF6;
+  --scrollbar-track: #f1f5f9;
+  --scrollbar-hover: #7C3AED;
+  --scrollbar-border: #e2e8f0;
+}
+
+/* Estilos globales de scroll para todos los elementos */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-color) var(--scrollbar-track);
+}
+
+/* Webkit scrollbar (Chrome, Safari, Edge) */
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+*::-webkit-scrollbar-track {
+  background: var(--scrollbar-track);
+  border-radius: 4px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-color);
+  border-radius: 4px;
+  border: 1px solid var(--scrollbar-border);
+  transition: background-color 0.2s ease;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-hover);
+}
+
+*::-webkit-scrollbar-corner {
+  background: var(--scrollbar-track);
+}
+
+/* Scroll personalizado para elementos específicos */
+.scroll-purple {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-color) var(--scrollbar-track);
+}
+
+.scroll-purple::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+.scroll-purple::-webkit-scrollbar-track {
+  background: var(--scrollbar-track);
+  border-radius: 5px;
+}
+
+.scroll-purple::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-color);
+  border-radius: 5px;
+  border: 2px solid var(--scrollbar-track);
+}
+
+.scroll-purple::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-hover);
+}
+
+/* Scroll fino para elementos pequeños */
+.scroll-thin {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-color) var(--scrollbar-track);
+}
+
+.scroll-thin::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.scroll-thin::-webkit-scrollbar-track {
+  background: var(--scrollbar-track);
+  border-radius: 3px;
+}
+
+.scroll-thin::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-color);
+  border-radius: 3px;
+}
+
+.scroll-thin::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-hover);
+}

@@ -21,9 +21,15 @@ const StockLimites = ({ navigation }) => {
   const [config, setConfig] = useState(null);
 
   // Estados para los campos del formulario
-  const [isOrderLimitActive, setIsOrderLimitActive] = useState(true);
-  const [weeklyMaxOrders, setWeeklyMaxOrders] = useState('');
   const [isGlobalStockLimitActive, setIsGlobalStockLimitActive] = useState(true);
+  
+  // Límites separados por tipo de producto
+  const [catalogMaxStock, setCatalogMaxStock] = useState('');
+  const [catalogLimitActive, setCatalogLimitActive] = useState(true);
+  const [customOrdersMaxStock, setCustomOrdersMaxStock] = useState('');
+  const [customOrdersLimitActive, setCustomOrdersLimitActive] = useState(true);
+  
+  // Límite global (para compatibilidad)
   const [defaultMaxStock, setDefaultMaxStock] = useState('');
   const [lowStockThreshold, setLowStockThreshold] = useState('');
   const [lowStockEnabled, setLowStockEnabled] = useState(true);
@@ -81,9 +87,15 @@ const StockLimites = ({ navigation }) => {
       if (response.success) {
         const fetchedConfig = response.data;
         setConfig(fetchedConfig);
-        setIsOrderLimitActive(fetchedConfig.orderLimits.isOrderLimitActive);
-        setWeeklyMaxOrders(fetchedConfig.orderLimits.weeklyMaxOrders?.toString() || '');
-        setIsGlobalStockLimitActive(fetchedConfig.stockLimits.isGlobalStockLimitActive);
+        setIsGlobalStockLimitActive(fetchedConfig.stockLimits.isStockLimitActive);
+        
+        // Límites separados por tipo de producto
+        setCatalogMaxStock(fetchedConfig.stockLimits.catalog?.defaultMaxStock?.toString() || '');
+        setCatalogLimitActive(fetchedConfig.stockLimits.catalog?.isLimitActive !== false);
+        setCustomOrdersMaxStock(fetchedConfig.stockLimits.customOrders?.defaultMaxStock?.toString() || '');
+        setCustomOrdersLimitActive(fetchedConfig.stockLimits.customOrders?.isLimitActive !== false);
+        
+        // Límite global (para compatibilidad)
         setDefaultMaxStock(fetchedConfig.stockLimits.defaultMaxStock?.toString() || '');
         setLowStockThreshold(fetchedConfig.stockLimits.lowStockThreshold?.toString() || '');
         setLowStockEnabled(fetchedConfig.notifications.lowStockEnabled);
@@ -104,14 +116,20 @@ const StockLimites = ({ navigation }) => {
     try {
       setSaving(true);
       const configData = {
-        orderLimits: {
-          isOrderLimitActive,
-          weeklyMaxOrders: parseInt(weeklyMaxOrders) || 0,
-        },
         stockLimits: {
-          isGlobalStockLimitActive,
-          defaultMaxStock: parseInt(defaultMaxStock) || 0,
-          lowStockThreshold: parseInt(lowStockThreshold) || 0,
+          isStockLimitActive: isGlobalStockLimitActive,
+          // Límites separados por tipo de producto
+          catalog: {
+            defaultMaxStock: parseInt(catalogMaxStock) || 10,
+            isLimitActive: catalogLimitActive,
+          },
+          customOrders: {
+            defaultMaxStock: parseInt(customOrdersMaxStock) || 20,
+            isLimitActive: customOrdersLimitActive,
+          },
+          // Límite global (para compatibilidad)
+          defaultMaxStock: parseInt(defaultMaxStock) || 10,
+          lowStockThreshold: parseInt(lowStockThreshold) || 5,
         },
         notifications: {
           lowStockEnabled,
@@ -158,102 +176,133 @@ const StockLimites = ({ navigation }) => {
       </View>
 
       <ScrollView style={StockLimitesStyles.scrollViewContent}>
-        {/* Sección de Límites de Pedidos */}
-        <View style={StockLimitesStyles.section}>
-          <Text style={StockLimitesStyles.sectionTitle}>Límites de Pedidos Semanales</Text>
-          <View style={StockLimitesStyles.settingItem}>
-            <Text style={StockLimitesStyles.settingLabel}>Activar Límite de Pedidos</Text>
-            <Switch
-              trackColor={{ false: '#767577', true: '#8B5CF6' }}
-              thumbColor={isOrderLimitActive ? '#F4F3F4' : '#F4F3F4'}
-              ios_backgroundColor="#3e3e3e"
-              onValueChange={setIsOrderLimitActive}
-              value={isOrderLimitActive}
-            />
-          </View>
-          {isOrderLimitActive && (
-            <View style={StockLimitesStyles.inputGroup}>
-              <Text style={StockLimitesStyles.inputLabel}>Máximo de Pedidos por Semana</Text>
-              <TextInput
-                style={StockLimitesStyles.input}
-                keyboardType="numeric"
-                value={weeklyMaxOrders}
-                onChangeText={setWeeklyMaxOrders}
-                placeholder="Ej: 15"
-                placeholderTextColor="#9CA3AF"
-              />
-              <Text style={StockLimitesStyles.currentOrdersText}>
-                Pedidos actuales esta semana: {config?.orderLimits?.currentWeekOrders || 0}
-              </Text>
-            </View>
-          )}
-        </View>
+        {/* Sección de Límites de Stock por Tipo */}
+                <View style={StockLimitesStyles.section}>
+                  <Text style={StockLimitesStyles.sectionTitle}>Límites de Stock por Tipo</Text>
+                  
+                  {/* Límites para Catálogo */}
+                  <View style={StockLimitesStyles.subsection}>
+                    <Text style={StockLimitesStyles.subsectionTitle}>📦 Productos del Catálogo</Text>
+                    <View style={StockLimitesStyles.settingItem}>
+                      <Text style={StockLimitesStyles.settingLabel}>Activar Límite para Catálogo</Text>
+                      <Switch
+                        trackColor={{ false: '#767577', true: '#8B5CF6' }}
+                        thumbColor={catalogLimitActive ? '#F4F3F4' : '#F4F3F4'}
+                        ios_backgroundColor="#3e3e3e"
+                        onValueChange={setCatalogLimitActive}
+                        value={catalogLimitActive}
+                      />
+                    </View>
+                    {catalogLimitActive && (
+                      <View style={StockLimitesStyles.inputGroup}>
+                        <Text style={StockLimitesStyles.inputLabel}>Stock Máximo para Catálogo</Text>
+                        <TextInput
+                          style={StockLimitesStyles.input}
+                          keyboardType="numeric"
+                          value={catalogMaxStock}
+                          onChangeText={setCatalogMaxStock}
+                          placeholder="Ej: 10"
+                          placeholderTextColor="#9CA3AF"
+                        />
+                      </View>
+                    )}
+                  </View>
 
-        {/* Sección de Límites de Stock Global */}
-        <View style={StockLimitesStyles.section}>
-          <Text style={StockLimitesStyles.sectionTitle}>Límites de Stock Global</Text>
-          <View style={StockLimitesStyles.settingItem}>
-            <Text style={StockLimitesStyles.settingLabel}>Activar Límite de Stock Global</Text>
-            <Switch
-              trackColor={{ false: '#767577', true: '#8B5CF6' }}
-              thumbColor={isGlobalStockLimitActive ? '#F4F3F4' : '#F4F3F4'}
-              ios_backgroundColor="#3e3e3e"
-              onValueChange={setIsGlobalStockLimitActive}
-              value={isGlobalStockLimitActive}
-            />
-          </View>
-          {isGlobalStockLimitActive && (
-            <>
-              <View style={StockLimitesStyles.inputGroup}>
-                <Text style={StockLimitesStyles.inputLabel}>Stock Máximo por Defecto</Text>
-                <TextInput
-                  style={StockLimitesStyles.input}
-                  keyboardType="numeric"
-                  value={defaultMaxStock}
-                  onChangeText={setDefaultMaxStock}
-                  placeholder="Ej: 100"
-                  placeholderTextColor="#9CA3AF"
-                />
-              </View>
-              <View style={StockLimitesStyles.inputGroup}>
-                <Text style={StockLimitesStyles.inputLabel}>Umbral de Stock Bajo</Text>
-                <TextInput
-                  style={StockLimitesStyles.input}
-                  keyboardType="numeric"
-                  value={lowStockThreshold}
-                  onChangeText={setLowStockThreshold}
-                  placeholder="Ej: 5"
-                  placeholderTextColor="#9CA3AF"
-                />
-              </View>
-            </>
-          )}
-        </View>
+                  {/* Límites para Encargos Personalizados */}
+                  <View style={StockLimitesStyles.subsection}>
+                    <Text style={StockLimitesStyles.subsectionTitle}>🎨 Encargos Personalizados</Text>
+                    <View style={StockLimitesStyles.settingItem}>
+                      <Text style={StockLimitesStyles.settingLabel}>Activar Límite para Encargos</Text>
+                      <Switch
+                        trackColor={{ false: '#767577', true: '#8B5CF6' }}
+                        thumbColor={customOrdersLimitActive ? '#F4F3F4' : '#F4F3F4'}
+                        ios_backgroundColor="#3e3e3e"
+                        onValueChange={setCustomOrdersLimitActive}
+                        value={customOrdersLimitActive}
+                      />
+                    </View>
+                    {customOrdersLimitActive && (
+                      <View style={StockLimitesStyles.inputGroup}>
+                        <Text style={StockLimitesStyles.inputLabel}>Stock Máximo para Encargos</Text>
+                        <TextInput
+                          style={StockLimitesStyles.input}
+                          keyboardType="numeric"
+                          value={customOrdersMaxStock}
+                          onChangeText={setCustomOrdersMaxStock}
+                          placeholder="Ej: 20"
+                          placeholderTextColor="#9CA3AF"
+                        />
+                      </View>
+                    )}
+                  </View>
 
-        {/* Sección de Notificaciones */}
-        <View style={StockLimitesStyles.section}>
-          <Text style={StockLimitesStyles.sectionTitle}>Notificaciones</Text>
-          <View style={StockLimitesStyles.settingItem}>
-            <Text style={StockLimitesStyles.settingLabel}>Notificar Stock Bajo</Text>
-            <Switch
-              trackColor={{ false: '#767577', true: '#8B5CF6' }}
-              thumbColor={lowStockEnabled ? '#F4F3F4' : '#F4F3F4'}
-              ios_backgroundColor="#3e3e3e"
-              onValueChange={setLowStockEnabled}
-              value={lowStockEnabled}
-            />
-          </View>
-          <View style={StockLimitesStyles.settingItem}>
-            <Text style={StockLimitesStyles.settingLabel}>Notificar Límite de Pedidos Alcanzado</Text>
-            <Switch
-              trackColor={{ false: '#767577', true: '#8B5CF6' }}
-              thumbColor={orderLimitReachedEnabled ? '#F4F3F4' : '#F4F3F4'}
-              ios_backgroundColor="#3e3e3e"
-              onValueChange={setOrderLimitReachedEnabled}
-              value={orderLimitReachedEnabled}
-            />
-          </View>
-        </View>
+                  {/* Límite Global (para compatibilidad) */}
+                  <View style={StockLimitesStyles.settingItem}>
+                    <Text style={StockLimitesStyles.settingLabel}>Activar Límite de Stock Global</Text>
+                    <Switch
+                      trackColor={{ false: '#767577', true: '#8B5CF6' }}
+                      thumbColor={isGlobalStockLimitActive ? '#F4F3F4' : '#F4F3F4'}
+                      ios_backgroundColor="#3e3e3e"
+                      onValueChange={setIsGlobalStockLimitActive}
+                      value={isGlobalStockLimitActive}
+                    />
+                  </View>
+                  {isGlobalStockLimitActive && (
+                    <View style={StockLimitesStyles.inputGroup}>
+                      <Text style={StockLimitesStyles.inputLabel}>Umbral de Stock Bajo</Text>
+                      <TextInput
+                        style={StockLimitesStyles.input}
+                        keyboardType="numeric"
+                        value={lowStockThreshold}
+                        onChangeText={setLowStockThreshold}
+                        placeholder="Ej: 5"
+                        placeholderTextColor="#9CA3AF"
+                      />
+                    </View>
+                  )}
+                </View>
+
+                {/* Sección de Gestión de Stock Individual */}
+                <View style={StockLimitesStyles.section}>
+                  <Text style={StockLimitesStyles.sectionTitle}>Gestión de Stock Individual</Text>
+                  <Text style={StockLimitesStyles.sectionDescription}>
+                    Para configurar el stock individual de cada producto, ve a la pantalla de Productos y usa el botón ⚙ en cada producto.
+                  </Text>
+                  <View style={StockLimitesStyles.settingItem}>
+                    <Text style={StockLimitesStyles.settingLabel}>Configurar stock por producto</Text>
+                    <TouchableOpacity
+                      style={StockLimitesStyles.actionButton}
+                      onPress={() => navigation.navigate('Productos')}
+                    >
+                      <Text style={StockLimitesStyles.actionButtonText}>Ir a Productos</Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+
+                {/* Sección de Notificaciones */}
+                <View style={StockLimitesStyles.section}>
+                  <Text style={StockLimitesStyles.sectionTitle}>Notificaciones</Text>
+                  <View style={StockLimitesStyles.settingItem}>
+                    <Text style={StockLimitesStyles.settingLabel}>Notificar Stock Bajo</Text>
+                    <Switch
+                      trackColor={{ false: '#767577', true: '#8B5CF6' }}
+                      thumbColor={lowStockEnabled ? '#F4F3F4' : '#F4F3F4'}
+                      ios_backgroundColor="#3e3e3e"
+                      onValueChange={setLowStockEnabled}
+                      value={lowStockEnabled}
+                    />
+                  </View>
+                  <View style={StockLimitesStyles.settingItem}>
+                    <Text style={StockLimitesStyles.settingLabel}>Notificar Límite de Pedidos Alcanzado</Text>
+                    <Switch
+                      trackColor={{ false: '#767577', true: '#8B5CF6' }}
+                      thumbColor={orderLimitReachedEnabled ? '#F4F3F4' : '#F4F3F4'}
+                      ios_backgroundColor="#3e3e3e"
+                      onValueChange={setOrderLimitReachedEnabled}
+                      value={orderLimitReachedEnabled}
+                    />
+                  </View>
+                </View>
 
         <TouchableOpacity
           style={[StockLimitesStyles.saveButton, saving && StockLimitesStyles.saveButtonDisabled]}

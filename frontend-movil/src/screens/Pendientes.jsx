@@ -11,7 +11,13 @@ import {
   Alert,
   ActivityIndicator,
   RefreshControl,
+  Linking,
+  Platform,
 } from 'react-native';
+import * as FileSystem from 'expo-file-system/legacy';
+import * as Sharing from 'expo-sharing';
+import * as MediaLibrary from 'expo-media-library';
+import { Ionicons } from '@expo/vector-icons';
 import { customOrdersAPI, getImageUrl } from '../services/customOrders';
 import { AuthContext } from '../context/AuthContext';
 import { pendientesStyles as styles } from '../components/styles/PendientesStyles';
@@ -44,6 +50,83 @@ const Pendientes = ({ navigation }) => {
   const onRefresh = () => {
     setRefreshing(true);
     refresh().finally(() => setRefreshing(false));
+  };
+
+  // Función para descargar imagen
+  const downloadImage = async (imageUrl, orderId) => {
+    try {
+      console.log('Iniciando descarga de imagen:', { imageUrl, orderId });
+      
+      if (!imageUrl) {
+        showAlert('Error', 'No hay imagen disponible para descargar', 'error');
+        return;
+      }
+
+      // Solicitar permisos para acceder a la galería
+      console.log('Solicitando permisos de galería...');
+      const { status } = await MediaLibrary.requestPermissionsAsync();
+      console.log('Estado de permisos:', status);
+      
+      if (status !== 'granted') {
+        showAlert('Error', 'Se necesitan permisos para acceder a la galería', 'error');
+        return;
+      }
+
+      const fullImageUrl = getImageUrl(imageUrl);
+      console.log('URL completa de imagen:', fullImageUrl);
+      
+      // Crear nombre de archivo único
+      const fileName = `encargo_${orderId}_${Date.now()}.jpg`;
+      const fileUri = FileSystem.documentDirectory + fileName;
+      console.log('URI del archivo:', fileUri);
+
+      let downloadResult;
+
+      // Manejar data URLs (base64) vs URLs HTTP/HTTPS
+      if (fullImageUrl.startsWith('data:')) {
+        console.log('Procesando data URL (base64)...');
+        // Para data URLs, escribir directamente el base64
+        const base64Data = fullImageUrl.split(',')[1]; // Remover el prefijo data:image/jpeg;base64,
+        await FileSystem.writeAsStringAsync(fileUri, base64Data, {
+          encoding: FileSystem.EncodingType.Base64,
+        });
+        downloadResult = { status: 200, uri: fileUri };
+        console.log('Data URL procesada exitosamente');
+      } else {
+        console.log('Descargando desde URL HTTP/HTTPS...');
+        // Para URLs HTTP/HTTPS, usar downloadAsync
+        downloadResult = await FileSystem.downloadAsync(fullImageUrl, fileUri);
+        console.log('Descarga HTTP completada:', downloadResult);
+      }
+      
+      if (downloadResult.status === 200) {
+        console.log('Guardando en galería...');
+        // Guardar en la galería del dispositivo
+        const asset = await MediaLibrary.createAssetAsync(downloadResult.uri);
+        console.log('Asset creado:', asset);
+        
+        await MediaLibrary.createAlbumAsync('DangStore', asset, false);
+        console.log('Álbum creado/actualizado');
+        
+        // También ofrecer compartir
+        const isAvailable = await Sharing.isAvailableAsync();
+        console.log('Sharing disponible:', isAvailable);
+        
+        if (isAvailable) {
+          await Sharing.shareAsync(downloadResult.uri, {
+            mimeType: 'image/jpeg',
+            dialogTitle: 'Descargar imagen del encargo'
+          });
+        }
+        
+        showAlert('Éxito', 'Imagen guardada en la galería correctamente', 'success');
+      } else {
+        showAlert('Error', 'No se pudo descargar la imagen', 'error');
+      }
+    } catch (error) {
+      console.error('Error completo descargando imagen:', error);
+      showAlert('Error', 'Error al descargar la imagen: ' + error.message, 'error');
+    }
   };
 
   const showAlert = (title, message, type = 'info', options = {}) => {
@@ -212,11 +295,20 @@ const Pendientes = ({ navigation }) => {
         </View>
 
         {item.imageUrl && (
-          <Image 
-            source={{ uri: getImageUrl(item.imageUrl) }}
-            style={styles.orderImage}
-            resizeMode="cover"
-          />
+          <View style={styles.imageContainer}>
+            <Image 
+              source={{ uri: getImageUrl(item.imageUrl) }}
+              style={styles.orderImage}
+              resizeMode="cover"
+            />
+            <TouchableOpacity
+              style={styles.downloadButton}
+              onPress={() => downloadImage(item.imageUrl, item._id)}
+            >
+              <Ionicons name="download-outline" size={20} color="#FFFFFF" />
+              <Text style={styles.downloadButtonText}>Descargar</Text>
+            </TouchableOpacity>
+          </View>
         )}
 
         <View style={styles.orderDetails}>
@@ -372,11 +464,20 @@ const Pendientes = ({ navigation }) => {
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
               {selectedOrder?.imageUrl && (
-                <Image 
-                  source={{ uri: getImageUrl(selectedOrder.imageUrl) }}
-                  style={styles.modalImage}
-                  resizeMode="cover"
-                />
+                <View style={styles.modalImageContainer}>
+                  <Image 
+                    source={{ uri: getImageUrl(selectedOrder.imageUrl) }}
+                    style={styles.modalImage}
+                    resizeMode="cover"
+                  />
+                  <TouchableOpacity
+                    style={styles.modalDownloadButton}
+                    onPress={() => downloadImage(selectedOrder.imageUrl, selectedOrder._id)}
+                  >
+                    <Ionicons name="download-outline" size={18} color="#FFFFFF" />
+                    <Text style={styles.modalDownloadButtonText}>Descargar</Text>
+                  </TouchableOpacity>
+                </View>
               )}
               <Text style={styles.modalTitle}>
                 {getModelTypeLabel(selectedOrder?.modelType)}

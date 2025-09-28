@@ -24,17 +24,13 @@
 
 /* ===== BASE STYLES ===== */
 .quotes-section {
-  background: var(--background-color);
-  border-radius: var(--border-radius);
-  padding: var(--spacing-lg);
-  box-shadow: var(--shadow-light);
-  border: 1px solid var(--border-color);
-  position: relative;
-  overflow: hidden;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  max-height: calc(100vh - 100px);
+  overflow-y: auto;
+  max-height: calc(100vh - 200px);
+  padding-bottom: 0;
+}
+
+.quotes-section .quotes-list {
+  margin-bottom: 20px;
 }
 
 .quotes-section::before {
@@ -142,21 +138,23 @@
 /* ===== QUOTES LIST ===== */
 .quotes-list {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
   gap: var(--spacing-md);
   margin-top: var(--spacing-md);
+  min-height: 0;
+  overflow: visible;
+  padding-bottom: 20px;
 }
 
 /* ===== FAVORITES GRID (REUSED FOR QUOTES) ===== */
 .favorites-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: var(--spacing-sm);
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: var(--spacing-md);
   margin-top: var(--spacing-md);
-  flex: 1;
-  overflow-y: auto;
-  padding-right: 8px;
-  max-height: calc(100vh - 300px);
+  min-height: 0;
+  overflow: visible;
+  padding-bottom: 20px;
 }
 
 /* Scrollbar personalizado para el grid */

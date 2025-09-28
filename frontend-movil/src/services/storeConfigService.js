@@ -42,16 +42,18 @@ class StoreConfigService {
     return {
       success: true,
       data: {
-        orderLimits: {
-          weeklyMaxOrders: 15,
-          currentWeekOrders: 0,
-          lastResetDate: new Date(),
-          isOrderLimitActive: true
-        },
         stockLimits: {
+          isStockLimitActive: true,
+          catalog: {
+            defaultMaxStock: 10,
+            isLimitActive: true
+          },
+          customOrders: {
+            defaultMaxStock: 20,
+            isLimitActive: true
+          },
           defaultMaxStock: 10,
-          lowStockThreshold: 5,
-          isGlobalStockLimitActive: true
+          lowStockThreshold: 5
         },
         notifications: {
           lowStockEnabled: true,

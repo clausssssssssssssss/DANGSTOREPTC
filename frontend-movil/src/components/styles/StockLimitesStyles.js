@@ -133,4 +133,43 @@ export const StockLimitesStyles = StyleSheet.create({
     fontSize: 16,
     color: '#4B5563',
   },
+  actionButton: {
+    backgroundColor: '#8B5CF6',
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  actionButtonText: {
+    color: 'white',
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
+  helpText: {
+    fontSize: 12,
+    color: '#6B7280',
+    fontStyle: 'italic',
+    marginTop: 8,
+    textAlign: 'center',
+  },
+  sectionDescription: {
+    fontSize: 14,
+    color: '#6B7280',
+    marginBottom: 15,
+    lineHeight: 20,
+  },
+  subsection: {
+    backgroundColor: '#F8FAFC',
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 15,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+  },
+  subsectionTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#1F2937',
+    marginBottom: 10,
+  },
 });

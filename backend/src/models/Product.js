@@ -31,6 +31,12 @@ const productSchema = new mongoose.Schema({
     type: String,
     default: null
   },
+  // Tipo de producto
+  productType: {
+    type: String,
+    enum: ['catalog', 'customOrder'],
+    default: 'catalog'
+  },
   // Campos para productos que provienen de encargos personalizados
   isFromCustomOrder: {
     type: Boolean,
@@ -70,7 +76,16 @@ productSchema.methods.hasStockAvailable = function(quantity = 1) {
 // Método para obtener el límite de stock efectivo
 productSchema.methods.getEffectiveStockLimit = function(storeConfig) {
   if (!this.stockLimits.isStockLimitActive) return null;
-  return this.stockLimits.maxStock || storeConfig.stockLimits.defaultMaxStock;
+  
+  // Si tiene límite específico, usarlo
+  if (this.stockLimits.maxStock) return this.stockLimits.maxStock;
+  
+  // Usar límite según el tipo de producto
+  if (this.productType === 'customOrder') {
+    return storeConfig.stockLimits.customOrders.defaultMaxStock;
+  } else {
+    return storeConfig.stockLimits.catalog.defaultMaxStock;
+  }
 };
 
 export default mongoose.model('Product', productSchema);

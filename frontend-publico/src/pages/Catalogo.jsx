@@ -91,13 +91,23 @@ export default function Catalogo() {
 
   const openDetail = (product) => {
     setSelectedProduct(product);
+    // Desactivar scroll del body de forma suave
     document.body.style.overflow = 'hidden';
   };
 
   const closeDetail = () => {
     setSelectedProduct(null);
-    document.body.style.overflow = 'auto';
+    // Reactivar scroll del body
+    document.body.style.overflow = '';
   };
+
+  // Limpiar estilos del body cuando el componente se desmonte
+  useEffect(() => {
+    return () => {
+      // Asegurar que el scroll del body se restaure al salir del componente
+      document.body.style.overflow = '';
+    };
+  }, []);
 
   const handleAddToCart = async (productId, productName = 'Producto') => {
     if (!user) {

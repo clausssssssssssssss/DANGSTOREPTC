@@ -136,7 +136,7 @@ const FavoritesSection = ({ userId }) => {
   }
 
   return (
-    <div className="content-card">
+    <div className="content-card favorites-section">
       <div className="card-header centered-title">
         <div className="card-title">
           <Heart size={20} className="section-icon" />

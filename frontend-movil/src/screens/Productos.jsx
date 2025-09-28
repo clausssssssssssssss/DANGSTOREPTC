@@ -117,10 +117,10 @@ const Productos = ({ navigation }) => {
       const maxStockActualizado = parseInt(maxStock) || null;
 
       // Actualizar el producto localmente
-      setProductos(prev => prev.map(p => 
-        p._id === productoStockSeleccionado._id 
-          ? { 
-              ...p, 
+      setProductos(prev => prev.map(p =>
+        p._id === productoStockSeleccionado._id
+          ? {
+              ...p,
               disponibles: stockActualizado,
               stockLimits: {
                 ...p.stockLimits, // Mantener otros campos de stockLimits
@@ -150,6 +150,7 @@ const Productos = ({ navigation }) => {
     }
   };
 
+  // Funciones helper de stock
   const getStockStatus = (producto) => {
     if (!producto.stockLimits?.isStockLimitActive) return 'unlimited';
     if (producto.disponibles === 0) return 'out';
@@ -216,19 +217,25 @@ const Productos = ({ navigation }) => {
   };
 
   const agregarProducto = async () => {
+    try {
+      console.log('Iniciando agregarProducto con:', nuevoProducto);
+      
     // Validaciones
     if (!nuevoProducto.nombre || !nuevoProducto.descripcion || !nuevoProducto.precio || !nuevoProducto.disponibles) {
-      showAlert('Error', 'Por favor completa todos los campos obligatorios (nombre, descripción, precio y disponibles)', 'error');
+        console.log('Validación fallida: campos obligatorios');
+        showAlert('Error', 'Por favor completa todos los campos obligatorios (nombre, descripción, precio y disponibles)', 'error');
       return;
     }
 
     if (!nuevoProducto.imagen) {
-      showAlert('Error', 'Por favor selecciona una imagen', 'error');
+        console.log('Validación fallida: imagen requerida');
+        showAlert('Error', 'Por favor selecciona una imagen', 'error');
       return;
     }
 
-    try {
       setCargando(true);
+      console.log('Creando FormData...');
+      
       const formData = new FormData();
       formData.append('nombre', nuevoProducto.nombre);
       formData.append('descripcion', nuevoProducto.descripcion);
@@ -247,8 +254,10 @@ const Productos = ({ navigation }) => {
           name: filename,
           type,
         });
+        console.log('Imagen agregada al FormData:', { filename, type });
       }
       
+      console.log('Enviando petición a:', API_URL);
       const response = await fetch(API_URL, {
         method: 'POST',
         body: formData,
@@ -257,22 +266,27 @@ const Productos = ({ navigation }) => {
         },
       });
       
+      console.log('Respuesta recibida:', response.status, response.statusText);
+      
       if (!response.ok) {
         // Intentar obtener el mensaje de error del servidor
         let errorMessage = `HTTP ${response.status} ${response.statusText}`;
         try {
           const errorData = await response.json();
+          console.log('Error data del servidor:', errorData);
           if (errorData.error) {
             errorMessage = errorData.error;
           }
         } catch (e) {
-          // Si no se puede parsear el JSON, usar el mensaje por defecto
+          console.log('No se pudo parsear el error del servidor:', e);
         }
         throw new Error(errorMessage);
       }
 
-      if (response.status === 201) {
-        showAlert('Éxito', 'Producto agregado correctamente', 'success');
+      const responseData = await response.json();
+      console.log('Respuesta exitosa:', responseData);
+
+      showAlert('Éxito', 'Producto agregado correctamente', 'success');
         setModalVisible(false);
         refreshProducts();
         setNuevoProducto({
@@ -283,9 +297,8 @@ const Productos = ({ navigation }) => {
           categoria: 'Llavero',
           imagen: null,
         });
-      }
     } catch (error) {
-      console.log('Error al agregar producto:', error);
+      console.error('Error completo al agregar producto:', error);
       const errorMessage = error.message || 'No se pudo agregar el producto';
       showAlert('Error', `Error al guardar el producto: ${errorMessage}`, 'error');
     } finally {
@@ -603,19 +616,19 @@ const Productos = ({ navigation }) => {
     const statusText = getStockStatusText(stockStatus);
 
     return (
-      <View style={ProductosStyles.card}>
-        <Image 
-          source={{ uri: item.imagen || 'https://via.placeholder.com/150' }} 
-          style={ProductosStyles.cardImage} 
-        />
-        <Text style={ProductosStyles.cardTitle}>{item.nombre}</Text>
-        <Text style={ProductosStyles.cardText}>Precio: ${item.precio}</Text>
+    <View style={ProductosStyles.card}>
+      <Image 
+        source={{ uri: item.imagen || 'https://via.placeholder.com/150' }} 
+        style={ProductosStyles.cardImage} 
+      />
+      <Text style={ProductosStyles.cardTitle}>{item.nombre}</Text>
+      <Text style={ProductosStyles.cardText}>Precio: ${item.precio}</Text>
         
         {/* Información de stock mejorada */}
         <View style={ProductosStyles.stockInfo}>
           <Text style={[ProductosStyles.cardText, { color: statusColor }]}>
-            Disponibles: {item.disponibles || item.stock || 0}
-          </Text>
+        Disponibles: {item.disponibles || item.stock || 0}
+      </Text>
           <Text style={[ProductosStyles.stockStatusText, { color: statusColor }]}>
             {statusText}
           </Text>
@@ -625,8 +638,8 @@ const Productos = ({ navigation }) => {
             </Text>
           )}
         </View>
-        
-        <View style={ProductosStyles.cardActions}>
+      
+      <View style={ProductosStyles.cardActions}>
           <TouchableOpacity 
             style={ProductosStyles.stockButton}
             onPress={() => abrirModalStock(item)}
@@ -634,25 +647,25 @@ const Productos = ({ navigation }) => {
             <Text style={ProductosStyles.stockButtonText}>⚙</Text>
           </TouchableOpacity>
           
-          <TouchableOpacity 
-            style={ProductosStyles.editButton}
-            onPress={() => abrirModalEditar(item)}
-          >
-            <Text style={ProductosStyles.editButtonText}>✎</Text>
-          </TouchableOpacity>
-          
-          <TouchableOpacity 
-            style={ProductosStyles.deleteButton}
-            onPress={() => {
-              console.log('TouchableOpacity delete presionado');
-              eliminarProducto(item._id);
-            }}
-          >
-            <Text style={ProductosStyles.deleteButtonText}>✕</Text>
-          </TouchableOpacity>
-        </View>
+        <TouchableOpacity 
+          style={ProductosStyles.editButton}
+          onPress={() => abrirModalEditar(item)}
+        >
+          <Text style={ProductosStyles.editButtonText}>✎</Text>
+        </TouchableOpacity>
+        
+        <TouchableOpacity 
+          style={ProductosStyles.deleteButton}
+          onPress={() => {
+            console.log('TouchableOpacity delete presionado');
+            eliminarProducto(item._id);
+          }}
+        >
+          <Text style={ProductosStyles.deleteButtonText}>✕</Text>
+        </TouchableOpacity>
       </View>
-    );
+    </View>
+  );
   };
 
   return (
@@ -699,6 +712,7 @@ const Productos = ({ navigation }) => {
           <Text style={ProductosStyles.categoriaBtnText}>+ Nueva categoría</Text>
         </TouchableOpacity>
       </View>
+
       
       <View style={ProductosStyles.managementButtonsContainer}>
         <TouchableOpacity
@@ -1129,7 +1143,7 @@ const Productos = ({ navigation }) => {
                   keyboardType="numeric"
                   editable={!guardandoStock}
                 />
-              </View>
+            </View>
 
               {/* Límite de stock */}
               <View style={ProductosStyles.stockSection}>
@@ -1158,7 +1172,7 @@ const Productos = ({ navigation }) => {
 
               {/* Botones de acción */}
               <View style={ProductosStyles.stockButtonsContainer}>
-                <TouchableOpacity
+              <TouchableOpacity
                   style={[ProductosStyles.cancelButton, guardandoStock && ProductosStyles.btnDeshabilitado]}
                   onPress={() => setModalStockVisible(false)}
                   disabled={guardandoStock}
@@ -1176,8 +1190,8 @@ const Productos = ({ navigation }) => {
                   ) : (
                     <Text style={ProductosStyles.agregarBtnText}>Guardar Stock</Text>
                   )}
-                </TouchableOpacity>
-              </View>
+              </TouchableOpacity>
+            </View>
             </ScrollView>
           </View>
         </View>

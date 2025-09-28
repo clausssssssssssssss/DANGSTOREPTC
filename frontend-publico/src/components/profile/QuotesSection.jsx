@@ -297,7 +297,7 @@ const QuotesSection = ({ setHasQuotesFlag, showSuccess, showError, showWarning }
   }
 
   return (
-    <div className="content-card">
+    <div className="content-card quotes-section">
       <div className="card-header centered-title">
         <div className="card-title">
           <Gift className="section-icon" />
@@ -342,7 +342,7 @@ const QuotesSection = ({ setHasQuotesFlag, showSuccess, showError, showWarning }
           </p>
         </div>
       ) : (
-        <div className="favorites-grid">
+        <div className="quotes-list">
           {quotes.map((quote) => {
             return (
               <div key={quote._id} className="favorite-card">

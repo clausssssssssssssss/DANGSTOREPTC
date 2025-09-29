@@ -38,6 +38,10 @@ const storeConfigSchema = new mongoose.Schema({
       isLimitActive: {
         type: Boolean,
         default: true
+      },
+      currentWeekSales: {
+        type: Number,
+        default: 0
       }
     },
     customOrders: {

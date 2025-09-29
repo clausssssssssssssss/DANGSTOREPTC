@@ -260,3 +260,59 @@ export const getLowStockProducts = async (req, res) => {
     });
   }
 };
+
+/**
+ * Verificar límite global del catálogo
+ */
+export const checkCatalogLimit = async (req, res) => {
+  try {
+    const config = await StoreConfig.findOne();
+    
+    if (!config) {
+      return res.status(200).json({
+        success: true,
+        canBuy: true,
+        message: 'No hay límites configurados para el catálogo'
+      });
+    }
+    
+    // Verificar si el límite de catálogo está activo
+    if (!config.stockLimits.catalog.isLimitActive) {
+      return res.status(200).json({
+        success: true,
+        canBuy: true,
+        message: 'Límite de catálogo desactivado'
+      });
+    }
+    
+    // Contar productos vendidos del catálogo en la semana actual
+    const now = new Date();
+    const weekStart = new Date(config.orderLimits.weekStartDate);
+    const daysDiff = Math.floor((now - weekStart) / (1000 * 60 * 60 * 24));
+    
+    // Si han pasado más de 7 días, resetear el contador
+    if (daysDiff >= 7) {
+      config.stockLimits.catalog.currentWeekSales = 0;
+      config.orderLimits.weekStartDate = now;
+      await config.save();
+    }
+    
+    const maxCatalogOrders = config.stockLimits.catalog.defaultMaxStock;
+    const currentCatalogSales = config.stockLimits.catalog.currentWeekSales || 0;
+    const canBuy = currentCatalogSales < maxCatalogOrders;
+    
+    res.status(200).json({
+      success: true,
+      canBuy,
+      currentCatalogSales,
+      maxCatalogOrders,
+      remaining: Math.max(0, maxCatalogOrders - currentCatalogSales)
+    });
+  } catch (error) {
+    console.error('Error verificando límite del catálogo:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error interno del servidor'
+    });
+  }
+};

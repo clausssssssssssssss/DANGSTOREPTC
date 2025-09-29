@@ -98,10 +98,10 @@ export const CartProvider = ({ children }) => {
         throw new Error(`Lo sentimos, hemos alcanzado el límite máximo de ${orderLimits.weeklyMaxOrders || 15} pedidos semanales. Por favor, intenta nuevamente la próxima semana.`);
       }
 
-      // Verificar stock del producto
-      const stockCheck = await storeConfigService.checkProductStock(productId, quantity);
-      if (!stockCheck.success || !stockCheck.hasStock) {
-        throw new Error(`Lo sentimos, no hay suficiente stock disponible para "${productName}". Solo quedan ${stockCheck.available || 0} unidades.`);
+      // Verificar límite global del catálogo
+      const catalogLimit = await storeConfigService.checkCatalogLimit();
+      if (!catalogLimit.success || !catalogLimit.canBuy) {
+        throw new Error(`Lo sentimos, hemos alcanzado el límite máximo de ${catalogLimit.maxCatalogOrders || 10} productos del catálogo. Por favor, intenta nuevamente la próxima semana.`);
       }
 
       const json = await authFetch('/cart', {

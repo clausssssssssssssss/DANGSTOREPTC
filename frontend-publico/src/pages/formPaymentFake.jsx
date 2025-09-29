@@ -395,13 +395,24 @@ const FormPaymentFake = () => {
     // SIEMPRE ir al paso 4 - la compra se realiza independientemente del resultado
     console.log('🔄 Procesando pago y navegando al paso 4...');
     
-    // Mostrar mensaje de éxito
+    // Mostrar mensaje según el resultado
     if (result?.success) {
       console.log('✅ Pago exitoso confirmado por el servidor');
       showSuccess('¡Pago simulado exitoso!', 4000);
     } else {
-      console.log('⚠️ Error en respuesta del servidor, pero continuando al paso 4');
-      showWarning('El pago se procesó. Verifica tu perfil para confirmar la compra.', 5000);
+      console.log('⚠️ Error en respuesta del servidor');
+      
+      // Verificar si es un error de stock
+      if (result?.error?.message?.includes('stock disponible') || 
+          result?.error?.message?.includes('solo quedan')) {
+        showError(result.error.message, 6000);
+        return; // No continuar al paso 4 si hay error de stock
+      } else if (result?.error?.message?.includes('límite máximo')) {
+        showError(result.error.message, 6000);
+        return; // No continuar al paso 4 si hay error de límite
+      } else {
+        showWarning('El pago se procesó. Verifica tu perfil para confirmar la compra.', 5000);
+      }
     }
     
     // Si es pago de cotización, limpiar la URL

@@ -208,6 +208,21 @@ export const createOrder = async (req, res) => {
       // Incrementar contador de pedidos semanales
       if (config) {
         await config.incrementOrderCount();
+        
+        // Incrementar contador de ventas del catálogo
+        const now = new Date();
+        const weekStart = new Date(config.orderLimits.weekStartDate);
+        const daysDiff = Math.floor((now - weekStart) / (1000 * 60 * 60 * 24));
+        
+        // Si han pasado más de 7 días, resetear el contador
+        if (daysDiff >= 7) {
+          config.stockLimits.catalog.currentWeekSales = 1;
+          config.orderLimits.weekStartDate = now;
+        } else {
+          config.stockLimits.catalog.currentWeekSales = (config.stockLimits.catalog.currentWeekSales || 0) + 1;
+        }
+        
+        await config.save();
       }
 
       for (const item of items) {

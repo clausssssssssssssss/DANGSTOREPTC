@@ -4,7 +4,7 @@ import { Heart, ShoppingCart, X, Star, TrendingUp, Plus, Check } from 'lucide-re
 import { useAuth } from '../hooks/useAuth.jsx';
 import { useProducts } from '../components/catalog/hook/useProducts.jsx';
 import useCategories from '../hooks/useCategories.jsx';
-import { useCart } from '../components/cart/hook/useCart.jsx';
+import { useCart } from '../context/CartContext.jsx';
 import { useFavorites } from '../components/catalog/hook/useFavorites.jsx';
 import { useRatings } from '../components/catalog/hook/useRatings.jsx';
 import { useAllProductsRatings } from '../components/catalog/hook/useAllProductsRatings.jsx';
@@ -22,7 +22,7 @@ export default function Catalogo() {
   const userId = user?.id;
   const { products, loading, error, refresh, lastUpdate } = useProducts();
   const { categories, loading: categoriesLoading, error: categoriesError } = useCategories();
-  const { addToCart } = useCart(userId);
+  const { addToCart } = useCart();
   const { favorites, toggleFavorite } = useFavorites(userId);
   const { toasts, showSuccess, showError, showWarning, showInfo, removeToast } = useToast();
   const [searchParams, setSearchParams] = useSearchParams();

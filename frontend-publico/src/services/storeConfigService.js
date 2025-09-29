@@ -72,6 +72,29 @@ class StoreConfigService {
     }
   }
 
+  // Verificar límite global del catálogo
+  async checkCatalogLimit() {
+    try {
+      const response = await fetch(`${API_URL}/store-config/catalog-limit`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`Error ${response.status}: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Error verificando límite del catálogo:', error);
+      // En caso de error, asumir que se puede comprar
+      return { success: true, canBuy: true };
+    }
+  }
+
   // Obtener información de límites de la tienda
   async getStoreLimitsInfo() {
     try {

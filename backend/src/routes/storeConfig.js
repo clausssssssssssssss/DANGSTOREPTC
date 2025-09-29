@@ -4,6 +4,7 @@ import {
   getStoreConfig,
   updateStoreConfig,
   canAcceptOrders,
+  checkCatalogLimit,
   checkProductStock,
   updateProductStockLimits,
   getLowStockProducts
@@ -45,6 +46,12 @@ router.get(
 );
 
 // Esta ruta no es necesaria ya que el incremento se hace automáticamente en cartController
+
+// Verificar límite global del catálogo (público)
+router.get(
+  '/catalog-limit',
+  checkCatalogLimit
+);
 
 // Verificar stock disponible para un producto (público)
 router.get(

@@ -169,23 +169,8 @@ export const createOrder = async (req, res) => {
       });
     }
 
-    // Verificar stock disponible para cada producto
-    const Product = (await import('../models/Product.js')).default;
-    for (const item of items) {
-      if (item.product && item.quantity) {
-        const product = await Product.findById(item.product);
-        if (product && !product.hasStockAvailable(item.quantity)) {
-          return res.status(400).json({
-            success: false,
-            message: `Lo sentimos, no hay suficiente stock disponible para "${product.nombre}". Solo quedan ${product.disponibles} unidades.`,
-            code: 'INSUFFICIENT_STOCK',
-            productId: product._id,
-            available: product.disponibles,
-            requested: item.quantity
-          });
-        }
-      }
-    }
+    // La validación de límite global del catálogo se hace en el frontend
+    // No necesitamos validar stock individual aquí ya que el límite es global
 
     const totalAmount = items.reduce(
       (sum, item) => sum + (item.price ?? 0) * (item.quantity ?? 0),

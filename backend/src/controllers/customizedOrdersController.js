@@ -2,6 +2,7 @@ import CustomizedOrder from '../models/CustomOrder.js';
 import Customers from '../models/Customers.js';
 import NotificationService from '../services/NotificationService.js';
 import productController from './productController.js';
+import StoreConfig from '../models/StoreConfig.js';
 
 /**
  * Crear nueva orden personalizada (desde web)
@@ -35,6 +36,31 @@ export const createCustomOrder = async (req, res) => {
         success: false,
         message: 'Usuario no autenticado'
       });
+    }
+
+    // Verificar límite de encargos personalizados
+    const config = await StoreConfig.findOne();
+    if (config && config.stockLimits.customOrders.isLimitActive) {
+      const now = new Date();
+      const weekStart = new Date(config.orderLimits.weekStartDate);
+      const daysDiff = Math.floor((now - weekStart) / (1000 * 60 * 60 * 24));
+      
+      // Si han pasado más de 7 días, resetear el contador
+      if (daysDiff >= 7) {
+        config.stockLimits.customOrders.currentWeekOrders = 0;
+        config.orderLimits.weekStartDate = now;
+        await config.save();
+      }
+      
+      const maxCustomOrders = config.stockLimits.customOrders.defaultMaxStock;
+      const currentCustomOrders = config.stockLimits.customOrders.currentWeekOrders || 0;
+      
+      if (currentCustomOrders >= maxCustomOrders) {
+        return res.status(400).json({
+          success: false,
+          message: `Lo sentimos, hemos alcanzado el límite máximo de ${maxCustomOrders} encargos personalizados. Por favor, intenta nuevamente la próxima semana.`
+        });
+      }
     }
 
     let imageUrl = '';
@@ -71,6 +97,24 @@ export const createCustomOrder = async (req, res) => {
 
     console.log(' Guardando orden en base de datos...');
     const savedOrder = await customOrder.save();
+    
+    // Incrementar contador de encargos personalizados
+    if (config && config.stockLimits.customOrders.isLimitActive) {
+      const now = new Date();
+      const weekStart = new Date(config.orderLimits.weekStartDate);
+      const daysDiff = Math.floor((now - weekStart) / (1000 * 60 * 60 * 24));
+      
+      // Si han pasado más de 7 días, resetear el contador
+      if (daysDiff >= 7) {
+        config.stockLimits.customOrders.currentWeekOrders = 1;
+        config.orderLimits.weekStartDate = now;
+      } else {
+        config.stockLimits.customOrders.currentWeekOrders = (config.stockLimits.customOrders.currentWeekOrders || 0) + 1;
+      }
+      
+      await config.save();
+      console.log(' Contador de encargos personalizados incrementado');
+    }
     
     console.log(' Orden personalizada creada exitosamente:', savedOrder._id);
 

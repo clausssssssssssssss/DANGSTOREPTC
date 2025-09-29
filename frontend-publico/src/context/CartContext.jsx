@@ -92,16 +92,14 @@ export const CartProvider = ({ children }) => {
 
   const addToCart = async ({ productId, quantity = 1, productName = 'Producto' }) => {
     try {
-      // Verificar límites de pedidos
+      // Verificar límites de pedidos (esto controla el límite del catálogo)
       const orderLimits = await storeConfigService.canAcceptOrders();
       if (!orderLimits.success || !orderLimits.canAccept) {
-        throw new Error(`Lo sentimos, hemos alcanzado el límite máximo de ${orderLimits.weeklyMaxOrders || 15} pedidos semanales. Por favor, intenta nuevamente la próxima semana.`);
-      }
-
-      // Verificar límite global del catálogo
-      const catalogLimit = await storeConfigService.checkCatalogLimit();
-      if (!catalogLimit.success || !catalogLimit.canBuy) {
-        throw new Error(`Lo sentimos, hemos alcanzado el límite máximo de ${catalogLimit.maxCatalogOrders || 10} productos del catálogo. Por favor, intenta nuevamente la próxima semana.`);
+        if (orderLimits.isCatalogLimit) {
+          throw new Error(`Lo sentimos, hemos alcanzado el límite máximo de ${orderLimits.weeklyMaxOrders || 10} productos del catálogo. Por favor, intenta nuevamente la próxima semana.`);
+        } else {
+          throw new Error(`Lo sentimos, hemos alcanzado el límite máximo de ${orderLimits.weeklyMaxOrders || 15} pedidos semanales. Por favor, intenta nuevamente la próxima semana.`);
+        }
       }
 
       const json = await authFetch('/cart', {

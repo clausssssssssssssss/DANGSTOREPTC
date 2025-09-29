@@ -78,7 +78,7 @@ export const updateStoreConfig = async (req, res) => {
 };
 
 /**
- * Verificar si se pueden aceptar más pedidos
+ * Verificar si se pueden aceptar más pedidos (incluye límite del catálogo)
  */
 export const canAcceptOrders = async (req, res) => {
   try {
@@ -92,15 +92,48 @@ export const canAcceptOrders = async (req, res) => {
       });
     }
     
-    const canAccept = config.canAcceptOrders();
-    const remainingOrders = config.orderLimits.weeklyMaxOrders - config.orderLimits.currentWeekOrders;
+    // Verificar límite general de pedidos
+    const canAcceptGeneral = config.canAcceptOrders();
+    
+    // Verificar límite específico del catálogo
+    let canAcceptCatalog = true;
+    let remainingCatalogOrders = 0;
+    
+    if (config.stockLimits.catalog.isLimitActive) {
+      const now = new Date();
+      const weekStart = new Date(config.orderLimits.weekStartDate);
+      const daysDiff = Math.floor((now - weekStart) / (1000 * 60 * 60 * 24));
+      
+      // Si han pasado más de 7 días, resetear el contador del catálogo
+      if (daysDiff >= 7) {
+        config.stockLimits.catalog.currentWeekSales = 0;
+        config.orderLimits.weekStartDate = now;
+        await config.save();
+      }
+      
+      const maxCatalogOrders = config.stockLimits.catalog.defaultMaxStock;
+      const currentCatalogSales = config.stockLimits.catalog.currentWeekSales || 0;
+      canAcceptCatalog = currentCatalogSales < maxCatalogOrders;
+      remainingCatalogOrders = Math.max(0, maxCatalogOrders - currentCatalogSales);
+    }
+    
+    // El límite del catálogo es más restrictivo, así que lo usamos
+    const canAccept = canAcceptGeneral && canAcceptCatalog;
+    const remainingOrders = config.stockLimits.catalog.isLimitActive ? 
+      remainingCatalogOrders : 
+      (config.orderLimits.weeklyMaxOrders - config.orderLimits.currentWeekOrders);
     
     res.status(200).json({
       success: true,
       canAccept,
       remainingOrders: Math.max(0, remainingOrders),
-      currentWeekOrders: config.orderLimits.currentWeekOrders,
-      weeklyMaxOrders: config.orderLimits.weeklyMaxOrders
+      currentWeekOrders: config.stockLimits.catalog.isLimitActive ? 
+        (config.stockLimits.catalog.currentWeekSales || 0) : 
+        config.orderLimits.currentWeekOrders,
+      weeklyMaxOrders: config.stockLimits.catalog.isLimitActive ? 
+        config.stockLimits.catalog.defaultMaxStock : 
+        config.orderLimits.weeklyMaxOrders,
+      isCatalogLimit: config.stockLimits.catalog.isLimitActive
     });
   } catch (error) {
     console.error('Error verificando límites de pedidos:', error);

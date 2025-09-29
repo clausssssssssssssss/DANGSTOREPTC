@@ -53,6 +53,10 @@ const storeConfigSchema = new mongoose.Schema({
       isLimitActive: {
         type: Boolean,
         default: true
+      },
+      currentWeekOrders: {
+        type: Number,
+        default: 0
       }
     },
     // Límite global (para compatibilidad)

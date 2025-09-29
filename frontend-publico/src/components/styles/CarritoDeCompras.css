@@ -6,6 +6,11 @@
   padding: 1rem 0.5rem;
   padding-top: 2rem;
   background: #ffffff;
+  width: 100%;
+  max-width: 100vw;
+  /* Solo scroll vertical - sin scroll horizontal */
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 .cart-content {
@@ -14,6 +19,8 @@
   background: #ffffff;
   border-radius: 16px;
   padding: 1.5rem;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 /* Header */
@@ -124,6 +131,9 @@
   border: 1px solid #e5e7eb;
   position: relative;
   transition: all 0.3s ease;
+  width: 100%;
+  box-sizing: border-box;
+  /* Sin scroll interno - se adapta al contenido */
 }
 
 .cart-item:hover {

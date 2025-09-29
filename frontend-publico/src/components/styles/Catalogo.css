@@ -61,7 +61,8 @@
   background: var(--background-color);
   color: var(--text-primary);
   position: relative;
-  overflow-x: hidden; /* Evita scroll horizontal */
+  /* SIN SCROLL INTERNO - solo usa el scroll del navegador */
+  overflow: visible;
 }
 
 .container {
@@ -69,6 +70,8 @@
   margin: 0 auto;
   padding: 20px;
   width: 100%;
+  /* SIN SCROLL INTERNO - solo usa el scroll del navegador */
+  overflow: visible;
 }
 
 /* Banner de Productos */
@@ -382,6 +385,8 @@
   grid-template-columns: repeat(auto-fill, minmax(min(280px, 100%), 1fr));
   gap: var(--spacing-md);
   width: 100%;
+  /* SIN SCROLL INTERNO - solo usa el scroll del navegador */
+  overflow: visible;
 }
 
 .product-card {
@@ -493,33 +498,11 @@
   z-index: 1000;
   padding: var(--spacing-sm);
   box-sizing: border-box;
-  overflow-y: auto;
-  overflow-x: hidden;
-  /* Scroll personalizado para el modal */
-  scrollbar-width: thin;
-  scrollbar-color: var(--scrollbar-color) var(--scrollbar-track);
-  /* Evita doble scroll en móvil */
-  -webkit-overflow-scrolling: touch;
+  /* SIN SCROLL EN EL MODAL - usa el scroll de la página */
+  overflow: visible;
 }
 
-.product-detail-overlay::-webkit-scrollbar {
-  width: 10px;
-}
-
-.product-detail-overlay::-webkit-scrollbar-track {
-  background: var(--scrollbar-track);
-  border-radius: 5px;
-}
-
-.product-detail-overlay::-webkit-scrollbar-thumb {
-  background: var(--scrollbar-color);
-  border-radius: 5px;
-  border: 2px solid var(--scrollbar-track);
-}
-
-.product-detail-overlay::-webkit-scrollbar-thumb:hover {
-  background: var(--scrollbar-hover);
-}
+/* Removido scroll del modal - solo usa el scroll de la página */
 
 .product-detail-card {
   background: white;
@@ -685,6 +668,32 @@
   background: #f8f9fa;
   border-radius: 10px;
   border: 1px solid #e9ecef;
+  /* SCROLL EN LA CARD - altura fija para valoraciones */
+  max-height: 300px;
+  overflow-y: auto;
+  /* Scroll personalizado para la card de valoraciones */
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-color) var(--scrollbar-track);
+}
+
+/* Scroll personalizado para la card de valoraciones */
+.product-ratings-section::-webkit-scrollbar {
+  width: 8px;
+}
+
+.product-ratings-section::-webkit-scrollbar-track {
+  background: var(--scrollbar-track);
+  border-radius: 4px;
+}
+
+.product-ratings-section::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-color);
+  border-radius: 4px;
+  border: 1px solid var(--scrollbar-track);
+}
+
+.product-ratings-section::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-hover);
 }
 
 .rating-summary {
@@ -1091,10 +1100,11 @@
   .catalog-page {
     padding: 0.75rem 0.5rem;
     padding-top: 1rem;
-    /* Evita doble scroll en móvil */
-    overflow-x: hidden;
+    /* Optimizado para scroll móvil sin conflictos */
     height: auto;
     min-height: 100vh;
+    width: 100%;
+    max-width: 100vw;
   }
   
   .container {

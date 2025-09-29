@@ -37,12 +37,44 @@ export default function Catalogo() {
     }
     return numPrice.toFixed(2);
   };
+
+  // Función helper para determinar el estado del stock
+  const getStockStatus = (product) => {
+    const disponibles = product.disponibles || product.stock || 0;
+    
+    if (disponibles === 0) {
+      return { status: 'agotado', text: 'Agotado', class: 'stock-agotado' };
+    } else if (disponibles <= 3) {
+      return { status: 'bajo', text: `Solo quedan ${disponibles}`, class: 'stock-bajo' };
+    } else if (disponibles <= 10) {
+      return { status: 'medio', text: `${disponibles} disponibles`, class: 'stock-medio' };
+    } else {
+      return { status: 'alto', text: 'En stock', class: 'stock-alto' };
+    }
+  };
   
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [catalogLimitInfo, setCatalogLimitInfo] = useState(null);
   
   // Obtener categoría seleccionada desde los parámetros de URL
   const selectedCategory = searchParams.get('category') || '';
 
+  // Cargar información del límite del catálogo
+  useEffect(() => {
+    const loadCatalogLimitInfo = async () => {
+      try {
+        const response = await fetch(`${API_URL}/store-config/catalog-limit`);
+        if (response.ok) {
+          const data = await response.json();
+          setCatalogLimitInfo(data);
+        }
+      } catch (error) {
+        console.error('Error cargando límite del catálogo:', error);
+      }
+    };
+
+    loadCatalogLimitInfo();
+  }, []);
 
   // Hook para manejar reseñas del producto seleccionado
   const { 
@@ -215,6 +247,28 @@ export default function Catalogo() {
           )}
         </div>
 
+        {/* Banner de Límite de Compras */}
+        {catalogLimitInfo && catalogLimitInfo.success && (
+          <div className="catalog-limit-banner">
+            <div className="limit-info">
+              <div className="limit-icon">🛒</div>
+              <div className="limit-content">
+                <h3>Límite de Compras del Catálogo</h3>
+                <p>
+                  {catalogLimitInfo.remaining > 0 ? (
+                    <>Quedan <strong>{catalogLimitInfo.remaining}</strong> productos disponibles de <strong>{catalogLimitInfo.maxCatalogOrders}</strong> esta semana</>
+                  ) : (
+                    <>Se ha alcanzado el límite máximo de <strong>{catalogLimitInfo.maxCatalogOrders}</strong> productos esta semana</>
+                  )}
+                </p>
+              </div>
+            </div>
+            <div className={`limit-status ${catalogLimitInfo.remaining > 0 ? 'available' : 'reached'}`}>
+              {catalogLimitInfo.remaining > 0 ? 'Disponible' : 'Límite Alcanzado'}
+            </div>
+          </div>
+        )}
+
         {/* Sección de Productos Populares */}
         {popularProducts.length > 0 && (
           <div className="popular-products-section">
@@ -256,14 +310,22 @@ export default function Catalogo() {
                     <h3 className="popular-product-title">{product.name}</h3>
                     <p className="popular-product-subtitle">{product.category}</p>
                     <div className="popular-product-footer">
-                      <p className="popular-product-price">${formatPrice(product.price)}</p>
+                      <div className="price-stock-container">
+                        <p className="popular-product-price">${formatPrice(product.price)}</p>
+                        <span className={`stock-indicator ${getStockStatus(product).class}`}>
+                          {getStockStatus(product).text}
+                        </span>
+                      </div>
                       <button
-                        className="add-to-cart-btn"
+                        className={`add-to-cart-btn ${getStockStatus(product).status === 'agotado' ? 'disabled' : ''}`}
                         onClick={(e) => {
                           e.stopPropagation();
-                          handleAddToCart(product._id);
+                          if (getStockStatus(product).status !== 'agotado') {
+                            handleAddToCart(product._id);
+                          }
                         }}
                         aria-label="Añadir al carrito"
+                        disabled={getStockStatus(product).status === 'agotado'}
                       >
                         <ShoppingCart size={18} />
                       </button>
@@ -338,14 +400,22 @@ export default function Catalogo() {
                 </div>
                 
                 <div className="product-footer">
-                  <p className="product-price">${formatPrice(product.price)}</p>
+                  <div className="price-stock-container">
+                    <p className="product-price">${formatPrice(product.price)}</p>
+                    <span className={`stock-indicator ${getStockStatus(product).class}`}>
+                      {getStockStatus(product).text}
+                    </span>
+                  </div>
                   <button
-                    className="add-to-cart-btn"
+                    className={`add-to-cart-btn ${getStockStatus(product).status === 'agotado' ? 'disabled' : ''}`}
                     onClick={(e) => {
                       e.stopPropagation();
-                      handleAddToCart(product._id, product.name);
+                      if (getStockStatus(product).status !== 'agotado') {
+                        handleAddToCart(product._id, product.name);
+                      }
                     }}
                     aria-label="Añadir al carrito"
+                    disabled={getStockStatus(product).status === 'agotado'}
                   >
                     <ShoppingCart size={18} />
                   </button>

@@ -1,0 +1,343 @@
+/* ===== RESPONSIVE CATALOG IMPROVEMENTS ===== */
+
+/* Forzar fondo blanco siempre - sobrescribe cualquier modo oscuro */
+.catalog-page {
+  background-color: #ffffff !important;
+  color: #1f2937 !important;
+}
+
+/* Restaurar colores específicos para elementos importantes */
+.catalog-page .add-to-cart-btn,
+.catalog-page button[class*="btn"],
+.catalog-page .btn-primary {
+  background: linear-gradient(135deg, #6c5ce7, #a29bfe) !important;
+  color: #ffffff !important;
+}
+
+/* Asegurar que los botones de agregar al carrito tengan el color morado correcto */
+.catalog-page .product-card .add-to-cart-btn {
+  background: linear-gradient(135deg, #6c5ce7, #a29bfe) !important;
+  color: #ffffff !important;
+}
+
+.catalog-page .product-card .add-to-cart-btn:hover {
+  background: linear-gradient(135deg, #5a4fcf, #8b7cf6) !important;
+  color: #ffffff !important;
+}
+
+.catalog-page .rating-stars,
+.catalog-page .star,
+.catalog-page .rating-stars-small .star,
+.catalog-page .product-rating .star,
+.catalog-page .rating-stars-small .star {
+  color: #fbbf24 !important;
+  fill: #fbbf24 !important;
+}
+
+/* Asegurar que las estrellas de valoración tengan color amarillo */
+.catalog-page .product-card .rating-stars,
+.catalog-page .product-card .star {
+  color: #fbbf24 !important;
+  fill: #fbbf24 !important;
+}
+
+.catalog-page .popular-title {
+  background: linear-gradient(135deg, #9C27B0, #4DD0E1) !important;
+  background-clip: text !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+}
+
+/* Restaurar colores de precios */
+.catalog-page .price {
+  color: #27ae60 !important;
+}
+
+/* Restaurar colores de badges de stock */
+.catalog-page .stock-available {
+  color: #155724 !important;
+  background: #d4edda !important;
+  border: 1px solid #c3e6cb !important;
+}
+
+.catalog-page .stock-low {
+  color: #856404 !important;
+  background: #fff3cd !important;
+  border: 1px solid #ffeaa7 !important;
+}
+
+.catalog-page .stock-out {
+  color: #dc3545 !important;
+  background: #f8d7da !important;
+  border: 1px solid #f5c6cb !important;
+}
+
+/* Restaurar colores de botones de favoritos */
+.catalog-page .favorite-btn {
+  background: rgba(255, 255, 255, 0.9) !important;
+  color: #ccc !important;
+}
+
+.catalog-page .favorite-btn.active {
+  color: #e74c3c !important;
+}
+
+/* Mejoras generales para el catálogo en móviles */
+.catalog-page {
+  padding: 0 !important;
+  margin: 0 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow-x: hidden !important;
+  background-color: #ffffff !important;
+  color: #1f2937 !important;
+}
+
+.catalog-page .container {
+  padding: 12px !important;
+  margin: 0 auto !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  background-color: #ffffff !important;
+}
+
+/* Mejoras para el banner de productos populares */
+.popular-banner {
+  margin: 12px !important;
+  padding: 16px !important;
+  border-radius: 12px !important;
+  background-color: #ffffff !important;
+  border: 1px solid #e5e7eb !important;
+}
+
+.popular-title {
+  font-size: clamp(1.5rem, 4vw, 2rem) !important;
+  margin-bottom: 8px !important;
+}
+
+/* Mejoras para filtros y controles */
+.catalog-controls {
+  padding: 12px !important;
+  margin-bottom: 8px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 12px !important;
+}
+
+.catalog-filters {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 8px !important;
+  justify-content: center !important;
+}
+
+.filter-button {
+  padding: 8px 16px !important;
+  font-size: 0.85rem !important;
+  border-radius: 20px !important;
+  min-width: auto !important;
+  white-space: nowrap !important;
+}
+
+/* Mejoras para la barra de búsqueda */
+.search-container {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 !important;
+}
+
+.search-input {
+  width: 100% !important;
+  padding: 10px 16px !important;
+  font-size: 0.9rem !important;
+  border-radius: 8px !important;
+}
+
+/* Mejoras para el grid de productos */
+.products-container {
+  width: 100% !important;
+  max-width: 100% !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+/* Móviles pequeños - optimizaciones adicionales */
+@media (max-width: 480px) {
+  .catalog-page {
+    padding-top: 0 !important;
+  }
+  
+  .catalog-page .container {
+    padding: 8px !important;
+  }
+  
+  .popular-banner {
+    margin: 8px !important;
+    padding: 12px !important;
+    border-radius: 8px !important;
+  }
+  
+  .popular-title {
+    font-size: 1.4rem !important;
+    line-height: 1.2 !important;
+  }
+  
+  .catalog-controls {
+    padding: 8px !important;
+    gap: 8px !important;
+  }
+  
+  .catalog-filters {
+    gap: 6px !important;
+  }
+  
+  .filter-button {
+    padding: 6px 12px !important;
+    font-size: 0.8rem !important;
+    border-radius: 16px !important;
+  }
+  
+  .search-input {
+    padding: 8px 12px !important;
+    font-size: 0.85rem !important;
+  }
+}
+
+/* Móviles muy pequeños */
+@media (max-width: 320px) {
+  .catalog-page .container {
+    padding: 6px !important;
+  }
+  
+  .popular-banner {
+    margin: 6px !important;
+    padding: 10px !important;
+  }
+  
+  .popular-title {
+    font-size: 1.2rem !important;
+  }
+  
+  .catalog-controls {
+    padding: 6px !important;
+    gap: 6px !important;
+  }
+  
+  .filter-button {
+    padding: 5px 10px !important;
+    font-size: 0.75rem !important;
+  }
+  
+  .search-input {
+    padding: 6px 10px !important;
+    font-size: 0.8rem !important;
+  }
+}
+
+/* Tablets */
+@media (min-width: 481px) and (max-width: 768px) {
+  .catalog-page .container {
+    padding: 16px !important;
+  }
+  
+  .popular-banner {
+    margin: 16px !important;
+    padding: 20px !important;
+  }
+  
+  .catalog-controls {
+    padding: 16px !important;
+    flex-direction: row !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+  }
+  
+  .catalog-filters {
+    justify-content: flex-start !important;
+  }
+}
+
+/* Desktop */
+@media (min-width: 769px) {
+  .catalog-page .container {
+    padding: 20px !important;
+    max-width: 1200px !important;
+  }
+  
+  .popular-banner {
+    margin: 20px !important;
+    padding: 24px !important;
+  }
+  
+  .catalog-controls {
+    padding: 20px !important;
+  }
+}
+
+/* Mejoras para el scroll en móviles */
+@media (max-width: 768px) {
+  .catalog-page {
+    -webkit-overflow-scrolling: touch !important;
+    overflow-x: hidden !important;
+  }
+  
+  .products-container {
+    -webkit-overflow-scrolling: touch !important;
+  }
+}
+
+/* Mejoras para la accesibilidad táctil */
+@media (hover: none) and (pointer: coarse) {
+  .filter-button,
+  .search-input,
+  .product-card {
+    min-height: 44px !important;
+  }
+  
+  .filter-button {
+    padding: 12px 20px !important;
+  }
+  
+  .search-input {
+    padding: 12px 16px !important;
+  }
+}
+
+/* Desactivar modo oscuro - mantener siempre fondo blanco */
+@media (prefers-color-scheme: dark) {
+  .catalog-page {
+    background: #ffffff !important;
+    color: #1f2937 !important;
+  }
+  
+  .popular-banner {
+    background: #ffffff !important;
+    border: 1px solid #e5e7eb !important;
+    color: #1f2937 !important;
+  }
+  
+  .search-input {
+    background: #ffffff !important;
+    border: 1px solid #d1d5db !important;
+    color: #1f2937 !important;
+  }
+  
+  .filter-button {
+    background: #f3f4f6 !important;
+    border: 1px solid #d1d5db !important;
+    color: #1f2937 !important;
+  }
+}
+
+/* Mejoras para reducir animaciones */
+@media (prefers-reduced-motion: reduce) {
+  .product-card,
+  .filter-button,
+  .search-input {
+    transition: none !important;
+  }
+  
+  .product-card:hover {
+    transform: none !important;
+  }
+}

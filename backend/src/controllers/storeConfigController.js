@@ -183,9 +183,20 @@ export const checkProductStock = async (req, res) => {
     const hasStock = product.hasStockAvailable(parseInt(quantity));
     const effectiveLimit = product.getEffectiveStockLimit(config);
     
+    // Si no hay stock suficiente, devolver error
+    if (!hasStock) {
+      return res.status(400).json({
+        success: false,
+        hasStock: false,
+        available: product.disponibles,
+        requested: parseInt(quantity),
+        message: `No hay suficiente stock disponible. Solo quedan ${product.disponibles} unidades.`
+      });
+    }
+    
     res.status(200).json({
       success: true,
-      hasStock,
+      hasStock: true,
       available: product.disponibles,
       requested: parseInt(quantity),
       effectiveLimit,

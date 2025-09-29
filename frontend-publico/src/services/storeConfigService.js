@@ -34,16 +34,36 @@ class StoreConfigService {
         }
       });
 
+      const data = await response.json();
+      
+      // Si la respuesta no es exitosa (400, 404, 500, etc.), devolver que no hay stock
       if (!response.ok) {
-        throw new Error(`Error ${response.status}: ${response.statusText}`);
+        console.log('checkProductStock: Respuesta no exitosa:', response.status, data);
+        return { 
+          success: false, 
+          hasStock: false, 
+          available: data.available || 0,
+          message: data.message || 'Error verificando stock'
+        };
       }
 
-      const data = await response.json();
+      // Si la respuesta es exitosa pero indica que no hay stock
+      if (!data.success || !data.hasStock) {
+        console.log('checkProductStock: Sin stock disponible:', data);
+        return { 
+          success: false, 
+          hasStock: false, 
+          available: data.available || 0,
+          message: data.message || 'No hay stock disponible'
+        };
+      }
+
+      console.log('checkProductStock: Stock disponible:', data);
       return data;
     } catch (error) {
       console.error('Error verificando stock de producto:', error);
       // En caso de error, asumir que NO hay stock disponible para ser más seguro
-      return { success: false, hasStock: false, available: 0 };
+      return { success: false, hasStock: false, available: 0, message: 'Error de conexión' };
     }
   }
 

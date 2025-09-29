@@ -2175,3 +2175,172 @@ img {
     right: 6px;
   }
 }
+
+/* ===== INDICADORES DE STOCK ===== */
+.price-stock-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  align-items: flex-start;
+}
+
+.stock-indicator {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.375rem;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+  transition: all 0.2s ease;
+}
+
+.stock-agotado {
+  background-color: #fee2e2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+}
+
+.stock-bajo {
+  background-color: #fef3c7;
+  color: #d97706;
+  border: 1px solid #fed7aa;
+  animation: pulse 2s infinite;
+}
+
+.stock-medio {
+  background-color: #dbeafe;
+  color: #2563eb;
+  border: 1px solid #bfdbfe;
+}
+
+.stock-alto {
+  background-color: #dcfce7;
+  color: #16a34a;
+  border: 1px solid #bbf7d0;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+.add-to-cart-btn.disabled {
+  background-color: #9ca3af !important;
+  color: #6b7280 !important;
+  cursor: not-allowed !important;
+  opacity: 0.6;
+}
+
+.add-to-cart-btn.disabled:hover {
+  background-color: #9ca3af !important;
+  transform: none !important;
+}
+
+/* ===== BANNER DE LÍMITE DE COMPRAS ===== */
+.catalog-limit-banner {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 16px;
+  padding: 1.5rem;
+  margin: 2rem 0;
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+.catalog-limit-banner::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(45deg, rgba(255,255,255,0.1) 0%, transparent 50%, rgba(255,255,255,0.1) 100%);
+  animation: shimmer 3s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.limit-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  z-index: 1;
+}
+
+.limit-icon {
+  font-size: 2rem;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 0.75rem;
+  border-radius: 50%;
+  backdrop-filter: blur(10px);
+}
+
+.limit-content h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.limit-content p {
+  margin: 0;
+  font-size: 1rem;
+  opacity: 0.9;
+}
+
+.limit-status {
+  padding: 0.75rem 1.5rem;
+  border-radius: 25px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  z-index: 1;
+  backdrop-filter: blur(10px);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.limit-status.available {
+  background: rgba(34, 197, 94, 0.3);
+  color: #dcfce7;
+  border-color: rgba(34, 197, 94, 0.5);
+}
+
+.limit-status.reached {
+  background: rgba(239, 68, 68, 0.3);
+  color: #fecaca;
+  border-color: rgba(239, 68, 68, 0.5);
+  animation: pulse 2s infinite;
+}
+
+/* Responsive para el banner de límite */
+@media (max-width: 768px) {
+  .catalog-limit-banner {
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+  }
+  
+  .limit-info {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  
+  .limit-content h3 {
+    font-size: 1.1rem;
+  }
+  
+  .limit-content p {
+    font-size: 0.9rem;
+  }
+}

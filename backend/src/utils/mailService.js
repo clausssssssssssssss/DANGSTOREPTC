@@ -1,15 +1,14 @@
 // src/utils/mailService.js
-// Este es el archivo PRINCIPAL que usa tu controlador
+// Servicio de email usando Brevo API
 
 import { config } from '../../config.js';
 
 /**
  * Servicio de email usando Brevo API
- * Este es el archivo que importa tu passwordRecoveryController
  */
 const sendEmail = async ({ to, subject, text, html }) => {
   try {
-    console.log('📧 Enviando correo con Brevo a:', to);
+    console.log('Enviando correo con Brevo a:', to);
 
     // Validar que tenemos la API key
     if (!config.email.brevo.apiKey) {
@@ -36,23 +35,22 @@ const sendEmail = async ({ to, subject, text, html }) => {
 
     if (!response.ok) {
       const errorData = await response.json();
-      console.error('❌ Error de Brevo API:', errorData);
+      console.error('Error de Brevo API:', errorData);
       throw new Error(`Error enviando email: ${errorData.message || response.statusText}`);
     }
 
     const data = await response.json();
-    console.log('✅ Email enviado exitosamente con Brevo:', data);
+    console.log('Email enviado exitosamente con Brevo:', data);
     return data;
 
   } catch (err) {
-    console.error('❌ Error en sendEmail con Brevo:', err);
+    console.error('Error en sendEmail con Brevo:', err);
     throw err;
   }
 };
 
 /**
- * Genera el contenido HTML para el mensaje de recuperación de contraseña.
- * Versión optimizada para códigos de 4 dígitos
+ * Genera el contenido HTML profesional para el mensaje de recuperación de contraseña
  */
 const HTMLRecoveryEmail = (code) => `
   <!DOCTYPE html>
@@ -62,64 +60,69 @@ const HTMLRecoveryEmail = (code) => `
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Código de Recuperación - DANGSTORE</title>
   </head>
-  <body style="margin: 0; padding: 20px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);">
-    <div style="max-width: 600px; margin: 0 auto; background-color: white; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); overflow: hidden;">
+  <body style="margin: 0; padding: 20px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif; background-color: #f7f8fc;">
+    <div style="max-width: 600px; margin: 0 auto; background-color: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); overflow: hidden;">
       
-      <!-- Header con gradiente -->
-      <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px 20px; text-align: center;">
-        <h1 style="color: white; margin: 0; font-size: 32px; font-weight: 700; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">
-          🛍️ DANGSTORE
+      <!-- Header corporativo -->
+      <div style="background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); padding: 40px 30px; text-align: center;">
+        <h1 style="color: white; margin: 0; font-size: 28px; font-weight: 600; letter-spacing: 1px;">
+          DANGSTORE
         </h1>
-        <p style="color: rgba(255,255,255,0.9); margin: 10px 0 0 0; font-size: 16px;">
+        <p style="color: rgba(255,255,255,0.9); margin: 8px 0 0 0; font-size: 16px; font-weight: 400;">
           Recuperación de Contraseña
         </p>
       </div>
       
-      <!-- Content -->
+      <!-- Contenido principal -->
       <div style="padding: 40px 30px;">
         <div style="text-align: center;">
-          <h2 style="color: #333; margin: 0 0 20px 0; font-size: 24px;">
-            ¡Hola querido usuario! 👋
+          <h2 style="color: #1f2937; margin: 0 0 20px 0; font-size: 22px; font-weight: 600;">
+            Código de Verificación
           </h2>
           
-          <p style="color: #666; font-size: 16px; line-height: 1.6; margin: 0 0 30px 0;">
-            Hemos recibido una solicitud para restablecer la contraseña de tu cuenta.<br>
-            Tu código de verificación es:
+          <p style="color: #6b7280; font-size: 16px; line-height: 1.6; margin: 0 0 30px 0;">
+            Hemos recibido una solicitud para restablecer la contraseña de tu cuenta.
+            <br>Utiliza el siguiente código para continuar:
           </p>
           
           <!-- Código destacado -->
-          <div style="background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%); padding: 30px; border-radius: 12px; margin: 30px 0; box-shadow: 0 8px 25px rgba(238, 90, 36, 0.3);">
-            <p style="font-size: 48px; font-weight: 900; color: white; margin: 0; letter-spacing: 8px; text-shadow: 0 3px 6px rgba(0,0,0,0.3); font-family: 'Courier New', monospace;">
+          <div style="background-color: #f8fafc; border: 2px solid #e5e7eb; border-radius: 8px; padding: 30px; margin: 30px 0;">
+            <p style="font-size: 32px; font-weight: 700; color: #1f2937; margin: 0; letter-spacing: 6px; font-family: 'Courier New', monospace;">
               ${code}
             </p>
           </div>
           
+          <!-- Información importante -->
+          <div style="background-color: #fef3c7; border-left: 4px solid #f59e0b; padding: 16px; border-radius: 4px; margin: 25px 0;">
+            <p style="color: #92400e; font-size: 14px; margin: 0; font-weight: 500;">
+              Este código expira en 15 minutos por motivos de seguridad
+            </p>
+          </div>
+          
           <!-- Instrucciones -->
-          <div style="background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%); padding: 20px; border-radius: 8px; margin: 25px 0;">
-            <p style="color: white; font-size: 14px; margin: 0; font-weight: 600;">
-              💡 Ingresa este código en la aplicación para continuar
-            </p>
+          <div style="text-align: left; margin: 30px 0;">
+            <h3 style="color: #374151; font-size: 16px; font-weight: 600; margin: 0 0 12px 0;">
+              Instrucciones:
+            </h3>
+            <ol style="color: #6b7280; font-size: 14px; line-height: 1.5; margin: 0; padding-left: 18px;">
+              <li>Ingresa el código en la aplicación</li>
+              <li>Crea una nueva contraseña segura</li>
+              <li>Confirma los cambios</li>
+            </ol>
           </div>
           
-          <!-- Warning -->
-          <div style="background: linear-gradient(135deg, #fdcb6e 0%, #e17055 100%); padding: 15px; border-radius: 8px; margin: 20px 0;">
-            <p style="color: white; font-size: 14px; font-weight: bold; margin: 0;">
-              ⏰ Este código expira en 15 minutos
-            </p>
-          </div>
-          
-          <p style="color: #888; font-size: 13px; margin-top: 30px; line-height: 1.4;">
-            Si no solicitaste este código, puedes ignorar este mensaje de forma segura.<br>
-            Tu cuenta permanecerá protegida. 🔒
+          <p style="color: #9ca3af; font-size: 13px; margin-top: 30px; line-height: 1.4;">
+            Si no solicitaste este código, puedes ignorar este mensaje.<br>
+            Tu cuenta permanece segura y protegida.
           </p>
         </div>
       </div>
       
-      <!-- Footer -->
-      <div style="background-color: #f8f9fa; padding: 25px; text-align: center; border-top: 1px solid #e9ecef;">
-        <p style="color: #6c757d; font-size: 12px; margin: 0; line-height: 1.4;">
-          © 2024 <strong>DANGSTORE</strong>. Todos los derechos reservados.<br>
-          Este es un mensaje automático, por favor no respondas a este correo.
+      <!-- Footer profesional -->
+      <div style="background-color: #f9fafb; padding: 25px 30px; text-align: center; border-top: 1px solid #e5e7eb;">
+        <p style="color: #6b7280; font-size: 12px; margin: 0; line-height: 1.4;">
+          © 2024 DANGSTORE. Todos los derechos reservados.<br>
+          Este es un mensaje automático generado por el sistema.
         </p>
       </div>
       
@@ -127,33 +130,6 @@ const HTMLRecoveryEmail = (code) => `
   </body>
   </html>
 `;
-
-/**
- * Función de prueba para verificar que el servicio de email funciona
- */
-export const testEmailService = async (testEmail) => {
-  try {
-    console.log('🧪 Probando servicio de email...');
-    
-    const result = await sendEmail({
-      to: testEmail,
-      subject: 'Prueba de servicio de email - DANGSTORE',
-      html: `
-        <div style="font-family: Arial; text-align: center; padding: 30px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 10px;">
-          <h2>✅ ¡Servicio de email funcionando!</h2>
-          <p>Tu configuración de Brevo está trabajando correctamente.</p>
-          <p style="font-size: 12px; opacity: 0.8;">Prueba realizada: ${new Date().toLocaleString()}</p>
-        </div>
-      `
-    });
-    
-    console.log('✅ Prueba de email exitosa:', result);
-    return result;
-  } catch (error) {
-    console.error('❌ Error en prueba de email:', error);
-    throw error;
-  }
-};
 
 // Exportamos las funciones que usa el controlador
 export {

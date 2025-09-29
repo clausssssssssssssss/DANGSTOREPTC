@@ -40,17 +40,25 @@ export default function useCustomerOrders() {
     setLoading(true);
     setError(null);
 
-    // Verificar límite de encargos personalizados
+    // Verificar límite de encargos personalizados (sincronizado con app móvil)
     try {
+      console.log('useCustomerOrders: Verificando límite de encargos personalizados...');
       const customOrdersLimit = await storeConfigService.checkCustomOrdersLimit();
+      console.log('useCustomerOrders: Respuesta del límite:', customOrdersLimit);
+      
       if (!customOrdersLimit.success || !customOrdersLimit.canCreate) {
+        console.log('useCustomerOrders: Límite alcanzado, mostrando error...');
         setError(`Lo sentimos, hemos alcanzado el límite máximo de ${customOrdersLimit.maxCustomOrders || 20} encargos personalizados. Por favor, intenta nuevamente la próxima semana.`);
         setLoading(false);
         return;
       }
+      console.log('useCustomerOrders: Límite OK, continuando...');
     } catch (limitError) {
       console.error('Error verificando límite de encargos personalizados:', limitError);
-      // Continuar si hay error en la verificación
+      // En caso de error, asumir que NO se puede crear para ser más seguro
+      setError('Error verificando límites. Por favor, intenta más tarde.');
+      setLoading(false);
+      return;
     }
 
     if (!image) {

@@ -18,10 +18,12 @@ import '../components/styles/Ratings.css';
 import '../components/styles/PixelDecorations.css';
 
 export default function Catalogo() {
+  console.log('Catalogo: Renderizando...');
   const { user } = useAuth();
   const userId = user?.id;
   const { products, loading, error, refresh, lastUpdate } = useProducts();
   const { categories, loading: categoriesLoading, error: categoriesError } = useCategories();
+  console.log('Catalogo: Antes de usar useCart...');
   const { addToCart } = useCart();
   const { favorites, toggleFavorite } = useFavorites(userId);
   const { toasts, showSuccess, showError, showWarning, showInfo, removeToast } = useToast();

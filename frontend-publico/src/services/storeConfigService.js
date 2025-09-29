@@ -42,8 +42,8 @@ class StoreConfigService {
       return data;
     } catch (error) {
       console.error('Error verificando stock de producto:', error);
-      // En caso de error, asumir que hay stock disponible
-      return { success: true, hasStock: true };
+      // En caso de error, asumir que NO hay stock disponible para ser más seguro
+      return { success: false, hasStock: false, available: 0 };
     }
   }
 

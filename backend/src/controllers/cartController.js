@@ -203,12 +203,22 @@ export const createOrder = async (req, res) => {
       }
     }
 
-    // Verificar stock disponible para cada producto
+    // Verificar stock disponible para cada producto y enriquecer con datos del producto
     const Product = (await import('../models/Product.js')).default;
+    const enrichedItems = [];
+    
     for (const item of items) {
       if (item.product && item.quantity) {
         const product = await Product.findById(item.product);
-        if (product && !product.hasStockAvailable(item.quantity)) {
+        if (!product) {
+          return res.status(400).json({
+            success: false,
+            message: `Producto no encontrado: ${item.product}`,
+            code: 'PRODUCT_NOT_FOUND'
+          });
+        }
+        
+        if (!product.hasStockAvailable(item.quantity)) {
           return res.status(400).json({
             success: false,
             message: `Lo sentimos, no hay suficiente stock disponible para "${product.nombre}". Solo quedan ${product.disponibles} unidades.`,
@@ -218,17 +228,30 @@ export const createOrder = async (req, res) => {
             requested: item.quantity
           });
         }
+        
+        // Enriquecer el item con datos del producto
+        enrichedItems.push({
+          product: product._id,
+          productName: product.nombre,
+          productDescription: product.descripcion,
+          productImage: product.images?.[0] || null,
+          quantity: item.quantity,
+          price: product.precio || product.price || 0
+        });
+      } else if (item.customItem) {
+        // Para ítems personalizados, mantener como están
+        enrichedItems.push(item);
       }
     }
 
-    const totalAmount = items.reduce(
+    const totalAmount = enrichedItems.reduce(
       (sum, item) => sum + (item.price ?? 0) * (item.quantity ?? 0),
       0
     );
 
     const order = new Order({
       user: userId,
-      items,
+      items: enrichedItems,
       total: totalAmount,
       status: wompiStatus === "COMPLETED" ? "COMPLETED" : "PENDING",
       wompi: { orderID: wompiOrderID, captureStatus: wompiStatus },
@@ -259,28 +282,28 @@ export const createOrder = async (req, res) => {
         await config.save();
       }
 
-      for (const item of items) {
-        if (item.product && item.quantity) {
-          const product = await Product.findById(item.product);
-          if (product) {
-            const newStock = Math.max(0, product.disponibles - item.quantity);
-            await Product.findByIdAndUpdate(item.product, { disponibles: newStock });
-            
-            // Verificar si el producto se agotó y enviar notificación
-            if (newStock === 0 && config?.notifications?.lowStockEnabled) {
-              try {
-                await NotificationService.createLowStockNotification({
-                  productId: product._id,
-                  productName: product.nombre,
-                  available: newStock
-                });
-              } catch (notificationError) {
-                console.error('Error creando notificación de stock bajo:', notificationError);
+              for (const item of enrichedItems) {
+                if (item.product && item.quantity) {
+                  const product = await Product.findById(item.product);
+                  if (product) {
+                    const newStock = Math.max(0, product.disponibles - item.quantity);
+                    await Product.findByIdAndUpdate(item.product, { disponibles: newStock });
+                    
+                    // Verificar si el producto se agotó y enviar notificación
+                    if (newStock === 0 && config?.notifications?.lowStockEnabled) {
+                      try {
+                        await NotificationService.createLowStockNotification({
+                          productId: product._id,
+                          productName: product.nombre,
+                          available: newStock
+                        });
+                      } catch (notificationError) {
+                        console.error('Error creando notificación de stock bajo:', notificationError);
+                      }
+                    }
+                  }
+                }
               }
-            }
-          }
-        }
-      }
       await Cart.findOneAndUpdate({ user: userId }, { $set: { products: [], customizedProducts: [] } });
       
       // Crear notificación para pedido completado

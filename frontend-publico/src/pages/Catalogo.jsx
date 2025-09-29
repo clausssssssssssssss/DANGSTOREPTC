@@ -13,9 +13,11 @@ import ToastContainer from '../components/ui/ToastContainer';
 import RatingForm from '../components/catalog/RatingForm.jsx';
 import RatingsList from '../components/catalog/RatingsList.jsx';
 import RatingStars from '../components/catalog/RatingStars.jsx';
+import { API_URL } from '../config/api.js';
 import '../components/styles/Catalogo.css';
 import '../components/styles/Ratings.css';
 import '../components/styles/PixelDecorations.css';
+import '../components/catalog/ResponsiveCatalog.css';
 
 export default function Catalogo() {
   console.log('Catalogo: Renderizando...');

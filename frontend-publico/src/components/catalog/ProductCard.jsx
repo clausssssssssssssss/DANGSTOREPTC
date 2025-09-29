@@ -102,21 +102,6 @@ export default function ProductCard({ product, onAddToCart, onClick, isFavorite,
           onClick={handleAddToCart}
           disabled={stockStatus === 'out' || isAddingToCart}
           aria-label={stockStatus === 'out' ? 'Producto sin stock' : 'Agregar al carrito'}
-          style={{
-            borderRadius: window.innerWidth <= 480 ? '6px' : '8px',
-            padding: window.innerWidth <= 480 ? '10px 16px' : '12px 20px',
-            height: window.innerWidth <= 480 ? '40px' : '44px',
-            width: '100%',
-            maxWidth: '100%',
-            fontSize: window.innerWidth <= 480 ? '13px' : '14px',
-            fontWeight: '600',
-            textAlign: 'center',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            opacity: stockStatus === 'out' ? 0.5 : 1,
-            cursor: stockStatus === 'out' ? 'not-allowed' : 'pointer'
-          }}
         >
           {isAddingToCart ? 'Agregando...' : stockStatus === 'out' ? 'Sin stock' : 'Agregar al carrito'}
         </button>

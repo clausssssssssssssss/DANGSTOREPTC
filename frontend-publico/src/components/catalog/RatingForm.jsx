@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Star, Send, Edit3, Trash2 } from 'lucide-react';
 import RatingStars from './RatingStars.jsx';
+import './RatingForm.css';
 
 const RatingForm = ({ onSubmit, onDelete, userRating, loading, productName, canRate, canRateMessage, showSuccess, showError, showWarning }) => {
   const [rating, setRating] = useState(userRating?.rating || 0);
@@ -128,7 +129,7 @@ const RatingForm = ({ onSubmit, onDelete, userRating, loading, productName, canR
           <label>Puntuación:</label>
           <RatingStars 
             rating={rating} 
-            size={32} 
+            size={window.innerWidth <= 480 ? 24 : 32} 
             interactive={true} 
             onRatingChange={setRating}
           />
@@ -142,7 +143,7 @@ const RatingForm = ({ onSubmit, onDelete, userRating, loading, productName, canR
             value={comment}
             onChange={(e) => setComment(e.target.value)}
             placeholder="Cuéntanos qué te pareció este producto..."
-            rows={3}
+            rows={window.innerWidth <= 480 ? 2 : 3}
             maxLength={500}
             required
           />
@@ -155,7 +156,7 @@ const RatingForm = ({ onSubmit, onDelete, userRating, loading, productName, canR
             className="btn-submit"
             disabled={loading || rating === 0 || !comment.trim()}
           >
-            <Send size={16} />
+            <Send size={window.innerWidth <= 480 ? 14 : 16} />
             {loading ? 'Enviando...' : userRating ? 'Actualizar' : 'Enviar'}
           </button>
           

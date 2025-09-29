@@ -15,7 +15,8 @@ html, body {
 .about-page {
   min-height: 100vh;
   background: #ffffff;
-  margin-top: 64px;
+  margin-top: 0;
+  padding-top: 64px;
 }
 
 .container {
@@ -28,12 +29,12 @@ html, body {
 .hero-olas-section {
   position: relative;
   overflow: hidden;
-  padding: 3rem 0;
+  padding: 2rem 0;
   background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 80vh;
+  min-height: 70vh;
 }
 
 .hero-content-grid {

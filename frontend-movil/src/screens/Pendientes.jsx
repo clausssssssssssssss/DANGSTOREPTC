@@ -17,6 +17,7 @@ import {
 import * as FileSystem from 'expo-file-system/legacy';
 import * as Sharing from 'expo-sharing';
 import * as MediaLibrary from 'expo-media-library';
+import * as ImagePicker from 'expo-image-picker';
 import { Ionicons } from '@expo/vector-icons';
 import { customOrdersAPI, getImageUrl } from '../services/customOrders';
 import { AuthContext } from '../context/AuthContext';
@@ -62,15 +63,7 @@ const Pendientes = ({ navigation }) => {
         return;
       }
 
-      // Solicitar permisos para acceder a la galería
-      console.log('Solicitando permisos de galería...');
-      const { status } = await MediaLibrary.requestPermissionsAsync();
-      console.log('Estado de permisos:', status);
-      
-      if (status !== 'granted') {
-        showAlert('Error', 'Se necesitan permisos para acceder a la galería', 'error');
-        return;
-      }
+      // No necesitamos permisos de galería para compartir
 
       const fullImageUrl = getImageUrl(imageUrl);
       console.log('URL completa de imagen:', fullImageUrl);
@@ -100,15 +93,7 @@ const Pendientes = ({ navigation }) => {
       }
       
       if (downloadResult.status === 200) {
-        console.log('Guardando en galería...');
-        // Guardar en la galería del dispositivo
-        const asset = await MediaLibrary.createAssetAsync(downloadResult.uri);
-        console.log('Asset creado:', asset);
-        
-        await MediaLibrary.createAlbumAsync('DangStore', asset, false);
-        console.log('Álbum creado/actualizado');
-        
-        // También ofrecer compartir
+        // Solo ofrecer compartir, sin guardar en galería
         const isAvailable = await Sharing.isAvailableAsync();
         console.log('Sharing disponible:', isAvailable);
         
@@ -117,9 +102,10 @@ const Pendientes = ({ navigation }) => {
             mimeType: 'image/jpeg',
             dialogTitle: 'Descargar imagen del encargo'
           });
+          showAlert('Éxito', 'Imagen lista para compartir', 'success');
+        } else {
+          showAlert('Éxito', 'Imagen descargada correctamente', 'success');
         }
-        
-        showAlert('Éxito', 'Imagen guardada en la galería correctamente', 'success');
       } else {
         showAlert('Error', 'No se pudo descargar la imagen', 'error');
       }

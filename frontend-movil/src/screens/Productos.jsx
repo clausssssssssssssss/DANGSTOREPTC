@@ -116,14 +116,33 @@ const Productos = ({ navigation }) => {
       const stockActualizado = parseInt(nuevoStock) || 0;
       const maxStockActualizado = parseInt(maxStock) || null;
 
-      // Actualizar el producto localmente
+      // Enviar actualización al backend
+      const response = await fetch(`${API_URL}/${productoStockSeleccionado._id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          disponibles: stockActualizado,
+          stockLimits: {
+            maxStock: maxStockActualizado,
+            isStockLimitActive: stockLimitActive
+          }
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Error al actualizar el stock en el servidor');
+      }
+
+      // Actualizar el producto localmente después de éxito en el backend
       setProductos(prev => prev.map(p =>
         p._id === productoStockSeleccionado._id
           ? {
               ...p,
               disponibles: stockActualizado,
               stockLimits: {
-                ...p.stockLimits, // Mantener otros campos de stockLimits
+                ...p.stockLimits,
                 maxStock: maxStockActualizado,
                 isStockLimitActive: stockLimitActive
               }
@@ -142,7 +161,7 @@ const Productos = ({ navigation }) => {
       console.error('Error guardando stock:', error);
       showAlert(
         'Error',
-        'No se pudo actualizar el stock',
+        'No se pudo actualizar el stock: ' + error.message,
         'error'
       );
     } finally {
@@ -232,6 +251,9 @@ const Productos = ({ navigation }) => {
         showAlert('Error', 'Por favor selecciona una imagen', 'error');
       return;
     }
+
+    // La validación de límite de stock se hace en el backend
+    // No necesitamos validar aquí la creación de productos
 
       setCargando(true);
       console.log('Creando FormData...');

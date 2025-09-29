@@ -30,9 +30,8 @@ body {
   background-color: var(--white);
   min-height: 100%;
   height: auto;
-  /* UN SOLO SCROLL PRINCIPAL */
-  overflow-y: auto;
-  overflow-x: hidden;
+  /* SIN SCROLL - solo scroll en cards específicas */
+  overflow: hidden;
   width: 100%;
   max-width: 100vw;
 }
@@ -45,8 +44,8 @@ body {
   height: auto;
   width: 100%;
   max-width: 100vw;
-  /* Sin scroll interno - usa el scroll del body */
-  overflow-x: hidden;
+  /* SIN SCROLL - solo scroll en cards específicas */
+  overflow: hidden;
 }
 
 .main-content {
@@ -56,8 +55,8 @@ body {
   max-width: 100vw;
   padding-top: 3.5rem; /* Espacio ajustado para navbar de 56px */
   min-height: 0;
-  /* SIN SCROLL INTERNO - solo usa el scroll del navegador */
-  overflow: visible;
+  /* SIN SCROLL - solo scroll en cards específicas */
+  overflow: hidden;
 }
 
 /* ===== LOADING SPINNER ===== */

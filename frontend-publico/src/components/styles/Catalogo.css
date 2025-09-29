@@ -61,8 +61,8 @@
   background: var(--background-color);
   color: var(--text-primary);
   position: relative;
-  /* SIN SCROLL INTERNO - solo usa el scroll del navegador */
-  overflow: visible;
+  /* SIN SCROLL - solo scroll en cards específicas */
+  overflow: hidden;
 }
 
 .container {

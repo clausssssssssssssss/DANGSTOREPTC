@@ -96,8 +96,8 @@ const App = () => {
 
   return (
     <AuthProvider>
-      <CartProvider>
-        <FavoritesProvider>
+      <FavoritesProvider>
+        <CartProvider>
           <AppErrorBoundary>
             <Suspense fallback={<LoadingSpinner />}>
               <div className="App">
@@ -120,8 +120,8 @@ const App = () => {
               </div>
             </Suspense>
           </AppErrorBoundary>
-        </FavoritesProvider>
-      </CartProvider>
+        </CartProvider>
+      </FavoritesProvider>
     </AuthProvider>
   )
 }

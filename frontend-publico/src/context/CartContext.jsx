@@ -7,7 +7,11 @@ const API_BASE = 'https://dangstoreptc-production.up.railway.app/api';
 
 const CartContext = createContext();
 
+// Exportar el contexto para uso en otros componentes
+export { CartContext };
+
 export const CartProvider = ({ children }) => {
+  console.log('CartProvider: Renderizando...');
   const [cart, setCart] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -92,11 +96,30 @@ export const CartProvider = ({ children }) => {
 
   const addToCart = async ({ productId, quantity = 1, productName = 'Producto' }) => {
     try {
-      // Verificar límite específico del catálogo
+      console.log('addToCart: Iniciando validaciones...');
+      
+      // 1. Verificar stock individual del producto
+      console.log('addToCart: Verificando stock individual...');
+      console.log('addToCart: productId:', productId, 'quantity:', quantity);
+      const stockCheck = await storeConfigService.checkProductStock(productId, quantity);
+      console.log('addToCart: Respuesta del stock:', stockCheck);
+      
+      if (!stockCheck.success || !stockCheck.hasStock) {
+        console.log('addToCart: Sin stock disponible, lanzando error...');
+        throw new Error(`Lo sentimos, no hay suficiente stock disponible para "${productName}". Solo quedan ${stockCheck.available || 0} unidades.`);
+      }
+      
+      // 2. Verificar límite global del catálogo (sincronizado con app móvil)
+      console.log('addToCart: Verificando límite global del catálogo...');
       const catalogLimit = await storeConfigService.checkCatalogLimit();
+      console.log('addToCart: Respuesta del límite:', catalogLimit);
+      
       if (!catalogLimit.success || !catalogLimit.canBuy) {
+        console.log('addToCart: Límite global alcanzado, lanzando error...');
         throw new Error(`Lo sentimos, hemos alcanzado el límite máximo de ${catalogLimit.maxCatalogOrders || 10} productos del catálogo. Por favor, intenta nuevamente la próxima semana.`);
       }
+      
+      console.log('addToCart: Todas las validaciones OK, agregando al carrito...');
 
       const json = await authFetch('/cart', {
         method: 'POST',
@@ -104,7 +127,9 @@ export const CartProvider = ({ children }) => {
       });
       const cartData = json.cart || json;
       sync(cartData);
+      console.log('addToCart: Producto agregado exitosamente');
     } catch (error) {
+      console.log('addToCart: Error capturado:', error);
       // Re-lanzar el error para que el componente pueda manejarlo
       throw error;
     }
@@ -172,7 +197,9 @@ export const CartProvider = ({ children }) => {
 // Hook para usar el contexto del carrito
 export const useCart = () => {
   const context = useContext(CartContext);
+  console.log('useCart context:', context);
   if (!context) {
+    console.error('useCart: No se encontró el contexto del carrito');
     throw new Error('useCart debe ser usado dentro de un CartProvider');
   }
   return context;

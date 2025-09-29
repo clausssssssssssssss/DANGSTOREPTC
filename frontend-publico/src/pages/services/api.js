@@ -39,4 +39,5 @@ const api = {
   }).then(r => r.json())
 }
 
+export { API_URL }
 export default api

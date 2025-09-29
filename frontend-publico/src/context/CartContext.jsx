@@ -130,6 +130,19 @@ export const CartProvider = ({ children }) => {
       console.log('addToCart: Producto agregado exitosamente');
     } catch (error) {
       console.log('addToCart: Error capturado:', error);
+      
+      // Mostrar toast de error basado en el tipo de error
+      if (error.message.includes('stock disponible')) {
+        // Error de stock individual
+        console.error('❌ Error de stock individual:', error.message);
+      } else if (error.message.includes('límite máximo')) {
+        // Error de límite global
+        console.error('❌ Error de límite global:', error.message);
+      } else {
+        // Error general
+        console.error('❌ Error general:', error.message);
+      }
+      
       // Re-lanzar el error para que el componente pueda manejarlo
       throw error;
     }

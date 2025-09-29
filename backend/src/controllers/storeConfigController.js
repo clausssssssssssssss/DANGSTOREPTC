@@ -92,10 +92,7 @@ export const canAcceptOrders = async (req, res) => {
       });
     }
     
-    // Verificar límite general de pedidos
-    const canAcceptGeneral = config.canAcceptOrders();
-    
-    // Verificar límite específico del catálogo
+    // Verificar límite específico del catálogo (más restrictivo)
     let canAcceptCatalog = true;
     let remainingCatalogOrders = 0;
     
@@ -117,23 +114,16 @@ export const canAcceptOrders = async (req, res) => {
       remainingCatalogOrders = Math.max(0, maxCatalogOrders - currentCatalogSales);
     }
     
-    // El límite del catálogo es más restrictivo, así que lo usamos
-    const canAccept = canAcceptGeneral && canAcceptCatalog;
-    const remainingOrders = config.stockLimits.catalog.isLimitActive ? 
-      remainingCatalogOrders : 
-      (config.orderLimits.weeklyMaxOrders - config.orderLimits.currentWeekOrders);
+    // Solo usar el límite del catálogo para productos del catálogo
+    const canAccept = canAcceptCatalog;
     
     res.status(200).json({
       success: true,
       canAccept,
-      remainingOrders: Math.max(0, remainingOrders),
-      currentWeekOrders: config.stockLimits.catalog.isLimitActive ? 
-        (config.stockLimits.catalog.currentWeekSales || 0) : 
-        config.orderLimits.currentWeekOrders,
-      weeklyMaxOrders: config.stockLimits.catalog.isLimitActive ? 
-        config.stockLimits.catalog.defaultMaxStock : 
-        config.orderLimits.weeklyMaxOrders,
-      isCatalogLimit: config.stockLimits.catalog.isLimitActive
+      remainingOrders: Math.max(0, remainingCatalogOrders),
+      currentWeekOrders: config.stockLimits.catalog.currentWeekSales || 0,
+      weeklyMaxOrders: config.stockLimits.catalog.defaultMaxStock,
+      isCatalogLimit: true
     });
   } catch (error) {
     console.error('Error verificando límites de pedidos:', error);
@@ -287,6 +277,62 @@ export const getLowStockProducts = async (req, res) => {
     });
   } catch (error) {
     console.error('Error obteniendo productos con stock bajo:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error interno del servidor'
+    });
+  }
+};
+
+/**
+ * Verificar límite de encargos personalizados
+ */
+export const checkCustomOrdersLimit = async (req, res) => {
+  try {
+    const config = await StoreConfig.findOne();
+    
+    if (!config) {
+      return res.status(200).json({
+        success: true,
+        canCreate: true,
+        message: 'No hay límites configurados para encargos personalizados'
+      });
+    }
+    
+    // Verificar si el límite de encargos personalizados está activo
+    if (!config.stockLimits.customOrders.isLimitActive) {
+      return res.status(200).json({
+        success: true,
+        canCreate: true,
+        message: 'Límite de encargos personalizados desactivado'
+      });
+    }
+    
+    // Contar encargos personalizados en la semana actual
+    const now = new Date();
+    const weekStart = new Date(config.orderLimits.weekStartDate);
+    const daysDiff = Math.floor((now - weekStart) / (1000 * 60 * 60 * 24));
+    
+    // Si han pasado más de 7 días, resetear el contador
+    if (daysDiff >= 7) {
+      config.stockLimits.customOrders.currentWeekOrders = 0;
+      config.orderLimits.weekStartDate = now;
+      await config.save();
+    }
+    
+    const maxCustomOrders = config.stockLimits.customOrders.defaultMaxStock;
+    const currentCustomOrders = config.stockLimits.customOrders.currentWeekOrders || 0;
+    const canCreate = currentCustomOrders < maxCustomOrders;
+    
+    res.status(200).json({
+      success: true,
+      canCreate,
+      currentCustomOrders,
+      maxCustomOrders,
+      remaining: Math.max(0, maxCustomOrders - currentCustomOrders)
+    });
+  } catch (error) {
+    console.error('Error verificando límite de encargos personalizados:', error);
     res.status(500).json({
       success: false,
       message: 'Error interno del servidor'

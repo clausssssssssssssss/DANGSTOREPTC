@@ -1,6 +1,7 @@
 // src/components/personalizedOrder/useCustomerOrders.jsx
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../hooks/useAuth';
+import storeConfigService from '../../services/storeConfigService';
 
 const API_URL = 'https://dangstoreptc-production.up.railway.app/api';
 
@@ -38,6 +39,19 @@ export default function useCustomerOrders() {
     
     setLoading(true);
     setError(null);
+
+    // Verificar límite de encargos personalizados
+    try {
+      const customOrdersLimit = await storeConfigService.checkCustomOrdersLimit();
+      if (!customOrdersLimit.success || !customOrdersLimit.canCreate) {
+        setError(`Lo sentimos, hemos alcanzado el límite máximo de ${customOrdersLimit.maxCustomOrders || 20} encargos personalizados. Por favor, intenta nuevamente la próxima semana.`);
+        setLoading(false);
+        return;
+      }
+    } catch (limitError) {
+      console.error('Error verificando límite de encargos personalizados:', limitError);
+      // Continuar si hay error en la verificación
+    }
 
     if (!image) {
       setError('Debes subir una imagen');

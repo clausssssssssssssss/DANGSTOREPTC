@@ -95,6 +95,29 @@ class StoreConfigService {
     }
   }
 
+  // Verificar límite de encargos personalizados
+  async checkCustomOrdersLimit() {
+    try {
+      const response = await fetch(`${API_URL}/store-config/custom-orders-limit`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`Error ${response.status}: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Error verificando límite de encargos personalizados:', error);
+      // En caso de error, asumir que se puede crear
+      return { success: true, canCreate: true };
+    }
+  }
+
   // Obtener información de límites de la tienda
   async getStoreLimitsInfo() {
     try {

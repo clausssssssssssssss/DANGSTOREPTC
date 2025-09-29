@@ -157,20 +157,51 @@ export const createOrder = async (req, res) => {
       return res.status(400).json({ success: false, message: "Items inválidos" });
     }
 
-    // Verificar límites de pedidos semanales
+    // Verificar límites de pedidos semanales Y límite del catálogo
     const StoreConfig = (await import('../models/StoreConfig.js')).default;
     const config = await StoreConfig.findOne();
     
-    if (config && !config.canAcceptOrders()) {
-      return res.status(400).json({
-        success: false,
-        message: `Lo sentimos, hemos alcanzado el límite máximo de ${config.orderLimits.weeklyMaxOrders} pedidos semanales. Por favor, intenta nuevamente la próxima semana.`,
-        code: 'ORDER_LIMIT_REACHED'
-      });
+    if (config) {
+      // Verificar límite general de pedidos
+      const canAcceptGeneral = config.canAcceptOrders();
+      
+      // Verificar límite específico del catálogo
+      let canAcceptCatalog = true;
+      
+      if (config.stockLimits.catalog.isLimitActive) {
+        const now = new Date();
+        const weekStart = new Date(config.orderLimits.weekStartDate);
+        const daysDiff = Math.floor((now - weekStart) / (1000 * 60 * 60 * 24));
+        
+        // Si han pasado más de 7 días, resetear el contador del catálogo
+        if (daysDiff >= 7) {
+          config.stockLimits.catalog.currentWeekSales = 0;
+          config.orderLimits.weekStartDate = now;
+          await config.save();
+        }
+        
+        const maxCatalogOrders = config.stockLimits.catalog.defaultMaxStock;
+        const currentCatalogSales = config.stockLimits.catalog.currentWeekSales || 0;
+        canAcceptCatalog = currentCatalogSales < maxCatalogOrders;
+        
+        if (!canAcceptCatalog) {
+          return res.status(400).json({
+            success: false,
+            message: `Lo sentimos, hemos alcanzado el límite máximo de ${maxCatalogOrders} productos del catálogo. Por favor, intenta nuevamente la próxima semana.`,
+            code: 'CATALOG_LIMIT_REACHED'
+          });
+        }
+      }
+      
+      // Verificar límite general de pedidos
+      if (!canAcceptGeneral) {
+        return res.status(400).json({
+          success: false,
+          message: `Lo sentimos, hemos alcanzado el límite máximo de ${config.orderLimits.weeklyMaxOrders} pedidos semanales. Por favor, intenta nuevamente la próxima semana.`,
+          code: 'ORDER_LIMIT_REACHED'
+        });
+      }
     }
-
-    // La validación de límite global del catálogo se hace en el frontend
-    // No necesitamos validar stock individual aquí ya que el límite es global
 
     const totalAmount = items.reduce(
       (sum, item) => sum + (item.price ?? 0) * (item.quantity ?? 0),

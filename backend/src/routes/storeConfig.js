@@ -5,6 +5,7 @@ import {
   updateStoreConfig,
   canAcceptOrders,
   checkCatalogLimit,
+  checkCustomOrdersLimit,
   checkProductStock,
   updateProductStockLimits,
   getLowStockProducts
@@ -51,6 +52,12 @@ router.get(
 router.get(
   '/catalog-limit',
   checkCatalogLimit
+);
+
+// Verificar límite de encargos personalizados (público)
+router.get(
+  '/custom-orders-limit',
+  checkCustomOrdersLimit
 );
 
 // Verificar stock disponible para un producto (público)

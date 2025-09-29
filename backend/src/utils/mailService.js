@@ -2,6 +2,7 @@
 // Servicio de email usando Brevo API
 
 import { config } from '../../config.js';
+import fetch from 'node-fetch';
 
 /**
  * Servicio de email usando Brevo API

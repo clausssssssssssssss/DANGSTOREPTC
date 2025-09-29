@@ -30,10 +30,18 @@ export const config = {
     password: process.env.ADMIN_PASSWORD,
   },
 
-  // Configuración de correo: usuario y contraseña SMTP
+    // Configuración de correo: ahora usando Brevo API
   email: {
+    // Mantén las antiguas por compatibilidad (las eliminarás después)
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
+    
+    // Nuevas configuraciones para Brevo
+    brevo: {
+      apiKey: process.env.BREVO_API_KEY,
+      senderName: process.env.BREVO_SENDER_NAME || "Soporte DANGSTORE",
+      senderEmail: process.env.BREVO_SENDER_EMAIL || "soportedangstore@gmail.com",
+    }
   },
 
   // Configuración de Wompi para procesamiento de pagos

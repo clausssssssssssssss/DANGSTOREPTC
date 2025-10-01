@@ -3,6 +3,8 @@ import Order from '../models/Order.js';
 import Customer from "../models/Customers.js";
 import SalesModel from "../models/Sale.js";
 import Product from "../models/Product.js";
+import CustomizedOrder from "../models/CustomizedOrder.js";
+import StoreConfig from '../models/StoreConfig.js';
 import { sendEmail } from "../utils/mailService.js";
 import NotificationService from '../services/NotificationService.js';
 
@@ -157,8 +159,13 @@ export const createOrder = async (req, res) => {
       return res.status(400).json({ success: false, message: "Items inválidos" });
     }
 
+    // 🔍 LOG CRÍTICO: Ver estructura de items
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log('📦 ITEMS RECIBIDOS EN createOrder:');
+    console.log(JSON.stringify(items, null, 2));
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+
     // Verificar límites de pedidos semanales Y límite del catálogo
-    const StoreConfig = (await import('../models/StoreConfig.js')).default;
     const config = await StoreConfig.findOne();
     
     if (config) {
@@ -168,7 +175,7 @@ export const createOrder = async (req, res) => {
       // Verificar límite específico del catálogo
       let canAcceptCatalog = true;
       
-      if (config.stockLimits.catalog.isLimitActive) {
+      if (config.stockLimits?.catalog?.isLimitActive) {
         const now = new Date();
         const weekStart = new Date(config.orderLimits.weekStartDate);
         const daysDiff = Math.floor((now - weekStart) / (1000 * 60 * 60 * 24));
@@ -204,7 +211,6 @@ export const createOrder = async (req, res) => {
     }
 
     // Verificar stock disponible para cada producto
-    const Product = (await import('../models/Product.js')).default;
     for (const item of items) {
       if (item.product && item.quantity) {
         const product = await Product.findById(item.product);
@@ -239,6 +245,130 @@ export const createOrder = async (req, res) => {
     await Customer.findByIdAndUpdate(userId, { $push: { orders: savedOrder._id } });
 
     if (wompiStatus === "COMPLETED") {
+      // 🔥 CREAR VENTAS PARA CADA ÍTEM
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      console.log('🛒 INICIANDO CREACIÓN DE VENTAS');
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      
+      for (const item of items) {
+        try {
+          console.log('\n📋 Procesando item:', {
+            type: item.type,
+            itemId: item.item,
+            productId: item.product,
+            quantity: item.quantity,
+            price: item.price
+          });
+
+          // Producto personalizado (cotización)
+          if (item.type === 'custom') {
+            const customOrderId = item.item || item.customOrder || item.id;
+            console.log('🎨 Buscando orden personalizada con ID:', customOrderId);
+            
+            const customOrder = await CustomizedOrder.findById(customOrderId);
+            
+            if (customOrder) {
+              console.log('✅ Orden personalizada encontrada:', {
+                id: customOrder._id,
+                price: customOrder.price,
+                modelType: customOrder.modelType,
+                status: customOrder.status
+              });
+
+              // Usar el precio del item o de la orden
+              const itemPrice = item.price || customOrder.price || 0;
+              const saleAmount = itemPrice * (item.quantity || 1);
+              
+              console.log('💰 Calculando venta:', {
+                itemPrice,
+                quantity: item.quantity || 1,
+                saleAmount
+              });
+
+              // Crear venta para producto personalizado
+              const newSale = await SalesModel.create({
+                product: null,
+                customer: userId,
+                total: saleAmount,
+                category: customOrder.modelType || 'Personalizado',
+                date: new Date(),
+                customOrder: customOrder._id
+              });
+              
+              console.log('✅✅✅ VENTA CREADA EXITOSAMENTE');
+              console.log('   ID de venta:', newSale._id);
+              console.log('   Total:', saleAmount);
+              console.log('   Categoría:', newSale.category);
+
+              // Marcar la orden personalizada como completada
+              if (customOrder.status !== 'completed') {
+                customOrder.status = 'completed';
+                customOrder.purchaseDate = new Date();
+                await customOrder.save();
+                console.log('✅ Orden personalizada marcada como completada');
+              }
+            } else {
+              console.error('❌❌❌ ORDEN PERSONALIZADA NO ENCONTRADA');
+              console.error('   ID buscado:', customOrderId);
+            }
+          }
+          
+          // Producto del catálogo
+          else if (item.product || item.productId) {
+            const productId = item.product || item.productId;
+            console.log('📦 Buscando producto de catálogo con ID:', productId);
+            
+            const product = await Product.findById(productId);
+            
+            if (product) {
+              console.log('✅ Producto encontrado:', {
+                id: product._id,
+                nombre: product.nombre,
+                precio: product.precio,
+                categoria: product.categoria
+              });
+
+              const itemPrice = item.price || product.precio || 0;
+              const saleAmount = itemPrice * (item.quantity || 1);
+              
+              console.log('💰 Calculando venta:', {
+                itemPrice,
+                quantity: item.quantity || 1,
+                saleAmount
+              });
+
+              // Crear venta para producto de catálogo
+              const newSale = await SalesModel.create({
+                product: product._id,
+                customer: userId,
+                total: saleAmount,
+                category: product.categoria || 'Sin categoría',
+                date: new Date()
+              });
+              
+              console.log('✅✅✅ VENTA CREADA EXITOSAMENTE');
+              console.log('   ID de venta:', newSale._id);
+              console.log('   Total:', saleAmount);
+              console.log('   Categoría:', newSale.category);
+            } else {
+              console.error('❌❌❌ PRODUCTO NO ENCONTRADO');
+              console.error('   ID buscado:', productId);
+            }
+          } else {
+            console.warn('⚠️⚠️⚠️ ITEM SIN IDENTIFICADOR VÁLIDO');
+            console.warn('   Item completo:', item);
+          }
+        } catch (saleError) {
+          console.error('❌❌❌ ERROR CREANDO VENTA');
+          console.error('   Error:', saleError.message);
+          console.error('   Stack:', saleError.stack);
+        }
+      }
+
+      console.log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      console.log('✅ PROCESO DE VENTAS COMPLETADO');
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
+
       // Incrementar contador de pedidos semanales
       if (config) {
         await config.incrementOrderCount();
@@ -248,7 +378,6 @@ export const createOrder = async (req, res) => {
         const weekStart = new Date(config.orderLimits.weekStartDate);
         const daysDiff = Math.floor((now - weekStart) / (1000 * 60 * 60 * 24));
         
-        // Si han pasado más de 7 días, resetear el contador
         if (daysDiff >= 7) {
           config.stockLimits.catalog.currentWeekSales = 1;
           config.orderLimits.weekStartDate = now;
@@ -259,6 +388,7 @@ export const createOrder = async (req, res) => {
         await config.save();
       }
 
+      // Actualizar stock de productos de catálogo
       for (const item of items) {
         if (item.product && item.quantity) {
           const product = await Product.findById(item.product);
@@ -266,7 +396,7 @@ export const createOrder = async (req, res) => {
             const newStock = Math.max(0, product.disponibles - item.quantity);
             await Product.findByIdAndUpdate(item.product, { disponibles: newStock });
             
-            // Verificar si el producto se agotó y enviar notificación
+            // Verificar si el producto se agotó
             if (newStock === 0 && config?.notifications?.lowStockEnabled) {
               try {
                 await NotificationService.createLowStockNotification({
@@ -281,6 +411,8 @@ export const createOrder = async (req, res) => {
           }
         }
       }
+
+      // Limpiar carrito
       await Cart.findOneAndUpdate({ user: userId }, { $set: { products: [], customizedProducts: [] } });
       
       // Crear notificación para pedido completado
@@ -298,14 +430,7 @@ export const createOrder = async (req, res) => {
       }
     }
 
-    try {
-      const productIds = items.map(item => item.product).filter(Boolean);
-      const newSale = new SalesModel({ products: productIds, customer: userId, total: totalAmount, date: new Date() });
-      await newSale.save();
-    } catch (salesError) {
-      console.warn("Error al guardar venta:", salesError.message);
-    }
-
+    // Enviar correo de confirmación
     try {
       const customer = await Customer.findById(userId).select('email name');
       if (customer?.email) {
@@ -319,17 +444,29 @@ export const createOrder = async (req, res) => {
           <hr/>
           <p>Si no reconoces esta operación, contáctanos.</p>
         </div>`;
-        await sendEmail({ to: customer.email, subject, html, text: `Orden ${savedOrder._id} por $${totalAmount.toFixed(2)}` });
+        await sendEmail({ 
+          to: customer.email, 
+          subject, 
+          html, 
+          text: `Orden ${savedOrder._id} por $${totalAmount.toFixed(2)}` 
+        });
       }
     } catch (mailErr) {
       console.error('❌ ERROR ENVIANDO CORREO DE CONFIRMACIÓN:', mailErr.message);
-      console.error('❌ Detalles del error:', mailErr);
     }
 
-    return res.status(201).json({ success: true, message: "Orden y venta registradas con éxito", order: savedOrder });
+    return res.status(201).json({ 
+      success: true, 
+      message: "Orden y venta registradas con éxito", 
+      order: savedOrder 
+    });
   } catch (error) {
     console.error("ERROR EN createOrder:", error);
-    return res.status(500).json({ success: false, message: "Error al crear la orden", error: error.message });
+    return res.status(500).json({ 
+      success: false, 
+      message: "Error al crear la orden", 
+      error: error.message 
+    });
   }
 };
 

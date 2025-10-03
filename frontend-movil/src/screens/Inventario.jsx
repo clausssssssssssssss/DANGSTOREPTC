@@ -223,14 +223,14 @@ const Inventario = ({ navigation }) => {
       
       <View style={InventarioStyles.cardActions}>
         <TouchableOpacity 
-          style={InventarioStyles.editButton}
+          style={[InventarioStyles.editButton]}
           onPress={() => editMaterial(item)}
         >
           <Text style={InventarioStyles.editButtonText}>✎</Text>
         </TouchableOpacity>
         
         <TouchableOpacity 
-          style={InventarioStyles.deleteButton}
+          style={[InventarioStyles.deleteButton]}
           onPress={() => confirmDelete(item._id)}
         >
           <Text style={InventarioStyles.deleteButtonText}>✕</Text>
@@ -398,5 +398,5 @@ const Inventario = ({ navigation }) => {
 
 
 
-export default Inventario;  
+export default Inventario;
 

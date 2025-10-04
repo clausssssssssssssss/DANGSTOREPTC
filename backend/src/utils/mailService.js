@@ -1,5 +1,5 @@
 // src/utils/mailService.js
-// Servicio de email usando Brevo API
+// Servicio de email usando Brevo API (optimizado para Railway/Render)
 
 import { config } from '../../config.js';
 import fetch from 'node-fetch';
@@ -9,13 +9,31 @@ import fetch from 'node-fetch';
  */
 const sendEmail = async ({ to, subject, text, html }) => {
   try {
-    console.log('Enviando correo con Brevo a:', to);
+    console.log('=== ENVÍO DE EMAIL ===');
+    console.log('📧 Destinatario:', to);
+    console.log('📋 Asunto:', subject);
+    console.log('🔑 API Key configurada:', !!config.email.brevo.apiKey);
+    console.log('👤 Remitente:', config.email.brevo.senderEmail);
 
-    // Validar que tenemos la API key
+    // Validar configuración
     if (!config.email.brevo.apiKey) {
       throw new Error('BREVO_API_KEY no está configurada en las variables de entorno');
     }
 
+    // Preparar payload
+    const payload = {
+      sender: { 
+        name: config.email.brevo.senderName, 
+        email: config.email.brevo.senderEmail 
+      },
+      to: [{ email: to }],
+      subject: subject,
+      htmlContent: html || `<p>${text}</p>`,
+    };
+
+    console.log('📤 Enviando a Brevo API...');
+
+    // Hacer la petición
     const response = await fetch("https://api.brevo.com/v3/smtp/email", {
       method: "POST",
       headers: {
@@ -23,29 +41,40 @@ const sendEmail = async ({ to, subject, text, html }) => {
         "api-key": config.email.brevo.apiKey,
         "content-type": "application/json",
       },
-      body: JSON.stringify({
-        sender: { 
-          name: config.email.brevo.senderName, 
-          email: config.email.brevo.senderEmail 
-        },
-        to: [{ email: to, name: "Usuario DANGSTORE" }],
-        subject: subject,
-        htmlContent: html || `<p>${text}</p>`,
-      }),
+      body: JSON.stringify(payload),
     });
 
+    console.log('📨 Status de respuesta:', response.status, response.statusText);
+
+    // Manejar errores de la API
     if (!response.ok) {
       const errorData = await response.json();
-      console.error('Error de Brevo API:', errorData);
-      throw new Error(`Error enviando email: ${errorData.message || response.statusText}`);
+      console.error('❌ Error de Brevo API:', JSON.stringify(errorData, null, 2));
+      
+      // Mensajes de error específicos
+      if (response.status === 400) {
+        throw new Error(`Error de validación: ${errorData.message || 'Datos inválidos'}`);
+      } else if (response.status === 401) {
+        throw new Error('API Key inválida o expirada');
+      } else if (response.status === 402) {
+        throw new Error('Cuenta de Brevo sin créditos o suspendida');
+      } else {
+        throw new Error(`Error enviando email: ${errorData.message || response.statusText}`);
+      }
     }
 
+    // Respuesta exitosa
     const data = await response.json();
-    console.log('Email enviado exitosamente con Brevo:', data);
+    console.log('✅ Email enviado exitosamente');
+    console.log('📬 Message ID:', data.messageId);
+    console.log('===================\n');
+    
     return data;
 
   } catch (err) {
-    console.error('Error en sendEmail con Brevo:', err);
+    console.error('❌ ERROR EN ENVÍO DE EMAIL:', err.message);
+    console.error('Stack:', err.stack);
+    console.error('===================\n');
     throw err;
   }
 };
@@ -96,14 +125,14 @@ const HTMLRecoveryEmail = (code) => `
           <!-- Información importante -->
           <div style="background-color: #fef3c7; border-left: 4px solid #f59e0b; padding: 16px; border-radius: 4px; margin: 25px 0;">
             <p style="color: #92400e; font-size: 14px; margin: 0; font-weight: 500;">
-              Este código expira en 15 minutos por motivos de seguridad
+              ⏱️ Este código expira en 15 minutos por motivos de seguridad
             </p>
           </div>
           
           <!-- Instrucciones -->
           <div style="text-align: left; margin: 30px 0;">
             <h3 style="color: #374151; font-size: 16px; font-weight: 600; margin: 0 0 12px 0;">
-              Instrucciones:
+              📋 Instrucciones:
             </h3>
             <ol style="color: #6b7280; font-size: 14px; line-height: 1.5; margin: 0; padding-left: 18px;">
               <li>Ingresa el código en la aplicación</li>
@@ -114,7 +143,7 @@ const HTMLRecoveryEmail = (code) => `
           
           <p style="color: #9ca3af; font-size: 13px; margin-top: 30px; line-height: 1.4;">
             Si no solicitaste este código, puedes ignorar este mensaje.<br>
-            Tu cuenta permanece segura y protegida.
+            Tu cuenta permanece segura y protegida. 🔒
           </p>
         </div>
       </div>

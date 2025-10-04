@@ -1,7 +1,7 @@
 // src/services/salesReport.js
 
 //  Cambia esta URL cuando tengas backend corriendo
-const API_URL = process.env.EXPO_PUBLIC_API_URL || "http://localhost:4000/api";
+const API_URL = process.env.EXPO_PUBLIC_API_URL || "https://dangstoreptc.onrender.com/api";
 
 export const salesAPI = {
   // 👇 NUEVO: Obtener las últimas 10 ventas/pedidos

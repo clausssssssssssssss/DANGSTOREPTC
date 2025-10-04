@@ -30,13 +30,16 @@ export const config = {
     password: process.env.ADMIN_PASSWORD,
   },
 
-    // Configuración de correo: ahora usando Brevo API
+  // Configuración de correo: Gmail (prioritario) y Brevo (respaldo)
   email: {
-    // Mantén las antiguas por compatibilidad (las eliminarás después)
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
+    // Gmail - Servicio principal (más confiable)
+    gmail: {
+      user: process.env.EMAIL_USER || process.env.ADMIN_EMAIL,
+      pass: process.env.APP_PASSWORD_EMAIL, // App Password de Gmail
+      senderName: 'Soporte DANGSTORE',
+    },
     
-    // Nuevas configuraciones para Brevo
+    // Brevo - Servicio alternativo
     brevo: {
       apiKey: process.env.BREVO_API_KEY,
       senderName: process.env.BREVO_SENDER_NAME || "Soporte DANGSTORE",
@@ -58,5 +61,4 @@ export const config = {
     cloudinary_api_key: process.env.CLOUDINARY_API_KEY,
     cloudinary_api_secret: process.env.CLOUDINARY_API_SECRET,
   },
-
 };

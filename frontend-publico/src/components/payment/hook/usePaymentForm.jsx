@@ -50,26 +50,22 @@ const usePaymentForm = () => {
 
     // Validaciones específicas para cada campo
     if (name === 'numeroTarjeta') {
-      // Solo permitir números y espacios
       processedValue = value.replace(/\D/g, '').replace(/(\d{4})/g, '$1 ').trim();
-      if (processedValue.length > 19) return; // Máximo 16 dígitos + 3 espacios
+      if (processedValue.length > 19) return;
     }
     
     if (name === 'cvv') {
-      // Solo permitir números, máximo 4 dígitos
       processedValue = value.replace(/\D/g, '');
       if (processedValue.length > 4) return;
     }
     
     if (name === 'mesVencimiento') {
-      // Solo permitir números del 1 al 12
       processedValue = value.replace(/\D/g, '');
       if (processedValue > 12) processedValue = 12;
       if (processedValue < 1) processedValue = 1;
     }
     
     if (name === 'anioVencimiento') {
-      // Solo permitir números, mínimo año actual
       processedValue = value.replace(/\D/g, '');
       const currentYear = new Date().getFullYear();
       if (processedValue < currentYear) processedValue = currentYear;
@@ -105,7 +101,6 @@ const usePaymentForm = () => {
       anioVencimiento: "",
       nombreTitular: "",
       tipoTarjeta: "visa",
-      // Limpiar campos de facturación
       nombreFacturacion: "",
       emailFacturacion: "",
       direccionFacturacion: "",
@@ -147,40 +142,111 @@ const usePaymentForm = () => {
 
   const handleFinishPayment = async () => {
     try {
-      // Validar formulario de tarjeta
       validateCardForm();
 
-      // Verificar que tenemos token
       const token = localStorage.getItem("token");
       if (!token) {
         throw new Error("No hay token de autenticación");
       }
 
-      // Tomar items y total provistos desde navigate state
-      const { items = [], total = 0 } = location.state || {};
+      // 🔥 CORRECCIÓN: Manejar tanto items normales como quoteItem individual
+      let items = [];
+      let total = 0;
+
+      if (location.state?.quoteItem) {
+        // Es un pago de cotización individual
+        console.log('🎨 Pago de cotización individual detectado');
+        items = [location.state.quoteItem];
+        total = location.state.quoteItem.price || 0;
+      } else {
+        // Es un pago normal desde el carrito
+        items = location.state?.items || [];
+        total = location.state?.total || 0;
+      }
+
       if (!items.length) {
         throw new Error('No hay productos para pagar');
       }
 
-      const formattedItems = items.map(item => ({
-        product: item.product._id || item.product.id || item.product,
-        quantity: parseInt(item.quantity) || 1,
-        price: parseFloat(item.product?.price ?? item.price ?? 0),
-      }));
+      console.log('🔍 Items originales recibidos:', items);
+
+      // 🔥 CORRECCIÓN CRÍTICA: Detectar el tipo de cada item
+      const formattedItems = items.map(item => {
+        console.log('📦 Procesando item:', item);
+
+        // Detectar si es un producto personalizado
+        const isCustom = item.type === 'custom' || 
+                        item.isCustom || 
+                        item.customOrder || 
+                        item.item ||
+                        (item.product && typeof item.product === 'object' && item.product.modelType);
+
+        if (isCustom) {
+          // Es un producto PERSONALIZADO (cotización)
+          const customOrderId = item.item || 
+                               item.customOrder || 
+                               item.product?._id || 
+                               item.product?.id || 
+                               item.product;
+
+          const itemPrice = item.price || 
+                           item.product?.price || 
+                           item.product?.precio || 
+                           0;
+
+          console.log('🎨 Item personalizado detectado:', {
+            customOrderId,
+            quantity: item.quantity,
+            price: itemPrice
+          });
+
+          return {
+            type: 'custom',
+            item: customOrderId,
+            quantity: parseInt(item.quantity) || 1,
+            price: parseFloat(itemPrice),
+          };
+        } else {
+          // Es un producto DE CATÁLOGO
+          const productId = item.product?._id || 
+                           item.product?.id || 
+                           item.product;
+
+          const itemPrice = item.product?.price || 
+                           item.product?.precio || 
+                           item.price || 
+                           0;
+
+          console.log('📦 Item de catálogo detectado:', {
+            productId,
+            quantity: item.quantity,
+            price: itemPrice
+          });
+
+          return {
+            type: 'product',
+            product: productId,
+            quantity: parseInt(item.quantity) || 1,
+            price: parseFloat(itemPrice),
+          };
+        }
+      });
+
+      console.log('✅ Items formateados para enviar:', formattedItems);
 
       const orderData = {
         items: formattedItems,
         total: parseFloat(total),
-        wompiOrderID: `FAKE_ORDER_${Date.now()}`, // ID único
+        wompiOrderID: `FAKE_ORDER_${Date.now()}`,
         wompiStatus: "COMPLETED",
         paymentMethod: "Tarjeta de Crédito/Débito (Simulado)",
         cardLast4: formDataTarjeta.numeroTarjeta.replace(/\s/g, '').slice(-4),
         cardType: detectCardType(formDataTarjeta.numeroTarjeta),
       };
 
-      console.log("Enviando orden al backend:", orderData);
+      console.log("📤 Enviando orden al backend:", orderData);
 
-      const base = 'https://dangstoreptc-production.up.railway.app';
+      const base = 'http://localhost:4000/api';
       const response = await fetch(`${base}/api/cart/order`, {
         method: "POST",
         headers: {
@@ -190,22 +256,20 @@ const usePaymentForm = () => {
         body: JSON.stringify(orderData),
       });
 
-              console.log("URL completa:", "https://dangstoreptc-production.up.railway.app/api/cart/order");
-              console.log("Haciendo petición...");
+      console.log("🔗 URL completa:", `${base}/api/cart/order`);
+      console.log("📡 Haciendo petición...");
 
       const responseData = await response.json();
-              console.log("Datos de respuesta:", responseData);
+      console.log("📋 Datos de respuesta:", responseData);
 
       if (!response.ok) {
         throw new Error(responseData.message || `Error del servidor: ${response.status}`);
       }
 
-      // Pago exitoso - ir al paso 4 (confirmación exitosa)
       setStep(4);
       return responseData;
     } catch (error) {
-              console.error("Error en pago simulado:", error);
-      // El error será manejado por el componente que use este hook
+      console.error("❌ Error en pago simulado:", error);
       throw error;
     }
   };

@@ -19,6 +19,7 @@ import { AuthContext } from '../context/AuthContext';
 import { useProducts } from '../hooks/useProducts';
 import { ProductosStyles } from '../components/styles/ProductosStyles';
 import AlertComponent from '../components/ui/Alert';
+import { useNotifications } from '../hooks/useNotifications'; // Importa el hook de notificaciones
 
 const API_URL = 'https://dangstoreptc-production.up.railway.app/api/products'; // URL consistente con el backend
 
@@ -48,6 +49,7 @@ const Productos = ({ navigation }) => {
     cancelText: 'Cancelar',
     showCancel: false,
   });
+  const { addNotification } = useNotifications(); // Obtén la función para agregar notificaciones
 
   // Estados para gestión de stock
   const [modalStockVisible, setModalStockVisible] = useState(false);
@@ -106,6 +108,18 @@ const Productos = ({ navigation }) => {
     setModalStockVisible(true);
   };
 
+  // Función para mostrar notificación cuando el producto vuelve a estar disponible
+  const notifyStockAvailable = (producto) => {
+    if (producto.disponibles > 0 && producto.stockLimits?.isStockLimitActive) {
+      addNotification({
+        title: '¡Producto disponible!',
+        message: `Ya puedes volver a comprar el producto "${producto.nombre}".`,
+        type: 'stock_available',
+        data: { productId: producto._id, productName: producto.nombre }
+      });
+    }
+  };
+
   const guardarStock = async () => {
     if (!productoStockSeleccionado) return;
 
@@ -149,6 +163,19 @@ const Productos = ({ navigation }) => {
             }
           : p
       ));
+
+      // Notificar si el producto vuelve a estar disponible
+      if (productoStockSeleccionado.disponibles === 0 && stockActualizado > 0) {
+        notifyStockAvailable({
+          ...productoStockSeleccionado,
+          disponibles: stockActualizado,
+          stockLimits: {
+            ...productoStockSeleccionado.stockLimits,
+            maxStock: maxStockActualizado,
+            isStockLimitActive: stockLimitActive
+          }
+        });
+      }
 
       showAlert(
         'Éxito',
@@ -1066,7 +1093,7 @@ const Productos = ({ navigation }) => {
                     </View>
                     <View style={ProductosStyles.categoriaActions}>
                       <TouchableOpacity
-                        style={ProductosStyles.editarCategoriaBtn}
+                        style={[ProductosStyles.editarCategoriaBtn, cargando && ProductosStyles.btnDeshabilitado]}
                         onPress={() => editarCategoria(categoria)}
                         disabled={cargando}
                       >

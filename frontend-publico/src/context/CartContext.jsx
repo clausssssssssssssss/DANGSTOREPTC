@@ -106,104 +106,118 @@ export const CartProvider = ({ children }) => {
 
   // ✅ NUEVA FUNCIÓN: Agregar producto personalizado
   const addCustomToCart = async ({ customOrderId, modelType, price, imageUrl, description }) => {
-  try {
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    console.log('🎨 addCustomToCart: Agregando producto personalizado...');
-    console.log('Datos recibidos:', { customOrderId, modelType, price });
+    try {
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      console.log('🎨 addCustomToCart: Agregando producto personalizado...');
+      console.log('Datos recibidos:', { customOrderId, modelType, price });
 
-    // 🔥 PAYLOAD CORRECTO: customItemId (no productId)
-    const payload = {
-      customItemId: customOrderId,  // ← CAMBIADO: Era productId, ahora customItemId
-      quantity: 1,
-      type: 'custom',
-      customOrderId                 // ← Mantener para compatibilidad
-    };
+      // 🔥 PAYLOAD CORRECTO: customItemId (no productId)
+      const payload = {
+        customItemId: customOrderId,  // ← CAMBIADO: Era productId, ahora customItemId
+        quantity: 1,
+        type: 'custom',
+        customOrderId                 // ← Mantener para compatibilidad
+      };
 
-    console.log('📤 Enviando al backend:', payload);
+      console.log('📤 Enviando al backend:', payload);
 
-    const json = await authFetch('/cart', {
-      method: 'POST',
-      body: JSON.stringify(payload)
-    });
-    
-    console.log('📥 Respuesta del servidor:', json);
-    
-    const cartData = json.cart || json;
-    sync(cartData);
-    
-    // 🔍 Verificar que se agregó correctamente
-    console.log('📊 Estado del carrito después de agregar:');
-    console.log('   Productos normales:', cartData.products?.length || 0);
-    console.log('   Productos personalizados:', cartData.customizedProducts?.length || 0);
-    
-    if (cartData.customizedProducts?.length > 0) {
-      console.log('✅✅✅ PRODUCTO PERSONALIZADO AGREGADO EXITOSAMENTE');
-    } else {
-      console.warn('⚠️ El producto no aparece en customizedProducts');
-    }
-    
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
-    
-    return { success: true };
-  } catch (error) {
-    console.error('❌ Error al agregar producto personalizado:', error);
-    throw error;
-  }
-};
-
-// ✅ FUNCIÓN MEJORADA: Agregar producto normal (con validaciones)
-const addToCart = async ({ productId, quantity = 1, productName = 'Producto', type = 'normal' }) => {
-  try {
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    console.log('🛒 addToCart: Iniciando...', { productId, quantity, type });
-    
-    // Si es un producto personalizado, usar la función específica
-    if (type === 'custom') {
-      console.log('   → Redirigiendo a addCustomToCart');
-      return await addCustomToCart({
-        customOrderId: productId,
-        modelType: productName,
-        price: 0, // El precio se obtiene del servidor
+      const json = await authFetch('/cart', {
+        method: 'POST',
+        body: JSON.stringify(payload)
       });
+      
+      console.log('📥 Respuesta del servidor:', json);
+      
+      const cartData = json.cart || json;
+      sync(cartData);
+      
+      // 🔍 Verificar que se agregó correctamente
+      console.log('📊 Estado del carrito después de agregar:');
+      console.log('   Productos normales:', cartData.products?.length || 0);
+      console.log('   Productos personalizados:', cartData.customizedProducts?.length || 0);
+      
+      if (cartData.customizedProducts?.length > 0) {
+        console.log('✅✅✅ PRODUCTO PERSONALIZADO AGREGADO EXITOSAMENTE');
+      } else {
+        console.warn('⚠️ El producto no aparece en customizedProducts');
+      }
+      
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
+      
+      return { success: true };
+    } catch (error) {
+      console.error('❌ Error al agregar producto personalizado:', error);
+      throw error;
     }
-    
-    // Validaciones solo para productos normales
-    console.log('📦 Procesando producto NORMAL del catálogo');
-    console.log('   → Verificando stock individual...');
-    const stockCheck = await storeConfigService.checkProductStock(productId, quantity);
-    console.log('   → Respuesta del stock:', stockCheck);
-    
-    if (!stockCheck.success || !stockCheck.hasStock) {
-      throw new Error(`Lo sentimos, no hay suficiente stock disponible para "${productName}". Solo quedan ${stockCheck.available || 0} unidades.`);
-    }
-    
-    console.log('   → Verificando límite global del catálogo...');
-    const catalogLimit = await storeConfigService.checkCatalogLimit();
-    console.log('   → Respuesta del límite:', catalogLimit);
-    
-    if (!catalogLimit.success || !catalogLimit.canBuy) {
-      throw new Error(`Lo sentimos, hemos alcanzado el límite máximo de ${catalogLimit.maxCatalogOrders || 10} productos del catálogo. Por favor, intenta nuevamente la próxima semana.`);
-    }
-    
-    console.log('   → Todas las validaciones OK, agregando al carrito...');
+  };
 
-    const json = await authFetch('/cart', {
-      method: 'POST',
-      body: JSON.stringify({ productId, quantity, type: 'normal' })
-    });
-    
-    const cartData = json.cart || json;
-    sync(cartData);
-    
-    console.log('✅ Producto NORMAL agregado exitosamente');
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
-    
-    return { success: true };
-  } catch (error) {
-    console.error('❌ Error en addToCart:', error);
-    throw error;
-  }
-};
+  // ✅ FUNCIÓN MEJORADA: Agregar producto normal (con validaciones)
+  const addToCart = async ({ productId, quantity = 1, productName = 'Producto', type = 'normal' }) => {
+    try {
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      console.log('🛒 addToCart: Iniciando...', { productId, quantity, type });
+      
+      // Si es un producto personalizado, usar la función específica
+      if (type === 'custom') {
+        console.log('   → Redirigiendo a addCustomToCart');
+        return await addCustomToCart({
+          customOrderId: productId,
+          modelType: productName,
+          price: 0, // El precio se obtiene del servidor
+        });
+      }
+      
+      // Validaciones solo para productos normales
+      console.log('📦 Procesando producto NORMAL del catálogo');
+      console.log('   → Verificando stock individual...');
+      const stockCheck = await storeConfigService.checkProductStock(productId, quantity);
+      console.log('   → Respuesta del stock:', stockCheck);
+      
+      if (!stockCheck.success || !stockCheck.hasStock) {
+        throw new Error(`Lo sentimos, no hay suficiente stock disponible para "${productName}". Solo quedan ${stockCheck.available || 0} unidades.`);
+      }
+      
+      console.log('   → Verificando límite global del catálogo...');
+      const catalogLimit = await storeConfigService.checkCatalogLimit();
+      console.log('   → Respuesta del límite:', catalogLimit);
+      
+      if (!catalogLimit.success || !catalogLimit.canBuy) {
+        throw new Error(`Lo sentimos, hemos alcanzado el límite máximo de ${catalogLimit.maxCatalogOrders || 10} productos del catálogo. Por favor, intenta nuevamente la próxima semana.`);
+      }
+      
+      console.log('   → Todas las validaciones OK, agregando al carrito...');
+
+      const json = await authFetch('/cart', {
+        method: 'POST',
+        body: JSON.stringify({ productId, quantity, type: 'normal' })
+      });
+      
+      const cartData = json.cart || json;
+      sync(cartData);
+      
+      console.log('✅ Producto NORMAL agregado exitosamente');
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
+      
+      return { success: true };
+    } catch (error) {
+      console.log('addToCart: Error capturado:', error);
+      
+      // Mostrar toast de error basado en el tipo de error
+      if (error.message.includes('stock disponible')) {
+        // Error de stock individual
+        console.error('❌ Error de stock individual:', error.message);
+      } else if (error.message.includes('límite máximo')) {
+        // Error de límite global
+        console.error('❌ Error de límite global:', error.message);
+      } else {
+        // Error general
+        console.error('❌ Error general:', error.message);
+      }
+      
+      // Re-lanzar el error para que el componente pueda manejarlo
+      throw error;
+    }
+  };
 
   const updateQuantity = async (productId, quantity) => {
     const json = await authFetch('/cart', {

@@ -13,7 +13,11 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSPhotoLibraryAddUsageDescription": "DangStore necesita acceso para guardar imágenes de encargos personalizados en tu galería.",
+        "NSPhotoLibraryUsageDescription": "DangStore necesita acceso para guardar imágenes de encargos personalizados en tu galería."
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -39,9 +43,9 @@
       [
         "expo-media-library",
         {
-          "photosPermission": "La app necesita acceso a las fotos para guardar imágenes de encargos personalizados.",
-          "savePhotosPermission": "La app necesita permisos para guardar fotos en la galería.",
-          "isAccessMediaLocationEnabled": false
+          "photosPermission": "DangStore necesita acceso para guardar imágenes de encargos personalizados en tu galería.",
+          "savePhotosPermission": "DangStore necesita permisos para guardar fotos en la galería.",
+          "isAccessMediaLocationEnabled": true
         }
       ]
     ]

@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Gift, Trash2, AlertTriangle, X, Check, Clock } from 'lucide-react';
+import { useCart } from './../../context/CartContext';
 import '../styles/QuotesSection.css';
 
 // URL del servidor para producción
-const API_BASE = 'https://dangstoreptc-production.up.railway.app/api';
+const API_BASE = 'https://dangstoreptc.onrender.com/api';
 const API_URL = API_BASE;
 
 // Función helper para construir URLs de imágenes correctamente
@@ -28,6 +29,7 @@ const getImageUrl = (imagePath) => {
 
 const QuotesSection = ({ setHasQuotesFlag, showSuccess, showError, showWarning }) => {
   const navigate = useNavigate();
+  const {  addToCart } = useCart();
   const [quotes, setQuotes] = useState([]);
   const [loadingQuotes, setLoadingQuotes] = useState(false);
   const [errorQuotes, setErrorQuotes] = useState('');
@@ -116,95 +118,75 @@ const QuotesSection = ({ setHasQuotesFlag, showSuccess, showError, showWarning }
     }
   };
 
-  const handleDecision = async (orderId, decision) => {
-          console.log('Handle decision:', { orderId, decision });
-          console.log('Available quotes:', quotes.map(q => ({ id: q._id, status: q.status })));
+
+
+const handleDecision = async (orderId, decision) => {
+  console.log('Handle decision:', { orderId, decision });
+
+  try {
+    const res = await fetch(`${API_URL}/custom-orders/${orderId}/respond`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${localStorage.getItem('token')}`,
+      },
+      body: JSON.stringify({ decision }),
+    });
+
+    if (!res.ok) throw new Error(`Status ${res.status}`);
+    const updatedOrder = await res.json();
     
-    try {
-      const res = await fetch(`${API_URL}/custom-orders/${orderId}/respond`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
-        },
-        body: JSON.stringify({ decision }),
-      });
+    console.log('📦 Respuesta del servidor:', updatedOrder);
 
-      if (!res.ok) throw new Error(`Status ${res.status}`);
-      const updatedOrder = await res.json();
+    // Actualizar estado local
+    setQuotes((q) => {
+      const updatedQuotes = q.map((item) =>
+        item._id === orderId ? { ...item, status: decision === 'accept' ? 'accepted' : 'rejected' } : item
+      );
+      setHasQuotesFlag(updatedQuotes.some((o) => o.status === 'quoted'));
+      return updatedQuotes;
+    });
+
+    if (decision === 'accept') {
+      showSuccess('¡Has aceptado la cotización! Agregando al carrito...');
       
-              console.log('Updated order:', updatedOrder);
-
-      setQuotes((q) => {
-        if (decision === 'accept') {
-          const updatedQuotes = q.map((item) =>
-            item._id === orderId ? { ...item, status: 'accepted' } : item
-          );
-          setHasQuotesFlag(updatedQuotes.some((o) => o.status === 'quoted'));
-          return updatedQuotes;
-        } else {
-          const updatedQuotes = q.map((item) =>
-            item._id === orderId ? { ...item, status: 'rejected' } : item
-          );
-          setHasQuotesFlag(updatedQuotes.some((o) => o.status === 'quoted'));
-          return updatedQuotes;
-        }
-      });
-
-      if (decision === 'accept') {
-        showSuccess('¡Has aceptado la cotización! Redirigiendo al pago...');
+      // 🔥 CAMBIO: Verificar si el backend retornó un productId
+      if (updatedOrder.productId) {
+        console.log('✅ Producto creado en catálogo, ID:', updatedOrder.productId);
         
-        // Encontrar la cotización específica
-        const quote = quotes.find(q => q._id === orderId);
-        if (!quote) {
-          showError('No se pudo encontrar la cotización');
-          return;
-        }
-        
-        setTimeout(() => {
-          // Crear un item con la información de la cotización aceptada
-          const quoteItem = {
-            product: {
-              _id: quote._id,
-              name: quote.modelType,
-              price: quote.price,
-              type: 'customized',
-              description: quote.description || 'Producto personalizado'
-            },
-            quantity: 1,
-            price: quote.price
-          };
-          
-          console.log('Navegando con quoteItem:', quoteItem);
-          
-          // Navegar directamente al pago simulado con la cotización usando React Router
-          navigate('/form-payment', { 
-            state: { 
-              quoteItem: quoteItem,
-              isQuotePayment: true 
-            } 
+        // Agregar como producto NORMAL del catálogo
+        try {
+          await addToCart({
+            productId: updatedOrder.productId,
+            quantity: 1
           });
-        }, 2000);
+          
+          console.log('✅ Producto agregado al carrito como producto normal');
+          showSuccess('¡Producto agregado al carrito! Redirigiendo...');
+          
+          setTimeout(() => {
+            navigate('/cart');
+          }, 1500);
+          
+        } catch (cartError) {
+          console.error('❌ Error al agregar al carrito:', cartError);
+          showError('Error al agregar el producto al carrito: ' + cartError.message);
+        }
       } else {
-        showSuccess('Cotización rechazada correctamente');
+        // Fallback si no hay productId
+        console.warn('⚠️ Backend no retornó productId');
+        showError('Error: No se pudo crear el producto en el catálogo');
       }
-    } catch (err) {
-              console.error('Error in handleDecision:', err);
-      showError('Error al procesar la decisión');
+      
+    } else {
+      showSuccess('Cotización rechazada correctamente');
     }
-  };
-
-  const handleFilterChange = (filter) => {
-          console.log('Filter changed to:', filter);
-    setQuotesFilter(filter);
-  };
-
-  const handleDeleteQuote = (quoteId) => {
-    setQuoteToDelete(quoteId);
-    setShowDeleteModal(true);
-  };
-
-  const confirmDeleteQuote = async () => {
+  } catch (err) {
+    console.error('Error in handleDecision:', err);
+    showError('Error al procesar la decisión');
+  }
+};
+  const handleDeleteQuote = async () => {
     if (!quoteToDelete) return;
 
     try {

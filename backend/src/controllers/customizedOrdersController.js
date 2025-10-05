@@ -415,7 +415,31 @@ export const respondCustomOrder = async (req, res) => {
       });
     }
 
-    //  Crear notificación de respuesta del cliente
+    // Variable para guardar el ID del producto creado
+    let createdProductId = null;
+
+    // Si el cliente acepta el encargo, crear automáticamente un producto en el catálogo
+    if (decision === 'accept') {
+      try {
+        console.log('🎉 Cliente aceptó el encargo, creando producto en el catálogo...');
+        const newProduct = await productController.createProductFromCustomOrder(order._id);
+        console.log('✅ Producto agregado al catálogo:', newProduct._id);
+        
+        // Guardar el ID del producto creado
+        createdProductId = newProduct._id;
+        
+        // Actualizar el encargo con referencia al producto creado
+        await CustomizedOrder.findByIdAndUpdate(order._id, {
+          $set: { catalogProductId: newProduct._id }
+        });
+        
+      } catch (productError) {
+        console.error('❌ Error creando producto desde encargo aceptado:', productError);
+        // No fallar la respuesta si hay error creando el producto
+      }
+    }
+
+    // Crear notificación de respuesta del cliente
     try {
       await NotificationService.createResponseNotification({
         orderId: order._id,
@@ -428,29 +452,13 @@ export const respondCustomOrder = async (req, res) => {
       console.error('Error creando notificación de respuesta:', notificationError);
     }
 
-    // Si el cliente acepta el encargo, crear automáticamente un producto en el catálogo
-    if (decision === 'accept') {
-      try {
-        console.log('🎉 Cliente aceptó el encargo, creando producto en el catálogo...');
-        const newProduct = await productController.createProductFromCustomOrder(order._id);
-        console.log('✅ Producto agregado al catálogo:', newProduct._id);
-        
-        // Actualizar el encargo con referencia al producto creado
-        await CustomizedOrder.findByIdAndUpdate(order._id, {
-          $set: { catalogProductId: newProduct._id }
-        });
-        
-      } catch (productError) {
-        console.error('❌ Error creando producto desde encargo aceptado:', productError);
-        // No fallar la respuesta si hay error creando el producto
-        // El admin puede crear el producto manualmente si es necesario
-      }
-    }
-
+    // 🔥 CAMBIO: Retornar el productId creado
     res.status(200).json({
       success: true,
       message: `Orden ${decision === 'accept' ? 'aceptada' : 'rechazada'} exitosamente`,
-      data: order
+      data: order,
+      productId: createdProductId,           // ← NUEVO
+      isNewProduct: createdProductId !== null // ← NUEVO
     });
 
   } catch (error) {

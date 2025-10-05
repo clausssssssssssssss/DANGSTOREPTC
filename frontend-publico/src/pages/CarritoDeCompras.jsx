@@ -38,7 +38,7 @@ const CarritoDeCompras = () => {
   // Recargar carrito cuando se llegue a la página
   useEffect(() => {
     if (userId && refreshCart) {
-      console.log('🔄 Recargando carrito al llegar a la página...');
+     
       refreshCart(userId); // Pasar el userId explícitamente
     }
   }, [userId, refreshCart]);
@@ -47,7 +47,7 @@ const CarritoDeCompras = () => {
   useEffect(() => {
     const forceRefresh = async () => {
       if (userId && refreshCart) {
-        console.log('🔄 Forzando recarga adicional del carrito...');
+     
         // Esperar un poco y luego recargar
         setTimeout(async () => {
           await refreshCart(userId);
@@ -119,15 +119,19 @@ const CarritoDeCompras = () => {
     }
   };
 
-  const handleQuantityUpdate = async (productId, newQuantity) => {
-    if (newQuantity < 1) return;
-    try {
-      await updateQuantity(productId, newQuantity);
-    } catch (err) {
-      console.error('Error actualizando cantidad:', err);
-      showError('Error al actualizar cantidad');
-    }
-  };
+const handleQuantityUpdate = async (itemId, newQuantity, isCustom = false) => {
+  console.log('🔄 Actualizando:', { itemId, newQuantity, isCustom });
+  
+  if (newQuantity < 1) return;
+  
+  try {
+    await updateQuantity(itemId, newQuantity, isCustom);  // ← Pasar isCustom
+    console.log('✅ Cantidad actualizada');
+  } catch (err) {
+    console.error('❌ Error:', err);
+    showError('Error al actualizar cantidad: ' + err.message);
+  }
+};
 
   const handleClearCart = async () => {
     showWarning('¿Estás seguro de que deseas vaciar el carrito?', 4000, {

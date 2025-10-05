@@ -34,7 +34,7 @@ const saleSchema = new Schema(
       type: Date,
       default: Date.now,
     },
-  },
+  },  
   {
     //  Agrega automáticamente los campos createdAt y updatedAt
     timestamps: true,

@@ -1,13 +1,11 @@
 import { useState, useEffect } from 'react';
 
-// URL del servidor en producción (Render)
-const API_BASE = 'https://dangstoreptc-production.up.railway.app/api';
+const API_BASE = 'https://dangstoreptc.onrender.com/api';
 
 export function useCart(userId) {
   const [cart, setCart] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Si no hay userId, inicializar con carrito vacío
   useEffect(() => {
     if (!userId) {
       setCart([]);
@@ -38,7 +36,7 @@ export function useCart(userId) {
     return res.json();
   }
 
-  // Función para normalizar cualquier producto del backend
+  // Normaliza productos del CATÁLOGO
   function normalizeProduct(p) {
     if (!p.product || !p.product._id) return null;
     return {
@@ -47,22 +45,29 @@ export function useCart(userId) {
         name: p.product.name || p.product.nombre || 'Sin nombre',
         price: p.product.price ?? p.product.precio ?? 0,
         image: p.product.images?.[0] || p.product.imagen || '',
-        description: p.product.description || p.product.descripcion || ''
+        description: p.product.description || p.product.descripcion || '',
+        type: 'standard' // ✅ Marca como producto estándar
       },
       quantity: p.quantity
     };
   }
 
-  // Normaliza también ítems personalizados
+  // 🔥 CORRECCIÓN: Normaliza productos PERSONALIZADOS con type: 'customized'
   function normalizeCustomItem(item) {
     if (!item.item || !item.item._id) return null;
+    
+    console.log('🎨 Normalizando producto personalizado:', item.item);
+    
     return {
       product: {
         id: item.item._id,
-        name: item.item.name || item.item.nombre || 'Sin nombre',
+        name: item.item.name || item.item.nombre || 'Producto Personalizado',
         price: item.item.price ?? item.item.precio ?? 0,
         image: item.item.images?.[0] || item.item.imagen || '',
-        description: item.item.description || item.item.descripcion || ''
+        description: item.item.description || item.item.descripcion || 'Diseño personalizado',
+        type: 'customized', // ✅ CRÍTICO: Marca como personalizado
+        modelType: item.item.modelType || 'custom', // ✅ Tipo de modelo (si existe)
+        customOrderId: item.item._id // ✅ Guarda el ID de la orden personalizada
       },
       quantity: item.quantity
     };
@@ -75,10 +80,13 @@ export function useCart(userId) {
     (async () => {
       try {
         const cartData = await authFetch(`/cart`);
-        console.log('Cart data received:', cartData);
+        console.log('📦 Cart data received:', cartData);
 
         const products = (cartData.products || []).map(normalizeProduct).filter(Boolean);
         const customized = (cartData.customizedProducts || []).map(normalizeCustomItem).filter(Boolean);
+
+        console.log('📦 Productos estándar:', products);
+        console.log('🎨 Productos personalizados:', customized);
 
         setCart([...products, ...customized]);
       } catch (err) {
@@ -92,22 +100,48 @@ export function useCart(userId) {
 
   // Sincroniza el estado local con la respuesta del backend
   function sync(cartDoc) {
-    console.log('Sync cart data:', cartDoc);
+    console.log('🔄 Sync cart data:', cartDoc);
 
     const products = (cartDoc.products || []).map(normalizeProduct).filter(Boolean);
     const customized = (cartDoc.customizedProducts || []).map(normalizeCustomItem).filter(Boolean);
 
     const newCart = [...products, ...customized];
-    console.log('New cart state:', newCart);
+    console.log('✅ New cart state:', newCart);
     setCart(newCart);
   }
 
-  // Añadir producto al carrito
-  async function addToCart({ productId, quantity = 1 }) {
+  // 🔄 NUEVO: Función para recargar el carrito manualmente
+  async function refreshCart(userIdParam) {
+    const targetUserId = userIdParam || userId;
+    if (!targetUserId) return;
+    
     try {
+      //console.log('🔄 Refrescando carrito...');
+      const cartData = await authFetch(`/cart`);
+      
+      const products = (cartData.products || []).map(normalizeProduct).filter(Boolean);
+      const customized = (cartData.customizedProducts || []).map(normalizeCustomItem).filter(Boolean);
+      
+      const newCart = [...products, ...customized];
+      //console.log('✅ Carrito refrescado:', newCart);
+      setCart(newCart);
+    } catch (err) {
+      console.error('❌ Error refrescando carrito:', err);
+    }
+  }
+
+  // Añadir producto al carrito
+  async function addToCart({ productId, customItemId, quantity = 1 }) {
+    try {
+      console.log('➕ Añadiendo al carrito:', { productId, customItemId, quantity });
+      
       const json = await authFetch('/cart', {
         method: 'POST',
-        body: JSON.stringify({ productId, quantity })
+        body: JSON.stringify({ 
+          productId, 
+          customItemId, // ✅ Soporte para productos personalizados
+          quantity 
+        })
       });
       
       const cartData = json.cart || json;
@@ -118,35 +152,61 @@ export function useCart(userId) {
     }
   }
 
-  // Actualizar cantidad
-  async function updateQuantity(productId, quantity) {
-    try {
-      const json = await authFetch('/cart', {
-        method: 'PUT',
-        body: JSON.stringify({ itemId: productId, type: 'product', quantity })
-      });
-      const cartData = json.cart || json;
-      sync(cartData);
-    } catch (error) {
-      console.error('Error updating quantity:', error);
-      throw error;
-    }
+    // Actualizar cantidad
+async function updateQuantity(itemId, quantity, isCustom = false) {
+  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  console.log('🔄 updateQuantity llamado');
+  console.log('   itemId:', itemId);
+  console.log('   quantity:', quantity);
+  console.log('   isCustom:', isCustom);
+  
+  try {
+    // Determinar el tipo basado en el parámetro
+    const type = isCustom ? 'custom' : 'product';
+    
+    console.log('📤 Enviando al backend:', { itemId, type, quantity });
+    
+    const json = await authFetch('/cart', {
+      method: 'PUT',
+      body: JSON.stringify({ itemId, type, quantity })
+    });
+    
+    console.log('📥 Respuesta del backend:', json);
+    
+    const cartData = json.cart || json;
+    sync(cartData);
+    
+    console.log('✅ Cantidad actualizada exitosamente');
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
+  } catch (error) {
+    console.error('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.error('❌ Error updating quantity:', error);
+    console.error('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
+    throw error;
   }
+}
 
   // Eliminar un producto
-  async function removeFromCart(productId) {
-    try {
-      const json = await authFetch('/cart', {
-        method: 'DELETE',
-        body: JSON.stringify({ itemId: productId, type: 'product' })
-      });
-      const cartData = json.cart || json;
-      sync(cartData);
-    } catch (error) {
-      console.error('Error removing from cart:', error);
-      throw error;
-    }
+async function removeFromCart(itemId, isCustom = false) {
+  console.log('🗑️ removeFromCart:', { itemId, isCustom });
+  
+  try {
+    const type = isCustom ? 'custom' : 'product';
+    
+    const json = await authFetch('/cart', {
+      method: 'DELETE',
+      body: JSON.stringify({ itemId, type })
+    });
+    
+    const cartData = json.cart || json;
+    sync(cartData);
+    
+    console.log('✅ Item eliminado del carrito');
+  } catch (error) {
+    console.error('❌ Error removing item:', error);
+    throw error;
   }
+}
 
   // Vaciar el carrito
   async function clearCart() {
@@ -170,6 +230,7 @@ export function useCart(userId) {
     addToCart,
     updateQuantity,
     removeFromCart,
-    clearCart
+    clearCart,
+    refreshCart // ✅ Exportar función de refresh
   };
 }

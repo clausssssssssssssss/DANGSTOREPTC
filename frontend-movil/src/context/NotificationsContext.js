@@ -186,7 +186,9 @@ export const NotificationsProvider = ({ children }) => {
         unreadCount,
         loading,
         error,
-        
+        setNotifications, // <-- expone para uso en el hook
+        setUnreadCount,   // <-- expone para uso en el hook
+
         // Actions
         fetchNotifications,
         markAsRead,
@@ -194,7 +196,7 @@ export const NotificationsProvider = ({ children }) => {
         deleteNotification,
         deleteAllNotifications,
         refresh,
-        
+
         // Utils
         readNotifications: notifications.filter(n => n.isRead),
         unreadNotifications: notifications.filter(n => !n.isRead),

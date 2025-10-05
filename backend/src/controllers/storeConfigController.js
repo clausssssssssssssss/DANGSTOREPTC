@@ -420,8 +420,8 @@ export const checkGlobalLimit = async (req, res) => {
     const customOrders = config.stockLimits.customOrders.currentWeekOrders || 0;
     const totalOrders = catalogSales + customOrders;
     
-    const maxCatalog = config.stockLimits.catalog.defaultMaxStock || 10;
-    const maxCustom = config.stockLimits.customOrders.defaultMaxStock || 20;
+    const maxCatalog = config.stockLimits.catalog.defaultMaxStock;
+    const maxCustom = config.stockLimits.customOrders.defaultMaxStock;
     const maxTotal = maxCatalog + maxCustom;
     
     const canBuy = totalOrders < maxTotal;
@@ -500,7 +500,7 @@ export const checkCustomOrdersLimit = async (req, res) => {
     } else if (hasCustomOrdersLimit) {
       // Límite específico de encargos personalizados
       limitType = 'customOrders';
-      maxOrders = config.stockLimits.customOrders.defaultMaxStock || 20;
+      maxOrders = config.stockLimits.customOrders.defaultMaxStock;
       currentUsed = currentCustomOrders;
       message = `Quedan ${maxOrders - currentUsed} encargos personalizados disponibles`;
     } else {
@@ -598,7 +598,7 @@ export const checkCatalogLimit = async (req, res) => {
     } else if (hasCatalogLimit) {
       // Límite específico del catálogo
       limitType = 'catalog';
-      maxOrders = config.stockLimits.catalog.defaultMaxStock || 10;
+      maxOrders = config.stockLimits.catalog.defaultMaxStock;
       currentUsed = currentCatalogSales;
       message = `Quedan ${maxOrders - currentUsed} productos del catálogo disponibles`;
     } else {

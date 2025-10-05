@@ -96,7 +96,7 @@ const StockLimites = ({ navigation }) => {
         setCustomOrdersLimitActive(fetchedConfig.stockLimits.customOrders?.isLimitActive !== false);
         
         // Límite global (para compatibilidad)
-        setDefaultMaxStock(fetchedConfig.stockLimits.defaultMaxStock?.toString() || '');
+        setDefaultMaxStock(fetchedConfig.stockLimits.global?.defaultMaxStock?.toString() || '');
         setLowStockThreshold(fetchedConfig.stockLimits.lowStockThreshold?.toString() || '');
         setLowStockEnabled(fetchedConfig.notifications.lowStockEnabled);
         setOrderLimitReachedEnabled(fetchedConfig.notifications.orderLimitReachedEnabled);
@@ -254,13 +254,13 @@ const StockLimites = ({ navigation }) => {
                   </View>
                   {isGlobalStockLimitActive && (
                     <View style={StockLimitesStyles.inputGroup}>
-                      <Text style={StockLimitesStyles.inputLabel}>Umbral de Stock Bajo</Text>
+                      <Text style={StockLimitesStyles.inputLabel}>Límite Global de Pedidos</Text>
                       <TextInput
                         style={StockLimitesStyles.input}
                         keyboardType="numeric"
-                        value={lowStockThreshold}
-                        onChangeText={setLowStockThreshold}
-                        placeholder="Ej: 5"
+                        value={defaultMaxStock}
+                        onChangeText={setDefaultMaxStock}
+                        placeholder="Ej: 50"
                         placeholderTextColor="#9CA3AF"
                       />
                     </View>

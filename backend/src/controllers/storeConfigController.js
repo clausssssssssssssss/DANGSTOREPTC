@@ -480,7 +480,8 @@ export const checkCustomOrdersLimit = async (req, res) => {
     
     // Determinar tipo de límite y configuración
     const hasGlobalLimit = config.stockLimits?.global?.isLimitActive;
-    const hasCustomOrdersLimit = config.stockLimits.customOrders.isLimitActive;
+    // Si hay límite global, NO usar límites por tipo
+    const hasCustomOrdersLimit = hasGlobalLimit ? false : config.stockLimits.customOrders.isLimitActive;
     
     let limitType, maxOrders, currentUsed, message;
     
@@ -574,11 +575,15 @@ export const checkCatalogLimit = async (req, res) => {
     
     // Determinar tipo de límite y configuración
     const hasGlobalLimit = config.stockLimits?.global?.isLimitActive;
-    const hasCatalogLimit = config.stockLimits.catalog.isLimitActive;
+    // Si hay límite global, NO usar límites por tipo
+    const hasCatalogLimit = hasGlobalLimit ? false : config.stockLimits.catalog.isLimitActive;
     
     console.log('📊 Estado de límites:');
-    console.log('- Global limit:', hasGlobalLimit, config.stockLimits?.global);
-    console.log('- Catalog limit:', hasCatalogLimit, config.stockLimits.catalog);
+    console.log('🔍 DEBUGGING LÍMITES:');
+    console.log('- hasGlobalLimit:', hasGlobalLimit);
+    console.log('- config.stockLimits?.global:', JSON.stringify(config.stockLimits?.global, null, 2));
+    console.log('- hasCatalogLimit:', hasCatalogLimit);
+    console.log('- config.stockLimits?.catalog:', JSON.stringify(config.stockLimits?.catalog, null, 2));
     
     let limitType, maxOrders, currentUsed, message;
     

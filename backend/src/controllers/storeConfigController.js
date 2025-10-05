@@ -384,21 +384,29 @@ export const checkCustomOrdersLimit = async (req, res) => {
         canBuy: true,
         canCreate: true,
         currentCustomOrders: 0,
-        maxCustomOrders: 20,
-        remaining: 20,
+        maxCustomOrders: 50, // Límite global por defecto
+        remaining: 50,
         message: 'No hay límites configurados para encargos personalizados'
       });
     }
     
-    // Verificar si el límite de encargos personalizados está activo
-    if (!config.stockLimits.customOrders.isLimitActive) {
+    // Usar límite global si está configurado, sino usar límite específico de encargos
+    const hasGlobalLimit = config.stockLimits?.global?.isLimitActive;
+    const maxOrders = hasGlobalLimit 
+      ? (config.stockLimits.global.defaultMaxStock || 50)
+      : (config.stockLimits.customOrders.defaultMaxStock || 20);
+    
+    // Verificar si algún límite está activo
+    const hasActiveLimit = hasGlobalLimit || config.stockLimits.customOrders.isLimitActive;
+    
+    if (!hasActiveLimit) {
       return res.status(200).json({
         success: true,
         canBuy: true,
         canCreate: true,
         currentCustomOrders: 0,
-        maxCustomOrders: config.stockLimits.customOrders.defaultMaxStock || 20,
-        remaining: config.stockLimits.customOrders.defaultMaxStock || 20,
+        maxCustomOrders: maxOrders,
+        remaining: maxOrders,
         message: 'Límite de encargos personalizados desactivado'
       });
     }
@@ -408,24 +416,29 @@ export const checkCustomOrdersLimit = async (req, res) => {
     const weekStart = new Date(config.orderLimits.weekStartDate);
     const daysDiff = Math.floor((now - weekStart) / (1000 * 60 * 60 * 24));
     
-    // Si han pasado más de 7 días, resetear el contador
+    // Si han pasado más de 7 días, resetear contadores
     if (daysDiff >= 7) {
+      config.stockLimits.catalog.currentWeekSales = 0;
       config.stockLimits.customOrders.currentWeekOrders = 0;
       config.orderLimits.weekStartDate = now;
       await config.save();
     }
     
-    const maxCustomOrders = config.stockLimits.customOrders.defaultMaxStock;
+    const currentCatalogSales = config.stockLimits.catalog.currentWeekSales || 0;
     const currentCustomOrders = config.stockLimits.customOrders.currentWeekOrders || 0;
-    const canCreate = currentCustomOrders < maxCustomOrders;
+    
+    // Si hay límite global, usar total combinado
+    const currentTotal = hasGlobalLimit ? (currentCatalogSales + currentCustomOrders) : currentCustomOrders;
+    const canCreate = currentTotal < maxOrders;
     
     res.status(200).json({
       success: true,
       canBuy: canCreate, // Cambiar canCreate por canBuy para consistencia
       canCreate,
-      currentCustomOrders,
-      maxCustomOrders,
-      remaining: Math.max(0, maxCustomOrders - currentCustomOrders)
+      currentCustomOrders: currentTotal, // Mostrar total si es global
+      maxCustomOrders: maxOrders,
+      remaining: Math.max(0, maxOrders - currentTotal),
+      isGlobalLimit: hasGlobalLimit
     });
   } catch (error) {
     console.error('Error verificando límite de encargos personalizados:', error);
@@ -447,16 +460,30 @@ export const checkCatalogLimit = async (req, res) => {
       return res.status(200).json({
         success: true,
         canBuy: true,
+        currentCatalogSales: 0,
+        maxCatalogOrders: 50, // Límite global por defecto
+        remaining: 50,
         message: 'No hay límites configurados para el catálogo'
       });
     }
     
-    // Verificar si el límite de catálogo está activo
-    if (!config.stockLimits.catalog.isLimitActive) {
+    // Usar límite global si está configurado, sino usar límite específico del catálogo
+    const hasGlobalLimit = config.stockLimits?.global?.isLimitActive;
+    const maxOrders = hasGlobalLimit 
+      ? (config.stockLimits.global.defaultMaxStock || 50)
+      : (config.stockLimits.catalog.defaultMaxStock || 10);
+    
+    // Verificar si algún límite está activo
+    const hasActiveLimit = hasGlobalLimit || config.stockLimits.catalog.isLimitActive;
+    
+    if (!hasActiveLimit) {
       return res.status(200).json({
         success: true,
         canBuy: true,
-        message: 'Límite de catálogo desactivado'
+        currentCatalogSales: 0,
+        maxCatalogOrders: maxOrders,
+        remaining: maxOrders,
+        message: 'Límite del catálogo desactivado'
       });
     }
     
@@ -465,23 +492,28 @@ export const checkCatalogLimit = async (req, res) => {
     const weekStart = new Date(config.orderLimits.weekStartDate);
     const daysDiff = Math.floor((now - weekStart) / (1000 * 60 * 60 * 24));
     
-    // Si han pasado más de 7 días, resetear el contador
+    // Si han pasado más de 7 días, resetear contadores
     if (daysDiff >= 7) {
       config.stockLimits.catalog.currentWeekSales = 0;
+      config.stockLimits.customOrders.currentWeekOrders = 0;
       config.orderLimits.weekStartDate = now;
       await config.save();
     }
     
-    const maxCatalogOrders = config.stockLimits.catalog.defaultMaxStock;
     const currentCatalogSales = config.stockLimits.catalog.currentWeekSales || 0;
-    const canBuy = currentCatalogSales < maxCatalogOrders;
+    const currentCustomOrders = config.stockLimits.customOrders.currentWeekOrders || 0;
+    
+    // Si hay límite global, usar total combinado
+    const currentTotal = hasGlobalLimit ? (currentCatalogSales + currentCustomOrders) : currentCatalogSales;
+    const canBuy = currentTotal < maxOrders;
     
     res.status(200).json({
       success: true,
       canBuy,
-      currentCatalogSales,
-      maxCatalogOrders,
-      remaining: Math.max(0, maxCatalogOrders - currentCatalogSales)
+      currentCatalogSales: currentTotal, // Mostrar total si es global
+      maxCatalogOrders: maxOrders,
+      remaining: Math.max(0, maxOrders - currentTotal),
+      isGlobalLimit: hasGlobalLimit
     });
   } catch (error) {
     console.error('Error verificando límite del catálogo:', error);

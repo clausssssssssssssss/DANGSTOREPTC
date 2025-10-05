@@ -59,6 +59,18 @@ const storeConfigSchema = new mongoose.Schema({
         default: 0
       }
     },
+    // Límite global que aplica a catálogo + encargos personalizados
+    global: {
+      defaultMaxStock: {
+        type: Number,
+        default: 50,
+        min: 1
+      },
+      isLimitActive: {
+        type: Boolean,
+        default: false
+      }
+    },
     // Límite global (para compatibilidad)
     defaultMaxStock: {
       type: Number,

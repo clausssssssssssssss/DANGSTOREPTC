@@ -61,8 +61,13 @@ export default function Catalogo() {
   // Obtener categoría seleccionada desde los parámetros de URL
   const selectedCategory = searchParams.get('category') || '';
 
-  // Cargar información del límite del catálogo
+  // Cargar información del límite del catálogo solo si el usuario está autenticado
   useEffect(() => {
+    if (!user || !user.id) {
+      setCatalogLimitInfo(null);
+      return;
+    }
+
     const loadCatalogLimitInfo = async () => {
       try {
         const response = await fetch(`${API_URL}/store-config/catalog-limit`);
@@ -76,7 +81,7 @@ export default function Catalogo() {
     };
 
     loadCatalogLimitInfo();
-  }, []);
+  }, [user]);
 
   // Hook para manejar reseñas del producto seleccionado
   const { 
@@ -249,8 +254,8 @@ export default function Catalogo() {
           )}
         </div>
 
-        {/* Banner de Límite de Compras */}
-        {catalogLimitInfo && catalogLimitInfo.success && (
+        {/* Banner de Límite de Compras - Solo para usuarios autenticados */}
+        {user && user.id && catalogLimitInfo && catalogLimitInfo.success && (
           <div className="catalog-limit-banner">
             <div className="limit-info">
               <div className="limit-icon">🛒</div>

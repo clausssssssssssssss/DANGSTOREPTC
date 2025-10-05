@@ -258,20 +258,25 @@ export default function Catalogo() {
         {user && user.id && catalogLimitInfo && catalogLimitInfo.success && (
           <div className="catalog-limit-banner">
             <div className="limit-info">
-              <div className="limit-icon">🛒</div>
+              <div className="limit-icon">
+                {catalogLimitInfo.limitType === 'none' ? '🛍️' : 
+                 catalogLimitInfo.limitType === 'global' ? '🌐' : '🛒'}
+              </div>
               <div className="limit-content">
-                <h3>Límite de Compras del Catálogo</h3>
-                <p>
-                  {catalogLimitInfo.remaining > 0 ? (
-                    <>Quedan <strong>{catalogLimitInfo.remaining}</strong> productos disponibles de <strong>{catalogLimitInfo.maxCatalogOrders}</strong> esta semana</>
-                  ) : (
-                    <>Se ha alcanzado el límite máximo de <strong>{catalogLimitInfo.maxCatalogOrders}</strong> productos esta semana</>
-                  )}
-                </p>
+                <h3>
+                  {catalogLimitInfo.limitType === 'none' ? 'Catálogo Disponible' :
+                   catalogLimitInfo.limitType === 'global' ? 'Límite Global de Pedidos' :
+                   'Límite del Catálogo'}
+                </h3>
+                <p>{catalogLimitInfo.message}</p>
               </div>
             </div>
-            <div className={`limit-status ${catalogLimitInfo.remaining > 0 ? 'available' : 'reached'}`}>
-              {catalogLimitInfo.remaining > 0 ? 'Disponible' : 'Límite Alcanzado'}
+            <div className={`limit-status ${
+              catalogLimitInfo.limitType === 'none' ? 'unlimited' :
+              catalogLimitInfo.canBuy ? 'available' : 'reached'
+            }`}>
+              {catalogLimitInfo.limitType === 'none' ? 'Sin Límites' :
+               catalogLimitInfo.canBuy ? 'Disponible' : 'Límite Alcanzado'}
             </div>
           </div>
         )}

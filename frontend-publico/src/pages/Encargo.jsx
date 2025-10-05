@@ -156,21 +156,25 @@ const [customOrdersLimitInfo, setCustomOrdersLimitInfo] = useState(null);
       {user && user.id && customOrdersLimitInfo && customOrdersLimitInfo.success && (
         <div className="catalog-limit-banner">
           <div className="limit-info">
-            <div className="limit-icon">🎨</div>
+            <div className="limit-icon">
+              {customOrdersLimitInfo.limitType === 'none' ? '🎨' : 
+               customOrdersLimitInfo.limitType === 'global' ? '🌐' : '🎨'}
+            </div>
             <div className="limit-content">
-              <h3>Límite de Encargos Personalizados</h3>
-              <p>
-                {customOrdersLimitInfo.canBuy 
-                  ? `Quedan ${customOrdersLimitInfo.remaining} encargos disponibles de ${customOrdersLimitInfo.maxCustomOrders} esta semana`
-                  : 'Se ha alcanzado el límite máximo de encargos esta semana'
-                }
-              </p>
+              <h3>
+                {customOrdersLimitInfo.limitType === 'none' ? 'Encargos Disponibles' :
+                 customOrdersLimitInfo.limitType === 'global' ? 'Límite Global de Pedidos' :
+                 'Límite de Encargos Personalizados'}
+              </h3>
+              <p>{customOrdersLimitInfo.message}</p>
             </div>
-            <div className="limit-status">
-              <span className={`limit-badge ${customOrdersLimitInfo.canBuy ? 'available' : 'reached'}`}>
-                {customOrdersLimitInfo.canBuy ? 'DISPONIBLE' : 'LÍMITE ALCANZADO'}
-              </span>
-            </div>
+          </div>
+          <div className={`limit-status ${
+            customOrdersLimitInfo.limitType === 'none' ? 'unlimited' :
+            customOrdersLimitInfo.canBuy ? 'available' : 'reached'
+          }`}>
+            {customOrdersLimitInfo.limitType === 'none' ? 'Sin Límites' :
+             customOrdersLimitInfo.canBuy ? 'Disponible' : 'Límite Alcanzado'}
           </div>
         </div>
       )}

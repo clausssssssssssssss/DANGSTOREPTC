@@ -47,6 +47,7 @@ const [customOrdersLimitInfo, setCustomOrdersLimitInfo] = useState(null);
         const response = await fetch(`${API_URL}/store-config/custom-orders-limit`);
         if (response.ok) {
           const data = await response.json();
+          console.log('🎨 Banner encargos actualizado:', data);
           setCustomOrdersLimitInfo(data);
         }
       } catch (error) {
@@ -55,6 +56,14 @@ const [customOrdersLimitInfo, setCustomOrdersLimitInfo] = useState(null);
     };
 
     loadCustomOrdersLimitInfo();
+    
+    // Actualizar cada 30 segundos para sincronizar con cambios de la app móvil
+    const interval = setInterval(() => {
+      console.log('🔄 Actualizando banner de encargos...');
+      loadCustomOrdersLimitInfo();
+    }, 30000);
+
+    return () => clearInterval(interval);
   }, [user]);
 
   // Efecto para manejar el éxito del encargo

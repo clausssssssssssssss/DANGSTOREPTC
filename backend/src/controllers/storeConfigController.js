@@ -35,10 +35,17 @@ export const updateStoreConfig = async (req, res) => {
   try {
     const { orderLimits, stockLimits, isStoreActive, notifications } = req.body;
     
+    console.log('🔧 Actualizando configuración de tienda...');
+    console.log('📊 Datos recibidos:', JSON.stringify(req.body, null, 2));
+    console.log('🎯 Stock limits recibidos:', JSON.stringify(stockLimits, null, 2));
+    
     let config = await StoreConfig.findOne();
     
     if (!config) {
+      console.log('📝 Creando nueva configuración...');
       config = new StoreConfig();
+    } else {
+      console.log('📝 Configuración existente encontrada');
     }
     
     // Actualizar límites de pedidos
@@ -48,20 +55,68 @@ export const updateStoreConfig = async (req, res) => {
     
     // Actualizar límites de stock de forma más segura
     if (stockLimits) {
-      if (stockLimits.catalog) {
-        config.stockLimits.catalog = { ...config.stockLimits.catalog, ...stockLimits.catalog };
+      // Asegurar que la estructura existe
+      if (!config.stockLimits) {
+        config.stockLimits = {};
       }
-      if (stockLimits.customOrders) {
-        config.stockLimits.customOrders = { ...config.stockLimits.customOrders, ...stockLimits.customOrders };
-      }
-      if (stockLimits.global) {
-        config.stockLimits.global = { ...config.stockLimits.global, ...stockLimits.global };
-      }
-      if (stockLimits.defaultMaxStock !== undefined) {
-        config.stockLimits.defaultMaxStock = stockLimits.defaultMaxStock;
-      }
+      
+      // Actualizar configuración general
       if (stockLimits.isStockLimitActive !== undefined) {
         config.stockLimits.isStockLimitActive = stockLimits.isStockLimitActive;
+      }
+      
+      // Actualizar límite global
+      if (stockLimits.global) {
+        if (!config.stockLimits.global) {
+          config.stockLimits.global = {
+            defaultMaxStock: 50,
+            isLimitActive: false
+          };
+        }
+        if (stockLimits.global.defaultMaxStock !== undefined) {
+          config.stockLimits.global.defaultMaxStock = stockLimits.global.defaultMaxStock;
+        }
+        if (stockLimits.global.isLimitActive !== undefined) {
+          config.stockLimits.global.isLimitActive = stockLimits.global.isLimitActive;
+        }
+      }
+      
+      // Actualizar límites por tipo
+      if (stockLimits.catalog) {
+        if (!config.stockLimits.catalog) {
+          config.stockLimits.catalog = {
+            defaultMaxStock: 10,
+            isLimitActive: true,
+            currentWeekSales: 0
+          };
+        }
+        if (stockLimits.catalog.defaultMaxStock !== undefined) {
+          config.stockLimits.catalog.defaultMaxStock = stockLimits.catalog.defaultMaxStock;
+        }
+        if (stockLimits.catalog.isLimitActive !== undefined) {
+          config.stockLimits.catalog.isLimitActive = stockLimits.catalog.isLimitActive;
+        }
+      }
+      
+      if (stockLimits.customOrders) {
+        if (!config.stockLimits.customOrders) {
+          config.stockLimits.customOrders = {
+            defaultMaxStock: 20,
+            isLimitActive: true,
+            currentWeekOrders: 0
+          };
+        }
+        if (stockLimits.customOrders.defaultMaxStock !== undefined) {
+          config.stockLimits.customOrders.defaultMaxStock = stockLimits.customOrders.defaultMaxStock;
+        }
+        if (stockLimits.customOrders.isLimitActive !== undefined) {
+          config.stockLimits.customOrders.isLimitActive = stockLimits.customOrders.isLimitActive;
+        }
+      }
+      
+      // Compatibilidad con campos legacy
+      if (stockLimits.defaultMaxStock !== undefined) {
+        config.stockLimits.defaultMaxStock = stockLimits.defaultMaxStock;
       }
     }
     
@@ -76,6 +131,9 @@ export const updateStoreConfig = async (req, res) => {
     }
     
     await config.save();
+    
+    console.log('✅ Configuración guardada exitosamente');
+    console.log('📊 Configuración final:', JSON.stringify(config.stockLimits, null, 2));
     
     res.status(200).json({
       success: true,
@@ -429,9 +487,16 @@ export const checkCustomOrdersLimit = async (req, res) => {
     if (hasGlobalLimit) {
       // Límite global activo
       limitType = 'global';
-      maxOrders = config.stockLimits.global.defaultMaxStock || 50;
+      maxOrders = config.stockLimits.global.defaultMaxStock;
       currentUsed = currentCatalogSales + currentCustomOrders;
       message = `Quedan ${maxOrders - currentUsed} pedidos disponibles (catálogo + encargos)`;
+      console.log('🌐 Límite global activo (encargos):', {
+        maxOrders,
+        currentUsed,
+        currentCatalogSales,
+        currentCustomOrders,
+        message
+      });
     } else if (hasCustomOrdersLimit) {
       // Límite específico de encargos personalizados
       limitType = 'customOrders';
@@ -476,9 +541,11 @@ export const checkCustomOrdersLimit = async (req, res) => {
  */
 export const checkCatalogLimit = async (req, res) => {
   try {
+    console.log('🔍 Verificando límite del catálogo...');
     const config = await StoreConfig.findOne();
     
     if (!config) {
+      console.log('⚠️ No hay configuración en la base de datos');
       return res.status(200).json({
         success: true,
         canBuy: true,
@@ -509,14 +576,25 @@ export const checkCatalogLimit = async (req, res) => {
     const hasGlobalLimit = config.stockLimits?.global?.isLimitActive;
     const hasCatalogLimit = config.stockLimits.catalog.isLimitActive;
     
+    console.log('📊 Estado de límites:');
+    console.log('- Global limit:', hasGlobalLimit, config.stockLimits?.global);
+    console.log('- Catalog limit:', hasCatalogLimit, config.stockLimits.catalog);
+    
     let limitType, maxOrders, currentUsed, message;
     
     if (hasGlobalLimit) {
       // Límite global activo
       limitType = 'global';
-      maxOrders = config.stockLimits.global.defaultMaxStock || 50;
+      maxOrders = config.stockLimits.global.defaultMaxStock;
       currentUsed = currentCatalogSales + currentCustomOrders;
       message = `Quedan ${maxOrders - currentUsed} pedidos disponibles (catálogo + encargos)`;
+      console.log('🌐 Límite global activo:', {
+        maxOrders,
+        currentUsed,
+        currentCatalogSales,
+        currentCustomOrders,
+        message
+      });
     } else if (hasCatalogLimit) {
       // Límite específico del catálogo
       limitType = 'catalog';
@@ -533,7 +611,7 @@ export const checkCatalogLimit = async (req, res) => {
     
     const canBuy = limitType === 'none' || currentUsed < maxOrders;
     
-    res.status(200).json({
+    const response = {
       success: true,
       canBuy,
       currentCatalogSales: currentUsed,
@@ -545,7 +623,11 @@ export const checkCatalogLimit = async (req, res) => {
       catalogSales: currentCatalogSales,
       customOrders: currentCustomOrders,
       totalOrders: currentCatalogSales + currentCustomOrders
-    });
+    };
+    
+    console.log('📤 Respuesta del límite del catálogo:', response);
+    
+    res.status(200).json(response);
   } catch (error) {
     console.error('Error verificando límite del catálogo:', error);
     res.status(500).json({

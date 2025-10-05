@@ -73,6 +73,7 @@ export default function Catalogo() {
         const response = await fetch(`${API_URL}/store-config/catalog-limit`);
         if (response.ok) {
           const data = await response.json();
+          console.log('🛒 Banner catálogo actualizado:', data);
           setCatalogLimitInfo(data);
         }
       } catch (error) {
@@ -81,6 +82,14 @@ export default function Catalogo() {
     };
 
     loadCatalogLimitInfo();
+    
+    // Actualizar cada 30 segundos para sincronizar con cambios de la app móvil
+    const interval = setInterval(() => {
+      console.log('🔄 Actualizando banner del catálogo...');
+      loadCatalogLimitInfo();
+    }, 30000);
+
+    return () => clearInterval(interval);
   }, [user]);
 
   // Hook para manejar reseñas del producto seleccionado

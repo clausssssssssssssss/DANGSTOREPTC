@@ -118,6 +118,11 @@ const StockLimites = ({ navigation }) => {
       const configData = {
         stockLimits: {
           isStockLimitActive: isGlobalStockLimitActive,
+          // Límite global (nuevo sistema)
+          global: {
+            defaultMaxStock: parseInt(defaultMaxStock) || 50,
+            isLimitActive: isGlobalStockLimitActive,
+          },
           // Límites separados por tipo de producto
           catalog: {
             defaultMaxStock: parseInt(catalogMaxStock) || 10,

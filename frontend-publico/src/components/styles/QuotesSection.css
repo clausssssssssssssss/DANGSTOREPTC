@@ -1148,38 +1148,47 @@
 
 /* ===== MODAL DE CONFIRMACIÓN DE ELIMINACIÓN ===== */
 .delete-modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.6);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  backdrop-filter: blur(4px);
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  background: transparent;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  z-index: 9999 !important;
+  backdrop-filter: none;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
 }
 
 .delete-modal {
   background: white;
-  border-radius: 16px;
+  border-radius: 20px;
   padding: 0;
-  width: 480px;
-  max-width: 90vw;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
-  border: 1px solid #e5e7eb;
-  animation: modalSlideIn 0.3s ease-out;
+  width: 500px;
+  max-width: 95vw;
+  max-height: 85vh;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+  border: 2px solid #e5e7eb;
+  animation: modalSlideIn 0.4s ease-out;
+  position: relative !important;
+  z-index: 10000 !important;
+  margin: auto !important;
 }
 
 @keyframes modalSlideIn {
   from {
     opacity: 0;
-    transform: translateY(-20px) scale(0.95);
+    transform: scale(0.8);
   }
   to {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform: scale(1);
   }
 }
 
@@ -1356,4 +1365,10 @@
     padding: 10px 16px;
     font-size: 0.85rem;
   }
+}
+
+/* ===== ESTILOS ADICIONALES PARA GARANTIZAR POSICIONAMIENTO CORRECTO ===== */
+/* Asegurar que el modal esté por encima de cualquier contenido */
+.delete-modal-overlay * {
+  box-sizing: border-box;
 }

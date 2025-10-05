@@ -186,7 +186,12 @@ const handleDecision = async (orderId, decision) => {
     showError('Error al procesar la decisión');
   }
 };
-  const handleDeleteQuote = async () => {
+  const handleDeleteQuote = (quoteId, event) => {
+    setQuoteToDelete(quoteId);
+    setShowDeleteModal(true);
+  };
+
+  const confirmDeleteQuote = async () => {
     if (!quoteToDelete) return;
 
     try {
@@ -229,6 +234,10 @@ const handleDecision = async (orderId, decision) => {
   const cancelDeleteQuote = () => {
     setShowDeleteModal(false);
     setQuoteToDelete(null);
+  };
+
+  const handleFilterChange = (filter) => {
+    setQuotesFilter(filter);
   };
 
   const getStatusBadge = (status) => {
@@ -357,7 +366,7 @@ const handleDecision = async (orderId, decision) => {
                 {/* Botón de eliminar - Movido arriba */}
                 <button
                   className="remove-favorite-btn"
-                  onClick={() => handleDeleteQuote(quote._id)}
+                  onClick={(e) => handleDeleteQuote(quote._id, e)}
                   title="Eliminar cotización"
                 >
                   <Trash2 size={16} />
@@ -451,7 +460,10 @@ const handleDecision = async (orderId, decision) => {
       {/* Modal de confirmación de eliminación */}
       {showDeleteModal && (
         <div className="delete-modal-overlay" onClick={cancelDeleteQuote}>
-          <div className="delete-modal" onClick={e => e.stopPropagation()}>
+          <div 
+            className="delete-modal" 
+            onClick={e => e.stopPropagation()}
+          >
             <div className="delete-modal-header">
               <div className="delete-modal-icon">
                 <AlertTriangle size={24} />

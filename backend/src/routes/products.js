@@ -132,13 +132,57 @@ router.post('/', upload.single('imagen'), async (req, res) => {
 // PUT /api/products/:id - Actualizar un producto
 router.put('/:id', upload.single('imagen'), async (req, res) => {
   try {
+    // Si recibimos JSON, permitir actualización parcial de stock/stockLimits
+    const isJson = req.is('application/json');
+    if (isJson) {
+      const { disponibles, stockLimits } = req.body || {};
+
+      const update = {};
+      if (disponibles !== undefined) {
+        const parsed = parseInt(disponibles);
+        if (Number.isNaN(parsed) || parsed < 0) {
+          return res.status(400).json({ error: 'El campo disponibles debe ser un número válido mayor o igual a 0' });
+        }
+        update.disponibles = parsed;
+      }
+      if (stockLimits && typeof stockLimits === 'object') {
+        if ('maxStock' in stockLimits) {
+          const maxParsed = stockLimits.maxStock === null ? null : parseInt(stockLimits.maxStock);
+          if (maxParsed !== null && (Number.isNaN(maxParsed) || maxParsed < 0)) {
+            return res.status(400).json({ error: 'stockLimits.maxStock debe ser un número válido mayor o igual a 0 o null' });
+          }
+          update['stockLimits.maxStock'] = maxParsed;
+        }
+        if ('isStockLimitActive' in stockLimits) {
+          update['stockLimits.isStockLimitActive'] = Boolean(stockLimits.isStockLimitActive);
+        }
+      }
+
+      if (Object.keys(update).length === 0) {
+        return res.status(400).json({ error: 'No hay campos válidos para actualizar' });
+      }
+
+      const productoActualizado = await Product.findByIdAndUpdate(
+        req.params.id,
+        { $set: update },
+        { new: true, runValidators: true }
+      );
+
+      if (!productoActualizado) {
+        return res.status(404).json({ error: 'Producto no encontrado' });
+      }
+
+      return res.json(productoActualizado);
+    }
+
+    // Flujo original con multipart/form-data para actualización completa (incluye imagen)
     const { nombre, descripcion, precio, disponibles, categoria } = req.body;
-    
+
     // Validaciones básicas
     if (!nombre || !descripcion || !precio || !disponibles) {
       return res.status(400).json({ error: 'Nombre, descripción, precio y disponibles son campos obligatorios' });
     }
-    
+
     const updateData = {
       nombre,
       descripcion,
@@ -146,7 +190,7 @@ router.put('/:id', upload.single('imagen'), async (req, res) => {
       disponibles: parseInt(disponibles),
       categoria
     };
-    
+
     // Si se subió una nueva imagen, actualizarla
     if (req.file) {
       try {
@@ -157,25 +201,25 @@ router.put('/:id', upload.single('imagen'), async (req, res) => {
         return res.status(500).json({ error: 'Error al subir la imagen' });
       }
     }
-    
+
     const productoActualizado = await Product.findByIdAndUpdate(
       req.params.id,
       updateData,
       { new: true, runValidators: true }
     );
-    
+
     if (!productoActualizado) {
       return res.status(404).json({ error: 'Producto no encontrado' });
     }
-    
+
     res.json(productoActualizado);
   } catch (error) {
     console.error('Error al actualizar producto:', error);
-    
+
     if (error.name === 'ValidationError') {
       return res.status(400).json({ error: 'Datos de producto inválidos' });
     }
-    
+
     res.status(500).json({ error: 'Error interno del servidor' });
   }
 });

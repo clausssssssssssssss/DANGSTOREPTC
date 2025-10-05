@@ -1,5 +1,5 @@
 // src/pages/Encargo.jsx
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { CloudUpload, X, Check, XCircle } from 'lucide-react';
 import useCustomerOrders from '../components/personalizedOrder/useCustomerOrders';
 import { useAuth } from '../hooks/useAuth';
@@ -7,14 +7,19 @@ import useCategories from '../hooks/useCategories';
 import Modal from '../components/ui/Modal';
 import '../components/styles/Encargo.css';
 import '../components/styles/PixelDecorations.css';
+import '../components/styles/Catalogo.css';
 import { useToast } from '../hooks/useToast';
 import ToastContainer from '../components/ui/ToastContainer';
 import logo from '../assets/DANGSTORELOGOPRUEBA.PNG';
+import { API_URL } from './services/api.js';
 
 export default function Encargo() {
 const { user } = useAuth();
 const { toasts, showSuccess, showError, showWarning, removeToast } = useToast();
 const { categories, loading: categoriasLoading, error: categoriasError } = useCategories();
+
+// Estado para el límite de encargos personalizados
+const [customOrdersLimitInfo, setCustomOrdersLimitInfo] = useState(null);
 
   const {
     preview,
@@ -29,6 +34,28 @@ const { categories, loading: categoriasLoading, error: categoriasError } = useCa
     submit,
     clearImage
   } = useCustomerOrders();
+
+  // Cargar información del límite de encargos personalizados solo si el usuario está autenticado
+  useEffect(() => {
+    if (!user || !user.id) {
+      setCustomOrdersLimitInfo(null);
+      return;
+    }
+
+    const loadCustomOrdersLimitInfo = async () => {
+      try {
+        const response = await fetch(`${API_URL}/store-config/custom-orders-limit`);
+        if (response.ok) {
+          const data = await response.json();
+          setCustomOrdersLimitInfo(data);
+        }
+      } catch (error) {
+        console.error('Error cargando límite de encargos personalizados:', error);
+      }
+    };
+
+    loadCustomOrdersLimitInfo();
+  }, [user]);
 
   // Efecto para manejar el éxito del encargo
   useEffect(() => {
@@ -124,6 +151,29 @@ const { categories, loading: categoriasLoading, error: categoriasError } = useCa
           Creamos diseños únicos especialmente para ti.
         </p>
       </div>
+
+      {/* Banner de Límite de Encargos Personalizados - Solo para usuarios autenticados */}
+      {user && user.id && customOrdersLimitInfo && customOrdersLimitInfo.success && (
+        <div className="catalog-limit-banner">
+          <div className="limit-info">
+            <div className="limit-icon">🎨</div>
+            <div className="limit-content">
+              <h3>Límite de Encargos Personalizados</h3>
+              <p>
+                {customOrdersLimitInfo.canBuy 
+                  ? `Quedan ${customOrdersLimitInfo.remaining} encargos disponibles de ${customOrdersLimitInfo.maxCustomOrders} esta semana`
+                  : 'Se ha alcanzado el límite máximo de encargos esta semana'
+                }
+              </p>
+            </div>
+            <div className="limit-status">
+              <span className={`limit-badge ${customOrdersLimitInfo.canBuy ? 'available' : 'reached'}`}>
+                {customOrdersLimitInfo.canBuy ? 'DISPONIBLE' : 'LÍMITE ALCANZADO'}
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="encargo-card">
         <div className="upload-zone">

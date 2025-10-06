@@ -3,6 +3,97 @@ import Product from '../models/Product.js';
 import NotificationService from '../services/NotificationService.js';
 
 /**
+ * Resetear contadores semanales de pedidos (catálogo y encargos)
+ */
+export const resetWeeklyCounters = async (req, res) => {
+  try {
+    let config = await StoreConfig.findOne();
+    if (!config) {
+      config = new StoreConfig();
+    }
+
+    const now = new Date();
+    // Reiniciar contadores
+    if (config.stockLimits?.catalog) {
+      config.stockLimits.catalog.currentWeekSales = 0;
+    }
+    if (config.stockLimits?.customOrders) {
+      config.stockLimits.customOrders.currentWeekOrders = 0;
+    }
+    if (config.orderLimits) {
+      config.orderLimits.currentWeekOrders = 0;
+      config.orderLimits.weekStartDate = now;
+    }
+
+    await config.save();
+
+    return res.status(200).json({
+      success: true,
+      message: 'Contadores semanales reseteados',
+      data: config
+    });
+  } catch (error) {
+    console.error('Error reseteando contadores semanales:', error);
+    return res.status(500).json({ success: false, message: 'Error interno del servidor' });
+  }
+};
+
+/**
+ * Activar/desactivar límite semanal general de pedidos
+ */
+export const setOrderLimitActive = async (req, res) => {
+  try {
+    const { isActive } = req.body;
+    if (typeof isActive !== 'boolean') {
+      return res.status(400).json({ success: false, message: 'isActive debe ser booleano' });
+    }
+
+    let config = await StoreConfig.findOne();
+    if (!config) config = new StoreConfig();
+
+    config.orderLimits.isOrderLimitActive = isActive;
+    await config.save();
+
+    return res.status(200).json({
+      success: true,
+      message: `Límite semanal ${isActive ? 'activado' : 'desactivado'}`,
+      data: config.orderLimits
+    });
+  } catch (error) {
+    console.error('Error actualizando isOrderLimitActive:', error);
+    return res.status(500).json({ success: false, message: 'Error interno del servidor' });
+  }
+};
+
+/**
+ * Ajustar el máximo de pedidos semanales
+ */
+export const setWeeklyMaxOrders = async (req, res) => {
+  try {
+    const { max } = req.body;
+    const parsed = Number(max);
+    if (!Number.isFinite(parsed) || parsed < 1) {
+      return res.status(400).json({ success: false, message: 'max inválido (número >= 1)' });
+    }
+
+    let config = await StoreConfig.findOne();
+    if (!config) config = new StoreConfig();
+
+    config.orderLimits.weeklyMaxOrders = parsed;
+    await config.save();
+
+    return res.status(200).json({
+      success: true,
+      message: 'weeklyMaxOrders actualizado',
+      data: config.orderLimits
+    });
+  } catch (error) {
+    console.error('Error actualizando weeklyMaxOrders:', error);
+    return res.status(500).json({ success: false, message: 'Error interno del servidor' });
+  }
+};
+
+/**
  * Obtener configuración de la tienda
  */
 export const getStoreConfig = async (req, res) => {

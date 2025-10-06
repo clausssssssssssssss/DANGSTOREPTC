@@ -150,8 +150,8 @@
 .subtitle-text-modern {
   font-size: 1.1rem;
   margin: 0;
-  opacity: 0.8;
-  font-weight: 300;
+  opacity: 1;
+  font-weight: 500;
   font-style: italic;
   letter-spacing: 1px;
 }
@@ -163,9 +163,22 @@
 .user-greeting-modern {
   font-size: 1.3rem;
   margin: 0;
-  opacity: 0.9;
+  opacity: 1;
   font-weight: 400;
 }
+
+.subtitle-text-modern {
+  color: #fff;
+}
+
+.loading-text-modern {
+  color: #ffffff;
+}
+
+.user-greeting-modern {
+  color: #ffffff;
+}
+
 
 .user-name-modern {
   font-weight: 700;

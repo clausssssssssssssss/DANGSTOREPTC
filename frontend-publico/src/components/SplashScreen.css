@@ -138,7 +138,7 @@
   font-size: 4rem;
   font-weight: 800;
   margin: 0 0 20px 0;
-  text-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+  text-shadow: 0 6px 20px rgba(255, 254, 254, 0.4);
   line-height: 1.1;
   background: linear-gradient(45deg, #fff, #f0f0f0);
   -webkit-background-clip: text;

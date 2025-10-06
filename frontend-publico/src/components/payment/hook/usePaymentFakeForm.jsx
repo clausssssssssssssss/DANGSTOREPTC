@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../../../hooks/useAuth';
 
 // URL del servidor local para desarrollo
-const API_BASE = 'https://dangstoreptc.onrender.com/api';
+const API_BASE = 'https://dangstoreptc-production.up.railway.app/api';
 
 const usePaymentFakeForm = () => {
   const [datosEnviados, setDatosEnviados] = useState(null);

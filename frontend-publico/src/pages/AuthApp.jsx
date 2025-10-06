@@ -13,7 +13,7 @@ import SplashScreen from '../components/SplashScreen';
 import TerminosModal from '../components/TerminosModal';
 
 // URL del servidor local para desarrollo // agregue el link de railway 
-const API_URL = 'http://localhost:4000/api';
+const API_URL = 'https://dangstoreptc-production.up.railway.app/api';
 
 const AuthApp = () => {
   const navigate = useNavigate();

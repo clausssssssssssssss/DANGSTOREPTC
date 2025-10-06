@@ -9,7 +9,10 @@ import {
   checkGlobalLimit,
   checkProductStock,
   updateProductStockLimits,
-  getLowStockProducts
+  getLowStockProducts,
+  resetWeeklyCounters,
+  setOrderLimitActive,
+  setWeeklyMaxOrders
 } from '../controllers/storeConfigController.js';
 
 const router = Router();
@@ -39,6 +42,27 @@ router.put(
   '/',
   authMiddleware(['admin']),
   updateStoreConfig
+);
+
+// Resetear contadores semanales (admin)
+router.post(
+  '/reset-week',
+  authMiddleware(['admin']),
+  resetWeeklyCounters
+);
+
+// Activar/desactivar límite semanal (admin)
+router.post(
+  '/order-limit/active',
+  authMiddleware(['admin']),
+  setOrderLimitActive
+);
+
+// Ajustar máximo de pedidos semanales (admin)
+router.post(
+  '/order-limit/max',
+  authMiddleware(['admin']),
+  setWeeklyMaxOrders
 );
 
 // Verificar si se pueden aceptar más pedidos (público)

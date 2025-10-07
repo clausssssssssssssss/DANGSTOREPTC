@@ -17,7 +17,7 @@ import { InventarioStyles } from '../components/styles/InventarioStyles';
 import { getMaterials, createMaterial, updateMaterial, deleteMaterial } from '../services/materialService';
 import { API_CONFIG } from '../config/api';
 import AlertComponent from '../components/ui/Alert';
-import { sharedStyles } from '../components/SharedStyles';
+import sharedStyles from '../components/SharedStyles';
 import ActionButton from '../components/ui/ActionButton';
 
 const Inventario = ({ navigation }) => {
@@ -243,159 +243,7 @@ const Inventario = ({ navigation }) => {
 
   return (
     <SafeAreaView style={InventarioStyles.container}>
-      <View style={InventarioStyles.header}>
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          style={InventarioStyles.backButton}
-        >
-          <Text style={InventarioStyles.backButtonText}>←</Text>
-        </TouchableOpacity>
-        <Text style={InventarioStyles.headerTitle}>Inventario</Text>
-        <View style={InventarioStyles.placeholder} />
-      </View>
-
-      <View style={InventarioStyles.searchContainer}>
-        <TextInput
-          style={InventarioStyles.searchInput}
-          placeholder="Buscar material"
-          value={busqueda}
-          onChangeText={setBusqueda}
-        />
-      </View>
-
-      <View style={InventarioStyles.buttonContainer}>
-        <TouchableOpacity
-          style={InventarioStyles.nuevoBtn}
-          onPress={() => setModalVisible(true)}
-        >
-          <Text style={InventarioStyles.nuevoBtnText}>+ Nuevo material</Text>
-        </TouchableOpacity>
-      </View>
-
-      <FlatList
-        data={materialesFiltrados}
-        keyExtractor={item => item._id}
-        renderItem={renderMaterial}
-        numColumns={2}
-        contentContainerStyle={InventarioStyles.listContainer}
-      />
-
-      {/* Modal para agregar material */}
-      <Modal
-        visible={modalVisible}
-        animationType="fade"
-        transparent
-        onRequestClose={() => setModalVisible(false)}
-      >
-        <View style={InventarioStyles.modalOverlay}>
-          <View style={InventarioStyles.modalBox}>
-            <TouchableOpacity
-              style={InventarioStyles.modalBack}
-              onPress={() => {
-                setModalVisible(false);
-                resetForm();
-              }}
-            >
-              <Text style={InventarioStyles.backButtonText}>←</Text>
-            </TouchableOpacity>
-            <ScrollView contentContainerStyle={InventarioStyles.modalContent}>
-              <TouchableOpacity
-                style={[
-                  InventarioStyles.imagePicker,
-                  !nuevoMaterial.image && InventarioStyles.imagePickerRequired
-                ]}
-                onPress={seleccionarImagen}
-              >
-                {nuevoMaterial.image ? (
-                  <Image
-                    source={{ uri: nuevoMaterial.image }}
-                    style={InventarioStyles.previewImage}
-                  />
-                ) : (
-                  <View style={InventarioStyles.imagePickerEmpty}>
-                    <Text style={InventarioStyles.imagePickerText}>Cámara</Text>
-                    <Text style={InventarioStyles.imagePickerSubtext}>Subir imagen</Text>
-                    <Text style={InventarioStyles.imagePickerRequired}>*Obligatorio</Text>
-                  </View>
-                )}
-              </TouchableOpacity>
-              <View style={InventarioStyles.inputWrapper}>
-                <TextInput
-                  style={InventarioStyles.input}
-                  placeholder="Nombre del material *"
-                  value={nuevoMaterial.name}
-                  onChangeText={text => setNuevoMaterial({ ...nuevoMaterial, name: text })}
-                />
-              </View>
-              <View style={InventarioStyles.inputWrapper}>
-                <TextInput
-                  style={InventarioStyles.input}
-                  placeholder="Tipo de material *"
-                  value={nuevoMaterial.type}
-                  onChangeText={text => setNuevoMaterial({ ...nuevoMaterial, type: text })}
-                />
-              </View>
-              <View style={InventarioStyles.row}>
-                <View style={{ flex: 1, marginRight: 8 }}>
-                  <TextInput
-                    style={InventarioStyles.input}
-                    placeholder="Stock disponible"
-                    keyboardType="numeric"
-                    value={nuevoMaterial.quantity}
-                    onChangeText={handleQuantityChange}
-                    maxLength={5}
-                  />
-                  {quantityError ? (
-                    <Text style={InventarioStyles.errorText}>{quantityError}</Text>
-                  ) : null}
-                </View>
-                <View style={{ flex: 1, marginLeft: 8 }}>
-                  <View style={InventarioStyles.inputContainer}>
-                    <Text style={InventarioStyles.precioSimbolo}>$</Text>
-                    <TextInput
-                      style={InventarioStyles.inputPrecio}
-                      placeholder="Inversión"
-                      keyboardType="numeric"
-                      value={nuevoMaterial.investment}
-                      onChangeText={handleInvestmentChange}
-                      maxLength={8}
-                    />
-                  </View>
-                  {investmentError ? (
-                    <Text style={InventarioStyles.errorText}>{investmentError}</Text>
-                  ) : null}
-                </View>
-              </View>
-              <TextInput
-                style={InventarioStyles.input}
-                placeholder="Fecha de entrada (YYYY-MM-DD)"
-                value={nuevoMaterial.dateOfEntry}
-                onChangeText={text => setNuevoMaterial({ ...nuevoMaterial, dateOfEntry: text })}
-              />
-              <TouchableOpacity style={InventarioStyles.agregarBtn} onPress={agregarMaterial}>
-                <Text style={InventarioStyles.agregarBtnText}>
-                  {editItem ? 'Actualizar' : 'Agregar'}
-                </Text>
-              </TouchableOpacity>
-            </ScrollView>
-          </View>
-        </View>
-      </Modal>
-
-      {/* Componente de alerta unificado */}
-      <AlertComponent
-        visible={alert.visible}
-        title={alert.title}
-        message={alert.message}
-        type={alert.type}
-        onConfirm={alert.onConfirm}
-        onCancel={alert.onCancel}
-        confirmText={alert.confirmText}
-        cancelText={alert.cancelText}
-        showCancel={alert.showCancel}
-      />
-
-      <ScrollView style={InventarioStyles.container}>
+      <ScrollView>
         <View style={sharedStyles.cardContainer}>
           <ActionButton 
             title="Nueva Categoría" 
@@ -403,19 +251,28 @@ const Inventario = ({ navigation }) => {
           />
         </View>
         
-        {/* Other cards with similar button styling */}
         <View style={sharedStyles.cardContainer}>
           <ActionButton 
             title="Gestionar Productos" 
             onPress={() => navigation.navigate('Productos')}
           />
         </View>
+        {/* ...existing inventory content... */}
       </ScrollView>
+
+      <AlertComponent
+        visible={alert.visible}
+        title={alert.title}
+        message={alert.message}
+        onConfirm={alert.onConfirm}
+        onCancel={alert.onCancel}
+        confirmText={alert.confirmText}
+        cancelText={alert.cancelText}
+        showCancel={alert.showCancel}
+      />
     </SafeAreaView>
   );
 };
-
-
 
 export default Inventario;
 

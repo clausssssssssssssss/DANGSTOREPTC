@@ -1,6 +1,6 @@
 import React from 'react';
 import { TouchableOpacity, Text } from 'react-native';
-import { sharedStyles } from '../SharedStyles';
+import sharedStyles from '../SharedStyles';
 
 const ActionButton = ({ onPress, title, style }) => {
   return (

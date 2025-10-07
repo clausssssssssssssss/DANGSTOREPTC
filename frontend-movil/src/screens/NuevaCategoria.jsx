@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { View, TextInput } from 'react-native';
-import { sharedStyles } from '../components/SharedStyles';
+import { View, TextInput, StyleSheet } from 'react-native';
+import sharedStyles from '../components/SharedStyles';
 import ActionButton from '../components/ui/ActionButton';
 
 const NuevaCategoria = () => {

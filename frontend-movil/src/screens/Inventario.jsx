@@ -17,8 +17,6 @@ import { InventarioStyles } from '../components/styles/InventarioStyles';
 import { getMaterials, createMaterial, updateMaterial, deleteMaterial } from '../services/materialService';
 import { API_CONFIG } from '../config/api';
 import AlertComponent from '../components/ui/Alert';
-import { sharedStyles } from '../components/SharedStyles';
-import ActionButton from '../components/ui/ActionButton';
 
 const Inventario = ({ navigation }) => {
   const [materials, setMaterials] = useState([]);
@@ -394,23 +392,6 @@ const Inventario = ({ navigation }) => {
         cancelText={alert.cancelText}
         showCancel={alert.showCancel}
       />
-
-      <ScrollView style={InventarioStyles.container}>
-        <View style={sharedStyles.cardContainer}>
-          <ActionButton 
-            title="Nueva Categoría" 
-            onPress={() => navigation.navigate('NuevaCategoria')}
-          />
-        </View>
-        
-        {/* Other cards with similar button styling */}
-        <View style={sharedStyles.cardContainer}>
-          <ActionButton 
-            title="Gestionar Productos" 
-            onPress={() => navigation.navigate('Productos')}
-          />
-        </View>
-      </ScrollView>
     </SafeAreaView>
   );
 };

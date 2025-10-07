@@ -310,19 +310,21 @@ const ProductosStyles = StyleSheet.create({
     fontSize: 18,
     width: '100%',
   },
-  agregarBtn: {
-    backgroundColor: '#8B5CF6',
-    borderRadius: 12,
-    paddingVertical: 14,
-    alignItems: 'center',
-    flex: 1,
-    marginLeft: 6,
-    shadowColor: '#8B5CF6',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 3,
-  },
+ agregarBtn: {
+  backgroundColor: '#8B5CF6',
+  borderRadius: 12,
+  paddingVertical: 12, // Reducido de 14
+  paddingHorizontal: 20, // Agregado para más ancho
+  alignItems: 'center',
+  width: '90%', // Cambiado de flex:1 a width específico
+  alignSelf: 'center', // Centrado
+  marginTop: 10,
+  shadowColor: '#8B5CF6',
+  shadowOffset: { width: 0, height: 2 },
+  shadowOpacity: 0.2,
+  shadowRadius: 4,
+  elevation: 3,
+},
   agregarBtnText: {
     color: '#fff',
     fontWeight: '600',
@@ -824,7 +826,27 @@ const ProductosStyles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 2,
-  },
+  },// Agrega esto ANTES de la última llave } del StyleSheet.create
+categoriaConfirmBtn: {
+  backgroundColor: '#8B5CF6',
+  borderRadius: 12,
+  paddingVertical: 10, // Menos alto que el original
+  paddingHorizontal: 20,
+  alignItems: 'center',
+  width: '90%',
+  alignSelf: 'center',
+  marginTop: 10,
+  shadowColor: '#8B5CF6',
+  shadowOffset: { width: 0, height: 2 },
+  shadowOpacity: 0.2,
+  shadowRadius: 4,
+  elevation: 3,
+},
+categoriaConfirmBtnText: {
+  color: '#fff',
+  fontWeight: '600',
+  fontSize: 16,
+},
   cancelButtonText: {
     color: '#6B7280',
     fontSize: 16,

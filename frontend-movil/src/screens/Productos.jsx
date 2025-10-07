@@ -74,6 +74,7 @@ const Productos = ({ navigation }) => {
   const [disponiblesError, setDisponiblesError] = useState('');
   const [precioError, setPrecioError] = useState('');
   const { authToken } = useContext(AuthContext);
+  const [editando, setEditando] = useState(false);
 
   useEffect(() => {
     // obtenerProductos(); // Comentado temporalmente - usando hook
@@ -889,15 +890,12 @@ const Productos = ({ navigation }) => {
                 </View>
               </View>
               <TouchableOpacity 
-                style={[ProductosStyles.agregarBtn, cargando && ProductosStyles.btnDeshabilitado]} 
+                style={ProductosStyles.agregarBtn} 
                 onPress={agregarProducto}
-                disabled={cargando}
               >
-                {cargando ? (
-                  <ActivityIndicator color="#fff" />
-                ) : (
-                  <Text style={ProductosStyles.agregarBtnText}>Agregar</Text>
-                )}
+                <Text style={ProductosStyles.agregarBtnText}>
+                  {editando ? 'Actualizar' : 'Agregar'}
+                </Text>
               </TouchableOpacity>
             </ScrollView>
           </View>
@@ -1043,15 +1041,12 @@ const Productos = ({ navigation }) => {
               />
               
               <TouchableOpacity 
-                style={[ProductosStyles.agregarBtn, cargando && ProductosStyles.btnDeshabilitado]} 
+                style={ProductosStyles.categoriaConfirmBtn} 
                 onPress={crearCategoria}
-                disabled={cargando}
               >
-                {cargando ? (
-                  <ActivityIndicator color="#fff" />
-                ) : (
-                  <Text style={ProductosStyles.agregarBtnText}>Crear Categoría</Text>
-                )}
+                <Text style={ProductosStyles.categoriaConfirmBtnText}>
+                  Crear Categoría
+                </Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -1221,7 +1216,7 @@ const Productos = ({ navigation }) => {
 
               {/* Botones de acción */}
               <View style={ProductosStyles.stockButtonsContainer}>
-              <TouchableOpacity
+                <TouchableOpacity
                   style={[ProductosStyles.cancelButton, guardandoStock && ProductosStyles.btnDeshabilitado]}
                   onPress={() => setModalStockVisible(false)}
                   disabled={guardandoStock}
@@ -1239,8 +1234,8 @@ const Productos = ({ navigation }) => {
                   ) : (
                     <Text style={ProductosStyles.agregarBtnText}>Guardar Stock</Text>
                   )}
-              </TouchableOpacity>
-            </View>
+                </TouchableOpacity>
+              </View>
             </ScrollView>
           </View>
         </View>
@@ -1258,10 +1253,8 @@ const Productos = ({ navigation }) => {
         cancelText={alert.cancelText}
         showCancel={alert.showCancel}
       />
-
     </SafeAreaView>
   );
 };
-
 
 export default Productos;

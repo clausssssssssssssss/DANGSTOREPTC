@@ -232,19 +232,21 @@ export const InventarioStyles = StyleSheet.create({
     padding: 0,
     height: 40,
   },
-  agregarBtn: {
-    backgroundColor: '#8B5CF6',
-    borderRadius: 20,
-    paddingVertical: 12,
-    alignItems: 'center',
-    marginBottom: 10,
-    width: width * 0.7,
-    shadowColor: '#8B5CF6',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 4,
-  },
+agregarBtn: {
+  backgroundColor: '#8B5CF6',
+  borderRadius: 20,
+  paddingVertical: 12, // Reducido
+  paddingHorizontal: 25, // Aumentado para más ancho
+  alignItems: 'center',
+  marginBottom: 10,
+  width: '90%', // Más ancho
+  alignSelf: 'center',
+  shadowColor: '#8B5CF6',
+  shadowOffset: { width: 0, height: 2 },
+  shadowOpacity: 0.3,
+  shadowRadius: 4,
+  elevation: 4,
+},
   agregarBtnText: {
     color: '#fff',
     fontWeight: 'bold',

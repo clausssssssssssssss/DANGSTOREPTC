@@ -1,18 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, SafeAreaView, TouchableOpacity, ActivityIndicator } from 'react-native';
-import { useFocusEffect } from '@react-navigation/native'; // Importar para actualización automática
+import { View, Text, ScrollView, SafeAreaView, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 import VentasTabs from '../components/Ventas/VentasTabs';
 import VentasCard from '../components/Ventas/VentasCard';
 import VentasChart from '../components/Ventas/VentasChart';
 import VentasTable from '../components/Ventas/VentasTable';
+import VentasMetasConfig from '../components/Ventas/VentasMetasConfig'; // NUEVO
 import { VentasStyles } from '../components/styles/VentasStyles';
 import { salesAPI } from '../services/salesReport';
+import { metasService } from '../services/metasService'; // NUEVO
 
 const Ventas = ({ navigation }) => {
   const [activeTab, setActiveTab] = useState('reporte');
   const [selectedReporte, setSelectedReporte] = useState('mensual');
   
-  // Estados para manejar los datos de la API
+  // NUEVO: Estado para la meta semanal
+  const [metaSemanal, setMetaSemanal] = useState(50);
+  
   const [salesData, setSalesData] = useState({
     daily: 0,
     monthly: 0,
@@ -28,7 +32,6 @@ const Ventas = ({ navigation }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // NUEVO: Función auxiliar para obtener rango de fechas de los últimos 30 días
   const getDateRange = () => {
     const endDate = new Date();
     const startDate = new Date();
@@ -46,15 +49,53 @@ const Ventas = ({ navigation }) => {
     };
   };
 
-  // ACTUALIZADO: useEffect reemplazado por useFocusEffect para actualización automática
+  // NUEVO: Cargar meta semanal al enfocar la pantalla
   useFocusEffect(
     React.useCallback(() => {
       console.log('🔄 Pantalla enfocada - Cargando datos...');
+      loadMetaSemanal(); // Cargar meta primero
       loadAllData();
     }, [])
   );
 
-  // NUEVA: Función para cargar todos los datos de una vez
+  // NUEVO: Función para cargar la meta semanal
+  const loadMetaSemanal = async () => {
+    try {
+      const meta = await metasService.getMetaSemanal();
+      console.log('🎯 Meta semanal cargada:', meta);
+      setMetaSemanal(meta);
+    } catch (error) {
+      console.error('Error cargando meta semanal:', error);
+      setMetaSemanal(50); // Fallback
+    }
+  };
+
+  // NUEVO: Función para guardar la meta semanal
+  const handleGuardarMeta = async (nuevaMeta) => {
+    try {
+      const metaAnterior = metaSemanal;
+      const success = await metasService.setMetaSemanal(nuevaMeta);
+      
+      if (success) {
+        await metasService.agregarAlHistorial(metaAnterior, nuevaMeta);
+        setMetaSemanal(nuevaMeta);
+        console.log('✅ Meta actualizada correctamente:', nuevaMeta);
+        
+        // Mostrar feedback al usuario
+        Alert.alert(
+          'Meta actualizada',
+          `Tu nueva meta semanal es $${nuevaMeta.toFixed(2)}`,
+          [{ text: 'OK' }]
+        );
+      } else {
+        Alert.alert('Error', 'No se pudo guardar la meta. Intenta de nuevo.');
+      }
+    } catch (error) {
+      console.error('Error guardando meta:', error);
+      Alert.alert('Error', 'Ocurrió un error al guardar la meta.');
+    }
+  };
+
   const loadAllData = async () => {
     setLoading(true);
     setError(null);
@@ -62,7 +103,7 @@ const Ventas = ({ navigation }) => {
     try {
       await Promise.all([
         loadSalesData(),
-        loadIncomeAndCategoryData(), // Combinamos estas dos para usar el mismo rango
+        loadIncomeAndCategoryData(),
         loadLatestSales()
       ]);
     } catch (err) {
@@ -73,25 +114,16 @@ const Ventas = ({ navigation }) => {
     }
   };
 
-  // ACTUALIZADA: Función combinada para cargar ingresos y categorías con el mismo rango
   const loadIncomeAndCategoryData = async () => {
     try {
       const dateRange = getDateRange();
-      
       console.log('📅 Consultando datos del', dateRange.start, 'al', dateRange.end);
       
-      // Cargar ingresos por rango
       const incomePromise = salesAPI.getIncomeByDateRange(dateRange.start, dateRange.end);
-      
-      // Cargar todas las categorías (sin filtro de fecha en el backend)
       const categoryPromise = salesAPI.getSalesByCategory();
       
       const [incomeResult, allCategoriesResult] = await Promise.all([incomePromise, categoryPromise]);
       
-      console.log('💰 Datos de ingresos:', JSON.stringify(incomeResult, null, 2));
-      console.log('📂 Todas las categorías:', JSON.stringify(allCategoriesResult, null, 2));
-      
-      // Procesar datos de ingresos
       let incomeTotal = 0;
       if (incomeResult) {
         if (incomeResult.total !== undefined) {
@@ -101,7 +133,6 @@ const Ventas = ({ navigation }) => {
         }
       }
       
-      // Procesar categorías - AQUÍ ESTÁ LA CLAVE: calcular total desde las categorías
       let processedCategories = [];
       let categoryTotal = 0;
       
@@ -117,11 +148,6 @@ const Ventas = ({ navigation }) => {
         });
       }
       
-      console.log('📊 Total calculado desde categorías:', categoryTotal);
-      console.log('💰 Total desde endpoint de ingresos:', incomeTotal);
-      
-      // IMPORTANTE: Usar el total calculado desde las categorías para mayor consistencia
-      // O usar el mayor de los dos si hay discrepancia
       const finalTotal = Math.max(categoryTotal, incomeTotal);
       
       setIncomeData({
@@ -132,43 +158,29 @@ const Ventas = ({ navigation }) => {
       
       setCategoryData(processedCategories);
       
-      console.log('✅ Datos actualizados - Total final:', finalTotal);
-      
     } catch (err) {
       console.error('❌ Error cargando datos de ingresos/categorías:', err);
       setError('Error al cargar datos de ingresos');
-      setIncomeData({
-        total: 0,
-        startDate: '',
-        endDate: ''
-      });
+      setIncomeData({ total: 0, startDate: '', endDate: '' });
       setCategoryData([]);
     }
   };
 
-  // Función para cargar las últimas 10 ventas (sin cambios)
   const loadLatestSales = async () => {
     try {
       console.log('🔍 Cargando últimas ventas...');
       const data = await salesAPI.getLatestSales();
-      
-      console.log('🛒 Últimas ventas:', data?.length || 0, 'encontradas');
-      
       const salesArray = Array.isArray(data) ? data : [];
       setLatestSalesData(salesArray);
-      
     } catch (err) {
       console.error('❌ Error cargando últimas ventas:', err);
       setLatestSalesData([]);
     }
   };
 
-  // Función para cargar resumen de ventas (sin cambios)
   const loadSalesData = async () => {
     try {
       const data = await salesAPI.getSalesSummary();
-      
-      console.log('📊 Datos de resumen de ventas:', JSON.stringify(data, null, 2));
       
       let salesInfo = {
         daily: 0,
@@ -178,24 +190,17 @@ const Ventas = ({ navigation }) => {
       
       if (data) {
         if (Array.isArray(data.daily) && data.daily.length > 0) {
-          const latestDay = data.daily[0];
-          salesInfo.daily = parseFloat(latestDay.total) || 0;
+          salesInfo.daily = parseFloat(data.daily[0].total) || 0;
         }
-        
         if (Array.isArray(data.monthly) && data.monthly.length > 0) {
-          const latestMonth = data.monthly[0];
-          salesInfo.monthly = parseFloat(latestMonth.total) || 0;
+          salesInfo.monthly = parseFloat(data.monthly[0].total) || 0;
         }
-        
         if (Array.isArray(data.yearly) && data.yearly.length > 0) {
-          const latestYear = data.yearly[0];
-          salesInfo.annual = parseFloat(latestYear.total) || 0;
+          salesInfo.annual = parseFloat(data.yearly[0].total) || 0;
         }
       }
       
-      console.log('📊 Datos de ventas procesados:', salesInfo);
       setSalesData(salesInfo);
-      
     } catch (err) {
       console.error('❌ Error cargando datos de ventas:', err);
       setError('Error al cargar datos de ventas');
@@ -206,33 +211,22 @@ const Ventas = ({ navigation }) => {
     setActiveTab(tabId);
   };
 
-  // Función para formatear números como moneda
   const formatCurrency = (amount) => {
     const numAmount = parseFloat(amount);
-    if (isNaN(numAmount)) {
-      console.log('⚠️ Valor inválido para formatCurrency:', amount);
-      return '$0.00';
-    }
+    if (isNaN(numAmount)) return '$0.00';
     
-    const formatted = new Intl.NumberFormat('en-US', {
+    return new Intl.NumberFormat('en-US', {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2
     }).format(numAmount);
-    
-    return `${formatted}`;
   };
 
-  // Función para obtener el monto según el reporte seleccionado
   const getSelectedAmount = () => {
     switch (selectedReporte) {
-      case 'diario':
-        return salesData.daily;
-      case 'mensual':
-        return salesData.monthly;
-      case 'anual':
-        return salesData.annual;
-      default:
-        return salesData.monthly;
+      case 'diario': return salesData.daily;
+      case 'mensual': return salesData.monthly;
+      case 'anual': return salesData.annual;
+      default: return salesData.monthly;
     }
   };
 
@@ -240,10 +234,7 @@ const Ventas = ({ navigation }) => {
     <>
       <View style={VentasStyles.cardsContainer}>
         <View style={VentasStyles.cardWrapper}>
-          <TouchableOpacity 
-            onPress={() => setSelectedReporte('diario')}
-            activeOpacity={0.7}
-          >
+          <TouchableOpacity onPress={() => setSelectedReporte('diario')} activeOpacity={0.7}>
             <VentasCard 
               title="Ventas Diarias" 
               amount={formatCurrency(salesData.daily)}
@@ -253,10 +244,7 @@ const Ventas = ({ navigation }) => {
         </View>
         
         <View style={VentasStyles.cardWrapper}>
-          <TouchableOpacity 
-            onPress={() => setSelectedReporte('mensual')}
-            activeOpacity={0.7}
-          >
+          <TouchableOpacity onPress={() => setSelectedReporte('mensual')} activeOpacity={0.7}>
             <VentasCard 
               title="Ventas Mensuales" 
               amount={formatCurrency(salesData.monthly)}
@@ -266,10 +254,7 @@ const Ventas = ({ navigation }) => {
         </View>
         
         <View style={VentasStyles.cardWrapper}>
-          <TouchableOpacity 
-            onPress={() => setSelectedReporte('anual')}
-            activeOpacity={0.7}
-          >
+          <TouchableOpacity onPress={() => setSelectedReporte('anual')} activeOpacity={0.7}>
             <VentasCard 
               title="Ventas Anuales" 
               amount={formatCurrency(salesData.annual)}
@@ -285,12 +270,7 @@ const Ventas = ({ navigation }) => {
       </View>
 
       <View style={VentasStyles.chartContainer}>
-        <ScrollView 
-          horizontal={true}
-          showsHorizontalScrollIndicator={true}
-          scrollIndicatorInsets={{ bottom: 2 }}
-          contentContainerStyle={VentasStyles.chartScrollContent}
-        >
+        <ScrollView horizontal showsHorizontalScrollIndicator contentContainerStyle={VentasStyles.chartScrollContent}>
           <VentasChart tipo={selectedReporte} data={salesData} />
         </ScrollView>
       </View>
@@ -303,51 +283,23 @@ const Ventas = ({ navigation }) => {
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
           <Text style={VentasStyles.ingresosTitle}>Ingresos por Categorías</Text>
           <TouchableOpacity 
-            onPress={() => {
-              console.log('🔄 Actualizando datos manualmente...');
-              loadIncomeAndCategoryData();
-            }}
-            style={{ 
-              paddingHorizontal: 12, 
-              paddingVertical: 6, 
-              backgroundColor: '#007AFF', 
-              borderRadius: 6,
-              minWidth: 70,
-              alignItems: 'center'
-            }}
+            onPress={loadIncomeAndCategoryData}
+            style={{ paddingHorizontal: 12, paddingVertical: 6, backgroundColor: '#007AFF', borderRadius: 6 }}
           >
-            <Text style={{ color: 'white', fontSize: 12, fontWeight: '600' }}>
-              Actualizar
-            </Text>
+            <Text style={{ color: 'white', fontSize: 12, fontWeight: '600' }}>Actualizar</Text>
           </TouchableOpacity>
         </View>
         
-        <Text style={VentasStyles.ingresosDate}>
-          {incomeData.startDate} - {incomeData.endDate}
-        </Text>
+        <Text style={VentasStyles.ingresosDate}>{incomeData.startDate} - {incomeData.endDate}</Text>
         
         <View style={VentasStyles.ingresosTotal}>
-          <Text style={VentasStyles.ingresosTotalLabel}>
-            Ingresos Totales (Últimos 30 días)
-          </Text>
-          <Text style={VentasStyles.ingresosTotalAmount}>
-            {formatCurrency(incomeData.total)}
-          </Text>
+          <Text style={VentasStyles.ingresosTotalLabel}>Ingresos Totales (Últimos 30 días)</Text>
+          <Text style={VentasStyles.ingresosTotalAmount}>{formatCurrency(incomeData.total)}</Text>
         </View>
-        
-        {/* Información adicional para debugging */}
-        <Text style={{ fontSize: 10, color: '#666', textAlign: 'center', marginTop: 4 }}>
-          Categorías: {categoryData.length} | Última actualización: {new Date().toLocaleTimeString()}
-        </Text>
       </View>
       
       <View style={VentasStyles.chartContainer}>
-        <ScrollView 
-          horizontal={true}
-          showsHorizontalScrollIndicator={true}
-          scrollIndicatorInsets={{ bottom: 2 }}
-          contentContainerStyle={VentasStyles.chartScrollContent}
-        >
+        <ScrollView horizontal showsHorizontalScrollIndicator contentContainerStyle={VentasStyles.chartScrollContent}>
           <VentasChart tipo="ingresos" data={categoryData} />
         </ScrollView>
       </View>
@@ -358,35 +310,24 @@ const Ventas = ({ navigation }) => {
     <>
       <View style={VentasStyles.pedidosHeader}>
         <Text style={VentasStyles.pedidosTitle}>Últimos Pedidos</Text>
-        <Text style={VentasStyles.pedidosDate}>
-          {latestSalesData.length} pedidos encontrados
-        </Text>
-        <Text style={VentasStyles.pedidosFilter}>
-          {latestSalesData.length > 0 ? 'Datos actualizados de la base' : 'Sin datos - mostrando ejemplo'}
-        </Text>
+        <Text style={VentasStyles.pedidosDate}>{latestSalesData.length} pedidos encontrados</Text>
       </View>
-      
       <VentasTable data={latestSalesData} />
-      
-      {/* Botón de actualización manual para pedidos */}
       <TouchableOpacity 
-        style={{ 
-          margin: 20, 
-          padding: 15, 
-          backgroundColor: '#007AFF', 
-          borderRadius: 8,
-          alignItems: 'center'
-        }}
-        onPress={() => {
-          console.log('🔄 Recargando últimas ventas...');
-          loadLatestSales();
-        }}
+        style={{ margin: 20, padding: 15, backgroundColor: '#007AFF', borderRadius: 8, alignItems: 'center' }}
+        onPress={loadLatestSales}
       >
-        <Text style={{ color: 'white', fontWeight: 'bold' }}>
-          Actualizar Pedidos
-        </Text>
+        <Text style={{ color: 'white', fontWeight: 'bold' }}>Actualizar Pedidos</Text>
       </TouchableOpacity>
     </>
+  );
+
+  // NUEVO: Render del contenido de Metas
+  const renderMetasContent = () => (
+    <VentasMetasConfig 
+      metaActual={metaSemanal}
+      onGuardarMeta={handleGuardarMeta}
+    />
   );
 
   const renderContent = () => {
@@ -402,15 +343,10 @@ const Ventas = ({ navigation }) => {
     if (error) {
       return (
         <View style={[VentasStyles.container, { justifyContent: 'center', alignItems: 'center' }]}>
-          <Text style={{ color: 'red', textAlign: 'center', margin: 20 }}>
-            {error}
-          </Text>
+          <Text style={{ color: 'red', textAlign: 'center', margin: 20 }}>{error}</Text>
           <TouchableOpacity 
             style={{ padding: 10, backgroundColor: '#007AFF', borderRadius: 5 }}
-            onPress={() => {
-              console.log('🔄 Reintentando cargar datos...');
-              loadAllData();
-            }}
+            onPress={loadAllData}
           >
             <Text style={{ color: 'white' }}>Reintentar</Text>
           </TouchableOpacity>
@@ -419,20 +355,16 @@ const Ventas = ({ navigation }) => {
     }
 
     switch (activeTab) {
-      case 'reporte':
-        return renderReporteContent();
-      case 'ingresos':
-        return renderIngresosContent();
-      case 'pedidos':
-        return renderPedidosContent();
-      default:
-        return renderReporteContent();
+      case 'reporte': return renderReporteContent();
+      case 'ingresos': return renderIngresosContent();
+      case 'pedidos': return renderPedidosContent();
+      case 'metas': return renderMetasContent(); // NUEVO
+      default: return renderReporteContent();
     }
   };
 
   return (
     <SafeAreaView style={VentasStyles.container}>
-      {/* Header */}
       <View style={VentasStyles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Text style={VentasStyles.backButton}>‹</Text>
@@ -441,13 +373,13 @@ const Ventas = ({ navigation }) => {
           {activeTab === 'reporte' && 'Tus ventas'}
           {activeTab === 'ingresos' && 'Ingresos por Productos'}
           {activeTab === 'pedidos' && 'Últimos Pedidos'}
+          {activeTab === 'metas' && 'Configurar Metas'}
         </Text>
       </View>
 
-      {/* Tabs */}
+      {/* ACTUALIZAR: Ahora VentasTabs debe incluir la nueva pestaña "metas" */}
       <VentasTabs activeTab={activeTab} onTabPress={handleTabPress} />
 
-      {/* Content */}
       <ScrollView style={VentasStyles.content} showsVerticalScrollIndicator={false}>
         {renderContent()}
       </ScrollView>

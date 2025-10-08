@@ -121,10 +121,11 @@ export const inicioStyles = StyleSheet.create({
            justifyContent: 'space-between',
            alignItems: 'center',
          },
-         weekLeftContent: {
-           alignItems: 'flex-start',
-           justifyContent: 'center',
-         },
+      weekLeftContent: {
+  flex: 1,
+  paddingRight: 15, // ✅ Más espacio entre contenido y botón
+  maxWidth: '75%', // ✅ Limitar ancho para dar espacio al botón
+},
   weekTitle: {
     fontSize: 20,
     fontWeight: 'bold',
@@ -146,22 +147,22 @@ export const inicioStyles = StyleSheet.create({
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 2,
   },
-           verButton: {
-           backgroundColor: 'rgba(255, 255, 255, 0.25)',
-           paddingHorizontal: 20,
-           paddingVertical: 12,
-           borderRadius: 25,
-           borderWidth: 1,
-           borderColor: 'rgba(255, 255, 255, 0.3)',
-           shadowColor: '#000',
-           shadowOffset: {
-             width: 0,
-             height: 2,
-           },
-           shadowOpacity: 0.2,
-           shadowRadius: 4,
-           elevation: 3,
-         },
+verButton: {
+  backgroundColor: 'rgba(255, 255, 255, 0.3)',
+  width: 40,
+  height: 40,
+  borderRadius: 20,
+  alignItems: 'center',
+  justifyContent: 'center',
+  borderWidth: 1.5,
+  borderColor: 'rgba(255, 255, 255, 0.5)',
+  marginRight: 10, // ✅ CLAVE: Separación del borde derecho
+  shadowColor: '#000',
+  shadowOffset: { width: 0, height: 2 },
+  shadowOpacity: 0.2,
+  shadowRadius: 3,
+  elevation: 3,
+},
   verButtonText: {
     color: 'white',
     fontSize: 16,

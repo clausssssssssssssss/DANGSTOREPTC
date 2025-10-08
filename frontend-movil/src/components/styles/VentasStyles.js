@@ -100,7 +100,7 @@ const VentasStyles = StyleSheet.create({
   totalContainer: {
     marginHorizontal: 20,
     marginBottom: 20,
-    backgroundColor: '#FFF', // 🔧 AGREGADO: Fondo para destacar
+    backgroundColor: '#fdf9f9ff', // 🔧 AGREGADO: Fondo para destacar
     borderRadius: 15,
     padding: 16,
     // 🔧 AGREGADO: Sombra sutil

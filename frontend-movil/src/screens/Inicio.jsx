@@ -13,15 +13,14 @@ import { useFocusEffect } from '@react-navigation/native';
 import { AuthContext } from '../context/AuthContext.js';
 import { inicioStyles as styles } from '../components/styles/InicioStyles';
 import { salesAPI } from '../services/salesReport';
+import { metasService } from '../services/metasService'; // ✅ NUEVO
 import { useNotifications } from '../hooks/useNotifications';
 import AlertComponent from '../components/ui/Alert';
 
 const Inicio = ({ navigation }) => {
   const { user } = useContext(AuthContext);
   
-  // Hook de notificaciones sin auto-refresh para evitar ciclos
   const { unreadCount, hasUnread, loading: notificationsLoading, refresh: refreshNotifications } = useNotifications();
-
 
   const greetingTime = useMemo(() => {
     const hour = new Date().getHours();
@@ -32,28 +31,36 @@ const Inicio = ({ navigation }) => {
 
   const displayName = user?.name || 'Angie';
 
-  // Estado para guardar resumen de ventas
   const [summary, setSummary] = useState({
     daily: 0,
     weekly: 0,
     monthly: 0,
   });
 
-  // Estado para controlar si estamos cargando datos
   const [loading, setLoading] = useState(false);
   const [showLogoutAlert, setShowLogoutAlert] = useState(false);
+  
+  //  NUEVO: Estado para la meta semanal dinámica
+  const [weeklyGoal, setWeeklyGoal] = useState(50);
 
-
-  // Usar useFocusEffect para actualización automática
+  //  ACTUALIZADO: useFocusEffect ahora también carga la meta
   useFocusEffect(
     React.useCallback(() => {
-      const fetchSummary = async () => {
+      const fetchData = async () => {
         setLoading(true);
         try {
-          console.log('📊 Cargando resumen del dashboard...');
-          const data = await salesAPI.getDashboardSummary();
+          console.log('📊 Cargando datos del dashboard...');
+          
+          // Cargar meta semanal y resumen de ventas en paralelo
+          const [meta, data] = await Promise.all([
+            metasService.getMetaSemanal(),
+            salesAPI.getDashboardSummary()
+          ]);
+          
+          console.log('🎯 Meta semanal cargada:', meta);
           console.log('✅ Datos recibidos del dashboard:', data);
           
+          setWeeklyGoal(meta);
           setSummary({
             daily: data?.dailyIncome || 0,
             weekly: data?.weeklyIncome || 0,
@@ -61,22 +68,26 @@ const Inicio = ({ navigation }) => {
           });
           
         } catch (error) {
-          console.error('❌ Error al cargar resumen de ventas:', error);
+          console.error('❌ Error al cargar datos:', error);
         } finally {
           setLoading(false);
         }
       };
 
-      fetchSummary();
+      fetchData();
     }, [])
   );
 
-  // Meta semanal para calcular porcentaje
-  const weeklyGoal = 50;
-  const weeklyPercentage = Math.min(
-    Math.round((summary.weekly / weeklyGoal) * 100),
-    100
-  );
+  // ✅ ACTUALIZADO: Cálculo del porcentaje con meta dinámica
+  const weeklyPercentage = useMemo(() => {
+    if (weeklyGoal <= 0) return 0;
+    return Math.min(Math.round((summary.weekly / weeklyGoal) * 100), 100);
+  }, [summary.weekly, weeklyGoal]);
+
+  // ✅ NUEVO: Función para navegar a configuración de metas
+  const handleGoToMetas = () => {
+    navigation.navigate('Ventas', { initialTab: 'metas' });
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -95,14 +106,13 @@ const Inicio = ({ navigation }) => {
         <TouchableOpacity
           style={styles.notificationButton}
           onPress={() => {
-            refreshNotifications(); // Refresh manual
+            refreshNotifications();
             navigation.navigate('Notificaciones');
           }}
         >
           <View style={styles.bellIcon}>
             <Ionicons name="notifications" size={24} color="#1F2937" />
           </View>
-          {/* Badge de notificaciones - siempre visible para debug */}
           <View style={[
             styles.notificationBadge,
             { backgroundColor: hasUnread ? '#EF4444' : '#10B981' }
@@ -112,7 +122,6 @@ const Inicio = ({ navigation }) => {
             </Text>
           </View>
         </TouchableOpacity>
-
 
         {/* Contenido principal con fondo degradado */}
         <LinearGradient colors={['#FFFFFF', '#9281BF']} style={styles.mainContent}>
@@ -125,27 +134,25 @@ const Inicio = ({ navigation }) => {
           <View style={[styles.backgroundBubble, styles.bubble3]} />
 
           {/* Widget principal - Semana */}
-          <View style={styles.weekWidget}>
-            <View style={styles.weekGradient}>
-              <View style={styles.weekContent}>
-                <View style={styles.weekLeftContent}>
-                  <Text style={styles.weekTitle}>Esta semana</Text>
-                  <Text style={styles.weekPercentage}>
-                    {weeklyPercentage}%
-                  </Text>
-                  <Text style={[styles.weekPercentage, { fontSize: 12, opacity: 0.8 }]}>
-                    ${summary.weekly.toLocaleString()}
-                  </Text>
-                </View>
-                <TouchableOpacity
-                  style={styles.verButton}
-                  onPress={() => navigation.navigate('Ventas')}
-                >
-                  <Text style={styles.verButtonText}>Ver</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          </View>
+     <TouchableOpacity
+  style={styles.weekWidget}
+  activeOpacity={0.8}
+  onPress={() => navigation.navigate('Ventas')}
+>
+  <View style={styles.weekGradient}>
+    <View style={styles.weekContent}>
+      <View style={styles.weekLeftContent}>
+        <Text style={styles.weekTitle}>Esta semana</Text>
+        <Text style={styles.weekPercentage}>{weeklyPercentage}%</Text>
+        <Text style={[styles.weekPercentage, { fontSize: 12, opacity: 0.8 }]}>
+          ${summary.weekly.toFixed(2)} de ${weeklyGoal.toFixed(2)}
+        </Text>
+      </View>
+
+      <Ionicons name="arrow-forward" size={20} color="white" />
+    </View>
+  </View>
+</TouchableOpacity>
 
           {/* Widgets pequeños */}
           <View style={styles.smallWidgetsContainer}>
@@ -179,7 +186,7 @@ const Inicio = ({ navigation }) => {
             {/* Mes */}
             <TouchableOpacity
               style={[styles.smallWidget, { backgroundColor: '#C4B5FD' }]}
-              onPress={() => navigation.navigate('Ventas')}
+              onPress={() => navigation.navigate('Mensual')}
             >
               <Text style={styles.widgetTitle}>Este mes</Text>
               <View style={styles.widgetContent}>
@@ -220,19 +227,24 @@ const Inicio = ({ navigation }) => {
             </TouchableOpacity>
           </View>
 
-
-          {/* Indicador de última actualización */}
+          {/* ✅ NUEVO: Info de última actualización con meta */}
           {!loading && (
-            <Text style={{ 
-              textAlign: 'center', 
-              fontSize: 10, 
-              color: 'rgba(255,255,255,0.6)', 
-              marginTop: 10 
-            }}>
-              Última actualización: {new Date().toLocaleTimeString()}
-            </Text>
+            <View style={{ alignItems: 'center', marginTop: 10 }}>
+              <Text style={{ 
+                fontSize: 10, 
+                color: 'rgba(255,255,255,0.6)', 
+              }}>
+                Última actualización: {new Date().toLocaleTimeString()}
+              </Text>
+              <Text style={{ 
+                fontSize: 9, 
+                color: 'rgba(255,255,255,0.5)', 
+                marginTop: 2,
+              }}>
+                Meta: ${weeklyGoal} • {weeklyPercentage}% completado
+              </Text>
+            </View>
           )}
-
           
           {loading && (
             <Text style={{ 
@@ -245,25 +257,25 @@ const Inicio = ({ navigation }) => {
             </Text>
           )}
         </LinearGradient>
-        </ScrollView>
+      </ScrollView>
 
-        {/* Componente de alerta para cerrar sesión */}
-        <AlertComponent
-          visible={showLogoutAlert}
-          title="Cerrar Sesión"
-          message="¿Estás seguro de que quieres cerrar sesión?"
-          type="warning"
-          onConfirm={() => {
-            setShowLogoutAlert(false);
-            navigation.replace('AuthApp');
-          }}
-          onCancel={() => setShowLogoutAlert(false)}
-          confirmText="Cerrar Sesión"
-          cancelText="Cancelar"
-          showCancel={true}
-        />
-      </SafeAreaView>
-    );
-  };
+      {/* Componente de alerta para cerrar sesión */}
+      <AlertComponent
+        visible={showLogoutAlert}
+        title="Cerrar Sesión"
+        message="¿Estás seguro de que quieres cerrar sesión?"
+        type="warning"
+        onConfirm={() => {
+          setShowLogoutAlert(false);
+          navigation.replace('AuthApp');
+        }}
+        onCancel={() => setShowLogoutAlert(false)}
+        confirmText="Cerrar Sesión"
+        cancelText="Cancelar"
+        showCancel={true}
+      />
+    </SafeAreaView>
+  );
+};
 
-  export default Inicio;
+export default Inicio;

@@ -27,21 +27,43 @@ salesController.getLatestSales = async (req, res) => {
       return res.status(200).json([]);
     }
     
-    // Obtener las últimas 10 ventas ordenadas por _id (más reciente primero)
-    // Usamos _id en lugar de date porque _id contiene timestamp de creación
+    // 👇 AQUÍ ESTÁ EL CAMBIO IMPORTANTE
     const latestSales = await SalesModel
       .find()
-      .sort({ _id: -1 }) // Ordenar por _id descendente (más recientes primero)
-      .limit(10) // Limitar a 10 resultados
-      .lean(); // Para mejor performance
-
+      .populate('customer', 'name email username') // 👈 Esto trae la info del cliente
+      .sort({ _id: -1 })
+      .limit(10)
+      .lean();
+    
     console.log(`✅ Ventas encontradas: ${latestSales.length}`);
     console.log('📋 Primeras 2 ventas:', JSON.stringify(latestSales.slice(0, 2), null, 2));
-
+    
     res.status(200).json(latestSales);
   } catch (error) {
     console.error('❌ Error en getLatestSales:', error);
-    res.status(500).json({ message: "Error al obtener las últimas ventas", error: error.message });
+    res.status(500).json({ 
+      message: "Error al obtener las últimas ventas", 
+      error: error.message 
+    });
+  }
+};
+
+// 🎯 BONUS: Si también quieres agregar populate a getAllSales
+salesController.getAllSales = async (req, res) => {
+  try {
+    const sales = await SalesModel
+      .find()
+      .populate('customer', 'name email username') // 👈 También aquí
+      .sort({ _id: -1 })
+      .lean();
+    
+    res.status(200).json(sales);
+  } catch (error) {
+    console.error('❌ Error en getAllSales:', error);
+    res.status(500).json({ 
+      message: "Error al obtener todas las ventas", 
+      error: error.message 
+    });
   }
 };
 

@@ -28,10 +28,8 @@ const VentasTable = ({ data = [] }) => {
     }).format(numAmount);
   };
 
-  // 👇 Función para determinar color del estado (puedes ajustar según tu lógica)
+  // 👇 Función para determinar color del estado
   const getStatusColor = (date) => {
-    // Por ahora todos los pedidos serán "Confirmado" (verde)
-    // Puedes agregar lógica más compleja aquí si tienes un campo de estado en tu modelo
     const daysDiff = Math.floor((new Date() - new Date(date)) / (1000 * 60 * 60 * 24));
     
     if (daysDiff <= 1) {
@@ -41,6 +39,19 @@ const VentasTable = ({ data = [] }) => {
     }
   };
 
+  // 👇 Función para obtener el nombre del cliente
+  const getCustomerName = (customer) => {
+    if (!customer) return 'Cliente no especificado';
+    
+    // Si customer es un objeto (cuando el backend hace populate)
+    if (typeof customer === 'object' && customer !== null) {
+      return customer.name || customer.email || customer.username || 'Cliente sin nombre';
+    }
+    
+    // Si customer es solo un string (ID)
+    return customer;
+  };
+
   // 👇 Procesar datos reales de la API
   const processedData = data.map(item => {
     const statusInfo = getStatusColor(item.date);
@@ -48,10 +59,10 @@ const VentasTable = ({ data = [] }) => {
       id: item._id || item.id,
       fecha: formatDate(item.date),
       estado: statusInfo.status,
-      cliente: item.customer || 'Cliente no especificado',
+      cliente: getCustomerName(item.customer),
       total: formatCurrency(item.total),
       estadoColor: statusInfo.color,
-      product: item.product, // Información adicional que podrías usar
+      product: item.product,
       category: item.category
     };
   });
@@ -213,7 +224,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   tableBody: {
-    maxHeight: 250, // Altura fija del contenedor de scroll
+    maxHeight: 250,
     backgroundColor: '#FFF',
   },
   emptyState: {

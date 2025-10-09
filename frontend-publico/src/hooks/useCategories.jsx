@@ -13,7 +13,6 @@ function useCategories() {
       setLoading(true);
       setError(null);
       
-      console.log('Obteniendo categorías desde:', `${API_BASE}/categories`);
       
       const response = await fetch(`${API_BASE}/categories`, {
         method: 'GET',
@@ -28,7 +27,6 @@ function useCategories() {
       
       const data = await response.json();
       setCategories(data);
-      console.log(`Categorías obtenidas: ${data.length} categorías`);
     } catch (err) {
       console.error('Error al obtener categorías:', err.message);
       
@@ -45,17 +43,8 @@ function useCategories() {
   useEffect(() => {
     fetchCategories();
     
-    // Configurar polling para sincronización automática cada 60 segundos
-    const interval = setInterval(() => {
-      console.log('Sincronizando categorías automáticamente...');
-      fetchCategories();
-    }, 60000); // 60 segundos
-    
-    // Limpiar interval cuando el componente se desmonte
-    return () => {
-      clearInterval(interval);
-      console.log('Polling de categorías detenido');
-    };
+    // Recarga automática desactivada para mejorar la experiencia visual
+    // Las categorías se pueden actualizar manualmente si es necesario
   }, []);
 
   const refresh = () => {

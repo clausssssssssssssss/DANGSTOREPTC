@@ -22,7 +22,7 @@ const NotificacionesStyles = StyleSheet.create({
   // Header Styles
   header: {
     backgroundColor: '#8B5CF6',
-    paddingTop: 50,
+    paddingTop: 60,
     paddingBottom: 15,
     paddingHorizontal: 20,
     flexDirection: 'row',

@@ -21,6 +21,8 @@ import notificationsRoutes from './src/routes/notifications.js';
 import salesRoutes from './src/routes/sales.js';
 import categoryRoutes from './src/routes/category.js';
 import storeConfigRoutes from './src/routes/storeConfig.js';
+import deliveryPointRoutes from './src/routes/deliveryPoints.js';
+import deliveryScheduleRoutes from './src/routes/deliverySchedule.js';
 import swaggerUi from "swagger-ui-express";
 import fs from "fs";
 
@@ -139,6 +141,12 @@ app.use('/api/categories', categoryRoutes);
 
 // Configuración de la tienda (límites de pedidos y stock)
 app.use('/api/store-config', storeConfigRoutes);
+
+// Gestión de puntos de entrega
+app.use('/api/delivery-points', deliveryPointRoutes);
+
+// Gestión de programación y reprogramación de entregas
+app.use('/api/delivery-schedule', deliveryScheduleRoutes);
 
 // Ruta de prueba para subida de imágenes
 app.post('/api/upload-test', upload.single('imagen'), (req, res) => {

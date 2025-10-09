@@ -18,6 +18,8 @@ import Ventas from '../screens/Ventas';
 import Notificaciones from '../screens/Notificaciones';
 import Pendientes from '../screens/Pendientes';
 import StockLimites from '../screens/StockLimites';
+import PuntosEntrega from '../screens/PuntosEntrega';
+import ProgramacionEntregas from '../screens/ProgramacionEntregas';
 import { AuthContext } from '../context/AuthContext';
 
 const Tab = createBottomTabNavigator();
@@ -34,6 +36,8 @@ const InicioStack = () => (
     <Stack.Screen name="Notificaciones" component={Notificaciones} />
     <Stack.Screen name="Pendientes" component={Pendientes} />
     <Stack.Screen name="StockLimites" component={StockLimites} />
+    <Stack.Screen name="PuntosEntrega" component={PuntosEntrega} />
+    <Stack.Screen name="ProgramacionEntregas" component={ProgramacionEntregas} />
   </Stack.Navigator>
 );
 

@@ -140,7 +140,6 @@ const AuthApp = ({ navigation }) => {
               keyboardType="email-address"
               autoCapitalize="none"
                 autoCorrect={false}
-                autoFocus={true}
                 returnKeyType="next"
                 onSubmitEditing={() => passwordInputRef.current.focus()}
             />

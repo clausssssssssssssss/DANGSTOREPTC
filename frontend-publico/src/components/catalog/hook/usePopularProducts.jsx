@@ -36,6 +36,17 @@ const getFallbackProducts = () => [
     category: 'Llavero',
     description: 'Llavero artesanal de madera natural',
     stock: 8
+  },
+  {
+    id: '507f1f77bcf86cd799439014',
+    _id: '507f1f77bcf86cd799439014',
+    name: 'Llavero Premium',
+    price: 25000,
+    image: '/src/assets/llavero.png',
+    images: ['/src/assets/llavero.png'],
+    category: 'Llavero',
+    description: 'Llavero premium con acabado de lujo',
+    stock: 3
   }
 ];
 
@@ -83,8 +94,8 @@ export const usePopularProducts = () => {
         throw new Error('Formato de respuesta inválido del servidor');
       }
     } catch (err) {
-      console.log('Usando productos de ejemplo (servidor no disponible)');
-      setError(null); // No mostrar error, usar productos de ejemplo
+      // Usar productos de ejemplo cuando el servidor no está disponible
+      setError(null);
       setPopularProducts(getFallbackProducts());
       setLastUpdate(new Date().toISOString());
     } finally {

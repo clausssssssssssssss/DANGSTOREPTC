@@ -181,13 +181,50 @@ const StockLimites = ({ navigation }) => {
       </View>
 
       <ScrollView style={StockLimitesStyles.scrollViewContent}>
+        {/* Nueva sección de Puntos de Entrega */}
+        <View style={StockLimitesStyles.section}>
+          <Text style={StockLimitesStyles.sectionTitle}>Puntos de Entrega</Text>
+          
+          <TouchableOpacity 
+            style={StockLimitesStyles.actionButton}
+            onPress={() => navigation.navigate('PuntosEntrega')}
+          >
+            <View style={StockLimitesStyles.actionButtonContent}>
+              <View style={StockLimitesStyles.actionButtonIcon}>
+                <Ionicons name="location" size={24} color="#6c5ce7" />
+              </View>
+              <View style={StockLimitesStyles.actionButtonText}>
+                <Text style={StockLimitesStyles.actionButtonTitle}>Gestionar Puntos de Entrega</Text>
+                <Text style={StockLimitesStyles.actionButtonSubtitle}>Crear y administrar ubicaciones de entrega</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={20} color="#999" />
+            </View>
+          </TouchableOpacity>
+
+          <TouchableOpacity 
+            style={StockLimitesStyles.actionButton}
+            onPress={() => navigation.navigate('ProgramacionEntregas')}
+          >
+            <View style={StockLimitesStyles.actionButtonContent}>
+              <View style={StockLimitesStyles.actionButtonIcon}>
+                <Ionicons name="calendar" size={24} color="#6c5ce7" />
+              </View>
+              <View style={StockLimitesStyles.actionButtonText}>
+                <Text style={StockLimitesStyles.actionButtonTitle}>Programar Entregas</Text>
+                <Text style={StockLimitesStyles.actionButtonSubtitle}>Gestionar fechas y estados de pedidos</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={20} color="#999" />
+            </View>
+          </TouchableOpacity>
+        </View>
+
         {/* Sección de Límites de Stock por Tipo */}
                 <View style={StockLimitesStyles.section}>
                   <Text style={StockLimitesStyles.sectionTitle}>Límites de Stock por Tipo</Text>
                   
                   {/* Límites para Catálogo */}
                   <View style={StockLimitesStyles.subsection}>
-                    <Text style={StockLimitesStyles.subsectionTitle}>📦 Productos del Catálogo</Text>
+                    <Text style={StockLimitesStyles.subsectionTitle}>Productos del Catálogo</Text>
                     <View style={StockLimitesStyles.settingItem}>
                       <Text style={StockLimitesStyles.settingLabel}>Activar Límite para Catálogo</Text>
                       <Switch

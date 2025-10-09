@@ -11,14 +11,21 @@ const VentasStyles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
     paddingHorizontal: 20,
-    paddingTop: 20,
+    paddingTop: 40,
     paddingBottom: 20,
   },
+  backButtonContainer: {
+    padding: 12,
+  },
   backButton: {
-    fontSize: 24,
+    fontSize: 32,
     color: '#FFF',
-    marginRight: 16,
+    fontWeight: 'bold',
+  },
+  placeholder: {
+    width: 60,
   },
   headerTitle: {
     fontSize: 24,

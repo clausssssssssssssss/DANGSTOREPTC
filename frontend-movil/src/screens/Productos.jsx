@@ -25,6 +25,7 @@ const API_URL = 'https://dangstoreptc-production.up.railway.app/api/products'; /
 
 const Productos = ({ navigation }) => {
   const { products: productosHook, loading: loadingHook, lastStockUpdate, refresh: refreshProducts } = useProducts();
+  const { authToken } = useContext(AuthContext);
   const [productos, setProductos] = useState([]);
   const [categorias, setCategorias] = useState(['Llavero', 'Cuadro']); // Categorías por defecto
   const [busqueda, setBusqueda] = useState('');
@@ -73,7 +74,6 @@ const Productos = ({ navigation }) => {
   });
   const [disponiblesError, setDisponiblesError] = useState('');
   const [precioError, setPrecioError] = useState('');
-  const { authToken } = useContext(AuthContext);
   const [editando, setEditando] = useState(false);
 
   useEffect(() => {
@@ -400,9 +400,23 @@ const Productos = ({ navigation }) => {
           try {
             console.log('Intentando eliminar producto con ID:', productId);
             console.log('URL de eliminación:', `${API_URL}/${productId}`);
+            console.log('AuthToken disponible:', authToken ? 'SÍ' : 'NO');
+            console.log('AuthToken:', authToken ? authToken.substring(0, 20) + '...' : 'null');
+            
+            const headers = {
+              'Content-Type': 'application/json',
+            };
+            
+            if (authToken) {
+              headers['Authorization'] = `Bearer ${authToken}`;
+              console.log('Header de autorización agregado');
+            } else {
+              console.log('No hay token de autenticación');
+            }
             
             const response = await fetch(`${API_URL}/${productId}`, {
               method: 'DELETE',
+              headers,
             });
             
             console.log('Respuesta del servidor:', response.status, response.statusText);
@@ -410,6 +424,13 @@ const Productos = ({ navigation }) => {
             if (!response.ok) {
               const errorData = await response.json().catch(() => null);
               console.log('Error data:', errorData);
+              
+              // Si es error 401, no mostrar error genérico
+              if (response.status === 401) {
+                showAlert('Error de autenticación', 'Tu sesión ha expirado. Por favor, inicia sesión nuevamente.', 'error');
+                return;
+              }
+              
               throw new Error(`HTTP ${response.status} ${response.statusText}`);
             }
             
@@ -729,11 +750,6 @@ const Productos = ({ navigation }) => {
         </TouchableOpacity>
         <View style={ProductosStyles.headerTitleContainer}>
           <Text style={ProductosStyles.headerTitle}>Tus productos</Text>
-          {lastStockUpdate && (
-            <Text style={ProductosStyles.stockUpdateIndicator}>
-              📦 {new Date(lastStockUpdate).toLocaleTimeString()}
-            </Text>
-          )}
         </View>
         <View style={ProductosStyles.placeholder} />
       </View>

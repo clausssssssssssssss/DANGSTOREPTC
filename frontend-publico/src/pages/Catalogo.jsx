@@ -20,12 +20,10 @@ import '../components/styles/PixelDecorations.css';
 import '../components/catalog/ResponsiveCatalog.css';
 
 export default function Catalogo() {
-  console.log('Catalogo: Renderizando...');
   const { user } = useAuth();
   const userId = user?.id;
   const { products, loading, error, refresh, lastUpdate } = useProducts();
   const { categories, loading: categoriesLoading, error: categoriesError } = useCategories();
-  console.log('Catalogo: Antes de usar useCart...');
   const { addToCart } = useCart();
   const { favorites, toggleFavorite } = useFavorites(userId);
   const { toasts, showSuccess, showError, showWarning, showInfo, removeToast } = useToast();
@@ -60,6 +58,7 @@ export default function Catalogo() {
   
   // Obtener categoría seleccionada desde los parámetros de URL
   const selectedCategory = searchParams.get('category') || '';
+  const selectedProductId = searchParams.get('product') || '';
 
   // Cargar información del límite del catálogo solo si el usuario está autenticado
   useEffect(() => {
@@ -73,7 +72,6 @@ export default function Catalogo() {
         const response = await fetch(`${API_URL}/store-config/catalog-limit`);
         if (response.ok) {
           const data = await response.json();
-          console.log('🛒 Banner catálogo actualizado:', data);
           setCatalogLimitInfo(data);
         }
       } catch (error) {
@@ -83,13 +81,7 @@ export default function Catalogo() {
 
     loadCatalogLimitInfo();
     
-    // Actualizar cada 30 segundos para sincronizar con cambios de la app móvil
-    const interval = setInterval(() => {
-      console.log('🔄 Actualizando banner del catálogo...');
-      loadCatalogLimitInfo();
-    }, 30000);
-
-    return () => clearInterval(interval);
+    // Recarga automática desactivada para mejorar la experiencia visual
   }, [user]);
 
   // Hook para manejar reseñas del producto seleccionado
@@ -136,7 +128,7 @@ export default function Catalogo() {
         const ratingB = getProductRatings(b._id).averageRating || 0;
         return ratingB - ratingA;
       })
-      .slice(0, 3);
+      .slice(0, 4);
   }, [products, getProductRatings]);
 
   const openDetail = (product) => {
@@ -158,6 +150,39 @@ export default function Catalogo() {
       document.body.style.overflow = '';
     };
   }, []);
+
+  // Scroll automático al producto específico cuando viene desde favoritos
+  useEffect(() => {
+    if (selectedProductId && products.length > 0) {
+      const timer = setTimeout(() => {
+        const productElement = document.querySelector(`[data-product-id="${selectedProductId}"]`);
+        if (productElement) {
+          productElement.scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'center' 
+          });
+          
+          // Agregar un efecto visual para destacar el producto
+          productElement.style.transform = 'scale(1.05)';
+          productElement.style.boxShadow = '0 0 20px rgba(156, 39, 176, 0.5)';
+          productElement.style.transition = 'all 0.3s ease';
+          
+          // Quitar el efecto después de 2 segundos
+          setTimeout(() => {
+            productElement.style.transform = 'scale(1)';
+            productElement.style.boxShadow = '';
+          }, 2000);
+          
+          // Limpiar el parámetro de la URL
+          const newSearchParams = new URLSearchParams(searchParams);
+          newSearchParams.delete('product');
+          setSearchParams(newSearchParams, { replace: true });
+        }
+      }, 500); // Pequeño delay para asegurar que los productos estén renderizados
+      
+      return () => clearTimeout(timer);
+    }
+  }, [selectedProductId, products, searchParams, setSearchParams]);
 
   const handleAddToCart = async (productId, productName = 'Producto') => {
     if (!user) {
@@ -300,7 +325,12 @@ export default function Catalogo() {
             
             <div className="popular-products-centered">
               {popularProducts.map(product => (
-                <div key={product._id} className={`popular-product-card ${product.isFromCustomOrder ? 'custom-order-product' : ''}`} onClick={() => openDetail(product)}>
+                <div 
+                  key={product._id} 
+                  data-product-id={product._id}
+                  className={`popular-product-card ${product.isFromCustomOrder ? 'custom-order-product' : ''}`} 
+                  onClick={() => openDetail(product)}
+                >
                   <div className="popular-product-image">
                     <img 
                       src={product.images?.[0] || '/src/assets/llavero.png'} 
@@ -373,7 +403,12 @@ export default function Catalogo() {
         {/* Grid de Productos */}
         <div className="product-grid">
           {filteredProducts.map(product => (
-            <div key={product._id} className={`product-card ${product.isFromCustomOrder ? 'custom-order-product' : ''}`} onClick={() => openDetail(product)}>
+            <div 
+              key={product._id} 
+              data-product-id={product._id}
+              className={`product-card ${product.isFromCustomOrder ? 'custom-order-product' : ''}`} 
+              onClick={() => openDetail(product)}
+            >
               <div className="product-image">
                 <img 
                   src={product.images?.[0] || '/src/assets/llavero.png'} 

@@ -87,4 +87,73 @@ const authMiddleware = (allowedRoles = []) => {
   };
 };
 
+// Middleware para verificar que el usuario esté autenticado
+export const verifyToken = async (req, res, next) => {
+  try {
+    const authHeader = req.headers.authorization;
+    const token =
+      authHeader && authHeader.startsWith("Bearer ")
+        ? authHeader.split(" ")[1]
+        : req.cookies.authToken;
+
+    if (!token) {
+      return res
+        .status(401)
+        .json({ success: false, message: "No autenticado" });
+    }
+
+    const decoded = jwt.verify(token, config.jwt.secret);
+    const userType = decoded.userType.toLowerCase();
+
+    let userData;
+    if (userType === "customer") {
+      userData = await customersModel
+        .findById(decoded.userId)
+        .select("-password");
+    } else if (userType === "admin") {
+      userData = {
+        userId: decoded.userId || decoded.email,
+        userType: "admin",
+        email: decoded.email,
+      };
+    } else {
+      return res
+        .status(401)
+        .json({ success: false, message: "Tipo de usuario inválido" });
+    }
+
+    if (!userData) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Usuario no encontrado" });
+    }
+
+    req.user = userData;
+    req.userType = userType;
+    next();
+  } catch (error) {
+    console.error("verifyToken error:", error);
+    return res
+      .status(401)
+      .json({ success: false, message: "Token inválido o expirado" });
+  }
+};
+
+// Middleware para verificar que el usuario sea admin
+export const verifyAdmin = (req, res, next) => {
+  if (!req.user) {
+    return res
+      .status(401)
+      .json({ success: false, message: "No autenticado" });
+  }
+
+  if (req.userType !== "admin") {
+    return res
+      .status(403)
+      .json({ success: false, message: "Acceso denegado. Se requiere rol de administrador" });
+  }
+
+  next();
+};
+
 export default authMiddleware;

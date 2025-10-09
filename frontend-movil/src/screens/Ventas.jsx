@@ -366,8 +366,8 @@ const Ventas = ({ navigation }) => {
   return (
     <SafeAreaView style={VentasStyles.container}>
       <View style={VentasStyles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Text style={VentasStyles.backButton}>‹</Text>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={VentasStyles.backButtonContainer}>
+          <Text style={VentasStyles.backButton}>←</Text>
         </TouchableOpacity>
         <Text style={VentasStyles.headerTitle}>
           {activeTab === 'reporte' && 'Tus ventas'}
@@ -375,6 +375,7 @@ const Ventas = ({ navigation }) => {
           {activeTab === 'pedidos' && 'Últimos Pedidos'}
           {activeTab === 'metas' && 'Configurar Metas'}
         </Text>
+        <View style={VentasStyles.placeholder} />
       </View>
 
       {/* ACTUALIZAR: Ahora VentasTabs debe incluir la nueva pestaña "metas" */}

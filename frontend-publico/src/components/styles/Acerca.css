@@ -16,7 +16,7 @@ html, body {
   min-height: 100vh;
   background: #ffffff;
   margin-top: 0;
-  padding-top: 64px;
+  padding-top: 0;
 }
 
 .container {
@@ -29,12 +29,12 @@ html, body {
 .hero-olas-section {
   position: relative;
   overflow: hidden;
-  padding: 2rem 0;
-  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  padding: 6rem 0 2rem 0;
+  background: #ffffff;
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 70vh;
+  min-height: 80vh;
 }
 
 .hero-content-grid {
@@ -103,7 +103,7 @@ html, body {
 
 .video-placeholder {
   width: 100%;
-  max-width: 850px;
+  max-width: 1000px;
   aspect-ratio: 16/9;
   overflow: hidden;
   background: transparent;
@@ -548,7 +548,7 @@ html, body {
 /* Tablets (768px y mayor) */
 @media (min-width: 768px) {
   .hero-content-grid {
-    grid-template-columns: 1.1fr 0.9fr;
+    grid-template-columns: 1fr 1.2fr;
     gap: 4rem;
     align-items: center;
   }

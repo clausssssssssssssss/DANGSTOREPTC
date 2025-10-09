@@ -1,0 +1,202 @@
+.delivery-point-selector {
+  width: 100%;
+}
+
+.delivery-point-loading,
+.delivery-point-error,
+.delivery-point-empty {
+  text-align: center;
+  padding: 40px 20px;
+  color: #666;
+}
+
+.delivery-point-loading .spinner {
+  width: 40px;
+  height: 40px;
+  margin: 0 auto 16px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #6c5ce7;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.delivery-point-error .retry-button {
+  margin-top: 16px;
+  padding: 8px 16px;
+  background: #6c5ce7;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.delivery-point-error .retry-button:hover {
+  background: #5a4fcf;
+}
+
+.delivery-point-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background: #f8f7ff;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  border-left: 4px solid #6c5ce7;
+}
+
+.delivery-point-info p {
+  margin: 0;
+  color: #333;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.delivery-points-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.delivery-point-card {
+  border: 2px solid #e0e0e0;
+  border-radius: 12px;
+  padding: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: white;
+}
+
+.delivery-point-card:hover {
+  border-color: #6c5ce7;
+  box-shadow: 0 4px 12px rgba(108, 92, 231, 0.15);
+  transform: translateY(-2px);
+}
+
+.delivery-point-card.selected {
+  border-color: #6c5ce7;
+  background: #f8f7ff;
+  box-shadow: 0 4px 12px rgba(108, 92, 231, 0.2);
+}
+
+.point-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.point-info {
+  flex: 1;
+}
+
+.point-name {
+  margin: 0 0 8px 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+}
+
+.point-address {
+  margin: 0;
+  font-size: 14px;
+  color: #666;
+  line-height: 1.5;
+}
+
+.point-reference {
+  margin: 8px 0 0 0;
+  font-size: 13px;
+  color: #888;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.point-select {
+  flex-shrink: 0;
+  margin-left: 16px;
+}
+
+.point-radio {
+  width: 24px;
+  height: 24px;
+  border: 2px solid #ccc;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.delivery-point-card:hover .point-radio {
+  border-color: #6c5ce7;
+}
+
+.point-description {
+  margin: 12px 0;
+  font-size: 14px;
+  color: #666;
+  line-height: 1.5;
+  padding: 12px;
+  background: #f9f9f9;
+  border-radius: 8px;
+}
+
+.point-schedule {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  font-size: 13px;
+  color: #666;
+  padding: 8px 12px;
+  background: #fff3cd;
+  border-radius: 6px;
+  width: fit-content;
+}
+
+.point-map-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 12px;
+  font-size: 13px;
+  color: #6c5ce7;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.point-map-link:hover {
+  color: #5a4fcf;
+  text-decoration: underline;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .delivery-point-card {
+    padding: 16px;
+  }
+  
+  .point-name {
+    font-size: 16px;
+  }
+  
+  .point-address {
+    font-size: 13px;
+  }
+  
+  .point-header {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .point-select {
+    margin-left: 0;
+  }
+}
+

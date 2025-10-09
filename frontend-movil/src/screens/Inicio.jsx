@@ -227,19 +227,12 @@ const Inicio = ({ navigation }) => {
             </TouchableOpacity>
           </View>
 
-          {/* ✅ NUEVO: Info de última actualización con meta */}
+          {/* ✅ Info de meta */}
           {!loading && (
             <View style={{ alignItems: 'center', marginTop: 10 }}>
               <Text style={{ 
                 fontSize: 10, 
                 color: 'rgba(255,255,255,0.6)', 
-              }}>
-                Última actualización: {new Date().toLocaleTimeString()}
-              </Text>
-              <Text style={{ 
-                fontSize: 9, 
-                color: 'rgba(255,255,255,0.5)', 
-                marginTop: 2,
               }}>
                 Meta: ${weeklyGoal} • {weeklyPercentage}% completado
               </Text>

@@ -18,7 +18,6 @@ export const useRatings = (productId) => {
   // Verificar si el usuario puede dejar reseñas
   const checkCanRate = async () => {
     if (!productId || !user) {
-      console.log('No se puede verificar permisos:', { productId, user: !!user });
       setCanRate(false);
       setCanRateMessage('Debes iniciar sesión para dejar reseñas');
       return;
@@ -26,11 +25,8 @@ export const useRatings = (productId) => {
     
     try {
       const token = localStorage.getItem('token');
-              console.log('Verificando permisos para:', { productId, userId: user.id });
-              console.log('Token disponible:', !!token);
-              console.log('Token length:', token ? token.length : 0);
       
-              const response = await fetch(`${API_BASE}/ratings/can-rate/${productId}`, {
+      const response = await fetch(`${API_BASE}/ratings/can-rate/${productId}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -38,13 +34,10 @@ export const useRatings = (productId) => {
       
       if (response.ok) {
         const data = await response.json();
-        console.log('Respuesta de permisos:', data);
         setCanRate(data.canRate);
         setCanRateMessage(data.message);
       } else {
-        console.log('Error en respuesta de permisos:', response.status);
         const errorData = await response.json().catch(() => ({}));
-        console.log('Error data:', errorData);
         setCanRate(false);
         setCanRateMessage(errorData.message || 'Error al verificar permisos');
       }
@@ -61,7 +54,7 @@ export const useRatings = (productId) => {
     
     try {
       setLoading(true);
-              const response = await fetch(`${API_BASE}/ratings/product/${productId}`);
+      const response = await fetch(`${API_BASE}/ratings/product/${productId}`);
       
       if (response.ok) {
         const data = await response.json();
@@ -71,11 +64,6 @@ export const useRatings = (productId) => {
         
         // Buscar si el usuario ya tiene una reseña
         if (user) {
-          console.log('Buscando reseña del usuario:', {
-            userId: user.id,
-            ratings: data.ratings,
-            userRating: data.ratings?.find(r => r.id_customer === user.id)
-          });
           const userRating = data.ratings?.find(r => r.id_customer === user.id);
           setUserRating(userRating || null);
         }
@@ -99,7 +87,6 @@ export const useRatings = (productId) => {
     try {
       setLoading(true);
       const token = localStorage.getItem('token');
-              console.log('Enviando reseña con token:', !!token);
       
       const method = userRating ? 'PUT' : 'POST';
       const url = userRating 
@@ -169,7 +156,7 @@ export const useRatings = (productId) => {
 
     try {
       setLoading(true);
-              const response = await fetch(`${API_BASE}/ratings/${userRating._id}`, {
+      const response = await fetch(`${API_BASE}/ratings/${userRating._id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`

@@ -11,15 +11,6 @@ const RatingForm = ({ onSubmit, onDelete, userRating, loading, productName, canR
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Debug: mostrar valores en consola
-    console.log('Debug RatingForm:', {
-      canRate,
-      canRateMessage,
-      userRating: !!userRating,
-      rating,
-      comment: comment.trim()
-    });
-    
     // Validar que el usuario pueda dejar reseñas
     if (!canRate && !userRating) {
       // Mostrar toast de error con el mensaje apropiado

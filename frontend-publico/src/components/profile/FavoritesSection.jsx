@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Heart, ShoppingCart, Star, Package } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 // URL del servidor local para desarrollo
 const API_BASE = 'https://dangstoreptc-production.up.railway.app/api';
@@ -8,6 +9,7 @@ const FavoritesSection = ({ userId }) => {
   const [favorites, setFavorites] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
   const fetchFavorites = async () => {
     try {
@@ -95,6 +97,11 @@ const FavoritesSection = ({ userId }) => {
       console.error('Error removing favorite:', err);
       setError(err.message);
     }
+  };
+
+  const handleViewProduct = (product) => {
+    // Navegar al catálogo con el ID del producto para scroll automático
+    navigate(`/catalogo?product=${product._id}`);
   };
 
   if (loading) {
@@ -233,7 +240,10 @@ const productCategory = product.category || product.categoria;
 
                 {/* Acciones */}
                 <div className="favorite-actions">
-                  <button className="view-product-btn">
+                  <button 
+                    className="view-product-btn"
+                    onClick={() => handleViewProduct(product)}
+                  >
                     <Package size={16} />
                     Ver Producto
                   </button>

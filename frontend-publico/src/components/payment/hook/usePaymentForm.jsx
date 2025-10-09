@@ -140,9 +140,13 @@ const usePaymentForm = () => {
     return true;
   };
 
-  const handleFinishPayment = async () => {
+  const handleFinishPayment = async (deliveryPointId = null) => {
     try {
       validateCardForm();
+
+      if (!deliveryPointId) {
+        throw new Error("Debe seleccionar un punto de entrega");
+      }
 
       const token = localStorage.getItem("token");
       if (!token) {
@@ -237,6 +241,7 @@ const usePaymentForm = () => {
       const orderData = {
         items: formattedItems,
         total: parseFloat(total),
+        deliveryPoint: deliveryPointId,
         wompiOrderID: `FAKE_ORDER_${Date.now()}`,
         wompiStatus: "COMPLETED",
         paymentMethod: "Tarjeta de Crédito/Débito (Simulado)",

@@ -14,7 +14,6 @@ export function useProducts() {
       setLoading(true);
       setError(null);
       
-      console.log('Intentando conectar a:', `${API_BASE}/products`);
       
       const response = await fetch(`${API_BASE}/products`, {
         method: 'GET',
@@ -36,13 +35,6 @@ export function useProducts() {
         const isNewFormat = product.nombre && product.precio; // Productos nuevos (español)
         const isOldFormat = product.name && product.price; // Productos antiguos (inglés)
         
-        console.log('Producto recibido:', {
-          id: product._id,
-          isNewFormat,
-          isOldFormat,
-          imagen: product.imagen,
-          images: product.images
-        });
         
         if (isNewFormat) {
           // Productos nuevos: usar campos directos
@@ -82,7 +74,6 @@ export function useProducts() {
       
       setProducts(transformedProducts);
       setLastUpdate(new Date().toISOString());
-      console.log(` Productos actualizados: ${transformedProducts.length} productos cargados`);
     } catch (err) {
       console.error('Error al obtener productos:', err.message);
       
@@ -101,17 +92,8 @@ export function useProducts() {
   useEffect(() => {
     fetchProducts();
     
-    // Configurar polling para sincronización automática cada 30 segundos
-    const interval = setInterval(() => {
-      console.log(' Sincronizando productos automáticamente...');
-      fetchProducts();
-    }, 30000); // 30 segundos
-    
-    // Limpiar interval cuando el componente se desmonte
-    return () => {
-      clearInterval(interval);
-      console.log(' Polling de productos detenido');
-    };
+    // Recarga automática desactivada para mejorar la experiencia visual
+    // Los productos se pueden actualizar manualmente con el botón de actualizar
   }, []);
 
   const refresh = () => {

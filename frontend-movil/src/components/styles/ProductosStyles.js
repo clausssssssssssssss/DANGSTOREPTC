@@ -12,17 +12,17 @@ const ProductosStyles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: width * 0.05,
-    paddingTop: height * 0.02,
+    paddingTop: height * 0.04,
     paddingBottom: height * 0.025,
     borderBottomWidth: 1,
     borderBottomColor: '#E5E7EB',
     backgroundColor: 'white',
   },
   backButton: { 
-    padding: 8 
+    padding: 12 
   },
   backButtonText: {
-    fontSize: Math.max(20, width * 0.06),
+    fontSize: Math.max(28, width * 0.08),
     color: '#8B5CF6',
     fontWeight: 'bold',
   },

@@ -8,7 +8,6 @@ const ProductsPage = () => {
   
   const handleAddToCart = (product) => {
     // Implementación real del carrito
-    console.log('Producto agregado al carrito:', product);
     // Ejemplo de implementación real:
     // addToCart(product);
     // showNotification(`${product.name} agregado al carrito`);

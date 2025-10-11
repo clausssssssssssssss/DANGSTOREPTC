@@ -45,11 +45,6 @@ const deliveryPointSchema = new mongoose.Schema({
     trim: true,
     default: ''
   },
-  horarioAtencion: {
-    type: String,
-    trim: true,
-    default: 'Lunes a Viernes 9:00 AM - 5:00 PM'
-  },
   createdAt: {
     type: Date,
     default: Date.now

@@ -12,10 +12,12 @@ import {
   RefreshControl,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import API_URL from '../config/api';
 
 export default function ProgramacionEntregas() {
+  const navigation = useNavigation();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -139,46 +141,88 @@ export default function ProgramacionEntregas() {
   };
   
   const handleRescheduling = (order, approve) => {
-    Alert.alert(
-      approve ? 'Aprobar Reprogramación' : 'Rechazar Reprogramación',
-      `¿Confirmas ${approve ? 'aprobar' : 'rechazar'} la reprogramación?`,
-      [
-        { text: 'Cancelar', style: 'cancel' },
-        {
-          text: 'Confirmar',
-          onPress: async () => {
-            try {
-              const response = await fetch(
-                `${API_URL}/delivery-schedule/${order._id}/rescheduling`,
-                {
-                  method: 'PUT',
-                  headers: {
-                    'Content-Type': 'application/json',
-                  },
-                  body: JSON.stringify({
-                    approve,
-                    newDate: approve ? order.proposedDeliveryDate : null,
-                  }),
+    if (approve) {
+      // Si aprueba, abrir modal para seleccionar nueva fecha
+      setSelectedOrder(order);
+      setDeliveryDate(new Date());
+      setScheduleModalVisible(true);
+    } else {
+      // Si rechaza, confirmar directamente
+      Alert.alert(
+        'Rechazar Reprogramación',
+        '¿Confirmas rechazar la reprogramación?',
+        [
+          { text: 'Cancelar', style: 'cancel' },
+          {
+            text: 'Rechazar',
+            style: 'destructive',
+            onPress: async () => {
+              try {
+                const response = await fetch(
+                  `${API_URL}/delivery-schedule/${order._id}/rescheduling`,
+                  {
+                    method: 'PUT',
+                    headers: {
+                      'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                      approve: false,
+                    }),
+                  }
+                );
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                  Alert.alert('Éxito', 'Reprogramación rechazada');
+                  loadOrders();
+                  loadReschedulingRequests();
+                } else {
+                  Alert.alert('Error', data.message);
                 }
-              );
-              
-              const data = await response.json();
-              
-              if (data.success) {
-                Alert.alert('Éxito', data.message);
-                loadOrders();
-                loadReschedulingRequests();
-              } else {
-                Alert.alert('Error', data.message);
+              } catch (error) {
+                console.error('Error:', error);
+                Alert.alert('Error', 'No se pudo procesar la solicitud');
               }
-            } catch (error) {
-              console.error('Error:', error);
-              Alert.alert('Error', 'No se pudo procesar la solicitud');
-            }
+            },
           },
-        },
-      ]
-    );
+        ]
+      );
+    }
+  };
+  
+  const handleApproveRescheduling = async () => {
+    if (!selectedOrder) return;
+    
+    try {
+      const response = await fetch(
+        `${API_URL}/delivery-schedule/${selectedOrder._id}/rescheduling`,
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            approve: true,
+            newDate: deliveryDate.toISOString(),
+          }),
+        }
+      );
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        Alert.alert('Éxito', 'Reprogramación aprobada y notificación enviada al cliente');
+        setScheduleModalVisible(false);
+        loadOrders();
+        loadReschedulingRequests();
+      } else {
+        Alert.alert('Error', data.message || 'Error al aprobar reprogramación');
+      }
+    } catch (error) {
+      console.error('Error aprobando reprogramación:', error);
+      Alert.alert('Error', 'No se pudo aprobar la reprogramación');
+    }
   };
   
   const changeDeliveryStatus = (order) => {
@@ -333,15 +377,41 @@ export default function ProgramacionEntregas() {
   
   if (loading && !refreshing) {
     return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#6c5ce7" />
-        <Text style={styles.loadingText}>Cargando entregas...</Text>
+      <View style={styles.container}>
+        {/* Header */}
+        <View style={styles.headerBar}>
+          <TouchableOpacity
+            onPress={() => navigation.goBack()}
+            style={styles.backButton}
+          >
+            <Ionicons name="arrow-back" size={24} color="#333" />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>Programación de Entregas</Text>
+          <View style={styles.headerPlaceholder} />
+        </View>
+        
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#6c5ce7" />
+          <Text style={styles.loadingText}>Cargando entregas...</Text>
+        </View>
       </View>
     );
   }
   
   return (
     <View style={styles.container}>
+      {/* Header */}
+      <View style={styles.headerBar}>
+        <TouchableOpacity
+          onPress={() => navigation.goBack()}
+          style={styles.backButton}
+        >
+          <Ionicons name="arrow-back" size={24} color="#333" />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>Programación de Entregas</Text>
+        <View style={styles.headerPlaceholder} />
+      </View>
+      
       {/* Filtros */}
       <ScrollView
         horizontal
@@ -425,6 +495,15 @@ export default function ProgramacionEntregas() {
                 Cliente: {selectedOrder?.user?.nombre}
               </Text>
               
+              {selectedOrder?.reschedulingStatus === 'REQUESTED' && (
+                <View style={styles.rescheduleInfo}>
+                  <Ionicons name="information-circle" size={20} color="#FF9800" />
+                  <Text style={styles.rescheduleInfoText}>
+                    Solicitud: {selectedOrder?.reschedulingReason}
+                  </Text>
+                </View>
+              )}
+              
               <TouchableOpacity
                 style={styles.dateButton}
                 onPress={() => setShowDatePicker(true)}
@@ -480,9 +559,11 @@ export default function ProgramacionEntregas() {
               
               <TouchableOpacity
                 style={styles.confirmButton}
-                onPress={handleScheduleDelivery}
+                onPress={selectedOrder?.reschedulingStatus === 'REQUESTED' ? handleApproveRescheduling : handleScheduleDelivery}
               >
-                <Text style={styles.confirmButtonText}>Programar y Notificar</Text>
+                <Text style={styles.confirmButtonText}>
+                  {selectedOrder?.reschedulingStatus === 'REQUESTED' ? 'Aprobar Reprogramación' : 'Programar y Notificar'}
+                </Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -496,6 +577,28 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f5f5f5',
+  },
+  headerBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    paddingTop: 50,
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#e0e0e0',
+  },
+  backButton: {
+    padding: 4,
+  },
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#333',
+  },
+  headerPlaceholder: {
+    width: 32,
   },
   loadingContainer: {
     flex: 1,
@@ -726,6 +829,23 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  rescheduleInfo: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 8,
+    padding: 12,
+    backgroundColor: '#FFF3CD',
+    borderRadius: 8,
+    marginVertical: 12,
+    borderWidth: 1,
+    borderColor: '#ffeaa7',
+  },
+  rescheduleInfoText: {
+    flex: 1,
+    fontSize: 14,
+    color: '#856404',
+    lineHeight: 20,
   },
 });
 

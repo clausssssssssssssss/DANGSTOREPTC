@@ -26,7 +26,7 @@ function normalizeCartProduct(p) {
 // ─── Añadir producto o ítem personalizado ───
 export const addToCart = async (req, res) => {
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-  console.log('🛒 addToCart recibió:');
+  console.log('addToCart recibió:');
   console.log('   Body:', req.body);
   console.log('   User:', req.user?.id);
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
@@ -37,30 +37,30 @@ export const addToCart = async (req, res) => {
       productId, 
       quantity = 1, 
       customItemId,
-      type, // 🔥 NUEVO: para detectar si es personalizado
-      customOrderId // 🔥 NUEVO: ID de la cotización aceptada
+      type, 
+      customOrderId 
     } = req.body;
 
     let cart = await Cart.findOne({ user: userId });
     if (!cart) cart = new Cart({ user: userId });
 
-    // 🎨 CASO 1: Producto PERSONALIZADO (desde cotización aceptada)
+    //  CASO 1: Producto PERSONALIZADO (desde cotización aceptada)
     if (type === 'custom' || customOrderId || customItemId) {
       const itemId = customOrderId || customItemId;
-      console.log('🎨 Agregando producto PERSONALIZADO');
+      console.log(' Agregando producto PERSONALIZADO');
       console.log('   Custom Item ID:', itemId);
       
       // Verificar que la orden personalizada existe
       const customOrder = await CustomizedOrder.findById(itemId);
       if (!customOrder) {
-        console.error('❌ Orden personalizada NO encontrada:', itemId);
+        console.error(' Orden personalizada NO encontrada:', itemId);
         return res.status(404).json({ 
           success: false,
           message: 'Orden personalizada no encontrada' 
         });
       }
       
-      console.log('✅ Orden personalizada encontrada:', {
+      console.log('Orden personalizada encontrada:', {
         id: customOrder._id,
         price: customOrder.price,
         status: customOrder.status
@@ -83,22 +83,22 @@ export const addToCart = async (req, res) => {
       }
     }
     
-    // 📦 CASO 2: Producto NORMAL del catálogo
+    // CASO 2: Producto NORMAL del catálogo
     else if (productId) {
-      console.log('📦 Agregando producto NORMAL del catálogo');
+      console.log(' Agregando producto NORMAL del catálogo');
       console.log('   Product ID:', productId);
       
       // Verificar que el producto existe
       const product = await Product.findById(productId);
       if (!product) {
-        console.error('❌ Producto NO encontrado:', productId);
+        console.error('Producto NO encontrado:', productId);
         return res.status(404).json({ 
           success: false,
           message: 'Producto no encontrado' 
         });
       }
       
-      console.log('✅ Producto encontrado:', {
+      console.log('Producto encontrado:', {
         id: product._id,
         nombre: product.nombre,
         precio: product.precio
@@ -120,9 +120,9 @@ export const addToCart = async (req, res) => {
       }
     }
     
-    // ❌ CASO 3: Sin datos válidos
+    //  CASO 3: Sin datos válidos
     else {
-      console.error('❌ Petición inválida: sin productId ni customItemId');
+      console.error('Petición inválida: sin productId ni customItemId');
       return res.status(400).json({ 
         success: false,
         message: 'Debe proporcionar productId o customItemId' 
@@ -130,7 +130,7 @@ export const addToCart = async (req, res) => {
     }
 
     await cart.save();
-    console.log('✅ Carrito guardado exitosamente');
+    console.log('Carrito guardado exitosamente');
 
     // Repoblar y normalizar
     cart = await Cart.findOne({ user: userId })
@@ -139,7 +139,7 @@ export const addToCart = async (req, res) => {
 
     cart.products = cart.products.map(normalizeCartProduct).filter(Boolean);
 
-    console.log('📊 Estado final del carrito:');
+    console.log('Estado final del carrito:');
     console.log('   Productos normales:', cart.products.length);
     console.log('   Productos personalizados:', cart.customizedProducts.length);
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
@@ -150,7 +150,7 @@ export const addToCart = async (req, res) => {
       cart 
     });
   } catch (error) {
-    console.error('❌ Error añadiendo al carrito:', error);
+    console.error('Error añadiendo al carrito:', error);
     return res.status(500).json({ 
       success: false,
       message: 'Error añadiendo al carrito', 
@@ -181,7 +181,7 @@ export const getCart = async (req, res) => {
 // ─── Actualizar cantidad ───
 export const updateCartItem = async (req, res) => {
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-  console.log('🔄 updateCartItem llamado');
+  console.log('updateCartItem llamado');
   console.log('   Body:', req.body);
   console.log('   User:', req.user?.id);
   
@@ -189,36 +189,36 @@ export const updateCartItem = async (req, res) => {
     const userId = req.user.id;
     const { itemId, type, quantity } = req.body;
 
-    console.log('📋 Parámetros:', { itemId, type, quantity });
+    console.log('Parámetros:', { itemId, type, quantity });
 
     let cart = await Cart.findOne({ user: userId });
     if (!cart) {
-      console.error('❌ Carrito no encontrado para usuario:', userId);
+      console.error('Carrito no encontrado para usuario:', userId);
       return res.status(404).json({ message: 'Carrito no encontrado' });
     }
 
-    console.log('✅ Carrito encontrado');
+    console.log('Carrito encontrado');
     console.log('   Productos normales:', cart.products.length);
     console.log('   Productos personalizados:', cart.customizedProducts.length);
 
     if (type === 'product') {
-      console.log('📦 Actualizando producto NORMAL');
+      console.log('Actualizando producto NORMAL');
       const idx = cart.products.findIndex(p => p.product.toString() === itemId);
       
       if (idx < 0) {
-        console.error('❌ Producto no encontrado en carrito');
+        console.error('  Producto no encontrado en carrito');
         console.error('   Buscando ID:', itemId);
         console.error('   IDs disponibles:', cart.products.map(p => p.product.toString()));
         return res.status(404).json({ message: 'Producto no en carrito' });
       }
       
-      console.log(`✅ Producto encontrado en índice ${idx}`);
+      console.log(`Producto encontrado en índice ${idx}`);
       console.log(`   Cantidad anterior: ${cart.products[idx].quantity}`);
       cart.products[idx].quantity = quantity;
       console.log(`   Cantidad nueva: ${quantity}`);
       
     } else if (type === 'custom') {
-      console.log('🎨 Actualizando producto PERSONALIZADO');
+      console.log('Actualizando producto PERSONALIZADO');
       const idx = cart.customizedProducts.findIndex(p => p.item.toString() === itemId);
       
       if (idx < 0) {

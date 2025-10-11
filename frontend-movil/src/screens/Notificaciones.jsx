@@ -176,6 +176,28 @@ const Notificaciones = ({ navigation }) => {
         // Rating, ir a Productos
         navigation.navigate('Productos');
         break;
+      case 'purchase':
+        // Nueva compra - ir a Programar Entregas
+        navigation.navigate('ProgramacionEntregas', {
+          orderId: item.data?.orderId,
+          highlightOrder: true
+        });
+        break;
+      case 'delivery_confirmed':
+        // Cliente confirmó entrega - ir a Programar Entregas
+        navigation.navigate('ProgramacionEntregas', {
+          orderId: item.data?.orderId,
+          highlightOrder: true
+        });
+        break;
+      case 'reschedule_request':
+        // Cliente solicitó reprogramación - ir a Programar Entregas
+        navigation.navigate('ProgramacionEntregas', {
+          orderId: item.data?.orderId,
+          highlightOrder: true,
+          showRescheduleRequests: true
+        });
+        break;
       default:
         // Por defecto, ir a Ventas
         navigation.navigate('Ventas');
@@ -193,6 +215,8 @@ const Notificaciones = ({ navigation }) => {
         case 'payment': return '#F59E0B';
         case 'rating': return '#F97316';
         case 'purchase': return '#3B82F6';
+        case 'delivery_confirmed': return '#4CAF50';
+        case 'reschedule_request': return '#FF9800';
         default: return '#6B7280';
       }
     };
@@ -204,6 +228,8 @@ const Notificaciones = ({ navigation }) => {
         case 'payment': return 'card-outline';
         case 'rating': return 'star-outline';
         case 'purchase': return 'receipt-outline';
+        case 'delivery_confirmed': return 'checkmark-done-outline';
+        case 'reschedule_request': return 'calendar-outline';
         default: return 'notifications-outline';
       }
     };

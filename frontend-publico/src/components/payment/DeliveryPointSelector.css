@@ -1,76 +1,42 @@
 .delivery-point-selector {
   width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
 }
 
-.delivery-point-loading,
-.delivery-point-error,
-.delivery-point-empty {
+.delivery-point-header {
+  margin-bottom: 24px;
   text-align: center;
-  padding: 40px 20px;
-  color: #666;
 }
 
-.delivery-point-loading .spinner {
-  width: 40px;
-  height: 40px;
-  margin: 0 auto 16px;
-  border: 4px solid #f3f3f3;
-  border-top: 4px solid #6c5ce7;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
+.delivery-point-header h3 {
+  color: #2d3748;
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 8px;
 }
 
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-.delivery-point-error .retry-button {
-  margin-top: 16px;
-  padding: 8px 16px;
-  background: #6c5ce7;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 14px;
-}
-
-.delivery-point-error .retry-button:hover {
-  background: #5a4fcf;
-}
-
-.delivery-point-info {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 16px;
-  background: #f8f7ff;
-  border-radius: 8px;
-  margin-bottom: 20px;
-  border-left: 4px solid #6c5ce7;
-}
-
-.delivery-point-info p {
+.delivery-point-subtitle {
+  color: #718096;
+  font-size: 1rem;
   margin: 0;
-  color: #333;
-  font-size: 14px;
-  line-height: 1.5;
 }
 
 .delivery-points-list {
   display: flex;
   flex-direction: column;
   gap: 16px;
+  margin-bottom: 24px;
 }
 
 .delivery-point-card {
-  border: 2px solid #e0e0e0;
+  border: 2px solid #e2e8f0;
   border-radius: 12px;
   padding: 20px;
   cursor: pointer;
   transition: all 0.3s ease;
   background: white;
+  position: relative;
 }
 
 .delivery-point-card:hover {
@@ -81,15 +47,30 @@
 
 .delivery-point-card.selected {
   border-color: #6c5ce7;
-  background: #f8f7ff;
-  box-shadow: 0 4px 12px rgba(108, 92, 231, 0.2);
+  background: linear-gradient(135deg, #f8f7ff 0%, #f0edff 100%);
+  box-shadow: 0 4px 16px rgba(108, 92, 231, 0.2);
 }
 
 .point-header {
   display: flex;
-  justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 12px;
+  gap: 16px;
+}
+
+.point-radio {
+  flex-shrink: 0;
+  margin-top: 4px;
+}
+
+.point-radio input[type="radio"] {
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  cursor: pointer;
+}
+
+.point-radio input[type="radio"]:checked {
+  accent-color: #6c5ce7;
 }
 
 .point-info {
@@ -97,106 +78,165 @@
 }
 
 .point-name {
-  margin: 0 0 8px 0;
-  font-size: 18px;
+  color: #2d3748;
+  font-size: 1.25rem;
   font-weight: 600;
-  color: #333;
+  margin: 0 0 8px 0;
 }
 
 .point-address {
-  margin: 0;
-  font-size: 14px;
-  color: #666;
+  color: #4a5568;
+  font-size: 1rem;
+  margin: 0 0 8px 0;
   line-height: 1.5;
-}
-
-.point-reference {
-  margin: 8px 0 0 0;
-  font-size: 13px;
-  color: #888;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.point-select {
-  flex-shrink: 0;
-  margin-left: 16px;
-}
-
-.point-radio {
-  width: 24px;
-  height: 24px;
-  border: 2px solid #ccc;
-  border-radius: 50%;
-  transition: all 0.3s ease;
-}
-
-.delivery-point-card:hover .point-radio {
-  border-color: #6c5ce7;
 }
 
 .point-description {
-  margin: 12px 0;
-  font-size: 14px;
-  color: #666;
-  line-height: 1.5;
-  padding: 12px;
-  background: #f9f9f9;
-  border-radius: 8px;
+  color: #718096;
+  font-size: 0.9rem;
+  margin: 0 0 8px 0;
+  font-style: italic;
+}
+
+.point-reference {
+  color: #4a5568;
+  font-size: 0.9rem;
+  margin: 0 0 8px 0;
+}
+
+.point-reference strong {
+  color: #2d3748;
 }
 
 .point-schedule {
+  color: #4a5568;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.point-schedule strong {
+  color: #2d3748;
+}
+
+.loading-message {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-top: 12px;
-  font-size: 13px;
-  color: #666;
-  padding: 8px 12px;
-  background: #fff3cd;
-  border-radius: 6px;
-  width: fit-content;
+  justify-content: center;
+  gap: 12px;
+  padding: 40px;
+  color: #718096;
+  font-size: 1.1rem;
 }
 
-.point-map-link {
-  display: inline-flex;
+.loading-spinner {
+  width: 24px;
+  height: 24px;
+  border: 3px solid #e2e8f0;
+  border-top: 3px solid #6c5ce7;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.error-message {
+  display: flex;
   align-items: center;
-  gap: 6px;
-  margin-top: 12px;
-  font-size: 13px;
-  color: #6c5ce7;
-  text-decoration: none;
+  gap: 12px;
+  padding: 20px;
+  background: #fed7d7;
+  border: 1px solid #feb2b2;
+  border-radius: 8px;
+  color: #c53030;
   font-weight: 500;
-  transition: color 0.3s ease;
+  margin-bottom: 16px;
 }
 
-.point-map-link:hover {
-  color: #5a4fcf;
-  text-decoration: underline;
+.error-icon {
+  font-size: 1.2rem;
+}
+
+.retry-button {
+  background: #6c5ce7;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.retry-button:hover {
+  background: #5a4fcf;
+}
+
+.no-points-message {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 20px;
+  background: #ebf8ff;
+  border: 1px solid #90cdf4;
+  border-radius: 8px;
+  color: #2b6cb0;
+  font-weight: 500;
+}
+
+.info-icon {
+  font-size: 1.2rem;
+}
+
+.delivery-point-error {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background: #fed7d7;
+  border: 1px solid #feb2b2;
+  border-radius: 8px;
+  color: #c53030;
+  font-weight: 500;
+  margin-bottom: 16px;
+}
+
+.delivery-point-note {
+  padding: 16px;
+  background: #f7fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  border-left: 4px solid #6c5ce7;
+}
+
+.delivery-point-note p {
+  margin: 0;
+  color: #4a5568;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.delivery-point-note strong {
+  color: #2d3748;
 }
 
 /* Responsive */
 @media (max-width: 768px) {
+  .delivery-point-header h3 {
+    font-size: 1.3rem;
+  }
+  
   .delivery-point-card {
     padding: 16px;
   }
   
   .point-name {
-    font-size: 16px;
-  }
-  
-  .point-address {
-    font-size: 13px;
+    font-size: 1.1rem;
   }
   
   .point-header {
-    flex-direction: column;
     gap: 12px;
   }
-  
-  .point-select {
-    margin-left: 0;
-  }
 }
-

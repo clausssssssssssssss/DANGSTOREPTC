@@ -12,8 +12,8 @@ router.get('/orders', verifyToken, verifyAdmin, deliveryScheduleController.getOr
 router.get('/rescheduling-requests', verifyToken, verifyAdmin, deliveryScheduleController.getPendingReschedulingRequests);
 
 // Rutas para clientes
-router.put('/:orderId/confirm', verifyToken, deliveryScheduleController.confirmDelivery);
-router.post('/:orderId/request-rescheduling', verifyToken, deliveryScheduleController.requestRescheduling);
+router.post('/:orderId/confirm', verifyToken, deliveryScheduleController.confirmDelivery);
+router.post('/:orderId/request-reschedule', verifyToken, deliveryScheduleController.requestRescheduling);
 
 export default router;
 

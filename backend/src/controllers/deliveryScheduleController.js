@@ -1,6 +1,7 @@
 import Order from '../models/Order.js';
 import DeliveryPoint from '../models/DeliveryPoint.js';
 import { sendEmail } from '../utils/mailService.js';
+import NotificationService from '../services/NotificationService.js';
 
 // Programar entrega por el admin
 export const scheduleDelivery = async (req, res) => {
@@ -130,6 +131,18 @@ export const confirmDelivery = async (req, res) => {
     
     await order.save();
     
+    // Crear notificación para el admin
+    try {
+      await NotificationService.createDeliveryConfirmedNotification({
+        orderId: order._id,
+        customerName: order.user?.nombre || 'Cliente',
+        deliveryDate: order.deliveryDate
+      });
+      console.log('Notificación de confirmación enviada al admin');
+    } catch (notificationError) {
+      console.error('Error creando notificación:', notificationError);
+    }
+    
     res.json({
       success: true,
       message: 'Entrega confirmada exitosamente',
@@ -148,12 +161,12 @@ export const confirmDelivery = async (req, res) => {
 export const requestRescheduling = async (req, res) => {
   try {
     const { orderId } = req.params;
-    const { proposedDate, reason } = req.body;
+    const { reason } = req.body;
     
-    if (!proposedDate || !reason) {
+    if (!reason) {
       return res.status(400).json({
         success: false,
-        message: 'La fecha propuesta y la razón son requeridas'
+        message: 'Debes indicar tus días y horas disponibles'
       });
     }
     
@@ -177,19 +190,28 @@ export const requestRescheduling = async (req, res) => {
     }
     
     // Actualizar la orden
-    order.proposedDeliveryDate = new Date(proposedDate);
     order.reschedulingReason = reason;
     order.reschedulingStatus = 'REQUESTED';
     order.statusHistory.push({
       status: 'RESCHEDULING_REQUESTED',
       changedBy: 'customer',
-      notes: `Cliente solicitó reprogramación para ${new Date(proposedDate).toLocaleString('es-SV')}: ${reason}`
+      notes: `Cliente solicitó reprogramación. Disponibilidad: ${reason}`
     });
     
     await order.save();
     
-    // Notificar al admin (aquí podrías enviar un email al admin)
-    // Por ahora solo respondemos al cliente
+    // Crear notificación para el admin
+    try {
+      await NotificationService.createRescheduleRequestNotification({
+        orderId: order._id,
+        customerName: order.user?.nombre || 'Cliente',
+        reason: reason,
+        currentDeliveryDate: order.deliveryDate
+      });
+      console.log('Notificación de reprogramación enviada al admin');
+    } catch (notificationError) {
+      console.error('Error creando notificación:', notificationError);
+    }
     
     res.json({
       success: true,
@@ -232,7 +254,13 @@ export const handleRescheduling = async (req, res) => {
     
     if (approve) {
       // Aprobar reprogramación
-      const finalDate = newDate ? new Date(newDate) : order.proposedDeliveryDate;
+      if (!newDate) {
+        return res.status(400).json({
+          success: false,
+          message: 'Debes proporcionar una nueva fecha de entrega'
+        });
+      }
+      const finalDate = new Date(newDate);
       order.deliveryDate = finalDate;
       order.deliveryStatus = 'SCHEDULED';
       order.reschedulingStatus = 'APPROVED';

@@ -4,6 +4,8 @@
 const ENV_URL = process.env.EXPO_PUBLIC_API_URL;
 
 export const API_CONFIG = {
+  // URL base para desarrollo local
+  LOCAL: 'http://localhost:3000/api',
   
   // URL base para producción
   PRODUCTION: 'https://dangstoreptc-production.up.railway.app/api',
@@ -43,3 +45,6 @@ export const logCurrentApiBaseUrl = () => {
     console.log('EXPO_PUBLIC_API_URL detectada y usada.');
   }
 };
+
+// Export default para compatibilidad con imports existentes
+export default API_CONFIG.BASE_URL;

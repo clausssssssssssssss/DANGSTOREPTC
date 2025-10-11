@@ -26,6 +26,7 @@ const FormPayment = () => {
 
   const [cardType, setCardType] = useState('unknown');
   const [selectedDeliveryPoint, setSelectedDeliveryPoint] = useState(null);
+  const [deliveryPoints, setDeliveryPoints] = useState([]);
 
   // Detectar tipo de tarjeta cuando cambie el número
   useEffect(() => {
@@ -34,6 +35,24 @@ const FormPayment = () => {
       setCardType(detectedType);
     }
   }, [formDataTarjeta.numeroTarjeta, detectCardType]);
+
+  // Cargar puntos de entrega al montar el componente
+  useEffect(() => {
+    const fetchDeliveryPoints = async () => {
+      try {
+        const response = await fetch('http://localhost:3000/api/delivery-points');
+        const data = await response.json();
+        
+        if (data.success) {
+          setDeliveryPoints(data.deliveryPoints || []);
+        }
+      } catch (error) {
+        console.error('Error fetching delivery points:', error);
+      }
+    };
+
+    fetchDeliveryPoints();
+  }, []);
 
   const handlePaymentWithErrorHandling = async () => {
     try {
@@ -47,7 +66,9 @@ const FormPayment = () => {
     }
   };
   
-  const handleSelectDeliveryPoint = (point) => {
+  const handleSelectDeliveryPoint = (pointId) => {
+    // Buscar el punto completo por ID
+    const point = deliveryPoints.find(p => p._id === pointId);
     setSelectedDeliveryPoint(point);
   };
   
@@ -240,8 +261,8 @@ const FormPayment = () => {
               
               <div className="billing-form">
                 <DeliveryPointSelector 
-                  selectedPointId={selectedDeliveryPoint?._id}
-                  onSelectPoint={handleSelectDeliveryPoint}
+                  selectedDeliveryPoint={selectedDeliveryPoint?._id}
+                  onDeliveryPointChange={handleSelectDeliveryPoint}
                 />
 
                 <div className="form-footer">

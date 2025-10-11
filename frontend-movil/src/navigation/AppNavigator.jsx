@@ -18,7 +18,7 @@ import Ventas from '../screens/Ventas';
 import Notificaciones from '../screens/Notificaciones';
 import Pendientes from '../screens/Pendientes';
 import StockLimites from '../screens/StockLimites';
-import PuntosEntrega from '../screens/PuntosEntrega';
+import PuntosEntrega from '../screens/PuntosEntregaSimple';
 import ProgramacionEntregas from '../screens/ProgramacionEntregas';
 import { AuthContext } from '../context/AuthContext';
 
@@ -35,9 +35,6 @@ const InicioStack = () => (
     <Stack.Screen name="InicioMain" component={Inicio} />
     <Stack.Screen name="Notificaciones" component={Notificaciones} />
     <Stack.Screen name="Pendientes" component={Pendientes} />
-    <Stack.Screen name="StockLimites" component={StockLimites} />
-    <Stack.Screen name="PuntosEntrega" component={PuntosEntrega} />
-    <Stack.Screen name="ProgramacionEntregas" component={ProgramacionEntregas} />
   </Stack.Navigator>
 );
 
@@ -45,6 +42,15 @@ const InicioStack = () => (
 const VentasStack = () => (
   <Stack.Navigator screenOptions={{ headerShown: false }}>
     <Stack.Screen name="VentasMain" component={Ventas} />
+  </Stack.Navigator>
+);
+
+// Stack para configuración (permite navegar a puntos de entrega y programación)
+const ConfigStack = () => (
+  <Stack.Navigator screenOptions={{ headerShown: false }}>
+    <Stack.Screen name="StockLimitesMain" component={StockLimites} />
+    <Stack.Screen name="PuntosEntrega" component={PuntosEntrega} />
+    <Stack.Screen name="ProgramacionEntregas" component={ProgramacionEntregas} />
   </Stack.Navigator>
 );
 
@@ -57,7 +63,7 @@ const ConfigButton = () => {
   useEffect(() => {
     const unsubscribe = navigation.addListener('state', (e) => {
       const currentRoute = navigation.getState()?.routes[navigation.getState()?.index];
-      const isConfigActive = currentRoute?.name === 'StockLimites';
+      const isConfigActive = currentRoute?.name === 'StockLimites' || currentRoute?.name === 'StockLimitesMain';
       setIsFocused(isConfigActive);
     });
 
@@ -151,7 +157,7 @@ const MainTabNavigator = () => {
       />
       <Tab.Screen
         name="StockLimites"
-        component={StockLimites}
+        component={ConfigStack}
         options={{
           tabBarLabel: 'Configuración',
           tabBarButton: (props) => <ConfigButton {...props} />,

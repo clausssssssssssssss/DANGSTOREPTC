@@ -275,6 +275,63 @@ class NotificationService {
   }
 
   /**
+   * Crear notificación cuando cliente confirma entrega
+   */
+  static async createDeliveryConfirmedNotification(orderData) {
+    try {
+      const notification = new Notification({
+        title: 'Entrega Confirmada',
+        message: `${orderData.customerName} confirmó la entrega del pedido #${orderData.orderId.slice(-8)}`,
+        type: 'delivery_confirmed',
+        priority: 'normal',
+        data: {
+          orderId: orderData.orderId,
+          customerName: orderData.customerName,
+          deliveryDate: orderData.deliveryDate,
+        },
+        icon: '✅',
+      });
+
+      const savedNotification = await notification.save();
+      console.log('Notificación de entrega confirmada creada:', savedNotification._id);
+      
+      return savedNotification;
+    } catch (error) {
+      console.error('Error creando notificación de entrega confirmada:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Crear notificación cuando cliente solicita reprogramación
+   */
+  static async createRescheduleRequestNotification(orderData) {
+    try {
+      const notification = new Notification({
+        title: 'Solicitud de Reprogramación',
+        message: `${orderData.customerName} solicitó reprogramar la entrega del pedido #${orderData.orderId.slice(-8)}`,
+        type: 'reschedule_request',
+        priority: 'high',
+        data: {
+          orderId: orderData.orderId,
+          customerName: orderData.customerName,
+          reason: orderData.reason,
+          currentDeliveryDate: orderData.currentDeliveryDate,
+        },
+        icon: '📅',
+      });
+
+      const savedNotification = await notification.save();
+      console.log('Notificación de solicitud de reprogramación creada:', savedNotification._id);
+      
+      return savedNotification;
+    } catch (error) {
+      console.error('Error creando notificación de solicitud de reprogramación:', error);
+      throw error;
+    }
+  }
+
+  /**
    * Obtener conteo de notificaciones no leídas
    */
   static async getUnreadCount() {

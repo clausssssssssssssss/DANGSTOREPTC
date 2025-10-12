@@ -90,30 +90,43 @@ export function useProducts() {
   };
 
   const tryAllApiEndpoints = async () => {
-    let connected = false;
-    
-    for (const apiBase of API_BASES) {
-      connected = await fetchProducts(apiBase);
-      if (connected) {
-        break; // Si funciona, salir del bucle
+    try {
+      let connected = false;
+      
+      for (const apiBase of API_BASES) {
+        try {
+          connected = await fetchProducts(apiBase);
+          if (connected) {
+            break; // Si funciona, salir del bucle
+          }
+        } catch (error) {
+          console.error(`Error con endpoint ${apiBase}:`, error);
+        }
+        
+        // Esperar un poco antes de intentar el siguiente endpoint
+        await new Promise(resolve => setTimeout(resolve, 1000));
       }
       
-      // Esperar un poco antes de intentar el siguiente endpoint
-      await new Promise(resolve => setTimeout(resolve, 1000));
-    }
-    
-    if (!connected) {
-      setError('No se pudo conectar con ningún endpoint. Revisa la configuración de red.');
+      if (!connected) {
+        setError('No se pudo conectar con ningún endpoint. Revisa la configuración de red.');
+      }
+    } catch (error) {
+      console.error('Error en tryAllApiEndpoints:', error);
+      setError('Error interno al conectar con el servidor');
     }
   };
 
   useEffect(() => {
     tryAllApiEndpoints();
     
-    // Configurar polling para actualización automática de stock cada 15 segundos
+    // Configurar polling para actualización automática de stock cada 30 segundos
     const interval = setInterval(() => {
-      tryAllApiEndpoints();
-    }, 15000); // 15 segundos - más frecuente para stock
+      try {
+        tryAllApiEndpoints();
+      } catch (error) {
+        console.error('Error en polling de productos:', error);
+      }
+    }, 30000); // 30 segundos - menos frecuente para evitar problemas
     
     // Limpiar interval cuando el componente se desmonte
     return () => {

@@ -228,16 +228,6 @@ const Inicio = ({ navigation }) => {
           </View>
 
           {/* ✅ Info de meta */}
-          {!loading && (
-            <View style={{ alignItems: 'center', marginTop: 10 }}>
-              <Text style={{ 
-                fontSize: 10, 
-                color: 'rgba(255,255,255,0.6)', 
-              }}>
-                Meta: ${weeklyGoal} • {weeklyPercentage}% completado
-              </Text>
-            </View>
-          )}
           
           {loading && (
             <Text style={{ 

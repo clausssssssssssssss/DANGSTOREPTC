@@ -1,6 +1,7 @@
 import { StyleSheet, Platform, Dimensions } from 'react-native';
 
-const { width, height } = Dimensions.get('window');
+const { width } = Dimensions.get('window');
+const height = 800; // Valor fijo para evitar errores
 // Escalado responsivo simple por tipo de dispositivo
 const isTablet = Math.min(width, height) >= 768;
 const isSmallPhone = width < 360;
@@ -43,7 +44,7 @@ const AuthAppStyles = StyleSheet.create({
   },
   cornerTopLeft: {
     position: 'absolute',
-    top: -height * 0.01,
+    top: -8,
     left: -width * 0.32,
     width: Math.max(200, width * 0.20),
     height: Math.max(200, width * 0.50),
@@ -52,7 +53,7 @@ const AuthAppStyles = StyleSheet.create({
   },
   cornerTopRight: {
     position: 'absolute',
-    top: -height * 0.16,
+    top: -128,
     right: -width * 0.16,
     width: Math.max(50, width * 0.88),
     height: Math.max(300, width * 0.78),
@@ -61,7 +62,7 @@ const AuthAppStyles = StyleSheet.create({
   },
   cornerBottomRight: {
     position: 'absolute',
-    bottom: Math.max(12, height * 0.02),
+    bottom: 16,
     right: -width * 0.18,
     width: Math.max(170, width * 0.42),
     height: Math.max(170, width * 0.42),
@@ -72,8 +73,8 @@ const AuthAppStyles = StyleSheet.create({
     width: Math.min(width * 0.9, cardMaxWidth), 
     backgroundColor: '#FFFFFF',
     borderRadius: 16, 
-    paddingTop: Math.max(18, height * 0.02 * baseScale),
-    paddingBottom: Math.max(26, height * 0.028 * baseScale),
+    paddingTop: Math.max(18, 16 * baseScale),
+    paddingBottom: Math.max(26, 22 * baseScale),
     paddingHorizontal: Math.max(16, width * 0.055 * baseScale), 
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 }, 

@@ -43,7 +43,7 @@ const VentasMetasConfig = ({ metaActual, onGuardarMeta }) => {
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <Ionicons name="flag" size={24} color="#007AFF" />
+        <Ionicons name="flag" size={24} color="#8B5CF6" />
         <Text style={styles.headerTitle}>Meta Semanal</Text>
       </View>
 
@@ -174,11 +174,11 @@ const styles = StyleSheet.create({
   metaMonto: {
     fontSize: 36,
     fontWeight: 'bold',
-    color: '#007AFF',
+    color: '#8B5CF6',
   },
   editButton: {
     flexDirection: 'row',
-    backgroundColor: '#007AFF',
+    backgroundColor: '#8B5CF6',
     paddingHorizontal: 16,
     paddingVertical: 10,
     borderRadius: 8,
@@ -196,7 +196,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 2,
-    borderColor: '#007AFF',
+    borderColor: '#8B5CF6',
     borderRadius: 8,
     paddingHorizontal: 15,
     marginBottom: 15,
@@ -204,7 +204,7 @@ const styles = StyleSheet.create({
   inputPrefix: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#007AFF',
+    color: '#8B5CF6',
     marginRight: 5,
   },
   input: {
@@ -233,7 +233,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   saveButton: {
-    backgroundColor: '#007AFF',
+    backgroundColor: '#8B5CF6',
   },
   saveButtonText: {
     color: 'white',
@@ -260,7 +260,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   quickButtonText: {
-    color: '#007AFF',
+    color: '#8B5CF6',
     fontWeight: '600',
   },
   infoBox: {
@@ -269,7 +269,7 @@ const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 8,
     borderLeftWidth: 3,
-    borderLeftColor: '#007AFF',
+    borderLeftColor: '#8B5CF6',
   },
   infoText: {
     flex: 1,

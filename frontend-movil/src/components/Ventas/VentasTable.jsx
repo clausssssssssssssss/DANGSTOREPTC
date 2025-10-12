@@ -147,6 +147,7 @@ const VentasTable = ({ data = [] }) => {
         style={styles.tableBody}
         showsVerticalScrollIndicator={true}
         nestedScrollEnabled={true}
+        contentContainerStyle={styles.scrollContent}
       >
         {tableData.length > 0 ? (
           tableData.map(item => renderRow(item))
@@ -162,80 +163,106 @@ const VentasTable = ({ data = [] }) => {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#FFF',
+    backgroundColor: '#FFFFFF',
     borderRadius: 20,
     marginHorizontal: 20,
-    marginBottom: 20,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    marginBottom: 30,
+    shadowColor: '#8B5CF6',
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
-    shadowRadius: 4,
+    shadowRadius: 8,
+    elevation: 6,
+    borderWidth: 1,
+    borderColor: '#F3F4F6',
+    overflow: 'hidden',
   },
   headerRow: {
     flexDirection: 'row',
-    paddingVertical: 16,
-    paddingHorizontal: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F0',
+    paddingVertical: 14,
+    paddingHorizontal: 12,
+    borderBottomWidth: 2,
+    borderBottomColor: '#F3F0FF',
+    backgroundColor: '#FAFAFA',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
   },
   headerCell: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#666',
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#374151',
+    letterSpacing: 0.1,
+    textTransform: 'uppercase',
   },
   row: {
     flexDirection: 'row',
-    paddingVertical: 16,
-    paddingHorizontal: 20,
+    paddingVertical: 12,
+    paddingHorizontal: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#F8F8F8',
+    borderBottomColor: '#F9FAFB',
     alignItems: 'center',
+    minHeight: 50,
   },
   cell: {
-    fontSize: 14,
-    color: '#333',
+    fontSize: 12,
+    color: '#1F2937',
+    fontWeight: '500',
   },
   fechaColumn: {
     flex: 1.2,
+    paddingRight: 4,
   },
   estadoColumn: {
     flex: 1.3,
+    paddingRight: 4,
   },
   clienteColumn: {
-    flex: 1.8,
+    flex: 1.1,
+    paddingRight: 4,
   },
   totalColumn: {
-    flex: 1,
+    flex: 0.9,
     textAlign: 'right',
+    paddingLeft: 4,
   },
   estadoBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
+    paddingHorizontal: 6,
+    paddingVertical: 3,
+    borderRadius: 10,
     alignSelf: 'flex-start',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
   },
   estadoText: {
-    color: '#FFF',
-    fontSize: 12,
-    fontWeight: '500',
+    color: '#FFFFFF',
+    fontSize: 9,
+    fontWeight: '600',
+    letterSpacing: 0.1,
   },
   totalText: {
-    fontWeight: '600',
+    fontWeight: '700',
+    color: '#8B5CF6',
+    fontSize: 15,
   },
   tableBody: {
-    maxHeight: 250,
-    backgroundColor: '#FFF',
+    maxHeight: 300,
+    backgroundColor: '#FFFFFF',
+  },
+  scrollContent: {
+    paddingBottom: 10,
   },
   emptyState: {
-    padding: 40,
+    padding: 50,
     alignItems: 'center',
     justifyContent: 'center',
   },
   emptyStateText: {
-    color: '#666',
+    color: '#6B7280',
     fontSize: 16,
-    fontStyle: 'italic',
+    fontWeight: '500',
+    textAlign: 'center',
   },
 });
 

@@ -11,6 +11,7 @@ import {
   ScrollView,
   Alert,
   ActivityIndicator,
+  KeyboardAvoidingView,
 } from 'react-native';
 
 import * as ImagePicker from 'expo-image-picker';
@@ -22,6 +23,7 @@ import AlertComponent from '../components/ui/Alert';
 import { useNotifications } from '../hooks/useNotifications'; // Importa el hook de notificaciones
 
 const API_URL = 'https://dangstoreptc-production.up.railway.app/api/products'; // URL consistente con el backend
+const API_BASE_URL = 'https://dangstoreptc-production.up.railway.app/api'; // URL base para otras peticiones
 
 const Productos = ({ navigation }) => {
   const { products: productosHook, loading: loadingHook, lastStockUpdate, refresh: refreshProducts } = useProducts();
@@ -56,8 +58,6 @@ const Productos = ({ navigation }) => {
   const [modalStockVisible, setModalStockVisible] = useState(false);
   const [productoStockSeleccionado, setProductoStockSeleccionado] = useState(null);
   const [nuevoStock, setNuevoStock] = useState('');
-  const [maxStock, setMaxStock] = useState('');
-  const [stockLimitActive, setStockLimitActive] = useState(true);
   const [guardandoStock, setGuardandoStock] = useState(false);
 
   // Debug: Log cuando cambie el estado de alert
@@ -102,16 +102,16 @@ const Productos = ({ navigation }) => {
 
   // Funciones para gestión de stock
   const abrirModalStock = (producto) => {
+    console.log('Abriendo modal de stock para producto:', producto);
+    
     setProductoStockSeleccionado(producto);
     setNuevoStock(producto.disponibles?.toString() || '0');
-    setMaxStock(producto.stockLimits?.maxStock?.toString() || '');
-    setStockLimitActive(producto.stockLimits?.isStockLimitActive !== false);
     setModalStockVisible(true);
   };
 
   // Función para mostrar notificación cuando el producto vuelve a estar disponible
   const notifyStockAvailable = (producto) => {
-    if (producto.disponibles > 0 && producto.stockLimits?.isStockLimitActive) {
+    if (producto.disponibles > 0) {
       addNotification({
         title: '¡Producto disponible!',
         message: `Ya puedes volver a comprar el producto "${producto.nombre}".`,
@@ -129,38 +129,56 @@ const Productos = ({ navigation }) => {
 
       // Actualizar stock disponible
       const stockActualizado = parseInt(nuevoStock) || 0;
-      const maxStockActualizado = parseInt(maxStock) || null;
+      
+      console.log('Guardando stock con datos:');
+      console.log('- Stock actualizado:', stockActualizado);
+      console.log('- Producto ID:', productoStockSeleccionado._id);
 
       // Enviar actualización al backend
+      const headers = {
+        'Content-Type': 'application/json',
+      };
+      
+      if (authToken) {
+        headers['Authorization'] = `Bearer ${authToken}`;
+      }
+      
       const response = await fetch(`${API_URL}/${productoStockSeleccionado._id}`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers,
         body: JSON.stringify({
-          disponibles: stockActualizado,
-          stockLimits: {
-            maxStock: maxStockActualizado,
-            isStockLimitActive: stockLimitActive
-          }
+          disponibles: stockActualizado
         }),
       });
 
       if (!response.ok) {
-        throw new Error('Error al actualizar el stock en el servidor');
+        if (response.status === 401) {
+          showAlert('Error de autenticación', 'Tu sesión ha expirado. Por favor, inicia sesión nuevamente.', 'error');
+          return;
+        }
+        
+        let errorMessage = 'Error al actualizar el stock en el servidor';
+        try {
+          const errorData = await response.json();
+          if (errorData.error) {
+            errorMessage = errorData.error;
+          }
+        } catch (e) {
+          console.log('No se pudo parsear el error del servidor:', e);
+        }
+        
+        throw new Error(errorMessage);
       }
+
+      const responseData = await response.json();
+      console.log('Respuesta del servidor al guardar stock:', responseData);
 
       // Actualizar el producto localmente después de éxito en el backend
       setProductos(prev => prev.map(p =>
         p._id === productoStockSeleccionado._id
           ? {
               ...p,
-              disponibles: stockActualizado,
-              stockLimits: {
-                ...p.stockLimits,
-                maxStock: maxStockActualizado,
-                isStockLimitActive: stockLimitActive
-              }
+              disponibles: stockActualizado
             }
           : p
       ));
@@ -169,14 +187,12 @@ const Productos = ({ navigation }) => {
       if (productoStockSeleccionado.disponibles === 0 && stockActualizado > 0) {
         notifyStockAvailable({
           ...productoStockSeleccionado,
-          disponibles: stockActualizado,
-          stockLimits: {
-            ...productoStockSeleccionado.stockLimits,
-            maxStock: maxStockActualizado,
-            isStockLimitActive: stockLimitActive
-          }
+          disponibles: stockActualizado
         });
       }
+
+      // Refrescar productos desde el servidor para asegurar datos actualizados
+      refreshProducts();
 
       showAlert(
         'Éxito',
@@ -308,17 +324,27 @@ const Productos = ({ navigation }) => {
       }
       
       console.log('Enviando petición a:', API_URL);
+      const headers = {};
+      
+      if (authToken) {
+        headers['Authorization'] = `Bearer ${authToken}`;
+      }
+      
       const response = await fetch(API_URL, {
         method: 'POST',
         body: formData,
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
+        headers,
       });
       
       console.log('Respuesta recibida:', response.status, response.statusText);
       
       if (!response.ok) {
+        // Manejo específico para errores de autenticación
+        if (response.status === 401) {
+          showAlert('Error de autenticación', 'Tu sesión ha expirado. Por favor, inicia sesión nuevamente.', 'error');
+          return;
+        }
+        
         // Intentar obtener el mensaje de error del servidor
         let errorMessage = `HTTP ${response.status} ${response.statusText}`;
         try {
@@ -350,7 +376,14 @@ const Productos = ({ navigation }) => {
     } catch (error) {
       console.error('Error completo al agregar producto:', error);
       const errorMessage = error.message || 'No se pudo agregar el producto';
+      
+      // Evitar que la app se cierre por errores de red o del servidor
+      try {
       showAlert('Error', `Error al guardar el producto: ${errorMessage}`, 'error');
+      } catch (alertError) {
+        console.error('Error mostrando alerta:', alertError);
+        // Si no se puede mostrar el alert, al menos loguear el error
+      }
     } finally {
       setCargando(false);
     }
@@ -365,24 +398,38 @@ const Productos = ({ navigation }) => {
         quality: 0.7,
       });
       
-      if (!result.canceled) {
+      if (!result.canceled && result.assets && result.assets.length > 0) {
         setNuevoProducto({ ...nuevoProducto, imagen: result.assets[0].uri });
       }
     } catch (error) {
       console.log('Error seleccionando imagen:', error);
+      try {
       showAlert('Error', 'No se pudo seleccionar la imagen', 'error');
+      } catch (alertError) {
+        console.error('Error mostrando alerta de imagen:', alertError);
+      }
     }
   };
 
   const seleccionarImagenEditar = async () => {
+    try {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       aspect: [1, 1],
       quality: 0.7,
     });
-    if (!result.canceled) {
+      
+      if (!result.canceled && result.assets && result.assets.length > 0) {
       setProductoSeleccionado({ ...productoSeleccionado, imagen: result.assets[0].uri });
+      }
+    } catch (error) {
+      console.log('Error seleccionando imagen para editar:', error);
+      try {
+        showAlert('Error', 'No se pudo seleccionar la imagen', 'error');
+      } catch (alertError) {
+        console.error('Error mostrando alerta de imagen:', alertError);
+      }
     }
   };
 
@@ -510,11 +557,19 @@ const Productos = ({ navigation }) => {
 
     try {
       setCargando(true);
-      const response = await fetch('http://192.168.0.9:4000/api/categories', {
-        method: 'POST',
-        headers: {
+      
+      // Preparar headers con autenticación
+      const headers = {
           'Content-Type': 'application/json',
-        },
+      };
+      
+      if (authToken) {
+        headers['Authorization'] = `Bearer ${authToken}`;
+      }
+      
+      const response = await fetch(`${API_BASE_URL}/categories`, {
+        method: 'POST',
+        headers,
         body: JSON.stringify({ 
           name: nuevaCategoria.trim()
         }),
@@ -554,14 +609,30 @@ const Productos = ({ navigation }) => {
           try {
             setCargando(true);
 
+            // Preparar headers con autenticación
+            const headers = {
+              'Content-Type': 'application/json',
+            };
+            
+            if (authToken) {
+              headers['Authorization'] = `Bearer ${authToken}`;
+            }
+
             // Eliminar categoría del backend (también eliminará productos asociados)
-            const response = await fetch(`http://192.168.0.9:4000/api/categories/${categoriaId}`, {
+            const response = await fetch(`${API_BASE_URL}/categories/${categoriaId}`, {
               method: 'DELETE',
+              headers,
             });
 
             if (!response.ok) {
-              const errorData = await response.json();
-              throw new Error(errorData.message || `HTTP ${response.status} ${response.statusText}`);
+              const errorData = await response.json().catch(() => null);
+              
+              if (response.status === 401) {
+                showAlert('Error de autenticación', 'Tu sesión ha expirado. Por favor, inicia sesión nuevamente.', 'error');
+                return;
+              }
+              
+              throw new Error(errorData?.message || `HTTP ${response.status} ${response.statusText}`);
             }
 
             const result = await response.json();
@@ -606,12 +677,19 @@ const Productos = ({ navigation }) => {
     try {
       setCargando(true);
 
+      // Preparar headers con autenticación
+      const headers = {
+        'Content-Type': 'application/json',
+      };
+      
+      if (authToken) {
+        headers['Authorization'] = `Bearer ${authToken}`;
+      }
+
       // Todas las categorías ahora vienen del backend, actualizar vía API
-      const response = await fetch(`http://192.168.0.9:4000/api/categories/${categoriaEditando._id}`, {
+      const response = await fetch(`${API_BASE_URL}/categories/${categoriaEditando._id}`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers,
         body: JSON.stringify({
           name: nuevoNombreCategoria.trim()
         }),
@@ -820,20 +898,21 @@ const Productos = ({ navigation }) => {
               <Text style={ProductosStyles.backButtonText}>←</Text>
             </TouchableOpacity>
             <ScrollView contentContainerStyle={ProductosStyles.modalContent}>
-              <TouchableOpacity
-                style={ProductosStyles.imagePicker}
-                onPress={seleccionarImagen}
-                disabled={cargando}
-              >
-                {nuevoProducto.imagen ? (
-                  <Image
-                    source={{ uri: nuevoProducto.imagen }}
-                    style={ProductosStyles.previewImage}
-                  />
-                ) : (
-                  <Text style={ProductosStyles.imagePickerText}>Subir imagen</Text>
-                )}
-              </TouchableOpacity>
+              <View style={ProductosStyles.modalFormContainer}>
+                <TouchableOpacity
+                  style={ProductosStyles.imagePicker}
+                  onPress={seleccionarImagen}
+                  disabled={cargando}
+                >
+                  {nuevoProducto.imagen ? (
+                    <Image
+                      source={{ uri: nuevoProducto.imagen }}
+                      style={ProductosStyles.previewImage}
+                    />
+                  ) : (
+                    <Text style={ProductosStyles.imagePickerText}>Subir imagen</Text>
+                  )}
+                </TouchableOpacity>
               <TextInput
                 style={ProductosStyles.input}
                 placeholder="Nombre"
@@ -905,14 +984,15 @@ const Productos = ({ navigation }) => {
                   </Picker>
                 </View>
               </View>
-              <TouchableOpacity 
-                style={ProductosStyles.agregarBtn} 
-                onPress={agregarProducto}
-              >
-                <Text style={ProductosStyles.agregarBtnText}>
-                  {editando ? 'Actualizar' : 'Agregar'}
-                </Text>
-              </TouchableOpacity>
+                <TouchableOpacity 
+                  style={ProductosStyles.agregarBtn} 
+                  onPress={agregarProducto}
+                >
+                  <Text style={ProductosStyles.agregarBtnText}>
+                    {editando ? 'Actualizar' : 'Agregar'}
+                  </Text>
+                </TouchableOpacity>
+              </View>
             </ScrollView>
           </View>
         </View>
@@ -936,19 +1016,20 @@ const Productos = ({ navigation }) => {
             <ScrollView contentContainerStyle={ProductosStyles.modalContent}>
               <Text style={ProductosStyles.modalTitle}>Editar Producto</Text>
               
-              <TouchableOpacity
-                style={ProductosStyles.imagePicker}
-                onPress={seleccionarImagenEditar}
-              >
-                {productoSeleccionado?.imagen ? (
-                  <Image
-                    source={{ uri: productoSeleccionado.imagen }}
-                    style={ProductosStyles.previewImage}
-                  />
-                ) : (
-                  <Text style={ProductosStyles.imagePickerText}>Cambiar imagen</Text>
-                )}
-              </TouchableOpacity>
+              <View style={ProductosStyles.modalFormContainer}>
+                <TouchableOpacity
+                  style={ProductosStyles.imagePicker}
+                  onPress={seleccionarImagenEditar}
+                >
+                  {productoSeleccionado?.imagen ? (
+                    <Image
+                      source={{ uri: productoSeleccionado.imagen }}
+                      style={ProductosStyles.previewImage}
+                    />
+                  ) : (
+                    <Text style={ProductosStyles.imagePickerText}>Cambiar imagen</Text>
+                  )}
+                </TouchableOpacity>
               
               <TextInput
                 style={ProductosStyles.input}
@@ -1020,9 +1101,10 @@ const Productos = ({ navigation }) => {
                 </View>
               </View>
               
-              <TouchableOpacity style={ProductosStyles.agregarBtn} onPress={editarProducto}>
-                <Text style={ProductosStyles.agregarBtnText}>Guardar Cambios</Text>
-              </TouchableOpacity>
+                <TouchableOpacity style={ProductosStyles.agregarBtn} onPress={editarProducto}>
+                  <Text style={ProductosStyles.agregarBtnText}>Guardar Cambios</Text>
+                </TouchableOpacity>
+              </View>
             </ScrollView>
           </View>
         </View>
@@ -1178,7 +1260,11 @@ const Productos = ({ navigation }) => {
         transparent
         onRequestClose={() => !guardandoStock && setModalStockVisible(false)}
       >
-        <View style={[ProductosStyles.modalOverlay, { zIndex: 200 }]}>
+        <SafeAreaView style={[ProductosStyles.modalOverlay, { zIndex: 200 }]}>
+          <KeyboardAvoidingView 
+            behavior="padding" 
+            style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
+          >
           <View style={[ProductosStyles.modalBox, { zIndex: 201 }]}>
             <TouchableOpacity
               style={ProductosStyles.modalBack}
@@ -1187,48 +1273,28 @@ const Productos = ({ navigation }) => {
             >
               <Text style={ProductosStyles.backButtonText}>←</Text>
             </TouchableOpacity>
-            <ScrollView contentContainerStyle={ProductosStyles.modalContent}>
+              
+              <ScrollView 
+                contentContainerStyle={ProductosStyles.modalContent}
+                showsVerticalScrollIndicator={false}
+                keyboardShouldPersistTaps="handled"
+              >
               <Text style={ProductosStyles.modalTitle}>
                 Gestionar Stock - {productoStockSeleccionado?.nombre}
               </Text>
 
-              {/* Stock actual */}
-              <View style={ProductosStyles.stockSection}>
-                <Text style={ProductosStyles.sectionTitle}>Stock Actual</Text>
-                <TextInput
-                  style={ProductosStyles.stockInput}
-                  placeholder="Cantidad disponible"
-                  value={nuevoStock}
-                  onChangeText={setNuevoStock}
-                  keyboardType="numeric"
-                  editable={!guardandoStock}
-                />
-            </View>
-
-              {/* Límite de stock */}
-              <View style={ProductosStyles.stockSection}>
-                <Text style={ProductosStyles.sectionTitle}>Límite de Stock</Text>
-                <TextInput
-                  style={ProductosStyles.stockInput}
-                  placeholder="Stock máximo (opcional)"
-                  value={maxStock}
-                  onChangeText={setMaxStock}
-                  keyboardType="numeric"
-                  editable={!guardandoStock}
-                />
-              </View>
-
-              {/* Switch para activar/desactivar límite */}
-              <View style={ProductosStyles.switchContainer}>
-                <Text style={ProductosStyles.switchLabel}>Activar límite de stock</Text>
-                <TouchableOpacity
-                  style={[ProductosStyles.switch, stockLimitActive && ProductosStyles.switchActive]}
-                  onPress={() => setStockLimitActive(!stockLimitActive)}
-                  disabled={guardandoStock}
-                >
-                  <View style={[ProductosStyles.switchThumb, stockLimitActive && ProductosStyles.switchThumbActive]} />
-                </TouchableOpacity>
-              </View>
+                {/* Stock actual */}
+                <View style={ProductosStyles.stockSection}>
+                  <Text style={ProductosStyles.sectionTitle}>Stock Actual</Text>
+                  <TextInput
+                    style={ProductosStyles.stockInput}
+                    placeholder="Cantidad disponible"
+                    value={nuevoStock}
+                    onChangeText={setNuevoStock}
+                    keyboardType="numeric"
+                    editable={!guardandoStock}
+                  />
+                </View>
 
               {/* Botones de acción */}
               <View style={ProductosStyles.stockButtonsContainer}>
@@ -1241,20 +1307,21 @@ const Productos = ({ navigation }) => {
                 </TouchableOpacity>
 
                 <TouchableOpacity
-                  style={[ProductosStyles.agregarBtn, guardandoStock && ProductosStyles.btnDeshabilitado]}
+                    style={[ProductosStyles.stockSaveButton, guardandoStock && ProductosStyles.btnDeshabilitado]}
                   onPress={guardarStock}
                   disabled={guardandoStock}
                 >
                   {guardandoStock ? (
                     <ActivityIndicator color="#fff" />
                   ) : (
-                    <Text style={ProductosStyles.agregarBtnText}>Guardar Stock</Text>
+                      <Text style={ProductosStyles.stockSaveButtonText}>Guardar Stock</Text>
                   )}
                 </TouchableOpacity>
               </View>
             </ScrollView>
           </View>
-        </View>
+          </KeyboardAvoidingView>
+        </SafeAreaView>
       </Modal>
 
       {/* Componente de alerta unificado */}

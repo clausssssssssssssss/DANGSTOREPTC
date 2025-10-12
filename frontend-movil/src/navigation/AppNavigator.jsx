@@ -55,7 +55,7 @@ const ConfigStack = () => (
 );
 
 // Botón de configuración para la tab bar
-const ConfigButton = () => {
+const ConfigButton = ({ onPress, accessibilityState }) => {
   const navigation = useNavigation();
   const [isFocused, setIsFocused] = useState(false);
 
@@ -70,10 +70,34 @@ const ConfigButton = () => {
     return unsubscribe;
   }, [navigation]);
 
+  const focused = accessibilityState?.selected;
+
   return (
-    <TouchableOpacity onPress={() => navigation.navigate('StockLimites')} style={{ alignItems: 'center', justifyContent: 'center', flex: 1 }}>
-      <Ionicons name="settings-outline" size={24} color={isFocused ? "#8B5CF6" : "#6B7280"} />
-      <Text style={{ fontSize: 10, color: isFocused ? "#8B5CF6" : "#6B7280", fontWeight: '600' }}>Configuración</Text>
+    <TouchableOpacity 
+      onPress={() => navigation.navigate('StockLimites')} 
+      style={{ 
+        alignItems: 'center', 
+        justifyContent: 'center', 
+        flex: 1,
+        paddingVertical: 5,
+        paddingHorizontal: 1,
+      }}
+    >
+      <Ionicons 
+        name={focused ? "settings" : "settings-outline"} 
+        size={20} 
+        color={focused ? "#8B5CF6" : "#6B7280"} 
+      />
+      <Text style={{ 
+        fontSize: 10, 
+        color: focused ? "#8B5CF6" : "#6B7280", 
+        fontWeight: '600',
+        marginTop: 2,
+        textAlign: 'center',
+        lineHeight: 10,
+      }}>
+        Configuración
+      </Text>
     </TouchableOpacity>
   );
 };
@@ -93,9 +117,9 @@ const MainTabNavigator = () => {
           if (route.name === 'Inicio') {
             iconName = focused ? 'home' : 'home-outline';
           } else if (route.name === 'Productos') {
-            iconName = focused ? 'cube' : 'cube-outline';
+            iconName = focused ? 'grid' : 'grid-outline';
           } else if (route.name === 'Inventario') {
-            iconName = focused ? 'analytics' : 'analytics-outline';
+            iconName = focused ? 'cube' : 'cube-outline';
           } else if (route.name === 'Ventas') {
             iconName = focused ? 'trending-up' : 'trending-up-outline';
           }

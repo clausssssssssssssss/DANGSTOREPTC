@@ -208,18 +208,13 @@ const VentasChart = ({ tipo = 'mensual' }) => {
   );
 };
 
+const screenWidth = Dimensions.get('window').width;
+
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#FFF',
-    borderRadius: 20,
-    paddingVertical: 20,
-    paddingHorizontal: 10,
-    marginVertical: 10,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    backgroundColor: 'transparent',
+    paddingVertical: 16,
+    paddingHorizontal: 4,
     alignItems: 'center',
     justifyContent: 'center',
     minHeight: 320,
@@ -233,33 +228,37 @@ const styles = StyleSheet.create({
     marginVertical: 8,
   },
   chartTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 10,
+    fontSize: screenWidth < 350 ? 15 : 17,
+    fontWeight: '800',
+    color: '#1F2937',
+    marginBottom: 16,
     textAlign: 'center',
+    letterSpacing: 0.3,
   },
   loadingText: {
-    marginTop: 10,
-    fontSize: 14,
-    color: '#666',
+    marginTop: 12,
+    fontSize: screenWidth < 350 ? 13 : 14,
+    color: '#6B7280',
+    fontWeight: '600',
   },
   errorText: {
-    fontSize: 16,
+    fontSize: screenWidth < 350 ? 14 : 16,
     fontWeight: 'bold',
-    color: '#FF6B6B',
+    color: '#EF4444',
     textAlign: 'center',
+    marginBottom: 8,
   },
   errorDetail: {
-    fontSize: 12,
-    color: '#999',
-    marginTop: 5,
+    fontSize: screenWidth < 350 ? 11 : 12,
+    color: '#9CA3AF',
+    marginTop: 4,
     textAlign: 'center',
   },
   noDataText: {
-    fontSize: 14,
-    color: '#666',
+    fontSize: screenWidth < 350 ? 13 : 14,
+    color: '#6B7280',
     textAlign: 'center',
+    fontWeight: '500',
   },
 });
 

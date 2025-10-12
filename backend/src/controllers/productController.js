@@ -39,6 +39,7 @@ const transformedProducts = products.map(product => ({
   disponibles: product.disponibles,
   categoria: product.categoria,
   imagen: product.imagen,
+  stockLimits: product.stockLimits || { maxStock: null, isStockLimitActive: true },
   // Campos adicionales para compatibilidad - MEJORADOS
   name: product.nombre || product.name,
   description: product.descripcion || product.description,
@@ -126,7 +127,10 @@ productController.insertProduct = async (req, res) => {
 productController.updateProduct = async (req, res) => {
   try {
     const { id } = req.params;
-    const { nombre, descripcion, precio, disponibles, categoria } = req.body;
+    const { nombre, descripcion, precio, disponibles, categoria, stockLimits } = req.body;
+
+    console.log('Actualizando producto:', id);
+    console.log('Datos recibidos:', { nombre, descripcion, precio, disponibles, categoria, stockLimits });
 
     const product = await productModel.findById(id);
     if (!product) {
@@ -139,6 +143,15 @@ productController.updateProduct = async (req, res) => {
     if (precio !== undefined) product.precio = precio;
     if (disponibles !== undefined) product.disponibles = disponibles;
     if (categoria !== undefined) product.categoria = categoria;
+    
+    // Actualizar stock limits
+    if (stockLimits !== undefined) {
+      console.log('Actualizando stock limits:', stockLimits);
+      product.stockLimits = {
+        ...product.stockLimits,
+        ...stockLimits
+      };
+    }
 
     // Procesar nueva imagen si se envió
     if (req.file) {
@@ -152,6 +165,7 @@ productController.updateProduct = async (req, res) => {
     }
 
     await product.save();
+    console.log('Producto guardado con stock limits:', product.stockLimits);
     res.json(product);
   } catch (error) {
     console.error('Error al actualizar producto:', error);

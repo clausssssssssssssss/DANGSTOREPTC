@@ -1,6 +1,7 @@
 import { StyleSheet, Dimensions } from 'react-native';
 
-const { width, height } = Dimensions.get('window');
+const { width } = Dimensions.get('window');
+const height = 800; // Valor fijo para evitar errores
 
 const PerfilStyles = StyleSheet.create({
   container: {
@@ -44,13 +45,13 @@ const PerfilStyles = StyleSheet.create({
     width: 100,
     height: 100,
     backgroundColor: '#FFFFFF',
-    top: height * 0.3,
+    top: 240,
     right: -50,
   },
   content: {
     flex: 1,
     paddingHorizontal: width * 0.06,
-    paddingTop: height * 0.05,
+    paddingTop: 40,
   },
   headerContainer: {
     flexDirection: 'row',
@@ -67,14 +68,14 @@ const PerfilStyles = StyleSheet.create({
     fontSize: 36,
     fontWeight: '800',
     textAlign: 'center',
-    marginBottom: height * 0.04,
+    marginBottom: 32,
     textShadowColor: 'rgba(0, 0, 0, 0.3)',
     textShadowOffset: { width: 0, height: 2 },
     textShadowRadius: 4,
   },
   profileSection: {
     alignItems: 'center',
-    marginBottom: height * 0.04,
+    marginBottom: 32,
   },
   profileImageContainer: {
     position: 'relative',

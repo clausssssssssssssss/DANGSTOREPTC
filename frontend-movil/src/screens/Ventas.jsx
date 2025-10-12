@@ -232,6 +232,7 @@ const Ventas = ({ navigation }) => {
 
   const renderReporteContent = () => (
     <>
+      {/* Cards arriba */}
       <View style={VentasStyles.cardsContainer}>
         <View style={VentasStyles.cardWrapper}>
           <TouchableOpacity onPress={() => setSelectedReporte('diario')} activeOpacity={0.7}>
@@ -269,6 +270,7 @@ const Ventas = ({ navigation }) => {
         <Text style={VentasStyles.totalAmount}>{formatCurrency(getSelectedAmount())}</Text>
       </View>
 
+      {/* Gráfica abajo */}
       <View style={VentasStyles.chartContainer}>
         <ScrollView horizontal showsHorizontalScrollIndicator contentContainerStyle={VentasStyles.chartScrollContent}>
           <VentasChart tipo={selectedReporte} data={salesData} />
@@ -284,7 +286,7 @@ const Ventas = ({ navigation }) => {
           <Text style={VentasStyles.ingresosTitle}>Ingresos por Categorías</Text>
           <TouchableOpacity 
             onPress={loadIncomeAndCategoryData}
-            style={{ paddingHorizontal: 12, paddingVertical: 6, backgroundColor: '#007AFF', borderRadius: 6 }}
+            style={{ paddingHorizontal: 12, paddingVertical: 6, backgroundColor: '#8B5CF6', borderRadius: 6 }}
           >
             <Text style={{ color: 'white', fontSize: 12, fontWeight: '600' }}>Actualizar</Text>
           </TouchableOpacity>
@@ -309,16 +311,18 @@ const Ventas = ({ navigation }) => {
   const renderPedidosContent = () => (
     <>
       <View style={VentasStyles.pedidosHeader}>
-        <Text style={VentasStyles.pedidosTitle}>Últimos Pedidos</Text>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+          <Text style={VentasStyles.pedidosTitle}>Últimos Pedidos</Text>
+          <TouchableOpacity 
+            onPress={loadLatestSales}
+            style={{ paddingHorizontal: 12, paddingVertical: 6, backgroundColor: '#8B5CF6', borderRadius: 6 }}
+          >
+            <Text style={{ color: 'white', fontSize: 12, fontWeight: '600' }}>Actualizar</Text>
+          </TouchableOpacity>
+        </View>
         <Text style={VentasStyles.pedidosDate}>{latestSalesData.length} pedidos encontrados</Text>
       </View>
       <VentasTable data={latestSalesData} />
-      <TouchableOpacity 
-        style={{ margin: 20, padding: 15, backgroundColor: '#007AFF', borderRadius: 8, alignItems: 'center' }}
-        onPress={loadLatestSales}
-      >
-        <Text style={{ color: 'white', fontWeight: 'bold' }}>Actualizar Pedidos</Text>
-      </TouchableOpacity>
     </>
   );
 
@@ -334,7 +338,7 @@ const Ventas = ({ navigation }) => {
     if (loading) {
       return (
         <View style={[VentasStyles.container, { justifyContent: 'center', alignItems: 'center' }]}>
-          <ActivityIndicator size="large" color="#007AFF" />
+          <ActivityIndicator size="large" color="#8B5CF6" />
           <Text style={{ marginTop: 10, color: '#666' }}>Cargando datos...</Text>
         </View>
       );
@@ -345,7 +349,7 @@ const Ventas = ({ navigation }) => {
         <View style={[VentasStyles.container, { justifyContent: 'center', alignItems: 'center' }]}>
           <Text style={{ color: 'red', textAlign: 'center', margin: 20 }}>{error}</Text>
           <TouchableOpacity 
-            style={{ padding: 10, backgroundColor: '#007AFF', borderRadius: 5 }}
+            style={{ padding: 10, backgroundColor: '#8B5CF6', borderRadius: 5 }}
             onPress={loadAllData}
           >
             <Text style={{ color: 'white' }}>Reintentar</Text>

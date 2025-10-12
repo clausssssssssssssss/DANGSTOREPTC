@@ -13,7 +13,8 @@ import { useFocusEffect } from '@react-navigation/native';
 import { AuthContext } from '../context/AuthContext.js';
 import { inicioStyles as styles } from '../components/styles/InicioStyles';
 import { salesAPI } from '../services/salesReport';
-import { metasService } from '../services/metasService'; // ✅ NUEVO
+import { metasService } from '../services/metasService';
+import { customOrdersAPI } from '../services/customOrders.js'; // ✅ NUEVO IMPORT
 import { useNotifications } from '../hooks/useNotifications';
 import AlertComponent from '../components/ui/Alert';
 
@@ -39,11 +40,10 @@ const Inicio = ({ navigation }) => {
 
   const [loading, setLoading] = useState(false);
   const [showLogoutAlert, setShowLogoutAlert] = useState(false);
-  
-  //  NUEVO: Estado para la meta semanal dinámica
   const [weeklyGoal, setWeeklyGoal] = useState(50);
+  const [pendingOrdersCount, setPendingOrdersCount] = useState(0); // ✅ NUEVO ESTADO
 
-  //  ACTUALIZADO: useFocusEffect ahora también carga la meta
+  // ✅ ACTUALIZADO: useFocusEffect ahora también carga las órdenes pendientes
   useFocusEffect(
     React.useCallback(() => {
       const fetchData = async () => {
@@ -51,14 +51,16 @@ const Inicio = ({ navigation }) => {
         try {
           console.log('📊 Cargando datos del dashboard...');
           
-          // Cargar meta semanal y resumen de ventas en paralelo
-          const [meta, data] = await Promise.all([
+          // Cargar meta semanal, resumen de ventas Y órdenes pendientes en paralelo
+          const [meta, data, pendingOrders] = await Promise.all([
             metasService.getMetaSemanal(),
-            salesAPI.getDashboardSummary()
+            salesAPI.getDashboardSummary(),
+            customOrdersAPI.getPendingOrders() // ✅ NUEVO
           ]);
           
           console.log('🎯 Meta semanal cargada:', meta);
           console.log('✅ Datos recibidos del dashboard:', data);
+          console.log('📦 Órdenes pendientes:', pendingOrders?.length || 0); // ✅ NUEVO
           
           setWeeklyGoal(meta);
           setSummary({
@@ -67,8 +69,13 @@ const Inicio = ({ navigation }) => {
             monthly: data?.monthlyIncome || 0,
           });
           
+          // ✅ NUEVO: Guardar el conteo de órdenes pendientes
+          setPendingOrdersCount(pendingOrders?.length || 0);
+          
         } catch (error) {
           console.error('❌ Error al cargar datos:', error);
+          // En caso de error, mantener el contador en 0
+          setPendingOrdersCount(0);
         } finally {
           setLoading(false);
         }
@@ -78,13 +85,11 @@ const Inicio = ({ navigation }) => {
     }, [])
   );
 
-  // ✅ ACTUALIZADO: Cálculo del porcentaje con meta dinámica
   const weeklyPercentage = useMemo(() => {
     if (weeklyGoal <= 0) return 0;
     return Math.min(Math.round((summary.weekly / weeklyGoal) * 100), 100);
   }, [summary.weekly, weeklyGoal]);
 
-  // ✅ NUEVO: Función para navegar a configuración de metas
   const handleGoToMetas = () => {
     navigation.navigate('Ventas', { initialTab: 'metas' });
   };
@@ -134,25 +139,25 @@ const Inicio = ({ navigation }) => {
           <View style={[styles.backgroundBubble, styles.bubble3]} />
 
           {/* Widget principal - Semana */}
-     <TouchableOpacity
-  style={styles.weekWidget}
-  activeOpacity={0.8}
-  onPress={() => navigation.navigate('Ventas')}
->
-  <View style={styles.weekGradient}>
-    <View style={styles.weekContent}>
-      <View style={styles.weekLeftContent}>
-        <Text style={styles.weekTitle}>Esta semana</Text>
-        <Text style={styles.weekPercentage}>{weeklyPercentage}%</Text>
-        <Text style={[styles.weekPercentage, { fontSize: 12, opacity: 0.8 }]}>
-          ${summary.weekly.toFixed(2)} de ${weeklyGoal.toFixed(2)}
-        </Text>
-      </View>
+          <TouchableOpacity
+            style={styles.weekWidget}
+            activeOpacity={0.8}
+            onPress={() => navigation.navigate('Ventas')}
+          >
+            <View style={styles.weekGradient}>
+              <View style={styles.weekContent}>
+                <View style={styles.weekLeftContent}>
+                  <Text style={styles.weekTitle}>Esta semana</Text>
+                  <Text style={styles.weekPercentage}>{weeklyPercentage}%</Text>
+                  <Text style={[styles.weekPercentage, { fontSize: 12, opacity: 0.8 }]}>
+                    ${summary.weekly.toFixed(2)} de ${weeklyGoal.toFixed(2)}
+                  </Text>
+                </View>
 
-      <Ionicons name="arrow-forward" size={20} color="white" />
-    </View>
-  </View>
-</TouchableOpacity>
+                <Ionicons name="arrow-forward" size={20} color="white" />
+              </View>
+            </View>
+          </TouchableOpacity>
 
           {/* Widgets pequeños */}
           <View style={styles.smallWidgetsContainer}>
@@ -211,7 +216,7 @@ const Inicio = ({ navigation }) => {
             </TouchableOpacity>
           </View>
 
-          {/* Pendientes */}
+          {/* Pendientes - ✅ ACTUALIZADO con contador real */}
           <View style={styles.pendientesSection}>
             <Text style={styles.pendientesTitle}>Pendientes</Text>
             <TouchableOpacity
@@ -220,15 +225,17 @@ const Inicio = ({ navigation }) => {
             >
               <Text style={styles.pendientesText}>Órdenes cotizadas</Text>
               <View style={styles.pendientesAlert}>
-                <Text style={styles.pendientesNumber}>20</Text>
+                {loading ? (
+                  <Text style={styles.pendientesNumber}>...</Text>
+                ) : (
+                  <Text style={styles.pendientesNumber}>{pendingOrdersCount}</Text>
+                )}
                 <Ionicons name="warning" size={20} color="#F59E0B" />
               </View>
               <Text style={styles.verTodoText}>ver todo</Text>
             </TouchableOpacity>
           </View>
 
-          {/* ✅ Info de meta */}
-          
           {loading && (
             <Text style={{ 
               textAlign: 'center', 

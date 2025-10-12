@@ -49,7 +49,7 @@ const VentasMetasConfig = ({ metaActual, onGuardarMeta }) => {
 
       {/* Descripción */}
       <Text style={styles.descripcion}>
-        Configura tu objetivo de ventas semanal. Esta meta se usa para calcular tu progreso en el dashboard.
+        Configura tu objetivo de ventas semanal. Esta meta se usa para calcular tu progreso en la pantalla del inicio.
       </Text>
 
       {/* Card de Meta Actual */}

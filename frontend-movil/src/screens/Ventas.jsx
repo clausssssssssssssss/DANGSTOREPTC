@@ -5,10 +5,10 @@ import VentasTabs from '../components/Ventas/VentasTabs';
 import VentasCard from '../components/Ventas/VentasCard';
 import VentasChart from '../components/Ventas/VentasChart';
 import VentasTable from '../components/Ventas/VentasTable';
-import VentasMetasConfig from '../components/Ventas/VentasMetasConfig'; // NUEVO
+import VentasMetasConfig from '../components/Ventas/VentasMetasConfig'; 
 import { VentasStyles } from '../components/styles/VentasStyles';
 import { salesAPI } from '../services/salesReport';
-import { metasService } from '../services/metasService'; // NUEVO
+import { metasService } from '../services/metasService'; 
 
 const Ventas = ({ navigation }) => {
   const [activeTab, setActiveTab] = useState('reporte');

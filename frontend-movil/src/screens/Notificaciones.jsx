@@ -42,7 +42,12 @@ const Notificaciones = ({ navigation }) => {
   });
   
   // Estado para filtros
-  const [activeFilter, setActiveFilter] = useState('all'); // 'all', 'unread', 'read'
+  const [activeFilter, setActiveFilter] = useState('all');
+
+  // ✅ SOLUCIÓN: Variables seguras calculadas una sola vez
+  const safeNotifications = Array.isArray(notifications) ? notifications : [];
+  const safeUnreadCount = typeof unreadCount === 'number' ? unreadCount : 0;
+  const safeReadCount = safeNotifications.filter(n => n?.isRead).length;
 
   const showAlert = (title, message, type = 'info', options = {}) => {
     setAlert({
@@ -59,16 +64,16 @@ const Notificaciones = ({ navigation }) => {
   };
 
   // Función para filtrar notificaciones
-  const getFilteredNotifications = () => {
+  const getFilteredNotifications = useCallback(() => {
     switch (activeFilter) {
       case 'unread':
-        return notifications.filter(n => !n.isRead);
+        return safeNotifications.filter(n => n && !n.isRead);
       case 'read':
-        return notifications.filter(n => n.isRead);
+        return safeNotifications.filter(n => n && n.isRead);
       default:
-        return notifications;
+        return safeNotifications;
     }
-  };
+  }, [activeFilter, safeNotifications]);
 
   const filteredNotifications = getFilteredNotifications();
 
@@ -80,14 +85,14 @@ const Notificaciones = ({ navigation }) => {
   // Manejar refresh manual
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    await fetchNotifications(); // fetchNotifications ya actualiza el conteo localmente
+    await fetchNotifications();
     setRefreshing(false);
   }, [fetchNotifications]);
 
   // Marcar como leída y actualizar conteo
   const handleMarkAsRead = async (notificationId) => {
     try {
-      await markAsRead(notificationId); // markAsRead ya actualiza el conteo localmente
+      await markAsRead(notificationId);
     } catch (error) {
       showAlert('Error', 'No se pudo marcar como leída');
     }
@@ -96,7 +101,7 @@ const Notificaciones = ({ navigation }) => {
   // Marcar todas como leídas
   const handleMarkAllAsRead = async () => {
     try {
-      await markAllAsRead(); // markAllAsRead ya actualiza el conteo localmente
+      await markAllAsRead();
       showAlert('Éxito', 'Todas las notificaciones marcadas como leídas');
     } catch (error) {
       showAlert('Error', 'No se pudieron marcar todas como leídas');
@@ -156,42 +161,34 @@ const Notificaciones = ({ navigation }) => {
     // Navegación inteligente según el tipo
     switch (item.type) {
       case 'new_order':
-        // Si es un encargo personalizado, ir a Pendientes
         if (item.data?.modelType && !item.data?.customerName) {
           navigation.navigate('Pendientes');
         } else {
-          // Si es una compra normal, ir a Ventas
           navigation.navigate('Ventas');
         }
         break;
       case 'order_updated':
-        // Orden actualizada, ir a Ventas
         navigation.navigate('Ventas');
         break;
       case 'payment':
-        // Pago, ir a Ventas
         navigation.navigate('Ventas');
         break;
       case 'rating':
-        // Rating, ir a Productos
         navigation.navigate('Productos');
         break;
       case 'purchase':
-        // Nueva compra - ir a Programar Entregas
         navigation.navigate('ProgramacionEntregas', {
           orderId: item.data?.orderId,
           highlightOrder: true
         });
         break;
       case 'delivery_confirmed':
-        // Cliente confirmó entrega - ir a Programar Entregas
         navigation.navigate('ProgramacionEntregas', {
           orderId: item.data?.orderId,
           highlightOrder: true
         });
         break;
       case 'reschedule_request':
-        // Cliente solicitó reprogramación - ir a Programar Entregas
         navigation.navigate('ProgramacionEntregas', {
           orderId: item.data?.orderId,
           highlightOrder: true,
@@ -199,15 +196,14 @@ const Notificaciones = ({ navigation }) => {
         });
         break;
       default:
-        // Por defecto, ir a Ventas
         navigation.navigate('Ventas');
     }
   };
 
-
-
   // Componente NotificationCard
   const NotificationCard = ({ item, index }) => {
+    if (!item) return null;
+
     const getTypeColor = (type) => {
       switch (type) {
         case 'new_order': return '#8B5CF6';
@@ -242,7 +238,8 @@ const Notificaciones = ({ navigation }) => {
       if (diffInHours < 1) {
         return 'Hace unos minutos';
       } else if (diffInHours < 24) {
-        return `Hace ${Math.floor(diffInHours)} horas`;
+        const hours = Math.floor(diffInHours);
+        return `Hace ${hours} ${hours === 1 ? 'hora' : 'horas'}`;
       } else {
         return date.toLocaleDateString('es-ES', {
           day: '2-digit',
@@ -272,32 +269,48 @@ const Notificaciones = ({ navigation }) => {
           </View>
           
           <View style={NotificacionesStyles.cardContent}>
-            <Text style={NotificacionesStyles.cardTitle}>{item.title || 'Sin título'}</Text>
-            <Text style={NotificacionesStyles.cardMessage}>{item.message || 'Sin mensaje'}</Text>
+            <Text style={NotificacionesStyles.cardTitle}>
+              {item.title || 'Sin título'}
+            </Text>
+            <Text style={NotificacionesStyles.cardMessage}>
+              {item.message || 'Sin mensaje'}
+            </Text>
             
-            {item.data?.customerName && (
-              <Text style={NotificacionesStyles.customerName}>Cliente: {item.data.customerName}</Text>
-            )}
+            {item.data?.customerName ? (
+              <Text style={NotificacionesStyles.customerName}>
+                {`Cliente: ${item.data.customerName}`}
+              </Text>
+            ) : null}
             
-            {item.data?.modelType && (
-              <Text style={NotificacionesStyles.modelType}>Tipo: {item.data.modelType}</Text>
-            )}
+            {item.data?.modelType ? (
+              <Text style={NotificacionesStyles.modelType}>
+                {`Tipo: ${item.data.modelType}`}
+              </Text>
+            ) : null}
             
-            {item.data?.productName && (
-              <Text style={NotificacionesStyles.modelType}>Producto: {item.data.productName}</Text>
-            )}
+            {item.data?.productName ? (
+              <Text style={NotificacionesStyles.modelType}>
+                {`Producto: ${item.data.productName}`}
+              </Text>
+            ) : null}
             
-            {item.data?.rating && (
-              <Text style={NotificacionesStyles.modelType}>Calificación: {item.data.rating} ⭐</Text>
-            )}
+            {item.data?.rating ? (
+              <Text style={NotificacionesStyles.modelType}>
+                {`Calificación: ${item.data.rating} ⭐`}
+              </Text>
+            ) : null}
             
-            {item.data?.total && (
-              <Text style={NotificacionesStyles.modelType}>Total: ${item.data.total}</Text>
-            )}
+            {item.data?.total ? (
+              <Text style={NotificacionesStyles.modelType}>
+                {`Total: $${item.data.total}`}
+              </Text>
+            ) : null}
             
-            {item.data?.itemsCount && (
-              <Text style={NotificacionesStyles.modelType}>Items: {item.data.itemsCount}</Text>
-            )}
+            {item.data?.itemsCount ? (
+              <Text style={NotificacionesStyles.modelType}>
+                {`Items: ${item.data.itemsCount}`}
+              </Text>
+            ) : null}
           </View>
           
           <View style={NotificacionesStyles.cardActions}>
@@ -312,17 +325,21 @@ const Notificaciones = ({ navigation }) => {
         </View>
         
         <View style={NotificacionesStyles.cardFooter}>
-          <Text style={NotificacionesStyles.timestamp}>{formatDate(item.createdAt || new Date())}</Text>
+          <Text style={NotificacionesStyles.timestamp}>
+            {formatDate(item.createdAt || new Date())}
+          </Text>
           
-          {item.data?.price && (
-            <Text style={NotificacionesStyles.price}>${item.data.price}</Text>
-          )}
+          {item.data?.price ? (
+            <Text style={NotificacionesStyles.price}>
+              {`$${item.data.price}`}
+            </Text>
+          ) : null}
         </View>
       </TouchableOpacity>
     );
   };
 
-  if (loading && notifications.length === 0) {
+  if (loading && safeNotifications.length === 0) {
     return (
       <View style={NotificacionesStyles.loadingContainer}>
         <ActivityIndicator size="large" color="#8B5CF6" />
@@ -345,9 +362,11 @@ const Notificaciones = ({ navigation }) => {
         </View>
         
         <View style={NotificacionesStyles.headerRight}>
-          {unreadCount > 0 && (
+          {safeUnreadCount > 0 && (
             <View style={NotificacionesStyles.badgeContainer}>
-              <Text style={NotificacionesStyles.badgeText}>{unreadCount}</Text>
+              <Text style={NotificacionesStyles.badgeText}>
+                {String(safeUnreadCount)}
+              </Text>
             </View>
           )}
           
@@ -364,24 +383,28 @@ const Notificaciones = ({ navigation }) => {
       {/* Stats Card */}
       <View style={NotificacionesStyles.statsCard}>
         <View style={NotificacionesStyles.statItem}>
-          <Text style={NotificacionesStyles.statNumber}>{notifications.length}</Text>
+          <Text style={NotificacionesStyles.statNumber}>
+            {String(safeNotifications.length)}
+          </Text>
           <Text style={NotificacionesStyles.statLabel}>Total</Text>
         </View>
         <View style={NotificacionesStyles.statDivider} />
         <View style={NotificacionesStyles.statItem}>
-          <Text style={[NotificacionesStyles.statNumber, { color: '#EF4444' }]}>{unreadCount}</Text>
+          <Text style={[NotificacionesStyles.statNumber, { color: '#EF4444' }]}>
+            {String(safeUnreadCount)}
+          </Text>
           <Text style={NotificacionesStyles.statLabel}>No leídas</Text>
         </View>
         <View style={NotificacionesStyles.statDivider} />
         <View style={NotificacionesStyles.statItem}>
           <Text style={[NotificacionesStyles.statNumber, { color: '#10B981' }]}>
-            {notifications.filter(n => n.isRead).length}
+            {String(safeReadCount)}
           </Text>
           <Text style={NotificacionesStyles.statLabel}>Leídas</Text>
         </View>
       </View>
 
-      {/* Filtros */}
+      {/* Filtros - ✅ CORREGIDO CON String() */}
       <View style={NotificacionesStyles.filtersContainer}>
         <TouchableOpacity
           style={[
@@ -394,7 +417,7 @@ const Notificaciones = ({ navigation }) => {
             NotificacionesStyles.filterText,
             activeFilter === 'all' && NotificacionesStyles.activeFilterText
           ]}>
-            Total ({notifications.length})
+            {`Total (${String(safeNotifications.length)})`}
           </Text>
         </TouchableOpacity>
         
@@ -409,7 +432,7 @@ const Notificaciones = ({ navigation }) => {
             NotificacionesStyles.filterText,
             activeFilter === 'unread' && NotificacionesStyles.activeFilterText
           ]}>
-            No leídas ({unreadCount})
+            {`No leídas (${String(safeUnreadCount)})`}
           </Text>
         </TouchableOpacity>
         
@@ -424,7 +447,7 @@ const Notificaciones = ({ navigation }) => {
             NotificacionesStyles.filterText,
             activeFilter === 'read' && NotificacionesStyles.activeFilterText
           ]}>
-            Leídas ({notifications.filter(n => n.isRead).length})
+            {`Leídas (${String(safeReadCount)})`}
           </Text>
         </TouchableOpacity>
       </View>
@@ -452,7 +475,7 @@ const Notificaciones = ({ navigation }) => {
           showsVerticalScrollIndicator={false}
         >
           {filteredNotifications.map((item, index) => (
-            <NotificationCard key={item._id} item={item} index={index} />
+            <NotificationCard key={item?._id || `notif-${index}`} item={item} index={index} />
           ))}
           
           <View style={NotificacionesStyles.bottomPadding} />
@@ -474,6 +497,5 @@ const Notificaciones = ({ navigation }) => {
     </View>
   );
 };
-
 
 export default Notificaciones;

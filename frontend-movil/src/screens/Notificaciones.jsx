@@ -276,27 +276,27 @@ const Notificaciones = ({ navigation }) => {
             <Text style={NotificacionesStyles.cardMessage}>{item.message || 'Sin mensaje'}</Text>
             
             {item.data?.customerName && (
-              <Text style={NotificacionesStyles.customerName}>Cliente: {item.data.customerName}</Text>
+              <Text style={NotificacionesStyles.customerName}>Cliente: {String(item.data.customerName)}</Text>
             )}
             
             {item.data?.modelType && (
-              <Text style={NotificacionesStyles.modelType}>Tipo: {item.data.modelType}</Text>
+              <Text style={NotificacionesStyles.modelType}>Tipo: {String(item.data.modelType)}</Text>
             )}
             
             {item.data?.productName && (
-              <Text style={NotificacionesStyles.modelType}>Producto: {item.data.productName}</Text>
+              <Text style={NotificacionesStyles.modelType}>Producto: {String(item.data.productName)}</Text>
             )}
             
             {item.data?.rating && (
-              <Text style={NotificacionesStyles.modelType}>Calificación: {item.data.rating} ⭐</Text>
+              <Text style={NotificacionesStyles.modelType}>Calificación: {String(item.data.rating)} estrellas</Text>
             )}
             
             {item.data?.total && (
-              <Text style={NotificacionesStyles.modelType}>Total: ${item.data.total}</Text>
+              <Text style={NotificacionesStyles.modelType}>Total: ${String(item.data.total)}</Text>
             )}
             
             {item.data?.itemsCount && (
-              <Text style={NotificacionesStyles.modelType}>Items: {item.data.itemsCount}</Text>
+              <Text style={NotificacionesStyles.modelType}>Items: {String(item.data.itemsCount)}</Text>
             )}
           </View>
           
@@ -315,7 +315,7 @@ const Notificaciones = ({ navigation }) => {
           <Text style={NotificacionesStyles.timestamp}>{formatDate(item.createdAt || new Date())}</Text>
           
           {item.data?.price && (
-            <Text style={NotificacionesStyles.price}>${item.data.price}</Text>
+            <Text style={NotificacionesStyles.price}>${String(item.data.price)}</Text>
           )}
         </View>
       </TouchableOpacity>

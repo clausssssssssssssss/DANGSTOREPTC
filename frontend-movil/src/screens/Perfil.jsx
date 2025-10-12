@@ -95,7 +95,7 @@ const TuPerfil = ({ navigation, userData }) => {
             activeOpacity={0.8}
           >
             <View style={PerfilStyles.buttonGradient}>
-              <Text style={PerfilStyles.configButtonText}>⚙️ Configuración</Text>
+              <Text style={PerfilStyles.configButtonText}>Configuración</Text>
             </View>
           </TouchableOpacity>
         </View>

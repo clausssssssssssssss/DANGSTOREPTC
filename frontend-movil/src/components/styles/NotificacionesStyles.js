@@ -21,13 +21,19 @@ const NotificacionesStyles = StyleSheet.create({
 
   // Header Styles
   header: {
-    backgroundColor: '#8B5CF6',
-    paddingTop: 60,
-    paddingBottom: 15,
-    paddingHorizontal: 20,
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
+    paddingHorizontal: 15,
+    paddingTop: 20,
+    paddingBottom: 8,
+    backgroundColor: '#FFFFFF',
+    borderBottomWidth: 1,
+    borderBottomColor: '#E5E7EB',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 3,
   },
   
   headerLeft: {

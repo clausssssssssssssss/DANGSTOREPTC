@@ -1,170 +1,232 @@
-import React, { useState, useEffect } from 'react';
-import { StyleSheet, Dimensions, View, Image, Text, TouchableOpacity, Animated, Easing } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { StyleSheet, Dimensions, View, Image, Text, Animated, Easing } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 
 const { width, height } = Dimensions.get('window');
 
 export default function SplashScreen({ navigation }) {
-  const [progress, setProgress] = useState(0);
   const [isVisible, setIsVisible] = useState(true);
   
   // Animaciones
-  const fadeAnim = new Animated.Value(0);
-  const scaleAnim = new Animated.Value(0.8);
-  const slideAnim = new Animated.Value(50);
-  const progressAnim = new Animated.Value(0);
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const scaleAnim = useRef(new Animated.Value(0.3)).current;
+  const logoRotateAnim = useRef(new Animated.Value(0)).current;
+  const logoFloatAnim = useRef(new Animated.Value(0)).current;
+  const glowAnim = useRef(new Animated.Value(0)).current;
+  const slideUpAnim = useRef(new Animated.Value(50)).current;
 
   useEffect(() => {
-    // Animación de entrada
+    // Animación de entrada del logo con rebote
     Animated.parallel([
       Animated.timing(fadeAnim, {
         toValue: 1,
-        duration: 1000,
+        duration: 800,
+        easing: Easing.out(Easing.ease),
         useNativeDriver: true,
       }),
-      Animated.timing(scaleAnim, {
+      Animated.spring(scaleAnim, {
         toValue: 1,
-        duration: 1000,
-        easing: Easing.out(Easing.back(1.2)),
+        tension: 30,
+        friction: 6,
         useNativeDriver: true,
       }),
-      Animated.timing(slideAnim, {
+      Animated.timing(slideUpAnim, {
         toValue: 0,
-        duration: 1000,
+        duration: 800,
         easing: Easing.out(Easing.cubic),
         useNativeDriver: true,
       }),
+      Animated.sequence([
+        Animated.timing(logoRotateAnim, {
+          toValue: 1,
+          duration: 1200,
+          easing: Easing.out(Easing.back(1.5)),
+          useNativeDriver: true,
+        }),
+      ]),
     ]).start();
 
-    // Progreso de carga
-    const increment = 100 / (3000 / 50);
-    const progressTimer = setInterval(() => {
-      setProgress(prev => {
-        if (prev >= 100) {
-          clearInterval(progressTimer);
-          setTimeout(() => {
-            setIsVisible(false);
-            setTimeout(() => {
-              if (navigation && navigation.navigate) {
-                navigation.navigate('AuthApp');
-              }
-            }, 300);
-          }, 500);
-          return 100;
+    // Animación de flotación continua del logo
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(logoFloatAnim, {
+          toValue: 1,
+          duration: 2000,
+          easing: Easing.inOut(Easing.ease),
+          useNativeDriver: true,
+        }),
+        Animated.timing(logoFloatAnim, {
+          toValue: 0,
+          duration: 2000,
+          easing: Easing.inOut(Easing.ease),
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
+
+    // Animación de resplandor pulsante
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(glowAnim, {
+          toValue: 1,
+          duration: 1500,
+          easing: Easing.inOut(Easing.ease),
+          useNativeDriver: true,
+        }),
+        Animated.timing(glowAnim, {
+          toValue: 0,
+          duration: 1500,
+          easing: Easing.inOut(Easing.ease),
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
+
+    // Navegación automática (más tiempo para mostrar el splash)
+    const timer = setTimeout(() => {
+      Animated.parallel([
+        Animated.timing(fadeAnim, {
+          toValue: 0,
+          duration: 400,
+          useNativeDriver: true,
+        }),
+        Animated.timing(scaleAnim, {
+          toValue: 0.9,
+          duration: 400,
+          useNativeDriver: true,
+        }),
+      ]).start(() => {
+        if (navigation && navigation.navigate) {
+          navigation.navigate('AuthApp');
         }
-        return prev + increment;
       });
-    }, 50);
+    }, 4500);
 
-    // Animación de la barra de progreso
-    Animated.timing(progressAnim, {
-      toValue: 1,
-      duration: 3000,
-      useNativeDriver: false,
-    }).start();
-
-    return () => {
-      clearInterval(progressTimer);
-    };
+    return () => clearTimeout(timer);
   }, []);
 
   if (!isVisible) return null;
 
+  const logoRotation = logoRotateAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0deg', '360deg'],
+  });
+
+  const logoFloat = logoFloatAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, -15],
+  });
+
+  const glowOpacity = glowAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0.3, 0.8],
+  });
+
+  const glowScale = glowAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [1, 1.15],
+  });
+
   return (
     <LinearGradient
-      colors={['#667eea', '#764ba2', '#f093fb']}
+      colors={['#6E59A4', '#3B3B3B']}
       start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 1 }}
+      end={{ x: 0, y: 1 }}
       style={styles.container}
     >
-      {/* Partículas de fondo */}
-      <View style={styles.particlesContainer}>
-        {[...Array(20)].map((_, i) => (
+      {/* Contenedor principal centrado */}
+      <Animated.View
+        style={[
+          styles.mainContent,
+          {
+            opacity: fadeAnim,
+            transform: [{ scale: scaleAnim }],
+          },
+        ]}
+      >
+        {/* Logo con animación bonita */}
+        <View style={styles.logoSection}>
+          {/* Resplandor animado detrás del logo */}
           <Animated.View
-            key={i}
             style={[
-              styles.particle,
+              styles.logoGlow,
               {
-                left: Math.random() * width,
-                top: Math.random() * height,
-                opacity: fadeAnim,
-                transform: [
+                opacity: glowOpacity,
+                transform: [{ scale: glowScale }],
+              },
+            ]}
+          />
+          
+          {/* Logo con rotación y flotación */}
+          <Animated.View
+            style={{
+              transform: [
+                { rotate: logoRotation },
+                { translateY: logoFloat },
+                { scale: scaleAnim },
+              ],
+            }}
+          >
+            <Image
+              source={require('../assets/DANGSTORELOGOPRUEBA__1.png')}
+              style={styles.logo}
+              resizeMode="contain"
+            />
+          </Animated.View>
+        </View>
+
+        {/* Nombre de la marca */}
+        <Animated.View
+          style={[
+            styles.brandSection,
+            {
+              opacity: fadeAnim,
+              transform: [{ translateY: slideUpAnim }],
+            },
+          ]}
+        >
+          <Text style={styles.brandName}>DANGSTORE</Text>
+          <View style={styles.brandDivider} />
+          <Text style={styles.brandTagline}>Tu Tienda de Creatividad</Text>
+        </Animated.View>
+
+        {/* Indicador de carga */}
+        <Animated.View
+          style={[
+            styles.loadingSection,
+            {
+              opacity: fadeAnim,
+              transform: [{ translateY: slideUpAnim }],
+            },
+          ]}
+        >
+          <View style={styles.dotsContainer}>
+            {[0, 1, 2].map((index) => (
+              <Animated.View
+                key={index}
+                style={[
+                  styles.loadingDot,
                   {
-                    scale: scaleAnim.interpolate({
+                    opacity: glowAnim.interpolate({
                       inputRange: [0, 1],
-                      outputRange: [0, Math.random() * 0.5 + 0.5],
+                      outputRange: index === 0 ? [0.5, 1] : 
+                                    index === 1 ? [1, 0.5] : 
+                                    [0.5, 1],
                     }),
+                    transform: [{
+                      scale: glowAnim.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: index === 0 ? [1, 1.3] : 
+                                      index === 1 ? [1.3, 1] : 
+                                      [1, 1.3],
+                      }),
+                    }],
                   },
-                ],
-              },
-            ]}
-          />
-        ))}
-      </View>
-
-      {/* Logo principal con animación */}
-      <Animated.View
-        style={[
-          styles.logoContainer,
-          {
-            opacity: fadeAnim,
-            transform: [
-              { scale: scaleAnim },
-              { translateY: slideAnim },
-            ],
-          },
-        ]}
-      >
-        <View style={styles.logoWrapper}>
-          <Image
-            source={require('../assets/splashscreen.png')}
-            style={styles.logoImage}
-            resizeMode="contain"
-          />
-          <View style={styles.logoGlow} />
-        </View>
-      </Animated.View>
-
-      {/* Título principal con animación */}
-      <Animated.View
-        style={[
-          styles.titleContainer,
-          {
-            opacity: fadeAnim,
-            transform: [{ translateY: slideAnim }],
-          },
-        ]}
-      >
-        <Text style={styles.welcomeText}>Bienvenido a</Text>
-        <Text style={styles.brandText}>DANGSTORE</Text>
-        <Text style={styles.subtitleText}>Donde la creatividad cobra vida</Text>
-      </Animated.View>
-
-      {/* Barra de progreso animada */}
-      <Animated.View
-        style={[
-          styles.progressContainer,
-          {
-            opacity: fadeAnim,
-            transform: [{ translateY: slideAnim }],
-          },
-        ]}
-      >
-        <View style={styles.progressBar}>
-          <Animated.View
-            style={[
-              styles.progressFill,
-              {
-                width: progressAnim.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: ['0%', '100%'],
-                }),
-              },
-            ]}
-          />
-        </View>
-        <Text style={styles.loadingText}>Cargando tu experiencia...</Text>
-        <Text style={styles.progressText}>{Math.round(progress)}%</Text>
+                ]}
+              />
+            ))}
+          </View>
+        </Animated.View>
       </Animated.View>
     </LinearGradient>
   );
@@ -179,119 +241,87 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     position: 'relative',
   },
-  particlesContainer: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    zIndex: 1,
-  },
-  particle: {
-    position: 'absolute',
-    width: 4,
-    height: 4,
-    backgroundColor: 'rgba(255, 255, 255, 0.6)',
-    borderRadius: 2,
-  },
-  logoContainer: {
+  mainContent: {
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: height * 0.08,
-    zIndex: 3,
+    width: '100%',
+    height: '100%',
   },
-  logoWrapper: {
+  logoSection: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 40,
     position: 'relative',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  logoImage: {
-    width: width * 0.6,
-    height: height * 0.3,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.3,
-    shadowRadius: 20,
   },
   logoGlow: {
     position: 'absolute',
-    width: width * 0.7,
-    height: height * 0.35,
+    width: 200,
+    height: 200,
+    borderRadius: 100,
     backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    borderRadius: width * 0.35,
-    shadowColor: '#fff',
+    shadowColor: '#FFFFFF',
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.5,
-    shadowRadius: 30,
+    shadowRadius: 20,
+    elevation: 10,
   },
-  titleContainer: {
+  logo: {
+    width: 120,
+    height: 120,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  brandSection: {
     alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: height * 0.08,
-    zIndex: 3,
+    marginBottom: 40,
   },
-  welcomeText: {
-    fontSize: 20,
-    fontWeight: '300',
-    color: 'rgba(255, 255, 255, 0.9)',
-    letterSpacing: 2,
-    marginBottom: 8,
-    textAlign: 'center',
-  },
-  brandText: {
-    fontSize: 42,
+  brandName: {
+    fontSize: 32,
     fontWeight: 'bold',
-    color: '#fff',
+    color: '#FFFFFF',
     textAlign: 'center',
+    letterSpacing: 3,
     textShadowColor: 'rgba(0, 0, 0, 0.3)',
-    textShadowOffset: { width: 0, height: 4 },
-    textShadowRadius: 8,
-    letterSpacing: 1,
-    marginBottom: 12,
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
+    marginBottom: 8,
   },
-  subtitleText: {
+  brandDivider: {
+    width: 60,
+    height: 2,
+    backgroundColor: '#FFFFFF',
+    marginBottom: 12,
+    borderRadius: 1,
+  },
+  brandTagline: {
     fontSize: 16,
-    fontWeight: '400',
+    fontWeight: '300',
     color: 'rgba(255, 255, 255, 0.8)',
     textAlign: 'center',
-    letterSpacing: 0.5,
+    letterSpacing: 1,
     fontStyle: 'italic',
   },
-  progressContainer: {
+  loadingSection: {
+    alignItems: 'center',
+  },
+  dotsContainer: {
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    width: width * 0.8,
-    zIndex: 3,
   },
-  progressBar: {
-    width: '100%',
-    height: 6,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    borderRadius: 3,
-    overflow: 'hidden',
-    marginBottom: 16,
-  },
-  progressFill: {
-    height: '100%',
-    backgroundColor: '#fff',
-    borderRadius: 3,
-    shadowColor: '#fff',
+  loadingDot: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    backgroundColor: '#FFFFFF',
+    marginHorizontal: 6,
+    shadowColor: '#FFFFFF',
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.8,
-    shadowRadius: 10,
-  },
-  loadingText: {
-    fontSize: 16,
-    fontWeight: '400',
-    color: 'rgba(255, 255, 255, 0.9)',
-    textAlign: 'center',
-    marginBottom: 8,
-    letterSpacing: 0.5,
-  },
-  progressText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: 'rgba(255, 255, 255, 0.7)',
-    textAlign: 'center',
+    shadowRadius: 4,
+    elevation: 4,
   },
 });

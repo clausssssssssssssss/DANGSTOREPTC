@@ -175,7 +175,7 @@ const StockLimites = ({ navigation }) => {
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
       <View style={StockLimitesStyles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={StockLimitesStyles.backButton}>
-          <Ionicons name="arrow-back" size={24} color="#1F2937" />
+          <Text style={StockLimitesStyles.backButtonText}>←</Text>
         </TouchableOpacity>
         <Text style={StockLimitesStyles.headerTitle}>Configuración</Text>
       </View>
@@ -308,7 +308,7 @@ const StockLimites = ({ navigation }) => {
                 <View style={StockLimitesStyles.section}>
                   <Text style={StockLimitesStyles.sectionTitle}>Gestión de Stock Individual</Text>
                   <Text style={StockLimitesStyles.sectionDescription}>
-                    Para configurar el stock individual de cada producto, ve a la pantalla de Productos y usa el botón ⚙ en cada producto.
+                    Para configurar el stock individual de cada producto, ve a la pantalla de Productos y usa el botón de configuración en cada producto.
                   </Text>
                   <View style={StockLimitesStyles.settingItem}>
                     <Text style={StockLimitesStyles.settingLabel}>Configurar stock por producto</Text>

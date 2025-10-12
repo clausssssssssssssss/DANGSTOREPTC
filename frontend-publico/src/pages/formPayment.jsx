@@ -3,10 +3,12 @@ import InputField from "../components/payment/InputField";
 import Button from "../components/payment/Button";
 import DeliveryPointSelector from "../components/payment/DeliveryPointSelector";
 import usePaymentForm from "../components/payment/hook/usePaymentForm";
+import { usePaymentValidation } from "../hooks/usePaymentValidation";
 import { useToast } from "../hooks/useToast";
 import ToastContainer from "../components/ui/ToastContainer";
 import { CreditCard, User, Mail, HelpCircle, CheckCircle, MapPin, ShoppingCart } from "lucide-react";
 import "../components/styles/formPayment.css";
+import "../components/styles/formPaymentFake.css";
 import "../components/styles/PixelDecorations.css";
 
 const FormPayment = () => {
@@ -24,17 +26,86 @@ const FormPayment = () => {
     detectCardType,
   } = usePaymentForm();
 
+  const {
+    errors,
+    validateField,
+    validateForm,
+    touchField,
+    clearErrors,
+    getFieldValidationState,
+    formatCardNumber,
+    detectCardType: detectCardTypeValidation
+  } = usePaymentValidation();
+
   const [cardType, setCardType] = useState('unknown');
   const [selectedDeliveryPoint, setSelectedDeliveryPoint] = useState(null);
   const [deliveryPoints, setDeliveryPoints] = useState([]);
 
+  // Handler mejorado para cambios en campos con validación
+  const handleFieldChange = (fieldName, value, additionalData = {}) => {
+    // Actualizar el formulario
+    handleChangeTarjeta({
+      target: {
+        name: fieldName,
+        value: value
+      }
+    });
+
+    // Validar el campo en tiempo real
+    if (fieldName === 'numeroTarjeta') {
+      const formattedValue = formatCardNumber(value);
+      const detectedType = detectCardTypeValidation(formattedValue);
+      setCardType(detectedType);
+      
+      validateField(fieldName, formattedValue, { cardType: detectedType });
+    } else if (fieldName === 'cvv') {
+      // Solo permitir números y limitar a 3 dígitos máximo
+      const numericValue = value.replace(/\D/g, '').slice(0, 3);
+      
+      // Forzar la actualización del valor si es diferente
+      handleChangeTarjeta({
+        target: {
+          name: fieldName,
+          value: numericValue
+        }
+      });
+      
+      // Validar el CVV
+      validateField(fieldName, numericValue, { cardType });
+    } else if (fieldName === 'mesVencimiento' || fieldName === 'anioVencimiento') {
+      // Actualizar el estado primero
+      handleChangeTarjeta({
+        target: {
+          name: fieldName,
+          value: value
+        }
+      });
+      
+      // Validar la fecha completa después de actualizar el estado
+      setTimeout(() => {
+        const currentFormData = formDataTarjeta;
+        validateField('expiryDate', value, {
+          month: fieldName === 'mesVencimiento' ? value : currentFormData.mesVencimiento,
+          year: fieldName === 'anioVencimiento' ? value : currentFormData.anioVencimiento
+        });
+      }, 0);
+    } else {
+      validateField(fieldName, value, additionalData);
+    }
+  };
+
+  // Handler para blur (cuando el usuario sale del campo)
+  const handleFieldBlur = (fieldName) => {
+    touchField(fieldName);
+  };
+
   // Detectar tipo de tarjeta cuando cambie el número
   useEffect(() => {
     if (formDataTarjeta.numeroTarjeta) {
-      const detectedType = detectCardType(formDataTarjeta.numeroTarjeta);
+      const detectedType = detectCardTypeValidation(formDataTarjeta.numeroTarjeta);
       setCardType(detectedType);
     }
-  }, [formDataTarjeta.numeroTarjeta, detectCardType]);
+  }, [formDataTarjeta.numeroTarjeta, detectCardTypeValidation]);
 
   // Cargar puntos de entrega al montar el componente
   useEffect(() => {
@@ -72,12 +143,79 @@ const FormPayment = () => {
     setSelectedDeliveryPoint(point);
   };
   
-  const continueToConfirmation = () => {
-    if (!selectedDeliveryPoint) {
-      showWarning('Por favor selecciona un punto de entrega');
-      return;
+  // Validar que todos los campos del paso actual estén llenos
+  const validateCurrentStep = () => {
+    if (step === 1) {
+      // Validar datos de la tarjeta
+      const { numeroTarjeta, nombreTarjeta, mesVencimiento, anioVencimiento, cvv } = formDataTarjeta;
+      
+      // Verificar si algún campo está vacío
+      const camposFaltantes = [];
+      
+      if (!numeroTarjeta || numeroTarjeta.replace(/\s/g, '').length < 13) {
+        camposFaltantes.push('número de tarjeta');
+      }
+      
+      if (!nombreTarjeta || nombreTarjeta.trim().length < 2) {
+        camposFaltantes.push('nombre del titular');
+      }
+      
+      if (!mesVencimiento) {
+        camposFaltantes.push('mes de vencimiento');
+      }
+      
+      if (!anioVencimiento) {
+        camposFaltantes.push('año de vencimiento');
+      }
+      
+      if (!cvv || cvv.length !== 3) {
+        camposFaltantes.push('CVV');
+      }
+      
+      // Si faltan campos, mostrar toast
+      if (camposFaltantes.length > 0) {
+        showError('Rellena todos los campos');
+        return false;
+      }
+      
+      // Validar que la fecha no haya expirado
+      const currentDate = new Date();
+      const currentYear = currentDate.getFullYear();
+      const currentMonth = currentDate.getMonth() + 1;
+      const expiryYear = parseInt(anioVencimiento);
+      const expiryMonth = parseInt(mesVencimiento);
+      
+      if (expiryYear < currentYear || (expiryYear === currentYear && expiryMonth < currentMonth)) {
+        showError('La tarjeta ha expirado');
+        return false;
+      }
+      
+      return true;
     }
-    setStep(3);
+    
+    if (step === 2) {
+      if (!selectedDeliveryPoint) {
+        showError('Rellena todos los campos');
+        return false;
+      }
+      return true;
+    }
+    
+    return true;
+  };
+
+  const continueToNextStep = () => {
+    if (validateCurrentStep()) {
+      if (step === 1) {
+        setStep(2);
+      } else if (step === 2) {
+        setStep(3);
+      }
+    }
+  };
+
+  const continueToConfirmation = () => {
+    continueToNextStep();
   };
 
   return (
@@ -130,23 +268,23 @@ const FormPayment = () => {
               </p>
               
               <div className="card-form">
-                <div className="input-group">
-                  <label htmlFor="numeroTarjeta" className="input-label">
-                    Número de tarjeta *
-                  </label>
-                  <div className="card-input">
-                    <CreditCard size={18} />
-                    <InputField
-                      id="numeroTarjeta"
-                      name="numeroTarjeta"
-                      value={formDataTarjeta.numeroTarjeta}
-                      onChange={handleChangeTarjeta}
-                      type="text"
-                      placeholder="4242 4242 4242 4242"
-                      required
-                      maxLength="19"
-                    />
-                  </div>
+                <div className="card-input">
+                  <CreditCard size={18} className="card-icon" />
+                  <InputField
+                    id="numeroTarjeta"
+                    name="numeroTarjeta"
+                    value={formDataTarjeta.numeroTarjeta}
+                    onChange={(e) => handleFieldChange('numeroTarjeta', e.target.value)}
+                    onBlur={() => handleFieldBlur('numeroTarjeta')}
+                    type="text"
+                    placeholder="4242 4242 4242 4242"
+                    label="Número de tarjeta"
+                    required
+                    maxLength="19"
+                    error={errors.numeroTarjeta}
+                    validationState={getFieldValidationState('numeroTarjeta')}
+                    autoComplete="cc-number"
+                  />
                 </div>
 
                 <div className="input-group">
@@ -170,36 +308,47 @@ const FormPayment = () => {
                       Fecha de vencimiento *
                     </label>
                     <div className="expiry-fields">
-                      <select
-                        name="mesVencimiento"
-                        value={formDataTarjeta.mesVencimiento}
-                        onChange={handleChangeTarjeta}
-                        className="expiry-select"
-                        required
-                      >
-                        <option value="">MM</option>
-                        {Array.from({length: 12}, (_, i) => (
-                          <option key={i+1} value={String(i+1).padStart(2, '0')}>
-                            {String(i+1).padStart(2, '0')}
-                          </option>
-                        ))}
-                      </select>
-                      <select
-                        name="anioVencimiento"
-                        value={formDataTarjeta.anioVencimiento}
-                        onChange={handleChangeTarjeta}
-                        className="expiry-select"
-                        required
-                      >
-                        <option value="">AAAA</option>
-                        {Array.from({length: 10}, (_, i) => (
-                          <option key={i} value={new Date().getFullYear() + i}>
-                            {new Date().getFullYear() + i}
-                          </option>
-                        ))}
-                      </select>
+                      <div className="input-field">
+                        <select
+                          name="mesVencimiento"
+                          value={formDataTarjeta.mesVencimiento}
+                          onChange={(e) => handleFieldChange('mesVencimiento', e.target.value)}
+                          onBlur={() => handleFieldBlur('mesVencimiento')}
+                          className={`expiry-select ${errors.mesVencimiento || errors.expiryDate ? 'error' : ''}`}
+                          required
+                        >
+                          <option value="">MM</option>
+                          {Array.from({length: 12}, (_, i) => (
+                            <option key={i+1} value={String(i+1).padStart(2, '0')}>
+                              {String(i+1).padStart(2, '0')}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <div className="input-field">
+                        <select
+                          name="anioVencimiento"
+                          value={formDataTarjeta.anioVencimiento}
+                          onChange={(e) => handleFieldChange('anioVencimiento', e.target.value)}
+                          onBlur={() => handleFieldBlur('anioVencimiento')}
+                          className={`expiry-select ${errors.anioVencimiento || errors.expiryDate ? 'error' : ''}`}
+                          required
+                        >
+                          <option value="">AAAA</option>
+                          {Array.from({length: 10}, (_, i) => (
+                            <option key={i} value={new Date().getFullYear() + i}>
+                              {new Date().getFullYear() + i}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
                     </div>
-              </div>
+                    {(errors.mesVencimiento || errors.anioVencimiento || errors.expiryDate) && (
+                      <div className="field-error">
+                        {errors.mesVencimiento || errors.anioVencimiento || errors.expiryDate}
+                      </div>
+                    )}
+                  </div>
 
                   <div className="input-group">
                     <div className="cvv-label-container">
@@ -217,11 +366,16 @@ const FormPayment = () => {
                       id="cvv"
                       name="cvv"
                       value={formDataTarjeta.cvv}
-                      onChange={handleChangeTarjeta}
+                      onChange={(e) => handleFieldChange('cvv', e.target.value)}
+                      onBlur={() => handleFieldBlur('cvv')}
                       type="text"
                       placeholder="123"
+                      label=""
                       required
                       maxLength="3"
+                      error={errors.cvv}
+                      validationState={getFieldValidationState('cvv')}
+                      autoComplete="cc-csc"
                     />
                   </div>
                 </div>
@@ -236,7 +390,7 @@ const FormPayment = () => {
 
                 <div className="form-footer">
                   <Button
-                    onClick={() => setStep(2)}
+                    onClick={continueToNextStep}
                     variant="primary"
                     className="btn-primary"
                     text="Continuar a Punto de Entrega"
@@ -266,14 +420,14 @@ const FormPayment = () => {
                 />
 
                 <div className="form-footer">
-                <Button
-                  onClick={() => setStep(1)}
-                  variant="secondary"
-                  className="btn-secondary"
+                  <Button
+                    onClick={() => setStep(1)}
+                    variant="secondary"
+                    className="btn-secondary"
                     text="Volver a Tarjeta"
                   />
                   <Button
-                    onClick={continueToConfirmation}
+                    onClick={continueToNextStep}
                     variant="primary"
                     className="btn-primary"
                     text="Continuar a Confirmación"

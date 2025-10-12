@@ -25,18 +25,26 @@
 .delivery-points-list {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
   margin-bottom: 24px;
+  max-height: 400px;
+  overflow-y: auto;
+  padding-right: 8px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 16px;
+  background: #f8f9fa;
 }
 
 .delivery-point-card {
   border: 2px solid #e2e8f0;
-  border-radius: 12px;
-  padding: 20px;
+  border-radius: 8px;
+  padding: 12px;
   cursor: pointer;
   transition: all 0.3s ease;
   background: white;
   position: relative;
+  min-height: auto;
 }
 
 .delivery-point-card:hover {
@@ -54,17 +62,17 @@
 .point-header {
   display: flex;
   align-items: flex-start;
-  gap: 16px;
+  gap: 12px;
 }
 
 .point-radio {
   flex-shrink: 0;
-  margin-top: 4px;
+  margin-top: 2px;
 }
 
 .point-radio input[type="radio"] {
-  width: 20px;
-  height: 20px;
+  width: 16px;
+  height: 16px;
   margin: 0;
   cursor: pointer;
 }
@@ -79,29 +87,29 @@
 
 .point-name {
   color: #2d3748;
-  font-size: 1.25rem;
+  font-size: 1rem;
   font-weight: 600;
-  margin: 0 0 8px 0;
+  margin: 0 0 4px 0;
 }
 
 .point-address {
   color: #4a5568;
-  font-size: 1rem;
-  margin: 0 0 8px 0;
-  line-height: 1.5;
+  font-size: 0.85rem;
+  margin: 0 0 4px 0;
+  line-height: 1.4;
 }
 
 .point-description {
   color: #718096;
-  font-size: 0.9rem;
-  margin: 0 0 8px 0;
+  font-size: 0.8rem;
+  margin: 0 0 4px 0;
   font-style: italic;
 }
 
 .point-reference {
   color: #4a5568;
-  font-size: 0.9rem;
-  margin: 0 0 8px 0;
+  font-size: 0.8rem;
+  margin: 0 0 4px 0;
 }
 
 .point-reference strong {
@@ -222,21 +230,49 @@
   color: #2d3748;
 }
 
+/* Scrollbar personalizado */
+.delivery-points-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.delivery-points-list::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.delivery-points-list::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+.delivery-points-list::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .delivery-point-header h3 {
-    font-size: 1.3rem;
+    font-size: 1.2rem;
+  }
+  
+  .delivery-points-list {
+    max-height: 300px;
+    padding: 12px;
   }
   
   .delivery-point-card {
-    padding: 16px;
+    padding: 10px;
   }
   
   .point-name {
-    font-size: 1.1rem;
+    font-size: 0.9rem;
+  }
+  
+  .point-address {
+    font-size: 0.8rem;
   }
   
   .point-header {
-    gap: 12px;
+    gap: 10px;
   }
 }

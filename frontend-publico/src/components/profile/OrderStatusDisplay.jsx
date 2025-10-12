@@ -1,0 +1,168 @@
+import React from 'react';
+import { Clock, CheckCircle, Package, MapPin, Calendar, AlertCircle } from 'lucide-react';
+import './OrderStatusDisplay.css';
+
+const OrderStatusDisplay = ({ order }) => {
+  const getStatusInfo = (status) => {
+    switch (status) {
+      case 'PAID':
+        return {
+          title: 'Pedido pagado',
+          description: 'Tu pedido ha sido procesado correctamente',
+          icon: <CheckCircle className="status-icon" />,
+          color: 'success'
+        };
+      case 'REVIEWING':
+        return {
+          title: 'Están revisando tu pedido',
+          description: 'Nuestro equipo está verificando los detalles de tu pedido',
+          icon: <Clock className="status-icon" />,
+          color: 'warning'
+        };
+      case 'MAKING':
+        return {
+          title: 'Tu pedido se está realizando',
+          description: 'Estamos elaborando tu pedido con mucho cuidado',
+          icon: <Package className="status-icon" />,
+          color: 'info'
+        };
+      case 'READY_FOR_DELIVERY':
+        return {
+          title: 'Revisa tu perfil para conocer los últimos datos de entrega',
+          description: 'Tu pedido está listo. Revisa los detalles de entrega en tu perfil',
+          icon: <MapPin className="status-icon" />,
+          color: 'primary'
+        };
+      case 'DELIVERED':
+        return {
+          title: 'Pedido entregado',
+          description: '¡Tu pedido ha sido entregado exitosamente!',
+          icon: <CheckCircle className="status-icon" />,
+          color: 'success'
+        };
+      case 'CANCELLED':
+        return {
+          title: 'Pedido cancelado',
+          description: 'Tu pedido ha sido cancelado',
+          icon: <AlertCircle className="status-icon" />,
+          color: 'error'
+        };
+      default:
+        return {
+          title: 'Estado desconocido',
+          description: 'No se pudo determinar el estado del pedido',
+          icon: <AlertCircle className="status-icon" />,
+          color: 'error'
+        };
+    }
+  };
+
+  const getDeliveryActions = (order) => {
+    if (order.deliveryStatus === 'READY_FOR_DELIVERY' && order.deliveryDate && !order.deliveryConfirmed) {
+      return (
+        <div className="delivery-actions">
+          <div className="delivery-info">
+            <Calendar className="action-icon" />
+            <div className="delivery-details">
+              <p><strong>Fecha programada:</strong> {new Date(order.deliveryDate).toLocaleDateString('es-ES')}</p>
+              <p><strong>Hora:</strong> {new Date(order.deliveryDate).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}</p>
+            </div>
+          </div>
+          <div className="action-buttons">
+            <button 
+              className="btn-accept"
+              onClick={() => handleAcceptDelivery(order._id)}
+            >
+              Aceptar Entrega
+            </button>
+            <button 
+              className="btn-reject"
+              onClick={() => handleRejectDelivery(order._id)}
+            >
+              Rechazar Entrega
+            </button>
+          </div>
+        </div>
+      );
+    }
+    return null;
+  };
+
+  const handleAcceptDelivery = async (orderId) => {
+    try {
+      const token = localStorage.getItem('token');
+      // Usar el endpoint existente de delivery-schedule
+      const response = await fetch(`https://dangstoreptc-production.up.railway.app/api/delivery-schedule/${orderId}/confirm`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (response.ok) {
+        alert('¡Entrega confirmada exitosamente!');
+        window.location.reload();
+      } else {
+        const errorData = await response.json();
+        alert(errorData.message || 'Error al aceptar la entrega');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Error de conexión');
+    }
+  };
+
+  const handleRejectDelivery = async (orderId) => {
+    try {
+      const reason = prompt('¿Por qué necesitas reprogramar la entrega?');
+      if (!reason) return;
+
+      const token = localStorage.getItem('token');
+      // Usar el endpoint existente de delivery-schedule
+      const response = await fetch(`https://dangstoreptc-production.up.railway.app/api/delivery-schedule/${orderId}/request-reschedule`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ reason })
+      });
+
+      if (response.ok) {
+        alert('Solicitud de reprogramación enviada al administrador');
+        window.location.reload();
+      } else {
+        const errorData = await response.json();
+        alert(errorData.message || 'Error al solicitar reprogramación');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Error de conexión');
+    }
+  };
+
+  const statusInfo = getStatusInfo(order.deliveryStatus);
+
+  return (
+    <div className={`order-status-card status-${statusInfo.color}`}>
+      <div className="status-header">
+        {statusInfo.icon}
+        <div className="status-content">
+          <h4 className="status-title">{statusInfo.title}</h4>
+          <p className="status-description">{statusInfo.description}</p>
+        </div>
+      </div>
+      
+      {getDeliveryActions(order)}
+      
+      <div className="order-details">
+        <p><strong>Pedido #:</strong> {order._id.slice(-8)}</p>
+        <p><strong>Total:</strong> ${order.total.toFixed(2)}</p>
+        <p><strong>Fecha:</strong> {new Date(order.createdAt).toLocaleDateString('es-ES')}</p>
+      </div>
+    </div>
+  );
+};
+
+export default OrderStatusDisplay;

@@ -3,7 +3,7 @@ import { Package } from 'lucide-react';
 import OrderStatusDisplay from './OrderStatusDisplay';
 
 // URL del servidor
-const API_BASE = 'https://dangstoreptc-production.up.railway.app/api';
+const API_BASE = 'http://localhost:4000/api';
 
 const OrdersSection = ({ userId }) => {
   const [orders, setOrders] = useState([]);
@@ -15,15 +15,18 @@ const OrdersSection = ({ userId }) => {
   }, [userId]);
 
   const loadOrders = () => {
-    fetch(`${API_BASE}/profile/orders`, {
+    fetch(`${API_BASE}/orders`, {
       headers: {
         'Authorization': `Bearer ${localStorage.getItem('token')}`
       }
     })
     .then(res => res.json())
     .then(data => {
-      // El endpoint existente devuelve un array directamente, no con success
-      setOrders(data || []);
+      if (data.success) {
+        setOrders(data.orders);
+      } else {
+        setError(data.message || 'Error al cargar las órdenes');
+      }
       setLoading(false);
     })
     .catch(err => {

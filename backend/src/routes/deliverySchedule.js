@@ -8,6 +8,7 @@ const router = express.Router();
 router.post('/:orderId/schedule', verifyToken, verifyAdmin, deliveryScheduleController.scheduleDelivery);
 router.put('/:orderId/rescheduling', verifyToken, verifyAdmin, deliveryScheduleController.handleRescheduling);
 router.put('/:orderId/status', verifyToken, verifyAdmin, deliveryScheduleController.updateDeliveryStatus);
+router.post('/:orderId/start-making', verifyToken, verifyAdmin, deliveryScheduleController.startMakingOrder);
 router.get('/orders', verifyToken, verifyAdmin, deliveryScheduleController.getOrdersByDeliveryStatus);
 router.get('/rescheduling-requests', verifyToken, verifyAdmin, deliveryScheduleController.getPendingReschedulingRequests);
 

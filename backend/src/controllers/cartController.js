@@ -307,7 +307,7 @@ export const createOrder = async (req, res) => {
       return res.status(401).json({ success: false, message: "Usuario no autenticado" });
     }
 
-    const { items, total, wompiOrderID, wompiStatus } = req.body;
+    const { items, total, wompiOrderID, wompiStatus, deliveryPoint } = req.body;
 
     if (!items || !Array.isArray(items) || items.length === 0) {
       return res.status(400).json({ success: false, message: "Items inválidos" });
@@ -441,6 +441,14 @@ console.log('✅ Items después de expansión:', expandedItems.length);
       total: totalAmount,
       status: wompiStatus === "COMPLETED" ? "COMPLETED" : "PENDING",
       wompi: { orderID: wompiOrderID, captureStatus: wompiStatus },
+      deliveryPoint: deliveryPoint,
+      deliveryStatus: wompiStatus === "COMPLETED" ? "REVIEWING" : "PAID",
+      statusHistory: [{
+        status: wompiStatus === "COMPLETED" ? "REVIEWING" : "PAID",
+        changedBy: 'system',
+        changedAt: new Date(),
+        notes: wompiStatus === "COMPLETED" ? 'Pedido pagado, iniciando revisión' : 'Pedido creado'
+      }]
     });
 
     const savedOrder = await order.save();

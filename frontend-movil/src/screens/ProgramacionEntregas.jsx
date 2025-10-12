@@ -31,17 +31,17 @@ export default function ProgramacionEntregas() {
   
   const statusFilters = [
     { value: 'ALL', label: 'Todos', icon: 'list' },
-    { value: 'PAID', label: 'Pagados', icon: 'card' },
-    { value: 'SCHEDULED', label: 'Programados', icon: 'calendar' },
-    { value: 'CONFIRMED', label: 'Confirmados', icon: 'checkmark-circle' },
+    { value: 'REVIEWING', label: 'Revisando', icon: 'eye' },
+    { value: 'MAKING', label: 'Elaborando', icon: 'hammer' },
     { value: 'READY_FOR_DELIVERY', label: 'Listos', icon: 'cube' },
     { value: 'DELIVERED', label: 'Entregados', icon: 'checkmark-done' },
+    { value: 'CANCELLED', label: 'Cancelados', icon: 'close-circle' },
   ];
   
   const deliveryStatuses = {
     'PAID': { label: 'Pagado', color: '#2196F3' },
-    'SCHEDULED': { label: 'Programado', color: '#FF9800' },
-    'CONFIRMED': { label: 'Confirmado', color: '#4CAF50' },
+    'REVIEWING': { label: 'Revisando', color: '#FF9800' },
+    'MAKING': { label: 'Elaborando', color: '#FF5722' },
     'READY_FOR_DELIVERY': { label: 'Listo', color: '#9C27B0' },
     'DELIVERED': { label: 'Entregado', color: '#4CAF50' },
     'CANCELLED': { label: 'Cancelado', color: '#F44336' },
@@ -137,6 +137,32 @@ export default function ProgramacionEntregas() {
     } catch (error) {
       console.error('Error programando entrega:', error);
       Alert.alert('Error', 'No se pudo programar la entrega');
+    }
+  };
+  
+  const startMakingOrder = async (orderId) => {
+    try {
+      const response = await fetch(
+        `${API_URL}/delivery-schedule/${orderId}/start-making`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        Alert.alert('Éxito', 'Estado actualizado a "Elaborando"');
+        loadOrders();
+      } else {
+        Alert.alert('Error', data.message || 'Error al actualizar estado');
+      }
+    } catch (error) {
+      console.error('Error starting making order:', error);
+      Alert.alert('Error', 'Error de conexión');
     }
   };
   
@@ -332,7 +358,17 @@ export default function ProgramacionEntregas() {
         </View>
         
         <View style={styles.orderActions}>
-          {order.deliveryStatus === 'PAID' && (
+          {order.deliveryStatus === 'REVIEWING' && (
+            <TouchableOpacity
+              style={[styles.actionBtn, styles.makeBtn]}
+              onPress={() => startMakingOrder(order._id)}
+            >
+              <Ionicons name="hammer" size={18} color="#fff" />
+              <Text style={styles.actionBtnText}>Iniciar Elaboración</Text>
+            </TouchableOpacity>
+          )}
+          
+          {order.deliveryStatus === 'MAKING' && (
             <TouchableOpacity
               style={[styles.actionBtn, styles.scheduleBtn]}
               onPress={() => openScheduleModal(order)}
@@ -747,6 +783,9 @@ const styles = StyleSheet.create({
   },
   scheduleBtn: {
     backgroundColor: '#2196F3',
+  },
+  makeBtn: {
+    backgroundColor: '#FF5722',
   },
   approveBtn: {
     backgroundColor: '#4CAF50',

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../../hooks/useAuth';
 
-// URL del servidor local para desarrollo
+// URL del servidor Railway
 const API_BASE = 'https://dangstoreptc-production.up.railway.app/api';
 
 const usePaymentFakeForm = () => {
@@ -259,11 +259,6 @@ const usePaymentFakeForm = () => {
       nombreTitular,
       nombreFacturacion,
       emailFacturacion,
-      direccionFacturacion,
-      ciudadFacturacion,
-      estadoFacturacion,
-      codigoPostal,
-      paisFacturacion,
       telefonoFacturacion
     } = formData;
 
@@ -295,26 +290,6 @@ const usePaymentFakeForm = () => {
       return { isValid: false, message: 'Email de facturación inválido' };
     }
 
-    if (!direccionFacturacion || direccionFacturacion.trim().length < 5) {
-      return { isValid: false, message: 'Dirección de facturación es requerida (mínimo 5 caracteres)' };
-    }
-
-    if (!ciudadFacturacion || ciudadFacturacion.trim().length < 2) {
-      return { isValid: false, message: 'Ciudad es requerida' };
-    }
-
-    if (!estadoFacturacion || estadoFacturacion.trim().length < 2) {
-      return { isValid: false, message: 'Estado/Provincia es requerido' };
-    }
-
-    if (!codigoPostal || codigoPostal.trim().length < 3) {
-      return { isValid: false, message: 'Código postal es requerido (mínimo 3 caracteres)' };
-    }
-
-    if (!paisFacturacion || paisFacturacion.trim().length < 2) {
-      return { isValid: false, message: 'País es requerido' };
-    }
-
     if (!telefonoFacturacion || telefonoFacturacion.trim().length < 7) {
       return { isValid: false, message: 'Teléfono es requerido (mínimo 7 dígitos)' };
     }
@@ -323,7 +298,7 @@ const usePaymentFakeForm = () => {
   };
 
   // Función para procesar pago simulado y guardar orden
-  const handleFakePayment = async ({ items, total }) => {
+  const handleFakePayment = async ({ items, total, deliveryPointId }) => {
     try {
       console.log('=== HOOK PAGO ===');
       console.log('Items recibidos:', items);
@@ -353,6 +328,7 @@ const usePaymentFakeForm = () => {
       const orderData = {
         items: formattedItems,
         total: parseFloat(total),
+        deliveryPoint: deliveryPointId,
         wompiOrderID: `FAKE_ORDER_${Date.now()}`,
         wompiStatus: "COMPLETED",
       };

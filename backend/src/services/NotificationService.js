@@ -405,6 +405,62 @@ class NotificationService {
       throw error;
     }
   }
+
+  /**
+   * Crear notificación cuando cliente confirma entrega
+   */
+  static async createDeliveryConfirmedNotification(data) {
+    try {
+      const notification = new Notification({
+        title: 'Entrega Confirmada',
+        message: `El cliente ha confirmado la entrega programada para el ${new Date(data.deliveryDate).toLocaleDateString('es-ES')}`,
+        type: 'delivery_confirmed',
+        priority: 'normal',
+        data: {
+          orderId: data.orderId,
+          customerId: data.customerId,
+          deliveryDate: data.deliveryDate,
+        },
+        icon: '✅',
+      });
+
+      const savedNotification = await notification.save();
+      console.log('Notificación de entrega confirmada creada:', savedNotification._id);
+      
+      return savedNotification;
+    } catch (error) {
+      console.error('Error creando notificación de entrega confirmada:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Crear notificación cuando cliente solicita reprogramación
+   */
+  static async createRescheduleRequestNotification(data) {
+    try {
+      const notification = new Notification({
+        title: 'Solicitud de Reprogramación',
+        message: `El cliente ha solicitado reprogramar la entrega. Motivo: ${data.reason}`,
+        type: 'reschedule_request',
+        priority: 'high',
+        data: {
+          orderId: data.orderId,
+          customerId: data.customerId,
+          reason: data.reason,
+        },
+        icon: '🔄',
+      });
+
+      const savedNotification = await notification.save();
+      console.log('Notificación de solicitud de reprogramación creada:', savedNotification._id);
+      
+      return savedNotification;
+    } catch (error) {
+      console.error('Error creando notificación de solicitud de reprogramación:', error);
+      throw error;
+    }
+  }
 }
 
 export default NotificationService;

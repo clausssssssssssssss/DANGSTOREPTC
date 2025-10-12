@@ -70,10 +70,10 @@ const orderSchema = new Schema(
       required: false,
     },
 
-    /** Estado de la entrega: PAID, SCHEDULED, CONFIRMED, READY_FOR_DELIVERY, DELIVERED, CANCELLED */
+    /** Estado de la entrega: PAID, REVIEWING, MAKING, READY_FOR_DELIVERY, DELIVERED, CANCELLED */
     deliveryStatus: {
       type: String,
-      enum: ["PAID", "SCHEDULED", "CONFIRMED", "READY_FOR_DELIVERY", "DELIVERED", "CANCELLED"],
+      enum: ["PAID", "REVIEWING", "MAKING", "READY_FOR_DELIVERY", "DELIVERED", "CANCELLED"],
       default: "PAID",
     },
 

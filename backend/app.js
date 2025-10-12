@@ -23,6 +23,7 @@ import categoryRoutes from './src/routes/category.js';
 import storeConfigRoutes from './src/routes/storeConfig.js';
 import deliveryPointRoutes from './src/routes/deliveryPoints.js';
 import deliveryScheduleRoutes from './src/routes/deliverySchedule.js';
+import ordersRoutes from './src/routes/orders.js';
 import swaggerUi from "swagger-ui-express";
 import fs from "fs";
 
@@ -147,6 +148,9 @@ app.use('/api/delivery-points', deliveryPointRoutes);
 
 // Gestión de programación y reprogramación de entregas
 app.use('/api/delivery-schedule', deliveryScheduleRoutes);
+
+// Gestión de órdenes del cliente (aceptar/rechazar entregas)
+app.use('/api/orders', ordersRoutes);
 
 // Ruta de prueba para subida de imágenes
 app.post('/api/upload-test', upload.single('imagen'), (req, res) => {

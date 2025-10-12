@@ -43,6 +43,8 @@ const Notificaciones = ({ navigation }) => {
   
   // Estado para filtros
   const [activeFilter, setActiveFilter] = useState('all');
+  const [categoryFilter, setCategoryFilter] = useState('all');
+  const [showFilterModal, setShowFilterModal] = useState(false);
 
   // ✅ Variables seguras
   const safeNotifications = Array.isArray(notifications) ? notifications : [];
@@ -65,15 +67,51 @@ const Notificaciones = ({ navigation }) => {
 
   // Función para filtrar notificaciones
   const getFilteredNotifications = useCallback(() => {
+    let filtered = safeNotifications;
+
+    // Filtro por estado (leído/no leído)
     switch (activeFilter) {
       case 'unread':
-        return safeNotifications.filter(n => n && !n.isRead);
+        filtered = filtered.filter(n => n && !n.isRead);
+        break;
       case 'read':
-        return safeNotifications.filter(n => n && n.isRead);
+        filtered = filtered.filter(n => n && n.isRead);
+        break;
       default:
-        return safeNotifications;
+        // 'all' - no filtrar por estado
+        break;
     }
-  }, [activeFilter, safeNotifications]);
+
+    // Filtro por categoría
+    if (categoryFilter !== 'all') {
+      filtered = filtered.filter(n => n && n.type === categoryFilter);
+    }
+
+    return filtered;
+  }, [activeFilter, categoryFilter, safeNotifications]);
+
+  // Función para obtener estadísticas por categoría
+  const getCategoryStats = useCallback(() => {
+    const stats = {
+      rating: 0,
+      new_order: 0,
+      purchase: 0,
+      order_updated: 0,
+      payment: 0,
+      delivery_confirmed: 0,
+      reschedule_request: 0,
+      low_stock: 0,
+      order_limit_reached: 0,
+    };
+
+    safeNotifications.forEach(n => {
+      if (n && n.type && stats[n.type] !== undefined) {
+        stats[n.type]++;
+      }
+    });
+
+    return stats;
+  }, [safeNotifications]);
 
   const filteredNotifications = getFilteredNotifications();
 
@@ -339,6 +377,159 @@ const Notificaciones = ({ navigation }) => {
     );
   };
 
+  // Componente FilterModal
+  const FilterModal = () => {
+    const categoryStats = getCategoryStats();
+    
+    const categoryConfig = {
+      rating: { label: 'Calificaciones', icon: 'star', color: '#F97316' },
+      new_order: { label: 'Encargos Personalizados', icon: 'bag-add', color: '#8B5CF6' },
+      purchase: { label: 'Compras Realizadas', icon: 'receipt', color: '#3B82F6' },
+      order_updated: { label: 'Órdenes Actualizadas', icon: 'checkmark-circle', color: '#10B981' },
+      payment: { label: 'Pagos', icon: 'card', color: '#F59E0B' },
+      delivery_confirmed: { label: 'Entregas Confirmadas', icon: 'checkmark-done', color: '#4CAF50' },
+      reschedule_request: { label: 'Solicitudes de Reprogramación', icon: 'calendar', color: '#FF9800' },
+      low_stock: { label: 'Stock Bajo', icon: 'warning', color: '#EF4444' },
+      order_limit_reached: { label: 'Límite de Pedidos', icon: 'ban', color: '#9CA3AF' },
+    };
+
+    return (
+      <View style={NotificacionesStyles.modalOverlay}>
+        <View style={NotificacionesStyles.modalContainer}>
+          {/* Modal Header */}
+          <View style={NotificacionesStyles.modalHeader}>
+            <Text style={NotificacionesStyles.modalTitle}>Filtros de Notificaciones</Text>
+            <TouchableOpacity 
+              onPress={() => setShowFilterModal(false)}
+              style={NotificacionesStyles.modalCloseButton}
+            >
+              <Ionicons name="close" size={24} color="#6B7280" />
+            </TouchableOpacity>
+          </View>
+
+          {/* Filtros principales */}
+          <View style={NotificacionesStyles.modalSection}>
+            <Text style={NotificacionesStyles.modalSectionTitle}>Estado</Text>
+            <View style={NotificacionesStyles.modalButtonRow}>
+              <TouchableOpacity
+                style={[
+                  NotificacionesStyles.modalButton,
+                  activeFilter === 'all' && NotificacionesStyles.modalButtonActive
+                ]}
+                onPress={() => {
+                  setActiveFilter('all');
+                  setShowFilterModal(false);
+                }}
+              >
+                <Text style={[
+                  NotificacionesStyles.modalButtonText,
+                  activeFilter === 'all' && NotificacionesStyles.modalButtonTextActive
+                ]}>
+                  Total
+                </Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity
+                style={[
+                  NotificacionesStyles.modalButton,
+                  activeFilter === 'unread' && NotificacionesStyles.modalButtonActive
+                ]}
+                onPress={() => {
+                  setActiveFilter('unread');
+                  setShowFilterModal(false);
+                }}
+              >
+                <Text style={[
+                  NotificacionesStyles.modalButtonText,
+                  activeFilter === 'unread' && NotificacionesStyles.modalButtonTextActive
+                ]}>
+                  No leídas
+                </Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity
+                style={[
+                  NotificacionesStyles.modalButton,
+                  activeFilter === 'read' && NotificacionesStyles.modalButtonActive
+                ]}
+                onPress={() => {
+                  setActiveFilter('read');
+                  setShowFilterModal(false);
+                }}
+              >
+                <Text style={[
+                  NotificacionesStyles.modalButtonText,
+                  activeFilter === 'read' && NotificacionesStyles.modalButtonTextActive
+                ]}>
+                  Leídas
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          {/* Filtros por categoría */}
+          <View style={NotificacionesStyles.modalSection}>
+            <Text style={NotificacionesStyles.modalSectionTitle}>Categorías</Text>
+            
+            <TouchableOpacity
+              style={[
+                NotificacionesStyles.categoryButton,
+                categoryFilter === 'all' && NotificacionesStyles.categoryButtonActive
+              ]}
+              onPress={() => {
+                setCategoryFilter('all');
+                setShowFilterModal(false);
+              }}
+            >
+              <Ionicons 
+                name="apps" 
+                size={20} 
+                color={categoryFilter === 'all' ? '#FFFFFF' : '#8B5CF6'} 
+              />
+              <Text style={[
+                NotificacionesStyles.categoryButtonText,
+                categoryFilter === 'all' && NotificacionesStyles.categoryButtonTextActive
+              ]}>
+                Todas las categorías
+              </Text>
+            </TouchableOpacity>
+
+            {Object.entries(categoryConfig).map(([type, config]) => {
+              const count = categoryStats[type] || 0;
+              if (count === 0) return null;
+
+              return (
+                <TouchableOpacity
+                  key={type}
+                  style={[
+                    NotificacionesStyles.categoryButton,
+                    categoryFilter === type && NotificacionesStyles.categoryButtonActive
+                  ]}
+                  onPress={() => {
+                    setCategoryFilter(type);
+                    setShowFilterModal(false);
+                  }}
+                >
+                  <Ionicons 
+                    name={config.icon} 
+                    size={20} 
+                    color={categoryFilter === type ? '#FFFFFF' : config.color} 
+                  />
+                  <Text style={[
+                    NotificacionesStyles.categoryButtonText,
+                    categoryFilter === type && NotificacionesStyles.categoryButtonTextActive
+                  ]}>
+                    {config.label} ({count})
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+        </View>
+      </View>
+    );
+  };
+
   if (loading && safeNotifications.length === 0) {
     return (
       <View style={NotificacionesStyles.loadingContainer}>
@@ -350,17 +541,23 @@ const Notificaciones = ({ navigation }) => {
 
   return (
     <View style={NotificacionesStyles.container}>
-      <StatusBar backgroundColor="#8B5CF6" barStyle="light-content" />
+      <StatusBar backgroundColor="#FFFFFF" barStyle="dark-content" />
       
       {/* Header */}
       <View style={NotificacionesStyles.header}>
+        {/* Sección izquierda */}
         <View style={NotificacionesStyles.headerLeft}>
-          <TouchableOpacity onPress={() => navigation.goBack()}>
-            <Ionicons name="arrow-back" size={24} color="white" />
+          <TouchableOpacity onPress={() => navigation.goBack()} style={NotificacionesStyles.backButton}>
+            <Ionicons name="arrow-back" size={24} color="#8B5CF6" />
           </TouchableOpacity>
+        </View>
+        
+        {/* Sección centro - Título centrado */}
+        <View style={NotificacionesStyles.headerCenter}>
           <Text style={NotificacionesStyles.headerTitle}>Notificaciones</Text>
         </View>
         
+        {/* Sección derecha */}
         <View style={NotificacionesStyles.headerRight}>
           {safeUnreadCount > 0 && (
             <View style={NotificacionesStyles.badgeContainer}>
@@ -370,12 +567,19 @@ const Notificaciones = ({ navigation }) => {
             </View>
           )}
           
+          <TouchableOpacity 
+            onPress={() => setShowFilterModal(true)} 
+            style={NotificacionesStyles.headerButton}
+          >
+            <Ionicons name="options-outline" size={24} color="#8B5CF6" />
+          </TouchableOpacity>
+          
           <TouchableOpacity onPress={handleMarkAllAsRead} style={NotificacionesStyles.headerButton}>
-            <Ionicons name="checkmark-done-outline" size={24} color="white" />
+            <Ionicons name="checkmark-done-outline" size={24} color="#8B5CF6" />
           </TouchableOpacity>
           
           <TouchableOpacity onPress={deleteAllNotifications} style={NotificacionesStyles.headerButton}>
-            <Ionicons name="trash-outline" size={24} color="white" />
+            <Ionicons name="trash-outline" size={24} color="#8B5CF6" />
           </TouchableOpacity>
         </View>
       </View>
@@ -404,54 +608,6 @@ const Notificaciones = ({ navigation }) => {
         </View>
       </View>
 
-      {/* Filtros - ✅ CORREGIDO CON TEMPLATE LITERALS */}
-      <View style={NotificacionesStyles.filtersContainer}>
-        <TouchableOpacity
-          style={[
-            NotificacionesStyles.filterButton,
-            activeFilter === 'all' && NotificacionesStyles.activeFilter
-          ]}
-          onPress={() => setActiveFilter('all')}
-        >
-          <Text style={[
-            NotificacionesStyles.filterText,
-            activeFilter === 'all' && NotificacionesStyles.activeFilterText
-          ]}>
-            {`Total (${String(safeNotifications.length)})`}
-          </Text>
-        </TouchableOpacity>
-        
-        <TouchableOpacity
-          style={[
-            NotificacionesStyles.filterButton,
-            activeFilter === 'unread' && NotificacionesStyles.activeFilter
-          ]}
-          onPress={() => setActiveFilter('unread')}
-        >
-          <Text style={[
-            NotificacionesStyles.filterText,
-            activeFilter === 'unread' && NotificacionesStyles.activeFilterText
-          ]}>
-            {`No leídas (${String(safeUnreadCount)})`}
-          </Text>
-        </TouchableOpacity>
-        
-        <TouchableOpacity
-          style={[
-            NotificacionesStyles.filterButton,
-            activeFilter === 'read' && NotificacionesStyles.activeFilter
-          ]}
-          onPress={() => setActiveFilter('read')}
-        >
-          <Text style={[
-            NotificacionesStyles.filterText,
-            activeFilter === 'read' && NotificacionesStyles.activeFilterText
-          ]}>
-            {`Leídas (${String(safeReadCount)})`}
-          </Text>
-        </TouchableOpacity>
-      </View>
-
       {/* Notifications List */}
       {filteredNotifications.length === 0 ? (
         <View style={NotificacionesStyles.emptyContainer}>
@@ -462,25 +618,33 @@ const Notificaciones = ({ navigation }) => {
           </Text>
         </View>
       ) : (
-        <ScrollView
-          style={NotificacionesStyles.scrollContainer}
-          refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={onRefresh}
-              colors={['#8B5CF6']}
-              tintColor="#8B5CF6"
-            />
-          }
-          showsVerticalScrollIndicator={false}
-        >
-          {filteredNotifications.map((item, index) => (
-            <NotificationCard key={item?._id || `notif-${index}`} item={item} index={index} />
-          ))}
-          
-          <View style={NotificacionesStyles.bottomPadding} />
-        </ScrollView>
+        <View style={NotificacionesStyles.scrollWrapper}>
+          <ScrollView
+            style={NotificacionesStyles.scrollContainer}
+            contentContainerStyle={NotificacionesStyles.scrollContent}
+            refreshControl={
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={onRefresh}
+                colors={['#8B5CF6']}
+                tintColor="#8B5CF6"
+              />
+            }
+            showsVerticalScrollIndicator={true}
+            bounces={true}
+            scrollEventThrottle={16}
+          >
+            {filteredNotifications.map((item, index) => (
+              <NotificationCard key={item?._id || `notif-${index}`} item={item} index={index} />
+            ))}
+            
+            <View style={NotificacionesStyles.bottomPadding} />
+          </ScrollView>
+        </View>
       )}
+
+      {/* Modal de filtros */}
+      {showFilterModal && <FilterModal />}
 
       {/* Componente de alerta unificado */}
       <AlertComponent

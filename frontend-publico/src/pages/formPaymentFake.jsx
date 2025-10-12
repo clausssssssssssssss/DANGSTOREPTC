@@ -5,6 +5,7 @@ import { useCart } from "../context/CartContext.jsx";
 import usePaymentFakeForm from "../components/payment/hook/usePaymentFakeForm.jsx";
 import InputField from "../components/payment/InputField";
 import Button from "../components/payment/Button";
+import DeliveryPointSelector from "../components/payment/DeliveryPointSelector";
 import { CreditCard, Lock, Shield, Building, HelpCircle, MapPin, CheckCircle, ArrowLeft, ArrowRight, Loader2 } from "lucide-react";
 import { useToast } from "../hooks/useToast";
 import ToastContainer from "../components/ui/ToastContainer";
@@ -25,6 +26,10 @@ const FormPaymentFake = () => {
   // Estado para datos del carrito desde la navegación
   const [cartFromState, setCartFromState] = useState(null);
   const [totalFromState, setTotalFromState] = useState(0);
+  
+  // Estado para punto de entrega
+  const [selectedDeliveryPoint, setSelectedDeliveryPoint] = useState(null);
+  const [deliveryPoints, setDeliveryPoints] = useState([]);
 
   // calcula total y cantidad - incluye cotizaciones
   const total = quoteItem 
@@ -113,6 +118,32 @@ const FormPaymentFake = () => {
     handleFakePayment,
     validateForm,
   } = usePaymentFakeForm();
+
+  // Función para manejar la selección del punto de entrega
+  const handleSelectDeliveryPoint = (pointId) => {
+    // Buscar el punto completo por ID
+    const point = deliveryPoints.find(p => p._id === pointId);
+    setSelectedDeliveryPoint(point);
+  };
+
+  // Función para cargar puntos de entrega
+  const fetchDeliveryPoints = async () => {
+    try {
+      const response = await fetch('https://dangstoreptc-production.up.railway.app/api/delivery-points');
+      const data = await response.json();
+      
+      if (data.success) {
+        setDeliveryPoints(data.deliveryPoints || []);
+      }
+    } catch (error) {
+      console.error('Error fetching delivery points:', error);
+    }
+  };
+
+  // Cargar puntos de entrega al montar el componente
+  useEffect(() => {
+    fetchDeliveryPoints();
+  }, []);
 
   const { showSuccess, showError, showWarning, showInfo } = useToast();
 
@@ -334,6 +365,13 @@ const FormPaymentFake = () => {
       return;
     }
 
+    // Validar que se haya seleccionado un punto de entrega
+    if (!selectedDeliveryPoint) {
+      console.log('❌ No se ha seleccionado un punto de entrega');
+      showError('Debes seleccionar un punto de entrega para continuar');
+      return;
+    }
+
     // Mostrar pantalla independiente de procesamiento
     setShowProcessingScreen(true);
     console.log('🔄 Mostrando pantalla independiente de procesamiento...');
@@ -387,7 +425,8 @@ const FormPaymentFake = () => {
     
     const result = await handleFakePayment({ 
       items: itemsParaOrden,
-      total: originalTotal > 0 ? originalTotal : total
+      total: originalTotal > 0 ? originalTotal : total,
+      deliveryPointId: selectedDeliveryPoint?._id
     });
 
     console.log('📋 Resultado de handleFakePayment:', result);
@@ -504,11 +543,9 @@ const FormPaymentFake = () => {
         }
         break;
         
-      case 2: // Facturación
+      case 2: // Punto de entrega
         const billingFields = [
-          'nombreFacturacion', 'emailFacturacion', 'telefonoFacturacion', 
-          'direccionFacturacion', 'ciudadFacturacion', 'estadoFacturacion', 
-          'codigoPostal', 'paisFacturacion'
+          'nombreFacturacion', 'emailFacturacion', 'telefonoFacturacion'
         ];
         billingFields.forEach(field => {
           const error = validateField(field, formData[field] || '');
@@ -518,18 +555,21 @@ const FormPaymentFake = () => {
           }
         });
         
+        // Validar que se haya seleccionado un punto de entrega
+        if (!selectedDeliveryPoint) {
+          isValid = false;
+          message = 'Debes seleccionar un punto de entrega para continuar';
+        }
+        
         if (!isValid) {
-          const fieldNames = {
-            nombreFacturacion: 'Nombre completo',
-            emailFacturacion: 'Email de facturación',
-            telefonoFacturacion: 'Teléfono',
-            direccionFacturacion: 'Dirección',
-            ciudadFacturacion: 'Ciudad',
-            estadoFacturacion: 'Estado/Provincia',
-            codigoPostal: 'Código postal',
-            paisFacturacion: 'País'
-          };
-          message = `Completa correctamente: ${invalidFields.map(field => fieldNames[field]).join(', ')}`;
+          if (invalidFields.length > 0) {
+            const fieldNames = {
+              nombreFacturacion: 'Nombre completo',
+              emailFacturacion: 'Email de facturación',
+              telefonoFacturacion: 'Teléfono'
+            };
+            message = `Completa correctamente: ${invalidFields.map(field => fieldNames[field]).join(', ')}`;
+          }
         }
         break;
         
@@ -794,17 +834,17 @@ const FormPaymentFake = () => {
             </div>
           )}
 
-          {/* PASO 2: DIRECCIÓN DE FACTURACIÓN */}
+          {/* PASO 2: PUNTO DE ENTREGA */}
           {currentStep === 2 && (
             <div className="card-form">
               <div className="section-header">
                 <h2 className="section-title">
-                  <Building size={24} />
-                Dirección de Facturación
+                  <MapPin size={24} />
+                  Punto de Entrega
                 </h2>
                 <p className="section-subtitle">
-                  <MapPin size={16} />
-                  Completa tu información de facturación
+                  <Building size={16} />
+                  Selecciona dónde deseas recoger tu pedido
                 </p>
               </div>
 
@@ -843,59 +883,9 @@ const FormPaymentFake = () => {
                 />
               </div>
 
-              <InputField 
-                id="direccionFacturacion" 
-                name="direccionFacturacion" 
-                value={formData.direccionFacturacion || ''} 
-                onChange={handleFieldChange} 
-                type="text" 
-                label="Dirección" 
-                placeholder="Calle, número, apartamento" 
-                required 
-              />
-
-              <div className="triple-grid">
-                <InputField 
-                  id="ciudadFacturacion" 
-                  name="ciudadFacturacion" 
-                  value={formData.ciudadFacturacion || ''} 
-                  onChange={handleFieldChange} 
-                  type="text" 
-                  label="Ciudad" 
-                  placeholder="Ciudad" 
-                  required 
-                />
-                <InputField 
-                  id="estadoFacturacion" 
-                  name="estadoFacturacion" 
-                  value={formData.estadoFacturacion || ''} 
-                  onChange={handleFieldChange} 
-                  type="text" 
-                  label="Estado/Provincia" 
-                  placeholder="Estado o provincia" 
-                  required 
-                />
-                <InputField 
-                  id="codigoPostal" 
-                  name="codigoPostal" 
-                  value={formData.codigoPostal || ''} 
-                  onChange={handleFieldChange} 
-                  type="text" 
-                  label="Código Postal" 
-                  placeholder="Código postal" 
-                  required 
-                />
-              </div>
-
-              <InputField 
-                id="paisFacturacion" 
-                name="paisFacturacion" 
-                value={formData.paisFacturacion || ''} 
-                onChange={handleFieldChange} 
-                type="text" 
-                label="País" 
-                placeholder="País" 
-                required 
+              <DeliveryPointSelector 
+                selectedDeliveryPoint={selectedDeliveryPoint?._id}
+                onDeliveryPointChange={handleSelectDeliveryPoint}
               />
 
                 <div className="form-footer">
@@ -937,12 +927,26 @@ const FormPaymentFake = () => {
                 </div>
 
                 <div className="detail-section">
-                  <h4>Dirección de Facturación</h4>
-                  <p>{formData.nombreFacturacion || 'No especificado'}</p>
-                  <p>{formData.direccionFacturacion || 'No especificado'}</p>
-                  <p>{formData.ciudadFacturacion || 'No especificado'}, {formData.estadoFacturacion || 'No especificado'} {formData.codigoPostal || 'No especificado'}</p>
-                  <p>{formData.paisFacturacion || 'No especificado'}</p>
-            </div>
+                  <h4>Información de Facturación</h4>
+                  <p><strong>Nombre:</strong> {formData.nombreFacturacion || 'No especificado'}</p>
+                  <p><strong>Email:</strong> {formData.emailFacturacion || 'No especificado'}</p>
+                  <p><strong>Teléfono:</strong> {formData.telefonoFacturacion || 'No especificado'}</p>
+                </div>
+
+                <div className="detail-section">
+                  <h4>Punto de Entrega</h4>
+                  {selectedDeliveryPoint ? (
+                    <>
+                      <p><strong>Punto:</strong> {selectedDeliveryPoint.nombre}</p>
+                      <p><strong>Dirección:</strong> {selectedDeliveryPoint.direccion}</p>
+                      {selectedDeliveryPoint.referencia && (
+                        <p><strong>Referencia:</strong> {selectedDeliveryPoint.referencia}</p>
+                      )}
+                    </>
+                  ) : (
+                    <p>No se ha seleccionado un punto de entrega</p>
+                  )}
+                </div>
 
                 <div className="detail-section confirmation-summary">
                   <h4 className="confirmation-summary-title">Resumen de la Compra</h4>

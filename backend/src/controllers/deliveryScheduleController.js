@@ -27,20 +27,20 @@ export const scheduleDelivery = async (req, res) => {
       });
     }
     
-    // Validar que la orden esté pagada
-    if (order.deliveryStatus !== 'PAID') {
+    // Validar que la orden esté en revisión o pagada
+    if (order.deliveryStatus !== 'REVIEWING' && order.deliveryStatus !== 'PAID') {
       return res.status(400).json({
         success: false,
-        message: 'Solo se pueden programar entregas para órdenes pagadas'
+        message: 'Solo se pueden programar entregas para órdenes en revisión o pagadas'
       });
     }
     
     // Actualizar la orden
     order.deliveryDate = new Date(deliveryDate);
-    order.deliveryStatus = 'SCHEDULED';
+    order.deliveryStatus = 'READY_FOR_DELIVERY';
     order.deliveryConfirmed = false;
     order.statusHistory.push({
-      status: 'SCHEDULED',
+      status: 'READY_FOR_DELIVERY',
       changedBy: 'admin',
       notes: `Entrega programada para ${new Date(deliveryDate).toLocaleString('es-SV')}`
     });
@@ -464,6 +464,55 @@ export const getPendingReschedulingRequests = async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Error al obtener solicitudes de reprogramación'
+    });
+  }
+};
+
+// Cambiar estado del pedido a "MAKING" (elaborando)
+export const startMakingOrder = async (req, res) => {
+  try {
+    const { orderId } = req.params;
+    
+    const order = await Order.findById(orderId);
+    
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: 'Orden no encontrada'
+      });
+    }
+    
+    // Validar que la orden esté en revisión
+    if (order.deliveryStatus !== 'REVIEWING') {
+      return res.status(400).json({
+        success: false,
+        message: 'Solo se puede iniciar elaboración de órdenes en revisión'
+      });
+    }
+    
+    // Actualizar estado a "MAKING"
+    order.deliveryStatus = 'MAKING';
+    order.statusHistory.push({
+      status: 'MAKING',
+      changedBy: 'admin',
+      changedAt: new Date(),
+      notes: 'Iniciando elaboración del pedido'
+    });
+    
+    await order.save();
+    
+    res.json({
+      success: true,
+      message: 'Estado actualizado a "Elaborando"',
+      order: order
+    });
+    
+  } catch (error) {
+    console.error('Error iniciando elaboración:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error interno del servidor',
+      error: error.message
     });
   }
 };

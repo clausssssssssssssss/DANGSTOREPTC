@@ -44,7 +44,7 @@ const Notificaciones = ({ navigation }) => {
   // Estado para filtros
   const [activeFilter, setActiveFilter] = useState('all');
 
-  // ✅ SOLUCIÓN: Variables seguras calculadas una sola vez
+  // ✅ Variables seguras
   const safeNotifications = Array.isArray(notifications) ? notifications : [];
   const safeUnreadCount = typeof unreadCount === 'number' ? unreadCount : 0;
   const safeReadCount = safeNotifications.filter(n => n?.isRead).length;
@@ -278,37 +278,37 @@ const Notificaciones = ({ navigation }) => {
             
             {item.data?.customerName ? (
               <Text style={NotificacionesStyles.customerName}>
-                {`Cliente: ${item.data.customerName}`}
+                {`Cliente: ${String(item.data.customerName)}`}
               </Text>
             ) : null}
             
             {item.data?.modelType ? (
               <Text style={NotificacionesStyles.modelType}>
-                {`Tipo: ${item.data.modelType}`}
+                {`Tipo: ${String(item.data.modelType)}`}
               </Text>
             ) : null}
             
             {item.data?.productName ? (
               <Text style={NotificacionesStyles.modelType}>
-                {`Producto: ${item.data.productName}`}
+                {`Producto: ${String(item.data.productName)}`}
               </Text>
             ) : null}
             
             {item.data?.rating ? (
               <Text style={NotificacionesStyles.modelType}>
-                {`Calificación: ${item.data.rating} ⭐`}
+                {`Calificación: ${String(item.data.rating)} estrellas`}
               </Text>
             ) : null}
             
             {item.data?.total ? (
               <Text style={NotificacionesStyles.modelType}>
-                {`Total: $${item.data.total}`}
+                {`Total: $${String(item.data.total)}`}
               </Text>
             ) : null}
             
             {item.data?.itemsCount ? (
               <Text style={NotificacionesStyles.modelType}>
-                {`Items: ${item.data.itemsCount}`}
+                {`Items: ${String(item.data.itemsCount)}`}
               </Text>
             ) : null}
           </View>
@@ -331,7 +331,7 @@ const Notificaciones = ({ navigation }) => {
           
           {item.data?.price ? (
             <Text style={NotificacionesStyles.price}>
-              {`$${item.data.price}`}
+              {`$${String(item.data.price)}`}
             </Text>
           ) : null}
         </View>
@@ -380,7 +380,7 @@ const Notificaciones = ({ navigation }) => {
         </View>
       </View>
 
-      {/* Stats Card */}
+      {/* Stats Card - ✅ CORREGIDO */}
       <View style={NotificacionesStyles.statsCard}>
         <View style={NotificacionesStyles.statItem}>
           <Text style={NotificacionesStyles.statNumber}>
@@ -404,7 +404,7 @@ const Notificaciones = ({ navigation }) => {
         </View>
       </View>
 
-      {/* Filtros - ✅ CORREGIDO CON String() */}
+      {/* Filtros - ✅ CORREGIDO CON TEMPLATE LITERALS */}
       <View style={NotificacionesStyles.filtersContainer}>
         <TouchableOpacity
           style={[

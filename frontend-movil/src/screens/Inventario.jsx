@@ -11,6 +11,7 @@ import {
   ScrollView,
   Alert,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { Picker } from '@react-native-picker/picker';
 import { InventarioStyles } from '../components/styles/InventarioStyles';
@@ -226,14 +227,14 @@ const Inventario = ({ navigation }) => {
           style={[InventarioStyles.editButton]}
           onPress={() => editMaterial(item)}
         >
-          <Text style={InventarioStyles.editButtonText}>✎</Text>
+          <Ionicons name="create-outline" size={16} color="#FFFFFF" />
         </TouchableOpacity>
         
         <TouchableOpacity 
           style={[InventarioStyles.deleteButton]}
           onPress={() => confirmDelete(item._id)}
         >
-          <Text style={InventarioStyles.deleteButtonText}>✕</Text>
+          <Ionicons name="close" size={16} color="#FFFFFF" />
         </TouchableOpacity>
       </View>
     </View>

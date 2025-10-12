@@ -9,8 +9,8 @@ export const StockLimitesStyles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 15,
-    paddingTop: 40,
-    paddingBottom: 12,
+    paddingTop: 20,
+    paddingBottom: 8,
     backgroundColor: '#FFFFFF',
     borderBottomWidth: 1,
     borderBottomColor: '#E5E7EB',
@@ -23,6 +23,11 @@ export const StockLimitesStyles = StyleSheet.create({
   backButton: {
     padding: 12,
     marginRight: 10,
+  },
+  backButtonText: {
+    fontSize: 32,
+    color: '#8B5CF6',
+    fontWeight: 'bold',
   },
   headerTitle: {
     fontSize: 20,

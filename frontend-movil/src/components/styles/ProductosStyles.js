@@ -10,14 +10,18 @@ const ProductosStyles = StyleSheet.create({
   },
   header: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: width * 0.05,
-    paddingTop: 40,
-    paddingBottom: 20,
+    paddingHorizontal: 15,
+    paddingTop: 20,
+    paddingBottom: 8,
+    backgroundColor: '#FFFFFF',
     borderBottomWidth: 1,
     borderBottomColor: '#E5E7EB',
-    backgroundColor: 'white',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 3,
   },
   backButton: { 
     padding: 12 

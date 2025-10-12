@@ -13,6 +13,7 @@ import {
   ActivityIndicator,
   KeyboardAvoidingView,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 
 import * as ImagePicker from 'expo-image-picker';
 import { Picker } from '@react-native-picker/picker';
@@ -793,14 +794,14 @@ const Productos = ({ navigation }) => {
             style={ProductosStyles.stockButton}
             onPress={() => abrirModalStock(item)}
           >
-            <Text style={ProductosStyles.stockButtonText}>⚙</Text>
+            <Ionicons name="settings-outline" size={16} color="#FFFFFF" />
           </TouchableOpacity>
           
         <TouchableOpacity 
           style={ProductosStyles.editButton}
           onPress={() => abrirModalEditar(item)}
         >
-          <Text style={ProductosStyles.editButtonText}>✎</Text>
+          <Ionicons name="create-outline" size={16} color="#FFFFFF" />
         </TouchableOpacity>
         
         <TouchableOpacity 
@@ -810,7 +811,7 @@ const Productos = ({ navigation }) => {
             eliminarProducto(item._id);
           }}
         >
-          <Text style={ProductosStyles.deleteButtonText}>✕</Text>
+          <Ionicons name="close" size={16} color="#FFFFFF" />
         </TouchableOpacity>
       </View>
     </View>
@@ -863,7 +864,7 @@ const Productos = ({ navigation }) => {
           style={ProductosStyles.managementBtn}
           onPress={() => setModalGestionarCategoriasVisible(true)}
         >
-          <Text style={ProductosStyles.managementBtnText}>⚙ Gestionar Categorías</Text>
+          <Text style={ProductosStyles.managementBtnText}>Gestionar Categorías</Text>
         </TouchableOpacity>
       </View>
 

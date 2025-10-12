@@ -2,6 +2,8 @@ import { v2 as cloudinary } from 'cloudinary';
 import productModel from "../models/Product.js";
 import CustomizedOrder from '../models/CustomOrder.js';
 import { config } from '../../config.js';
+import NotificationService from '../services/NotificationService.js';
+import storeConfigService from '../services/storeConfigService.js';
 
 // Configurar Cloudinary
 cloudinary.config({
@@ -24,6 +26,49 @@ export const uploadToCloudinary = (buffer, folder = 'product_images') => {
 };
 
 const productController = {};
+
+// Función para verificar stock bajo y crear notificaciones
+const checkLowStockAndNotify = async (product) => {
+  try {
+    // Obtener configuración de la tienda
+    const storeConfig = await storeConfigService.getStoreConfig();
+    
+    if (!storeConfig || !storeConfig.notifications?.lowStockEnabled) {
+      console.log('⚠️ Notificaciones de stock bajo deshabilitadas');
+      return;
+    }
+
+    const lowStockThreshold = storeConfig.stockLimits?.lowStockThreshold || 5;
+    
+    // Verificar si el stock está bajo
+    if (product.disponibles <= lowStockThreshold && product.disponibles > 0) {
+      console.log(`📦 Stock bajo detectado para ${product.nombre}: ${product.disponibles} unidades`);
+      
+      await NotificationService.createLowStockNotification({
+        productId: product._id,
+        productName: product.nombre,
+        available: product.disponibles
+      });
+      
+      console.log(`✅ Notificación de stock bajo creada para ${product.nombre}`);
+    }
+    
+    // Verificar si el stock se agotó
+    if (product.disponibles === 0) {
+      console.log(`🚫 Stock agotado detectado para ${product.nombre}`);
+      
+      await NotificationService.createLowStockNotification({
+        productId: product._id,
+        productName: product.nombre,
+        available: 0
+      });
+      
+      console.log(`✅ Notificación de stock agotado creada para ${product.nombre}`);
+    }
+  } catch (error) {
+    console.error('❌ Error verificando stock bajo:', error);
+  }
+};
 
 // Obtener todos los productos
 productController.getProducts = async (req, res) => {
@@ -116,6 +161,10 @@ productController.insertProduct = async (req, res) => {
     });
 
     await newProduct.save();
+    
+    // Verificar stock bajo y crear notificación si es necesario
+    await checkLowStockAndNotify(newProduct);
+    
     res.status(201).json(newProduct);
   } catch (error) {
     console.error('Error al crear producto:', error);
@@ -166,6 +215,10 @@ productController.updateProduct = async (req, res) => {
 
     await product.save();
     console.log('Producto guardado con stock limits:', product.stockLimits);
+    
+    // Verificar stock bajo y crear notificación si es necesario
+    await checkLowStockAndNotify(product);
+    
     res.json(product);
   } catch (error) {
     console.error('Error al actualizar producto:', error);

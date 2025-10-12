@@ -7,7 +7,9 @@ import {
   deleteNotification,
   deleteAllNotifications,
   getUnreadCount,
-  createTestNotification
+  createTestNotification,
+  createTestLowStockNotification,
+  createTestOrderLimitNotification
 } from '../controllers/notificationsController.js';
 
 const router = Router();
@@ -59,6 +61,20 @@ router.post(
   '/test',
   authMiddleware(['admin']),
   createTestNotification
+);
+
+// Crear notificación de prueba de stock bajo
+router.post(
+  '/test/low-stock',
+  authMiddleware(['admin']),
+  createTestLowStockNotification
+);
+
+// Crear notificación de prueba de límite de pedidos
+router.post(
+  '/test/order-limit',
+  authMiddleware(['admin']),
+  createTestOrderLimitNotification
 );
 
 export default router;

@@ -332,6 +332,55 @@ class NotificationService {
   }
 
   /**
+   * Crear notificación cuando se alcanza el límite de pedidos
+   */
+  static async createOrderLimitReachedNotification(orderData) {
+    try {
+      const isLimitReached = orderData.currentCount >= orderData.limit;
+      const isNearLimit = orderData.currentCount >= Math.floor(orderData.limit * 0.8);
+      
+      let title, message, icon;
+      
+      if (isLimitReached) {
+        title = 'Límite de Pedidos Alcanzado';
+        message = `Se ha alcanzado el límite de ${orderData.limit} pedidos. Nuevo pedido de ${orderData.customerName} no pudo ser procesado.`;
+        icon = '🚫';
+      } else if (isNearLimit) {
+        title = 'Límite de Pedidos Cerca';
+        message = `Se han recibido ${orderData.currentCount} de ${orderData.limit} pedidos permitidos esta semana. Quedan ${orderData.limit - orderData.currentCount} disponibles.`;
+        icon = '⚠️';
+      } else {
+        title = 'Límite de Pedidos';
+        message = `Se han recibido ${orderData.currentCount} de ${orderData.limit} pedidos permitidos esta semana.`;
+        icon = '📊';
+      }
+
+      const notification = new Notification({
+        title: title,
+        message: message,
+        type: 'order_limit_reached',
+        priority: isLimitReached ? 'high' : isNearLimit ? 'normal' : 'low',
+        data: {
+          orderId: orderData.orderId,
+          customerName: orderData.customerName,
+          limit: orderData.limit,
+          currentCount: orderData.currentCount,
+          modelType: orderData.modelType,
+        },
+        icon: icon,
+      });
+
+      const savedNotification = await notification.save();
+      console.log('Notificación de límite de pedidos creada:', savedNotification._id);
+      
+      return savedNotification;
+    } catch (error) {
+      console.error('Error creando notificación de límite de pedidos:', error);
+      throw error;
+    }
+  }
+
+  /**
    * Obtener conteo de notificaciones no leídas
    */
   static async getUnreadCount() {

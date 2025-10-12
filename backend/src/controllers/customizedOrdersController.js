@@ -56,6 +56,23 @@ export const createCustomOrder = async (req, res) => {
       const currentCustomOrders = config.stockLimits.customOrders.currentWeekOrders || 0;
       
       if (currentCustomOrders >= maxCustomOrders) {
+        // Crear notificación de límite alcanzado si está habilitada
+        try {
+          const storeConfig = await StoreConfig.findOne();
+          if (storeConfig && storeConfig.notifications?.orderLimitReachedEnabled) {
+            await NotificationService.createOrderLimitReachedNotification({
+              orderId: 'pending',
+              customerName: req.user?.name || 'Cliente',
+              limit: maxCustomOrders,
+              currentCount: currentCustomOrders,
+              modelType: modelType
+            });
+            console.log('✅ Notificación de límite de pedidos creada');
+          }
+        } catch (notificationError) {
+          console.error('❌ Error creando notificación de límite:', notificationError);
+        }
+
         return res.status(400).json({
           success: false,
           message: `Lo sentimos, hemos alcanzado el límite máximo de ${maxCustomOrders} encargos personalizados. Por favor, intenta nuevamente la próxima semana.`
@@ -114,6 +131,27 @@ export const createCustomOrder = async (req, res) => {
       
       await config.save();
       console.log(' Contador de encargos personalizados incrementado');
+      
+      // Verificar si estamos cerca del límite y crear notificación preventiva
+      const updatedConfig = await StoreConfig.findOne();
+      const newCount = updatedConfig.stockLimits.customOrders.currentWeekOrders;
+      const limit = updatedConfig.stockLimits.customOrders.defaultMaxStock;
+      const threshold = Math.floor(limit * 0.8); // 80% del límite
+      
+      if (newCount >= threshold && newCount < limit && updatedConfig.notifications?.orderLimitReachedEnabled) {
+        try {
+          await NotificationService.createOrderLimitReachedNotification({
+            orderId: savedOrder._id,
+            customerName: req.user?.name || 'Cliente',
+            limit: limit,
+            currentCount: newCount,
+            modelType: modelType
+          });
+          console.log(`⚠️ Notificación preventiva: ${newCount}/${limit} encargos personalizados`);
+        } catch (notificationError) {
+          console.error('❌ Error creando notificación preventiva:', notificationError);
+        }
+      }
     }
     
     console.log(' Orden personalizada creada exitosamente:', savedOrder._id);

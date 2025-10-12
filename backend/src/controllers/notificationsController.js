@@ -179,3 +179,57 @@ export const createTestNotification = async (req, res) => {
     });
   }
 };
+
+/**
+ * Crear notificación de prueba de stock bajo
+ */
+export const createTestLowStockNotification = async (req, res) => {
+  try {
+    const testNotification = await NotificationService.createLowStockNotification({
+      productId: 'test-product-id',
+      productName: 'Producto de Prueba',
+      available: 2
+    });
+    
+    res.status(201).json({
+      success: true,
+      message: 'Notificación de stock bajo de prueba creada',
+      data: testNotification
+    });
+
+  } catch (error) {
+    console.error('Error creando notificación de stock bajo de prueba:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error interno del servidor'
+    });
+  }
+};
+
+/**
+ * Crear notificación de prueba de límite de pedidos
+ */
+export const createTestOrderLimitNotification = async (req, res) => {
+  try {
+    const testNotification = await NotificationService.createOrderLimitReachedNotification({
+      orderId: 'test-order-id',
+      customerName: 'Cliente de Prueba',
+      limit: 10,
+      currentCount: 8,
+      modelType: 'Prueba'
+    });
+    
+    res.status(201).json({
+      success: true,
+      message: 'Notificación de límite de pedidos de prueba creada',
+      data: testNotification
+    });
+
+  } catch (error) {
+    console.error('Error creando notificación de límite de pedidos de prueba:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error interno del servidor'
+    });
+  }
+};

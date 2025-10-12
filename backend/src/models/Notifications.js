@@ -17,7 +17,7 @@ const notificationSchema = new Schema(
     /** Tipo de notificación */
     type: {
       type: String,
-      enum: ['new_order', 'order_updated', 'payment', 'purchase', 'rating', 'general'],
+      enum: ['new_order', 'order_updated', 'payment', 'purchase', 'rating', 'low_stock', 'order_limit_reached', 'delivery_confirmed', 'reschedule_request', 'general'],
       default: 'general',
     },
 

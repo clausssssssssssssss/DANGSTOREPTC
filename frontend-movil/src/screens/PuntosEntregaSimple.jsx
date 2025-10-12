@@ -88,22 +88,13 @@ export default function PuntosEntregaSimple() {
     try {
       setLoading(true);
       const headers = await getAuthHeaders();
-      const url = `${API_URL}/delivery-points?includeInactive=true`;
-      
-      console.log('Cargando puntos desde:', url);
-      
-      const response = await fetch(url, { headers });
-      
-      console.log('Respuesta HTTP:', response.status);
+      const response = await fetch(`${API_URL}/delivery-points?includeInactive=true`, { headers });
       
       if (!response.ok) {
-        const text = await response.text();
-        console.log('Respuesta del servidor:', text);
         throw new Error(`HTTP ${response.status}`);
       }
       
       const data = await response.json();
-      console.log('Puntos cargados:', data.deliveryPoints?.length || 0);
       
       if (data.success) {
         setDeliveryPoints(data.deliveryPoints || []);
@@ -112,7 +103,7 @@ export default function PuntosEntregaSimple() {
       }
     } catch (error) {
       console.error('Error cargando puntos:', error);
-      Alert.alert('Error', 'No se pudieron cargar los puntos de entrega. Verifica que el backend esté actualizado.');
+      Alert.alert('Error', 'No se pudieron cargar los puntos de entrega');
     } finally {
       setLoading(false);
     }
@@ -250,7 +241,8 @@ export default function PuntosEntregaSimple() {
       });
       
       if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`);
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || `HTTP ${response.status}`);
       }
       
       const data = await response.json();
@@ -267,7 +259,7 @@ export default function PuntosEntregaSimple() {
       }
     } catch (error) {
       console.error('Error guardando:', error);
-      Alert.alert('Error', 'No se pudo guardar el punto. Verifica tu conexión.');
+      Alert.alert('Error', 'No se pudo guardar el punto');
     }
   };
   

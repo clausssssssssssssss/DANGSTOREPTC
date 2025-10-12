@@ -266,10 +266,10 @@ const FormPayment = () => {
                 />
 
                 <div className="form-footer">
-                  <Button
-                    onClick={() => setStep(1)}
-                    variant="secondary"
-                    className="btn-secondary"
+                <Button
+                  onClick={() => setStep(1)}
+                  variant="secondary"
+                  className="btn-secondary"
                     text="Volver a Tarjeta"
                   />
                   <Button

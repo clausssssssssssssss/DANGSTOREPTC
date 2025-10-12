@@ -4,9 +4,13 @@ import { config } from "./config.js";
 
 async function main() {
   try {
+    // Railway asigna automáticamente el puerto
+    const PORT = process.env.PORT || config.server.port;
+    
     // Iniciar servidor
-    const server = app.listen(config.server.port, '0.0.0.0', () => {
-      console.log(` Server running on port ${config.server.port}`);
+    const server = app.listen(PORT, '0.0.0.0', () => {
+      console.log(`✅ Server running on port ${PORT}`);
+      console.log(`🌐 Environment: ${process.env.NODE_ENV || 'development'}`);
     });
 
     // Manejo de cierre graceful

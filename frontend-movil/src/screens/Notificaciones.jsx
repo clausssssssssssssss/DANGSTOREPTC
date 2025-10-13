@@ -628,27 +628,27 @@ const Notificaciones = ({ navigation }) => {
         </View>
       ) : (
         <View style={NotificacionesStyles.scrollWrapper}>
-          <ScrollView
-            style={NotificacionesStyles.scrollContainer}
+        <ScrollView
+          style={NotificacionesStyles.scrollContainer}
             contentContainerStyle={NotificacionesStyles.scrollContent}
-            refreshControl={
-              <RefreshControl
-                refreshing={refreshing}
-                onRefresh={onRefresh}
-                colors={['#8B5CF6']}
-                tintColor="#8B5CF6"
-              />
-            }
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              colors={['#8B5CF6']}
+              tintColor="#8B5CF6"
+            />
+          }
             showsVerticalScrollIndicator={true}
             bounces={true}
             scrollEventThrottle={16}
-          >
-            {filteredNotifications.map((item, index) => (
+        >
+          {filteredNotifications.map((item, index) => (
               <NotificationCard key={item?._id || `notif-${index}`} item={item} index={index} />
-            ))}
-            
-            <View style={NotificacionesStyles.bottomPadding} />
-          </ScrollView>
+          ))}
+          
+          <View style={NotificacionesStyles.bottomPadding} />
+        </ScrollView>
         </View>
       )}
 

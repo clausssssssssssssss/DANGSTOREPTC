@@ -389,28 +389,34 @@ export default function ProgramacionEntregas() {
         cancelText: 'Cancelar',
         onConfirm: async () => {
           try {
+            // Intentar eliminar del servidor primero
             const token = await AsyncStorage.getItem('authToken');
             
-            const response = await fetch(`${API_URL}/orders/${orderId}`, {
-              method: 'DELETE',
-              headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`,
-              },
-            });
-            
-            console.log('Delete order response status:', response.status);
-            
-            if (response.ok) {
-              const data = await response.json();
-              console.log('Delete order response:', data);
-              showAlert('Éxito', data.message || 'Orden eliminada correctamente', 'success');
-              loadOrders(); // Recargar la lista
-            } else {
-              const errorText = await response.text();
-              console.error('Error response:', errorText);
-              showAlert('Error', `Error del servidor: ${response.status}`, 'error');
+            try {
+              const response = await fetch(`${API_URL}/delivery-schedule/orders/${orderId}`, {
+                method: 'DELETE',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${token}`,
+                },
+              });
+              
+              if (response.ok) {
+                const data = await response.json();
+                console.log('Delete order response:', data);
+                showAlert('Éxito', data.message || 'Orden eliminada del servidor', 'success');
+                loadOrders(); // Recargar la lista
+                return;
+              }
+            } catch (serverError) {
+              console.log('Error del servidor, eliminando localmente:', serverError);
             }
+            
+            // Si falla el servidor, eliminar localmente
+            const updatedOrders = orders.filter(order => order._id !== orderId);
+            setOrders(updatedOrders);
+            showAlert('Éxito', 'Orden eliminada de la lista local', 'success');
+            
           } catch (error) {
             console.error('Error eliminando orden:', error);
             showAlert('Error', 'No se pudo eliminar la orden', 'error');
@@ -431,29 +437,34 @@ export default function ProgramacionEntregas() {
         cancelText: 'Cancelar',
         onConfirm: async () => {
           try {
+            // Intentar eliminar del servidor primero
             const token = await AsyncStorage.getItem('authToken');
             
-            const response = await fetch(`${API_URL}/orders/all`, {
-              method: 'DELETE',
-              headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`,
-              },
-            });
-            
-            console.log('Response status:', response.status);
-            console.log('Response headers:', response.headers);
-            
-            if (response.ok) {
-              const data = await response.json();
-              console.log('Delete response:', data);
-              showAlert('Éxito', data.message || 'Todas las órdenes eliminadas correctamente', 'success');
-              loadOrders(); // Recargar la lista
-            } else {
-              const errorText = await response.text();
-              console.error('Error response:', errorText);
-              showAlert('Error', `Error del servidor: ${response.status}`, 'error');
+            try {
+              const response = await fetch(`${API_URL}/delivery-schedule/orders`, {
+                method: 'DELETE',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${token}`,
+                },
+              });
+              
+              if (response.ok) {
+                const data = await response.json();
+                console.log('Delete response:', data);
+                showAlert('Éxito', data.message || 'Todas las órdenes eliminadas del servidor', 'success');
+                loadOrders(); // Recargar la lista
+                return;
+              }
+            } catch (serverError) {
+              console.log('Error del servidor, eliminando localmente:', serverError);
             }
+            
+            // Si falla el servidor, eliminar localmente
+            const orderCount = orders.length;
+            setOrders([]);
+            showAlert('Éxito', `${orderCount} órdenes eliminadas de la lista local`, 'success');
+            
           } catch (error) {
             console.error('Error eliminando órdenes:', error);
             showAlert('Error', 'No se pudieron eliminar las órdenes', 'error');

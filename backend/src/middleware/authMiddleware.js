@@ -29,28 +29,29 @@ const authMiddleware = (allowedRoles = []) => {
 
       const userType = decoded.userType.toLowerCase();
 
-      let userData;
-      if (userType === "customer") {
-        userData = await customersModel
-          .findById(decoded.userId)
-          .select("-password");
+    let userData;
+    if (userType === "customer") {
+      userData = await customersModel
+        .findById(decoded.userId)
+        .select("-password");
         
         //  COMENTAR ESTOS
         // console.log('Customer encontrado en DB:', !!userData);
         // if (userData) {
         //   console.log('Customer data keys:', Object.keys(userData));
         // }
-      } else if (userType === "admin") {
-        userData = {
-          userId: decoded.userId || decoded.email, 
-          userType: "admin",
-          email: decoded.email,
-        };
-      } else {
-        return res
-          .status(401)
-          .json({ success: false, message: "Tipo de usuario inválido" });
-      }
+    } else if (userType === "admin") {
+      userData = {
+        id: decoded.email, // Usar email como ID para admin
+        userId: decoded.email, 
+        userType: "admin",
+        email: decoded.email,
+      };
+    } else {
+      return res
+        .status(401)
+        .json({ success: false, message: "Tipo de usuario inválido" });
+    }
 
       if (!userData) {
         return res
@@ -112,7 +113,8 @@ export const verifyToken = async (req, res, next) => {
         .select("-password");
     } else if (userType === "admin") {
       userData = {
-        userId: decoded.userId || decoded.email,
+        id: decoded.email, // Usar email como ID para admin
+        userId: decoded.email,
         userType: "admin",
         email: decoded.email,
       };

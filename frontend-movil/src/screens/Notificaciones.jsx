@@ -215,22 +215,31 @@ const Notificaciones = ({ navigation }) => {
         navigation.navigate('Productos');
         break;
       case 'purchase':
-        navigation.navigate('ProgramacionEntregas', {
-          orderId: item.data?.orderId,
-          highlightOrder: true
+        navigation.navigate('StockLimites', {
+          screen: 'ProgramacionEntregas',
+          params: {
+            orderId: item.data?.orderId,
+            highlightOrder: true
+          }
         });
         break;
       case 'delivery_confirmed':
-        navigation.navigate('ProgramacionEntregas', {
-          orderId: item.data?.orderId,
-          highlightOrder: true
+        navigation.navigate('StockLimites', {
+          screen: 'ProgramacionEntregas',
+          params: {
+            orderId: item.data?.orderId,
+            highlightOrder: true
+          }
         });
         break;
       case 'reschedule_request':
-        navigation.navigate('ProgramacionEntregas', {
-          orderId: item.data?.orderId,
-          highlightOrder: true,
-          showRescheduleRequests: true
+        navigation.navigate('StockLimites', {
+          screen: 'ProgramacionEntregas',
+          params: {
+            orderId: item.data?.orderId,
+            highlightOrder: true,
+            showRescheduleRequests: true
+          }
         });
         break;
       default:

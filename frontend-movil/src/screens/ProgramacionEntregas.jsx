@@ -7,10 +7,11 @@ import {
   TouchableOpacity,
   Modal,
   TextInput,
-  Alert,
   ActivityIndicator,
   RefreshControl,
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import AlertComponent from '../components/ui/Alert';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -22,20 +23,44 @@ export default function ProgramacionEntregas() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState('ALL');
+  const [alert, setAlert] = useState({
+    visible: false,
+    title: '',
+    message: '',
+    type: 'info',
+    onConfirm: null,
+    onCancel: null,
+    confirmText: 'OK',
+    cancelText: 'Cancelar',
+    showCancel: false,
+  });
   const [scheduleModalVisible, setScheduleModalVisible] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [deliveryDate, setDeliveryDate] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
   const [reschedulingRequests, setReschedulingRequests] = useState([]);
+
+  // Función para mostrar alertas personalizadas
+  const showAlert = (title, message, type = 'info', options = {}) => {
+    setAlert({
+      visible: true,
+      title,
+      message,
+      type,
+      onConfirm: options.onConfirm || (() => setAlert(prev => ({ ...prev, visible: false }))),
+      onCancel: options.onCancel || (() => setAlert(prev => ({ ...prev, visible: false }))),
+      confirmText: options.confirmText || 'OK',
+      cancelText: options.cancelText || 'Cancelar',
+      showCancel: options.showCancel || false,
+    });
+  };
   
   const statusFilters = [
-    { value: 'ALL', label: 'Todos', icon: 'list' },
-    { value: 'REVIEWING', label: 'Revisando', icon: 'eye' },
-    { value: 'MAKING', label: 'Elaborando', icon: 'hammer' },
-    { value: 'READY_FOR_DELIVERY', label: 'Listos', icon: 'cube' },
-    { value: 'DELIVERED', label: 'Entregados', icon: 'checkmark-done' },
-    { value: 'CANCELLED', label: 'Cancelados', icon: 'close-circle' },
+    { value: 'ALL', label: 'Todos', icon: 'list', color: '#6B7280' },
+    { value: 'REVIEWING', label: 'Revisando', icon: 'eye', color: '#F59E0B' },
+    { value: 'MAKING', label: 'Elaborando', icon: 'hammer', color: '#EF4444' },
+    { value: 'READY_FOR_DELIVERY', label: 'Listos', icon: 'cube', color: '#10B981' },
   ];
   
   const deliveryStatuses = {
@@ -56,21 +81,62 @@ export default function ProgramacionEntregas() {
     try {
       setLoading(true);
       const statusParam = selectedStatus !== 'ALL' ? `?status=${selectedStatus}` : '';
+      
+      // Obtener token de autenticación
+      const token = await AsyncStorage.getItem('authToken');
+      
       const response = await fetch(`${API_URL}/delivery-schedule/orders${statusParam}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
         },
       });
       
       const data = await response.json();
       
-      if (data.success) {
-        setOrders(data.orders || []);
+      console.log('Respuesta del servidor:', response.status, response.statusText);
+      console.log('Datos recibidos:', data);
+      
+      if (response.ok) {
+        // El endpoint /delivery-schedule/orders devuelve {success: true, orders: [...]}
+        if (data.success) {
+          const ordersArray = data.orders || [];
+          console.log('Órdenes cargadas:', ordersArray.length);
+          
+          // Filtrar por estado si no es 'ALL'
+          let filteredOrders = ordersArray;
+          if (selectedStatus !== 'ALL') {
+            filteredOrders = ordersArray.filter(order => order.deliveryStatus === selectedStatus);
+          }
+          
+          console.log('Órdenes filtradas:', filteredOrders.length);
+          setOrders(filteredOrders);
+        } else {
+          console.error('Error en respuesta:', data.message);
+          showAlert('Error', data.message || 'No se pudieron cargar las órdenes', 'error');
+        }
+      } else if (response.status === 401) {
+        // Token expirado o inválido
+        console.log('Token expirado, limpiando y redirigiendo al login');
+        await AsyncStorage.removeItem('authToken');
+        showAlert(
+          'Sesión Expirada', 
+          'Tu sesión ha expirado. Por favor, inicia sesión nuevamente.',
+          'error',
+          {
+            showCancel: false,
+            confirmText: 'OK',
+            onConfirm: () => navigation.navigate('AuthApp')
+          }
+        );
+      } else {
+        console.error('Error en respuesta:', data.message);
+        showAlert('Error', data.message || 'No se pudieron cargar las órdenes', 'error');
       }
     } catch (error) {
       console.error('Error cargando órdenes:', error);
-      Alert.alert('Error', 'No se pudieron cargar las órdenes');
+      showAlert('Error', 'No se pudieron cargar las órdenes', 'error');
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -79,20 +145,11 @@ export default function ProgramacionEntregas() {
   
   const loadReschedulingRequests = async () => {
     try {
-      const response = await fetch(`${API_URL}/delivery-schedule/rescheduling-requests`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-      
-      const data = await response.json();
-      
-      if (data.success) {
-        setReschedulingRequests(data.requests || []);
-      }
+      // Por ahora, simplemente establecer array vacío para evitar errores
+      setReschedulingRequests([]);
     } catch (error) {
       console.error('Error cargando solicitudes:', error);
+      setReschedulingRequests([]);
     }
   };
   
@@ -112,12 +169,15 @@ export default function ProgramacionEntregas() {
     if (!selectedOrder) return;
     
     try {
+      const token = await AsyncStorage.getItem('authToken');
+      
       const response = await fetch(
         `${API_URL}/delivery-schedule/${selectedOrder._id}/schedule`,
         {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
           },
           body: JSON.stringify({
             deliveryDate: deliveryDate.toISOString(),
@@ -128,26 +188,29 @@ export default function ProgramacionEntregas() {
       const data = await response.json();
       
       if (data.success) {
-        Alert.alert('Éxito', 'Entrega programada y notificación enviada al cliente');
+        showAlert('Éxito', 'Entrega programada y notificación enviada al cliente', 'success');
         setScheduleModalVisible(false);
         loadOrders();
       } else {
-        Alert.alert('Error', data.message || 'Error al programar entrega');
+        showAlert('Error', data.message || 'Error al programar entrega', 'error');
       }
     } catch (error) {
       console.error('Error programando entrega:', error);
-      Alert.alert('Error', 'No se pudo programar la entrega');
+      showAlert('Error', 'No se pudo programar la entrega', 'error');
     }
   };
   
   const startMakingOrder = async (orderId) => {
     try {
+      const token = await AsyncStorage.getItem('authToken');
+      
       const response = await fetch(
         `${API_URL}/delivery-schedule/${orderId}/start-making`,
         {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
           },
         }
       );
@@ -155,14 +218,14 @@ export default function ProgramacionEntregas() {
       const data = await response.json();
       
       if (data.success) {
-        Alert.alert('Éxito', 'Estado actualizado a "Elaborando"');
+        showAlert('Éxito', 'Estado actualizado a "Elaborando"', 'success');
         loadOrders();
       } else {
-        Alert.alert('Error', data.message || 'Error al actualizar estado');
+        showAlert('Error', data.message || 'Error al actualizar estado', 'error');
       }
     } catch (error) {
       console.error('Error starting making order:', error);
-      Alert.alert('Error', 'Error de conexión');
+      showAlert('Error', 'Error de conexión', 'error');
     }
   };
   
@@ -174,7 +237,7 @@ export default function ProgramacionEntregas() {
       setScheduleModalVisible(true);
     } else {
       // Si rechaza, confirmar directamente
-      Alert.alert(
+      showAlert(
         'Rechazar Reprogramación',
         '¿Confirmas rechazar la reprogramación?',
         [
@@ -184,12 +247,15 @@ export default function ProgramacionEntregas() {
             style: 'destructive',
             onPress: async () => {
               try {
+                const token = await AsyncStorage.getItem('authToken');
+                
                 const response = await fetch(
                   `${API_URL}/delivery-schedule/${order._id}/rescheduling`,
                   {
                     method: 'PUT',
                     headers: {
                       'Content-Type': 'application/json',
+                      'Authorization': `Bearer ${token}`,
                     },
                     body: JSON.stringify({
                       approve: false,
@@ -200,15 +266,15 @@ export default function ProgramacionEntregas() {
                 const data = await response.json();
                 
                 if (data.success) {
-                  Alert.alert('Éxito', 'Reprogramación rechazada');
+                  showAlert('Éxito', 'Reprogramación rechazada', 'success');
                   loadOrders();
                   loadReschedulingRequests();
                 } else {
-                  Alert.alert('Error', data.message);
+                  showAlert('Error', data.message, 'error');
                 }
               } catch (error) {
                 console.error('Error:', error);
-                Alert.alert('Error', 'No se pudo procesar la solicitud');
+                showAlert('Error', 'No se pudo procesar la solicitud', 'error');
               }
             },
           },
@@ -221,12 +287,15 @@ export default function ProgramacionEntregas() {
     if (!selectedOrder) return;
     
     try {
+      const token = await AsyncStorage.getItem('authToken');
+      
       const response = await fetch(
         `${API_URL}/delivery-schedule/${selectedOrder._id}/rescheduling`,
         {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
           },
           body: JSON.stringify({
             approve: true,
@@ -238,16 +307,16 @@ export default function ProgramacionEntregas() {
       const data = await response.json();
       
       if (data.success) {
-        Alert.alert('Éxito', 'Reprogramación aprobada y notificación enviada al cliente');
+        showAlert('Éxito', 'Reprogramación aprobada y notificación enviada al cliente', 'success');
         setScheduleModalVisible(false);
         loadOrders();
         loadReschedulingRequests();
       } else {
-        Alert.alert('Error', data.message || 'Error al aprobar reprogramación');
+        showAlert('Error', data.message || 'Error al aprobar reprogramación', 'error');
       }
     } catch (error) {
       console.error('Error aprobando reprogramación:', error);
-      Alert.alert('Error', 'No se pudo aprobar la reprogramación');
+      showAlert('Error', 'No se pudo aprobar la reprogramación', 'error');
     }
   };
   
@@ -262,47 +331,135 @@ export default function ProgramacionEntregas() {
     const nextStatus = nextStatuses[order.deliveryStatus];
     
     if (!nextStatus) {
-      Alert.alert('Info', 'Este pedido ya no puede cambiar de estado');
+      showAlert('Info', 'Este pedido ya no puede cambiar de estado', 'info');
       return;
     }
     
-    Alert.alert(
+    showAlert(
       'Cambiar Estado',
       `¿Cambiar estado a "${deliveryStatuses[nextStatus].label}"?`,
-      [
-        { text: 'Cancelar', style: 'cancel' },
-        {
-          text: 'Confirmar',
-          onPress: async () => {
-            try {
-              const response = await fetch(
-                `${API_URL}/delivery-schedule/${order._id}/status`,
-                {
-                  method: 'PUT',
-                  headers: {
-                    'Content-Type': 'application/json',
-                  },
-                  body: JSON.stringify({
-                    status: nextStatus,
-                  }),
-                }
-              );
-              
-              const data = await response.json();
-              
-              if (data.success) {
-                Alert.alert('Éxito', 'Estado actualizado');
-                loadOrders();
-              } else {
-                Alert.alert('Error', data.message);
+      'info',
+      {
+        showCancel: true,
+        confirmText: 'Confirmar',
+        cancelText: 'Cancelar',
+        onConfirm: async () => {
+          try {
+            const token = await AsyncStorage.getItem('authToken');
+            
+            const response = await fetch(
+              `${API_URL}/delivery-schedule/${order._id}/status`,
+              {
+                method: 'PUT',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${token}`,
+                },
+                body: JSON.stringify({
+                  status: nextStatus,
+                }),
               }
-            } catch (error) {
-              console.error('Error:', error);
-              Alert.alert('Error', 'No se pudo actualizar el estado');
+            );
+            
+            const data = await response.json();
+            
+            if (data.success) {
+              showAlert('Éxito', 'Estado actualizado', 'success');
+              loadOrders();
+            } else {
+              showAlert('Error', data.message, 'error');
             }
-          },
-        },
-      ]
+          } catch (error) {
+            console.error('Error:', error);
+            showAlert('Error', 'No se pudo actualizar el estado', 'error');
+          }
+        }
+      }
+    );
+  };
+
+  const deleteOrder = async (orderId) => {
+    showAlert(
+      'Eliminar Orden',
+      '¿Estás seguro de que quieres eliminar esta orden? Esta acción no se puede deshacer.',
+      'warning',
+      {
+        showCancel: true,
+        confirmText: 'Eliminar',
+        cancelText: 'Cancelar',
+        onConfirm: async () => {
+          try {
+            const token = await AsyncStorage.getItem('authToken');
+            
+            const response = await fetch(`${API_URL}/orders/${orderId}`, {
+              method: 'DELETE',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`,
+              },
+            });
+            
+            console.log('Delete order response status:', response.status);
+            
+            if (response.ok) {
+              const data = await response.json();
+              console.log('Delete order response:', data);
+              showAlert('Éxito', data.message || 'Orden eliminada correctamente', 'success');
+              loadOrders(); // Recargar la lista
+            } else {
+              const errorText = await response.text();
+              console.error('Error response:', errorText);
+              showAlert('Error', `Error del servidor: ${response.status}`, 'error');
+            }
+          } catch (error) {
+            console.error('Error eliminando orden:', error);
+            showAlert('Error', 'No se pudo eliminar la orden', 'error');
+          }
+        }
+      }
+    );
+  };
+
+  const deleteAllOrders = async () => {
+    showAlert(
+      'Eliminar Todas las Órdenes',
+      '¿Estás seguro de que quieres eliminar TODAS las órdenes? Esta acción no se puede deshacer.',
+      'error',
+      {
+        showCancel: true,
+        confirmText: 'Eliminar',
+        cancelText: 'Cancelar',
+        onConfirm: async () => {
+          try {
+            const token = await AsyncStorage.getItem('authToken');
+            
+            const response = await fetch(`${API_URL}/orders/all`, {
+              method: 'DELETE',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`,
+              },
+            });
+            
+            console.log('Response status:', response.status);
+            console.log('Response headers:', response.headers);
+            
+            if (response.ok) {
+              const data = await response.json();
+              console.log('Delete response:', data);
+              showAlert('Éxito', data.message || 'Todas las órdenes eliminadas correctamente', 'success');
+              loadOrders(); // Recargar la lista
+            } else {
+              const errorText = await response.text();
+              console.error('Error response:', errorText);
+              showAlert('Error', `Error del servidor: ${response.status}`, 'error');
+            }
+          } catch (error) {
+            console.error('Error eliminando órdenes:', error);
+            showAlert('Error', 'No se pudieron eliminar las órdenes', 'error');
+          }
+        }
+      }
     );
   };
   
@@ -325,8 +482,16 @@ export default function ProgramacionEntregas() {
             <Text style={styles.orderId}>Pedido #{order._id.slice(-8)}</Text>
             <Text style={styles.customerName}>{order.user?.nombre || 'Cliente'}</Text>
           </View>
-          <View style={[styles.statusBadge, { backgroundColor: status.color }]}>
-            <Text style={styles.statusText}>{status.label}</Text>
+          <View style={styles.orderHeaderRight}>
+            <View style={[styles.statusBadge, { backgroundColor: status.color }]}>
+              <Text style={styles.statusText}>{status.label}</Text>
+            </View>
+            <TouchableOpacity 
+              onPress={() => deleteOrder(order._id)}
+              style={styles.deleteButton}
+            >
+              <Ionicons name="trash-outline" size={18} color="#EF4444" />
+            </TouchableOpacity>
           </View>
         </View>
         
@@ -420,10 +585,12 @@ export default function ProgramacionEntregas() {
             onPress={() => navigation.goBack()}
             style={styles.backButton}
           >
-            <Ionicons name="arrow-back" size={24} color="#333" />
-          </TouchableOpacity>
+          <Ionicons name="arrow-back" size={24} color="#333" />
+        </TouchableOpacity>
+        <View style={styles.headerTitleContainer}>
           <Text style={styles.headerTitle}>Programación de Entregas</Text>
-          <View style={styles.headerPlaceholder} />
+        </View>
+        <View style={styles.headerPlaceholder} />
         </View>
         
         <View style={styles.loadingContainer}>
@@ -444,41 +611,67 @@ export default function ProgramacionEntregas() {
         >
           <Ionicons name="arrow-back" size={24} color="#333" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Programación de Entregas</Text>
-        <View style={styles.headerPlaceholder} />
+        <View style={styles.headerTitleContainer}>
+          <Text style={styles.headerTitle}>Programación de Entregas</Text>
+          {orders.length > 0 && (
+            <Text style={styles.orderCount}>{orders.length} pedidos</Text>
+          )}
+        </View>
+        <View style={styles.headerButtons}>
+          {orders.length > 0 && (
+            <TouchableOpacity 
+              onPress={deleteAllOrders}
+              style={styles.deleteAllButton}
+            >
+              <Ionicons name="trash-outline" size={22} color="#EF4444" />
+            </TouchableOpacity>
+          )}
+          <TouchableOpacity 
+            onPress={loadOrders}
+            style={styles.refreshButton}
+          >
+            <Ionicons name="refresh" size={24} color="#6B7280" />
+          </TouchableOpacity>
+        </View>
       </View>
       
       {/* Filtros */}
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        style={styles.filterContainer}
-      >
-        {statusFilters.map((filter) => (
-          <TouchableOpacity
-            key={filter.value}
-            style={[
-              styles.filterBtn,
-              selectedStatus === filter.value && styles.filterBtnActive,
-            ]}
-            onPress={() => setSelectedStatus(filter.value)}
-          >
-            <Ionicons
-              name={filter.icon}
-              size={18}
-              color={selectedStatus === filter.value ? '#fff' : '#666'}
-            />
-            <Text
+      {/* Filtros compactos */}
+      <View style={styles.filterContainer}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.filterScrollContent}
+        >
+          {statusFilters.map((filter) => (
+            <TouchableOpacity
+              key={filter.value}
               style={[
-                styles.filterBtnText,
-                selectedStatus === filter.value && styles.filterBtnTextActive,
+                styles.filterChip,
+                selectedStatus === filter.value && {
+                  backgroundColor: filter.color,
+                  borderColor: filter.color,
+                },
               ]}
+              onPress={() => setSelectedStatus(filter.value)}
             >
-              {filter.label}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </ScrollView>
+              <Ionicons
+                name={filter.icon}
+                size={16}
+                color={selectedStatus === filter.value ? '#fff' : filter.color}
+              />
+              <Text
+                style={[
+                  styles.filterChipText,
+                  selectedStatus === filter.value && styles.filterChipTextActive,
+                ]}
+              >
+                {filter.label}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+      </View>
       
       {/* Alerta de solicitudes pendientes */}
       {reschedulingRequests.length > 0 && (
@@ -503,8 +696,49 @@ export default function ProgramacionEntregas() {
         
         {orders.length === 0 && (
           <View style={styles.emptyState}>
-            <Ionicons name="cube-outline" size={64} color="#ccc" />
-            <Text style={styles.emptyText}>No hay pedidos en este estado</Text>
+            <View style={styles.emptyIconContainer}>
+              <Ionicons name="cube-outline" size={48} color="#D1D5DB" />
+            </View>
+            <Text style={styles.emptyText}>
+              {selectedStatus === 'ALL' 
+                ? 'No hay pedidos registrados' 
+                : `No hay pedidos en estado "${statusFilters.find(f => f.value === selectedStatus)?.label}"`
+              }
+            </Text>
+            <Text style={styles.emptySubtext}>
+              Los pedidos aparecerán aquí cuando los clientes realicen compras
+            </Text>
+            <Text style={styles.debugText}>
+              Debug: Estado seleccionado: {selectedStatus}
+            </Text>
+            <TouchableOpacity 
+              style={styles.testButton}
+              onPress={async () => {
+                try {
+                  const token = await AsyncStorage.getItem('authToken');
+                  console.log('Token:', token ? 'Presente' : 'No encontrado');
+                  
+                  const response = await fetch(`${API_URL}/delivery-schedule/orders`, {
+                    headers: {
+                      'Authorization': `Bearer ${token}`,
+                    },
+                  });
+                  
+                  const data = await response.json();
+                  console.log('Respuesta completa:', data);
+                  
+                  if (response.status === 401) {
+                    showAlert('Token Expirado', 'El token está expirado. Necesitas hacer login nuevamente.', 'error');
+                  } else {
+                    showAlert('Debug', `Respuesta: ${response.status}\nDatos: ${JSON.stringify(data).substring(0, 100)}...`, 'info');
+                  }
+                } catch (error) {
+                  showAlert('Error', error.message, 'error');
+                }
+              }}
+            >
+              <Text style={styles.testButtonText}>Probar Conexión</Text>
+            </TouchableOpacity>
           </View>
         )}
       </ScrollView>
@@ -605,6 +839,19 @@ export default function ProgramacionEntregas() {
           </View>
         </View>
       </Modal>
+
+      {/* Componente de alerta personalizada */}
+      <AlertComponent
+        visible={alert.visible}
+        title={alert.title}
+        message={alert.message}
+        type={alert.type}
+        onConfirm={alert.onConfirm}
+        onCancel={alert.onCancel}
+        confirmText={alert.confirmText}
+        cancelText={alert.cancelText}
+        showCancel={alert.showCancel}
+      />
     </View>
   );
 }
@@ -612,29 +859,57 @@ export default function ProgramacionEntregas() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#F9FAFB',
   },
   headerBar: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingVertical: 16,
     paddingTop: 50,
     backgroundColor: '#fff',
     borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
+    borderBottomColor: '#f0f0f0',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 2,
   },
   backButton: {
     padding: 4,
   },
+  headerTitleContainer: {
+    alignItems: 'center',
+    flex: 1,
+  },
   headerTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333',
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#1F2937',
+    letterSpacing: -0.5,
+  },
+  orderCount: {
+    fontSize: 12,
+    color: '#6B7280',
+    marginTop: 2,
+    fontWeight: '500',
   },
   headerPlaceholder: {
     width: 32,
+  },
+  headerButtons: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  refreshButton: {
+    padding: 4,
+  },
+  deleteAllButton: {
+    padding: 6,
+    borderRadius: 18,
   },
   loadingContainer: {
     flex: 1,
@@ -647,31 +922,33 @@ const styles = StyleSheet.create({
   },
   filterContainer: {
     backgroundColor: '#fff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
-    paddingVertical: 10,
+    paddingVertical: 8,
     paddingHorizontal: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
   },
-  filterBtn: {
+  filterScrollContent: {
+    paddingHorizontal: 4,
+  },
+  filterChip: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
-    backgroundColor: '#f5f5f5',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+    backgroundColor: '#f8f9fa',
+    borderWidth: 1,
+    borderColor: '#e9ecef',
     marginRight: 8,
-    gap: 6,
+    gap: 4,
   },
-  filterBtnActive: {
-    backgroundColor: '#6c5ce7',
+  filterChipText: {
+    fontSize: 12,
+    color: '#495057',
+    fontWeight: '500',
   },
-  filterBtnText: {
-    fontSize: 14,
-    color: '#666',
-  },
-  filterBtnTextActive: {
+  filterChipTextActive: {
     color: '#fff',
-    fontWeight: '600',
   },
   alertBanner: {
     flexDirection: 'row',
@@ -687,24 +964,37 @@ const styles = StyleSheet.create({
   },
   ordersContainer: {
     flex: 1,
-    padding: 16,
+    paddingHorizontal: 16,
+    paddingTop: 8,
+    paddingBottom: 16,
   },
   orderCard: {
     backgroundColor: '#fff',
-    borderRadius: 12,
+    borderRadius: 16,
     padding: 16,
-    marginBottom: 16,
+    marginBottom: 12,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 4,
+    borderWidth: 1,
+    borderColor: '#f0f0f0',
   },
   orderHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
     marginBottom: 12,
+  },
+  orderHeaderRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  deleteButton: {
+    padding: 6,
+    borderRadius: 18,
   },
   orderId: {
     fontSize: 16,
@@ -798,12 +1088,50 @@ const styles = StyleSheet.create({
   },
   emptyState: {
     alignItems: 'center',
-    paddingVertical: 60,
+    paddingVertical: 80,
+    paddingHorizontal: 32,
+  },
+  emptyIconContainer: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: '#F9FAFB',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 16,
   },
   emptyText: {
-    fontSize: 16,
-    color: '#999',
+    fontSize: 18,
+    color: '#6B7280',
+    marginTop: 4,
+    textAlign: 'center',
+    fontWeight: '600',
+  },
+  emptySubtext: {
+    fontSize: 14,
+    color: '#9CA3AF',
+    marginTop: 8,
+    textAlign: 'center',
+    lineHeight: 20,
+  },
+  debugText: {
+    fontSize: 12,
+    color: '#6B7280',
     marginTop: 16,
+    textAlign: 'center',
+    fontStyle: 'italic',
+  },
+  testButton: {
+    backgroundColor: '#3B82F6',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 8,
+    marginTop: 12,
+  },
+  testButtonText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '600',
   },
   modalOverlay: {
     flex: 1,

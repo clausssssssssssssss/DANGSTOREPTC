@@ -15,13 +15,21 @@ const OrdersSection = ({ userId }) => {
   }, [userId]);
 
   const loadOrders = () => {
+    const token = localStorage.getItem('token');
+    console.log('Token:', token ? 'Presente' : 'No encontrado');
+    console.log('Cargando órdenes desde:', `${API_BASE}/profile/orders`);
+    
     fetch(`${API_BASE}/profile/orders`, {
       headers: {
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
+        'Authorization': `Bearer ${token}`
       }
     })
-    .then(res => res.json())
+    .then(res => {
+      console.log('Respuesta del servidor:', res.status, res.statusText);
+      return res.json();
+    })
     .then(data => {
+      console.log('Datos recibidos:', data);
       // El endpoint existente devuelve un array directamente, no con success
       setOrders(data || []);
       setLoading(false);

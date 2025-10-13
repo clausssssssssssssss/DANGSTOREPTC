@@ -12,6 +12,10 @@ router.post('/:orderId/start-making', verifyToken, verifyAdmin, deliverySchedule
 router.get('/orders', verifyToken, verifyAdmin, deliveryScheduleController.getOrdersByDeliveryStatus);
 router.get('/rescheduling-requests', verifyToken, verifyAdmin, deliveryScheduleController.getPendingReschedulingRequests);
 
+// Rutas para eliminar órdenes (solo admin)
+router.delete('/orders/:orderId', verifyToken, verifyAdmin, deliveryScheduleController.deleteOrder);
+router.delete('/orders', verifyToken, verifyAdmin, deliveryScheduleController.deleteAllOrders);
+
 // Rutas para clientes
 router.post('/:orderId/confirm', verifyToken, deliveryScheduleController.confirmDelivery);
 router.post('/:orderId/request-reschedule', verifyToken, deliveryScheduleController.requestRescheduling);

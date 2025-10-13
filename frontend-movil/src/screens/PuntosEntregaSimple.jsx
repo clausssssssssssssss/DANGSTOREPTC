@@ -6,7 +6,6 @@ import {
   TouchableOpacity,
   TextInput,
   ScrollView,
-  Alert,
   Switch,
   Modal,
   ActivityIndicator,
@@ -16,13 +15,40 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import API_URL from '../config/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import AlertComponent from '../components/ui/Alert';
 
 export default function PuntosEntregaSimple() {
   const navigation = useNavigation();
   const [deliveryPoints, setDeliveryPoints] = useState([]);
   const [loading, setLoading] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
+  const [alert, setAlert] = useState({
+    visible: false,
+    title: '',
+    message: '',
+    type: 'info',
+    onConfirm: null,
+    onCancel: null,
+    confirmText: 'OK',
+    cancelText: 'Cancelar',
+    showCancel: false,
+  });
   const [editingPoint, setEditingPoint] = useState(null);
+
+  // Función para mostrar alertas personalizadas
+  const showAlert = (title, message, type = 'info', options = {}) => {
+    setAlert({
+      visible: true,
+      title,
+      message,
+      type,
+      onConfirm: options.onConfirm || (() => setAlert(prev => ({ ...prev, visible: false }))),
+      onCancel: options.onCancel || (() => setAlert(prev => ({ ...prev, visible: false }))),
+      confirmText: options.confirmText || 'OK',
+      cancelText: options.cancelText || 'Cancelar',
+      showCancel: options.showCancel || false,
+    });
+  };
   
   // Ubicación seleccionada
   const [selectedLocation, setSelectedLocation] = useState({
@@ -103,7 +129,7 @@ export default function PuntosEntregaSimple() {
       }
     } catch (error) {
       console.error('Error cargando puntos:', error);
-      Alert.alert('Error', 'No se pudieron cargar los puntos de entrega');
+      showAlert('Error', 'No se pudieron cargar los puntos de entrega', 'error');
     } finally {
       setLoading(false);
     }
@@ -211,12 +237,12 @@ export default function PuntosEntregaSimple() {
   
   const handleSave = async () => {
     if (!formData.nombre.trim()) {
-      Alert.alert('Error', 'El nombre es requerido');
+      showAlert('Error', 'El nombre es requerido', 'error');
       return;
     }
-    
+
     if (!formData.direccion.trim()) {
-      Alert.alert('Error', 'La dirección es requerida');
+      showAlert('Error', 'La dirección es requerida', 'error');
       return;
     }
     
@@ -248,18 +274,18 @@ export default function PuntosEntregaSimple() {
       const data = await response.json();
       
       if (data.success) {
-        Alert.alert(
+        showAlert(
           'Éxito',
           editingPoint ? 'Punto actualizado' : 'Punto creado'
         );
         setModalVisible(false);
         loadDeliveryPoints();
       } else {
-        Alert.alert('Error', data.message || 'Error al guardar');
+        showAlert('Error', data.message || 'Error al guardar', 'error');
       }
     } catch (error) {
       console.error('Error guardando:', error);
-      Alert.alert('Error', 'No se pudo guardar el punto');
+      showAlert('Error', 'No se pudo guardar el punto', 'error');
     }
   };
   
@@ -280,50 +306,49 @@ export default function PuntosEntregaSimple() {
       if (data.success) {
         loadDeliveryPoints();
       } else {
-        Alert.alert('Error', data.message || 'Error al cambiar estado');
+        showAlert('Error', data.message || 'Error al cambiar estado', 'error');
       }
     } catch (error) {
       console.error('Error cambiando estado:', error);
-      Alert.alert('Error', 'No se pudo cambiar el estado');
+      showAlert('Error', 'No se pudo cambiar el estado', 'error');
     }
   };
   
   const handleDelete = (point) => {
-    Alert.alert(
+    showAlert(
       'Eliminar punto',
       `¿Estás seguro de eliminar "${point.nombre}"?`,
-      [
-        { text: 'Cancelar', style: 'cancel' },
-        {
-          text: 'Eliminar',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              const headers = await getAuthHeaders();
-              const response = await fetch(`${API_URL}/delivery-points/${point._id}`, {
-                method: 'DELETE',
-                headers,
-              });
-              
-              if (!response.ok) {
-                throw new Error(`HTTP ${response.status}`);
-              }
-              
-              const data = await response.json();
-              
-              if (data.success) {
-                Alert.alert('Éxito', 'Punto eliminado');
-                loadDeliveryPoints();
-              } else {
-                Alert.alert('Error', data.message || 'Error al eliminar');
-              }
-            } catch (error) {
-              console.error('Error eliminando:', error);
-              Alert.alert('Error', 'No se pudo eliminar el punto');
+      'warning',
+      {
+        showCancel: true,
+        confirmText: 'Eliminar',
+        cancelText: 'Cancelar',
+        onConfirm: async () => {
+          try {
+            const headers = await getAuthHeaders();
+            const response = await fetch(`${API_URL}/delivery-points/${point._id}`, {
+              method: 'DELETE',
+              headers,
+            });
+            
+            if (!response.ok) {
+              throw new Error(`HTTP ${response.status}`);
             }
-          },
-        },
-      ]
+            
+            const data = await response.json();
+            
+            if (data.success) {
+              showAlert('Éxito', 'Punto eliminado', 'success');
+              loadDeliveryPoints();
+            } else {
+              showAlert('Error', data.message || 'Error al eliminar', 'error');
+            }
+          } catch (error) {
+            console.error('Error eliminando:', error);
+            showAlert('Error', 'No se pudo eliminar el punto', 'error');
+          }
+        }
+      }
     );
   };
   
@@ -390,8 +415,8 @@ export default function PuntosEntregaSimple() {
                     style={styles.actionButton}
                     onPress={() => handleDelete(point)}
                   >
-                    <Ionicons name="trash-outline" size={20} color="#F44336" />
-                    <Text style={[styles.actionText, { color: '#F44336' }]}>Eliminar</Text>
+                    <Ionicons name="trash-outline" size={20} color="#EF4444" />
+                    <Text style={[styles.actionText, { color: '#EF4444' }]}>Eliminar</Text>
                   </TouchableOpacity>
                 </View>
               </View>
@@ -535,6 +560,19 @@ export default function PuntosEntregaSimple() {
           </ScrollView>
         </View>
       </Modal>
+
+      {/* Componente de alerta personalizada */}
+      <AlertComponent
+        visible={alert.visible}
+        title={alert.title}
+        message={alert.message}
+        type={alert.type}
+        onConfirm={alert.onConfirm}
+        onCancel={alert.onCancel}
+        confirmText={alert.confirmText}
+        cancelText={alert.cancelText}
+        showCancel={alert.showCancel}
+      />
     </View>
   );
 }

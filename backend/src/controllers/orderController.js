@@ -158,3 +158,55 @@ export const getUserOrders = async (req, res) => {
     });
   }
 };
+
+// Eliminar una orden específica (solo para admin)
+export const deleteOrder = async (req, res) => {
+  try {
+    const { orderId } = req.params;
+    
+    const order = await Order.findById(orderId);
+    
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: 'Orden no encontrada'
+      });
+    }
+    
+    await Order.findByIdAndDelete(orderId);
+    
+    res.json({
+      success: true,
+      message: 'Orden eliminada correctamente'
+    });
+  } catch (error) {
+    console.error('Error eliminando orden:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error al eliminar la orden'
+    });
+  }
+};
+
+// Eliminar todas las órdenes (solo para admin)
+export const deleteAllOrders = async (req, res) => {
+  try {
+    const result = await Order.deleteMany({});
+    
+    console.log(`Eliminadas ${result.deletedCount} órdenes`);
+    
+    res.json({
+      success: true,
+      message: `Se eliminaron ${result.deletedCount} órdenes`,
+      deletedCount: result.deletedCount
+    });
+  } catch (error) {
+    console.error('Error eliminando órdenes:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error interno del servidor',
+      error: error.message
+    });
+  }
+};
+

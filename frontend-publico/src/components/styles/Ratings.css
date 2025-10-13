@@ -27,7 +27,6 @@
 }
 
 .star {
-  color: #fbbf24;
   transition: all 0.2s ease;
   flex-shrink: 0;
   display: block;
@@ -35,6 +34,37 @@
   width: auto;
   height: auto;
   overflow: visible;
+}
+
+.star-filled {
+  color: #fbbf24 !important;
+}
+
+.star-empty {
+  color: #d1d5db !important;
+}
+
+.star-half {
+  color: #fbbf24 !important;
+}
+
+/* Asegurar que las estrellas vacías no tengan fill */
+.star-empty {
+  fill: none !important;
+  stroke: #d1d5db !important;
+  stroke-width: 1.5px !important;
+}
+
+/* Asegurar que las estrellas llenas tengan fill */
+.star-filled {
+  fill: #fbbf24 !important;
+  stroke: #fbbf24 !important;
+}
+
+/* Asegurar que las medias estrellas tengan fill */
+.star-half {
+  fill: #fbbf24 !important;
+  stroke: #fbbf24 !important;
 }
 
 /* Estilos específicos para estrellas en tarjetas de productos */
@@ -47,6 +77,54 @@
   line-height: 1;
   vertical-align: middle;
   overflow: visible;
+}
+
+/* FORZAR ESTILOS ESPECÍFICOS PARA ESTRELLAS VACÍAS - MÁS AGRESIVO */
+.product-rating .star-empty,
+.rating-stars-small .star-empty,
+.stars-container .star-empty,
+.rating-stars .star-empty,
+.star.star-empty,
+.star-empty svg {
+  fill: none !important;
+  stroke: #d1d5db !important;
+  stroke-width: 1.5px !important;
+  color: #d1d5db !important;
+}
+
+/* FORZAR ESTILOS ESPECÍFICOS PARA ESTRELLAS LLENAS */
+.product-rating .star-filled,
+.rating-stars-small .star-filled,
+.stars-container .star-filled,
+.rating-stars .star-filled,
+.star.star-filled,
+.star-filled svg {
+  fill: #fbbf24 !important;
+  stroke: #fbbf24 !important;
+  color: #fbbf24 !important;
+}
+
+/* ESTILO ESPECÍFICO PARA TODAS LAS ESTRELLAS POR DEFECTO */
+.product-rating svg,
+.rating-stars-small svg,
+.stars-container svg,
+.rating-stars svg,
+.star svg {
+  fill: none !important;
+  stroke: #d1d5db !important;
+  stroke-width: 1.5px !important;
+  color: #d1d5db !important;
+}
+
+/* SOBRESCRIBIR SOLO LAS ESTRELLAS LLENAS */
+.product-rating .star-filled svg,
+.rating-stars-small .star-filled svg,
+.stars-container .star-filled svg,
+.rating-stars .star-filled svg,
+.star.star-filled svg {
+  fill: #fbbf24 !important;
+  stroke: #fbbf24 !important;
+  color: #fbbf24 !important;
 }
 
 /* Estilos específicos para la media estrella */
@@ -677,4 +755,149 @@
   .rating-item {
     padding: 0.5rem;
   }
+}
+
+/* ==================== ESTRELLAS VACÍAS FORZADAS ==================== */
+/* ESTE CSS SE APLICA AL FINAL PARA SOBRESCRIBIR TODO */
+.product-rating svg[fill="none"],
+.rating-stars-small svg[fill="none"],
+.stars-container svg[fill="none"] {
+  fill: none !important;
+  stroke: #d1d5db !important;
+  stroke-width: 1.5px !important;
+  color: #d1d5db !important;
+}
+
+.product-rating svg[fill="#fbbf24"],
+.rating-stars-small svg[fill="#fbbf24"],
+.stars-container svg[fill="#fbbf24"] {
+  fill: #fbbf24 !important;
+  stroke: #fbbf24 !important;
+  color: #fbbf24 !important;
+}
+
+/* FORZAR QUE TODAS LAS ESTRELLAS SEAN VACÍAS POR DEFECTO */
+.product-rating .star:not(.star-filled),
+.rating-stars-small .star:not(.star-filled),
+.stars-container .star:not(.star-filled) {
+  fill: none !important;
+  stroke: #d1d5db !important;
+  stroke-width: 1.5px !important;
+  color: #d1d5db !important;
+}
+
+.product-rating .star:not(.star-filled) svg,
+.rating-stars-small .star:not(.star-filled) svg,
+.stars-container .star:not(.star-filled) svg {
+  fill: none !important;
+  stroke: #d1d5db !important;
+  stroke-width: 1.5px !important;
+  color: #d1d5db !important;
+}
+
+/* ==================== ESPECÍFICO PARA CARDS DEL CATÁLOGO ==================== */
+/* Forzar estrellas vacías en las cards del catálogo */
+.product-card .product-rating svg,
+.product-card .rating-stars-small svg,
+.product-card .stars-container svg,
+.popular-product-card .product-rating svg,
+.popular-product-card .rating-stars-small svg,
+.popular-product-card .stars-container svg {
+  fill: none !important;
+  stroke: #d1d5db !important;
+  stroke-width: 1.5px !important;
+  color: #d1d5db !important;
+}
+
+/* Solo las estrellas llenas en las cards del catálogo */
+.product-card .product-rating .star-filled svg,
+.product-card .rating-stars-small .star-filled svg,
+.product-card .stars-container .star-filled svg,
+.popular-product-card .product-rating .star-filled svg,
+.popular-product-card .rating-stars-small .star-filled svg,
+.popular-product-card .stars-container .star-filled svg {
+  fill: #fbbf24 !important;
+  stroke: #fbbf24 !important;
+  color: #fbbf24 !important;
+}
+
+/* ==================== SELECTORES POR ATRIBUTOS PARA CATÁLOGO ==================== */
+/* Forzar estrellas vacías por atributos en cards del catálogo */
+.product-card svg[fill="none"],
+.popular-product-card svg[fill="none"],
+.product-grid svg[fill="none"],
+.popular-products-centered svg[fill="none"] {
+  fill: none !important;
+  stroke: #d1d5db !important;
+  stroke-width: 1.5px !important;
+  color: #d1d5db !important;
+}
+
+/* Forzar estrellas llenas por atributos en cards del catálogo */
+.product-card svg[fill="#fbbf24"],
+.popular-product-card svg[fill="#fbbf24"],
+.product-grid svg[fill="#fbbf24"],
+.popular-products-centered svg[fill="#fbbf24"] {
+  fill: #fbbf24 !important;
+  stroke: #fbbf24 !important;
+  color: #fbbf24 !important;
+}
+
+/* CSS súper específico para cualquier estrella en cards */
+.product-card .star,
+.popular-product-card .star,
+.product-grid .star,
+.popular-products-centered .star {
+  fill: none !important;
+  stroke: #d1d5db !important;
+  stroke-width: 1.5px !important;
+  color: #d1d5db !important;
+}
+
+.product-card .star.star-filled,
+.popular-product-card .star.star-filled,
+.product-grid .star.star-filled,
+.popular-products-centered .star.star-filled {
+  fill: #fbbf24 !important;
+  stroke: #fbbf24 !important;
+  color: #fbbf24 !important;
+}
+
+/* ==================== CSS SÚPER AGRESIVO PARA CATÁLOGO ==================== */
+/* ESTE CSS SE APLICA A TODAS LAS ESTRELLAS DEL CATÁLOGO */
+.catalog-page svg,
+.product-grid svg,
+.popular-products-centered svg,
+.catalog-container svg,
+.product-card svg,
+.popular-product-card svg {
+  fill: none !important;
+  stroke: #d1d5db !important;
+  stroke-width: 1.5px !important;
+  color: #d1d5db !important;
+}
+
+/* Solo las estrellas con clase star-filled se vuelven doradas */
+.catalog-page .star-filled svg,
+.product-grid .star-filled svg,
+.popular-products-centered .star-filled svg,
+.catalog-container .star-filled svg,
+.product-card .star-filled svg,
+.popular-product-card .star-filled svg {
+  fill: #fbbf24 !important;
+  stroke: #fbbf24 !important;
+  color: #fbbf24 !important;
+}
+
+/* Selector universal para cualquier estrella en el catálogo */
+.catalog-page .star svg:not(.star-filled),
+.product-grid .star svg:not(.star-filled),
+.popular-products-centered .star svg:not(.star-filled),
+.catalog-container .star svg:not(.star-filled),
+.product-card .star svg:not(.star-filled),
+.popular-product-card .star svg:not(.star-filled) {
+  fill: none !important;
+  stroke: #d1d5db !important;
+  stroke-width: 1.5px !important;
+  color: #d1d5db !important;
 }

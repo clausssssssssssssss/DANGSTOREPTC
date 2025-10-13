@@ -1,8 +1,11 @@
 import React from 'react';
 import { Clock, CheckCircle, Package, MapPin, Calendar, AlertCircle } from 'lucide-react';
+import useAlert from '../../hooks/useAlert';
+import Alert from '../ui/Alert';
 import './OrderStatusDisplay.css';
 
 const OrderStatusDisplay = ({ order }) => {
+  const { alert, showAlert, hideAlert, success, error: showError } = useAlert();
   const getStatusInfo = (status) => {
     switch (status) {
       case 'PAID':
@@ -101,45 +104,55 @@ const OrderStatusDisplay = ({ order }) => {
       });
 
       if (response.ok) {
-        alert('¡Entrega confirmada exitosamente!');
-        window.location.reload();
+        success('¡Éxito!', 'Entrega confirmada exitosamente');
+        setTimeout(() => window.location.reload(), 1500);
       } else {
         const errorData = await response.json();
-        alert(errorData.message || 'Error al aceptar la entrega');
+        showError('Error', errorData.message || 'No se pudo confirmar la entrega');
       }
     } catch (error) {
       console.error('Error:', error);
-      alert('Error de conexión');
+      showError('Error de conexión', 'No se pudo conectar con el servidor');
     }
   };
 
   const handleRejectDelivery = async (orderId) => {
-    try {
-      const reason = prompt('¿Por qué necesitas reprogramar la entrega?');
-      if (!reason) return;
+    // Usar alerta personalizada para pedir la razón
+    showAlert({
+      title: 'Motivo de reprogramación',
+      message: '¿Por qué necesitas reprogramar la entrega?',
+      type: 'warning',
+      showCancel: true,
+      confirmText: 'Enviar',
+      cancelText: 'Cancelar',
+      onConfirm: async () => {
+        const reason = prompt('Escribe el motivo:'); // Temporal, se puede mejorar
+        if (!reason) return;
 
-      const token = localStorage.getItem('token');
-      // Usar el endpoint existente de delivery-schedule
-      const response = await fetch(`https://dangstoreptc-production.up.railway.app/api/delivery-schedule/${orderId}/request-reschedule`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ reason })
-      });
+        try {
+          const token = localStorage.getItem('token');
+          const response = await fetch(`https://dangstoreptc-production.up.railway.app/api/delivery-schedule/${orderId}/request-reschedule`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ reason })
+          });
 
-      if (response.ok) {
-        alert('Solicitud de reprogramación enviada al administrador');
-        window.location.reload();
-      } else {
-        const errorData = await response.json();
-        alert(errorData.message || 'Error al solicitar reprogramación');
+          if (response.ok) {
+            success('¡Solicitud enviada!', 'Solicitud de reprogramación enviada al administrador');
+            setTimeout(() => window.location.reload(), 1500);
+          } else {
+            const errorData = await response.json();
+            showError('Error', errorData.message || 'No se pudo enviar la solicitud');
+          }
+        } catch (error) {
+          console.error('Error:', error);
+          showError('Error de conexión', 'No se pudo conectar con el servidor');
+        }
       }
-    } catch (error) {
-      console.error('Error:', error);
-      alert('Error de conexión');
-    }
+    });
   };
 
   const statusInfo = getStatusInfo(order.deliveryStatus);
@@ -161,6 +174,20 @@ const OrderStatusDisplay = ({ order }) => {
         <p><strong>Total:</strong> ${order.total.toFixed(2)}</p>
         <p><strong>Fecha:</strong> {new Date(order.createdAt).toLocaleDateString('es-ES')}</p>
       </div>
+      
+      {/* Componente de alerta personalizada */}
+      <Alert
+        isOpen={alert.isOpen}
+        onClose={hideAlert}
+        title={alert.title}
+        message={alert.message}
+        type={alert.type}
+        showCancel={alert.showCancel}
+        onConfirm={alert.onConfirm}
+        onCancel={alert.onCancel}
+        confirmText={alert.confirmText}
+        cancelText={alert.cancelText}
+      />
     </div>
   );
 };

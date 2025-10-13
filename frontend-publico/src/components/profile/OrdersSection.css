@@ -1,0 +1,73 @@
+/* Estilos solo para los botones de eliminar - manteniendo el diseño original */
+
+/* Botón eliminar todos en el header */
+.delete-all-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-left: 12px;
+}
+
+.delete-all-btn:hover {
+  background: #dc2626;
+  transform: translateY(-1px);
+}
+
+/* Wrapper para cada item de pedido */
+.order-item-wrapper {
+  position: relative;
+}
+
+/* Botón eliminar individual */
+.delete-order-btn {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 28px;
+  height: 28px;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  z-index: 10;
+  color: #ef4444;
+}
+
+.delete-order-btn:hover {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: #ef4444;
+  transform: scale(1.1);
+}
+
+.delete-order-btn:active {
+  transform: scale(0.95);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .delete-all-btn {
+    padding: 6px 10px;
+    font-size: 0.8rem;
+    margin-left: 8px;
+  }
+  
+  .delete-order-btn {
+    width: 24px;
+    height: 24px;
+    top: 12px;
+    right: 12px;
+  }
+}

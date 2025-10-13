@@ -11,35 +11,35 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-/* Estados de color */
+/* Estados de color con mejor contraste */
 .status-success {
   background: linear-gradient(135deg, #f0fff4 0%, #e6fffa 100%);
   border-left-color: #48bb78;
-  color: #2d5016;
+  color: #1a202c;
 }
 
 .status-warning {
   background: linear-gradient(135deg, #fffbeb 0%, #fef5e7 100%);
   border-left-color: #ed8936;
-  color: #7c2d12;
+  color: #1a202c;
 }
 
 .status-info {
   background: linear-gradient(135deg, #ebf8ff 0%, #e6fffa 100%);
   border-left-color: #4299e1;
-  color: #2c5282;
+  color: #1a202c;
 }
 
 .status-primary {
   background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
   border-left-color: #6c5ce7;
-  color: #4a5568;
+  color: #1a202c;
 }
 
 .status-error {
   background: linear-gradient(135deg, #fed7d7 0%, #feb2b2 100%);
   border-left-color: #f56565;
-  color: #742a2a;
+  color: #1a202c;
 }
 
 .status-header {
@@ -84,12 +84,13 @@
   font-size: 1.1rem;
   font-weight: 600;
   margin: 0 0 4px 0;
+  color: #1a202c;
 }
 
 .status-description {
   font-size: 0.9rem;
   margin: 0;
-  opacity: 0.8;
+  color: #4a5568;
 }
 
 .delivery-actions {
@@ -164,10 +165,12 @@
 .order-details p {
   margin: 4px 0;
   font-size: 0.85rem;
+  color: #374151;
 }
 
 .order-details strong {
   font-weight: 600;
+  color: #1a202c;
 }
 
 /* Responsive */
@@ -194,4 +197,3 @@
     padding: 12px;
   }
 }
-

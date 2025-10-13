@@ -1012,7 +1012,7 @@ const FormPaymentFake = () => {
                     limpiarFormulario();
                     setFieldErrors({});
                     clearCart();
-                    navigate('/perfil');
+                    navigate('/perfil', { state: { activeSection: 'orders' } });
                   }} 
                   variant="secondary" 
                   className="btn-secondary" 

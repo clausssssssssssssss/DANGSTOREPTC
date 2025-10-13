@@ -3,54 +3,23 @@ import { Star } from 'lucide-react';
 
 const RatingStars = ({ rating, size = 20, showNumber = false, interactive = false, onRatingChange }) => {
   const stars = [];
-  const fullStars = Math.floor(rating);
-  const hasHalfStar = rating % 1 !== 0;
+  const safeRating = Number(rating) || 0;
+  const fullStars = Math.floor(safeRating);
 
-  // Generar estrellas llenas
-  for (let i = 0; i < fullStars; i++) {
+  // Generar todas las estrellas
+  for (let i = 0; i < 5; i++) {
+    const starNumber = i + 1;
+    const isFilled = starNumber <= fullStars;
+    
     stars.push(
       <Star
-        key={`full-${i}`}
+        key={`star-${i}`}
         size={size}
-        fill="currentColor"
-        className={`star ${interactive ? 'cursor-pointer hover:scale-110' : ''}`}
-        onClick={() => interactive && onRatingChange && onRatingChange(i + 1)}
-      />
-    );
-  }
-
-  // Generar media estrella si es necesario
-  if (hasHalfStar) {
-    stars.push(
-      <div key="half" className="star-half-container">
-        <Star
-          size={size}
-          fill="none"
-          className={`star star-outline ${interactive ? 'cursor-pointer hover:scale-110' : ''}`}
-          onClick={() => interactive && onRatingChange && onRatingChange(fullStars + 1)}
-        />
-        <div className="star-half-fill">
-          <Star
-            size={size}
-            fill="currentColor"
-            className="star"
-            style={{ clipPath: 'inset(0 50% 0 0)' }}
-          />
-        </div>
-      </div>
-    );
-  }
-
-  // Generar estrellas vacías
-  const emptyStars = 5 - Math.ceil(rating);
-  for (let i = 0; i < emptyStars; i++) {
-    stars.push(
-      <Star
-        key={`empty-${i}`}
-        size={size}
-        fill="none"
-        className={`star ${interactive ? 'cursor-pointer hover:scale-110' : ''}`}
-        onClick={() => interactive && onRatingChange && onRatingChange(fullStars + hasHalfStar + i + 1)}
+        fill={isFilled ? "#fbbf24" : "none"}
+        stroke={isFilled ? "#fbbf24" : "#d1d5db"}
+        strokeWidth={isFilled ? 0 : 1.5}
+        className={`star ${isFilled ? 'star-filled' : 'star-empty'} ${interactive ? 'cursor-pointer hover:scale-110' : ''}`}
+        onClick={() => interactive && onRatingChange && onRatingChange(starNumber)}
       />
     );
   }
@@ -62,7 +31,7 @@ const RatingStars = ({ rating, size = 20, showNumber = false, interactive = fals
       </div>
       {showNumber && (
         <span className="rating-number">
-          {rating.toFixed(1)}
+          {safeRating.toFixed(1)}
         </span>
       )}
     </div>

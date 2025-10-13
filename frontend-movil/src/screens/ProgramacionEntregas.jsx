@@ -596,7 +596,7 @@ export default function ProgramacionEntregas() {
             onPress={() => navigation.goBack()}
             style={styles.backButton}
           >
-          <Ionicons name="arrow-back" size={24} color="#333" />
+          <Ionicons name="arrow-back" size={24} color="#8B5CF6" />
         </TouchableOpacity>
         <View style={styles.headerTitleContainer}>
           <Text style={styles.headerTitle}>Programación de Entregas</Text>
@@ -620,7 +620,7 @@ export default function ProgramacionEntregas() {
           onPress={() => navigation.goBack()}
           style={styles.backButton}
         >
-          <Ionicons name="arrow-back" size={24} color="#333" />
+          <Ionicons name="arrow-back" size={24} color="#8B5CF6" />
         </TouchableOpacity>
         <View style={styles.headerTitleContainer}>
           <Text style={styles.headerTitle}>Programación de Entregas</Text>
@@ -719,37 +719,6 @@ export default function ProgramacionEntregas() {
             <Text style={styles.emptySubtext}>
               Los pedidos aparecerán aquí cuando los clientes realicen compras
             </Text>
-            <Text style={styles.debugText}>
-              Debug: Estado seleccionado: {selectedStatus}
-            </Text>
-            <TouchableOpacity 
-              style={styles.testButton}
-              onPress={async () => {
-                try {
-                  const token = await AsyncStorage.getItem('authToken');
-                  console.log('Token:', token ? 'Presente' : 'No encontrado');
-                  
-                  const response = await fetch(`${API_URL}/delivery-schedule/orders`, {
-                    headers: {
-                      'Authorization': `Bearer ${token}`,
-                    },
-                  });
-                  
-                  const data = await response.json();
-                  console.log('Respuesta completa:', data);
-                  
-                  if (response.status === 401) {
-                    showAlert('Token Expirado', 'El token está expirado. Necesitas hacer login nuevamente.', 'error');
-                  } else {
-                    showAlert('Debug', `Respuesta: ${response.status}\nDatos: ${JSON.stringify(data).substring(0, 100)}...`, 'info');
-                  }
-                } catch (error) {
-                  showAlert('Error', error.message, 'error');
-                }
-              }}
-            >
-              <Text style={styles.testButtonText}>Probar Conexión</Text>
-            </TouchableOpacity>
           </View>
         )}
       </ScrollView>
@@ -1124,25 +1093,6 @@ const styles = StyleSheet.create({
     marginTop: 8,
     textAlign: 'center',
     lineHeight: 20,
-  },
-  debugText: {
-    fontSize: 12,
-    color: '#6B7280',
-    marginTop: 16,
-    textAlign: 'center',
-    fontStyle: 'italic',
-  },
-  testButton: {
-    backgroundColor: '#3B82F6',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 8,
-    marginTop: 12,
-  },
-  testButtonText: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: '600',
   },
   modalOverlay: {
     flex: 1,

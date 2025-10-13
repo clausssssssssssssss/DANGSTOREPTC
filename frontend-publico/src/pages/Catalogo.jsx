@@ -448,7 +448,10 @@ export default function Catalogo() {
                 {/* Rating en la tarjeta */}
                 <div className="product-rating">
                   <div className="rating-stars-small">
-                    <RatingStars rating={getProductRatings(product._id).averageRating} size={16} />
+                    <RatingStars 
+                      rating={getProductRatings(product._id).averageRating} 
+                      size={16} 
+                    />
                   </div>
                   <span className="rating-count">
                     {getProductRatings(product._id).totalRatings > 0 ? `(${getProductRatings(product._id).totalRatings})` : '(Sin reseñas)'}
@@ -519,7 +522,11 @@ export default function Catalogo() {
                   <div className="product-ratings-section">
                     <div className="rating-summary">
                       <div className="rating-stars">
-                        <RatingStars rating={averageRating} size={24} showNumber={true} />
+                        <RatingStars 
+                          rating={averageRating || 0} 
+                          size={24} 
+                          showNumber={true} 
+                        />
                       </div>
                       <span className="rating-text">
                         {totalRatings > 0 ? `${totalRatings} reseña${totalRatings !== 1 ? 's' : ''}` : 'Sin reseñas'}

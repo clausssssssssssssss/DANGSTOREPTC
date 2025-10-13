@@ -1,39 +1,75 @@
 import React from 'react';
+import { AlertTriangle, CheckCircle, Info, XCircle } from 'lucide-react';
+import './Alert.css';
 
-const Alert = ({ children, variant = 'default', className = '', ...props }) => {
-  const baseClasses = 'p-4 rounded-md border flex items-start gap-3';
-  
-  const variantClasses = {
-    default: 'bg-blue-50 border-blue-200 text-blue-800',
-    destructive: 'bg-red-50 border-red-200 text-red-800',
-    warning: 'bg-yellow-50 border-yellow-200 text-yellow-800',
-    success: 'bg-green-50 border-green-200 text-green-800',
+const Alert = ({ 
+  isOpen, 
+  onClose, 
+  title, 
+  message, 
+  type = 'info', 
+  showCancel = false, 
+  onConfirm, 
+  onCancel,
+  confirmText = 'Aceptar',
+  cancelText = 'Cancelar'
+}) => {
+  if (!isOpen) return null;
+
+  const getIcon = () => {
+    switch (type) {
+      case 'success':
+        return <CheckCircle className="alert-icon success" />;
+      case 'error':
+        return <XCircle className="alert-icon error" />;
+      case 'warning':
+        return <AlertTriangle className="alert-icon warning" />;
+      default:
+        return <Info className="alert-icon info" />;
+    }
   };
 
-  const classes = `${baseClasses} ${variantClasses[variant]} ${className}`;
+  const handleConfirm = () => {
+    if (onConfirm) onConfirm();
+    onClose();
+  };
+
+  const handleCancel = () => {
+    if (onCancel) onCancel();
+    onClose();
+  };
 
   return (
-    <div className={classes} {...props}>
-      {children}
+    <div className="alert-overlay" onClick={onClose}>
+      <div className={`alert-modal ${type}`} onClick={(e) => e.stopPropagation()}>
+        <div className="alert-header">
+          {getIcon()}
+          <h3 className="alert-title">{title}</h3>
+        </div>
+        
+        <div className="alert-body">
+          <p className="alert-message">{message}</p>
+        </div>
+        
+        <div className="alert-footer">
+          {showCancel && (
+            <button 
+              className="alert-btn cancel"
+              onClick={handleCancel}
+            >
+              {cancelText}
+            </button>
+          )}
+          <button 
+            className={`alert-btn confirm ${type}`}
+            onClick={handleConfirm}
+          >
+            {confirmText}
+          </button>
+        </div>
+      </div>
     </div>
   );
 };
 
-const AlertTitle = ({ children, className = '', ...props }) => {
-  return (
-    <h3 className={`font-semibold text-sm ${className}`} {...props}>
-      {children}
-    </h3>
-  );
-};
-
-const AlertDescription = ({ children, className = '', ...props }) => {
-  return (
-    <div className={`text-sm mt-1 ${className}`} {...props}>
-      {children}
-    </div>
-  );
-};
-
-export { Alert, AlertTitle, AlertDescription };
 export default Alert;

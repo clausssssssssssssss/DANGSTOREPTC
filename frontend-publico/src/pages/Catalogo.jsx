@@ -29,6 +29,47 @@ export default function Catalogo() {
   const { toasts, showSuccess, showError, showWarning, showInfo, removeToast } = useToast();
   const [searchParams, setSearchParams] = useSearchParams();
   
+  // Función para generar el título dinámico según la categoría
+  const getDynamicTitle = () => {
+    if (!selectedCategory) {
+      return "Catálogo de Productos";
+    }
+    
+    // Mapeo de categorías a títulos más amigables
+    const categoryTitles = {
+      'Llaveros': 'Llaveros Personalizados',
+      'Accesorios': 'Accesorios Únicos',
+      'Arte': 'Arte y Diseño',
+      'Hogar': 'Productos para el Hogar',
+      'Tecnología': 'Accesorios Tecnológicos',
+      'Regalos': 'Regalos Especiales',
+      'Personalizados': 'Productos Personalizados',
+      'Coleccionables': 'Artículos Coleccionables'
+    };
+    
+    return categoryTitles[selectedCategory] || `${selectedCategory} - Catálogo`;
+  };
+
+  // Función para generar el subtítulo dinámico
+  const getDynamicSubtitle = () => {
+    if (!selectedCategory) {
+      return "Descubre nuestra increíble selección de los mejores productos para ti";
+    }
+    
+    const categorySubtitles = {
+      'Llaveros': 'Encuentra el llavero perfecto para ti o como regalo especial',
+      'Accesorios': 'Accesorios únicos que complementarán tu estilo',
+      'Arte': 'Expresa tu creatividad con nuestras obras de arte',
+      'Hogar': 'Decora tu hogar con productos únicos y especiales',
+      'Tecnología': 'Accesorios modernos para tus dispositivos favoritos',
+      'Regalos': 'Encuentra el regalo perfecto para cualquier ocasión',
+      'Personalizados': 'Productos hechos especialmente para ti',
+      'Coleccionables': 'Artículos únicos para tu colección'
+    };
+    
+    return categorySubtitles[selectedCategory] || `Explora nuestra selección de productos en ${selectedCategory}`;
+  };
+  
   // Función helper para formatear precios de forma segura
   const formatPrice = (price) => {
     const numPrice = Number(price);
@@ -272,8 +313,8 @@ export default function Catalogo() {
       <div className="container">
         {/* Banner Principal */}
         <div className="popular-banner">
-          <h1 className="popular-title">Catálogo de Productos</h1>
-          <p className="popular-subtitle">Descubre nuestra increíble selección de los mejores productos para ti</p>
+          <h1 className="popular-title">{getDynamicTitle()}</h1>
+          <p className="popular-subtitle">{getDynamicSubtitle()}</p>
           {lastUpdate && (
             <div style={{ 
               fontSize: '0.8rem', 
@@ -389,16 +430,6 @@ export default function Catalogo() {
         )}
 
 
-        {/* Información de resultados */}
-        <div className="results-info">
-          <p>
-            {selectedCategory ? (
-              <>Mostrando {filteredProducts.length} de {products.length} productos en la categoría "{selectedCategory}"</>
-            ) : (
-              <>Mostrando {filteredProducts.length} de {products.length} productos</>
-            )}
-          </p>
-        </div>
 
         {/* Grid de Productos */}
         <div className="product-grid">

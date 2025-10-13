@@ -2251,22 +2251,6 @@ img {
   box-shadow: var(--shadow-medium);
 }
 
-/* Información de resultados */
-.results-info {
-  text-align: center;
-  margin: var(--spacing-lg) 0;
-  padding: var(--spacing-md);
-  background: #f9fafb;
-  border-radius: var(--border-radius-small);
-  border: 2px solid var(--border-color);
-  box-shadow: var(--shadow-light);
-}
-
-.results-info p {
-  color: var(--text-secondary);
-  font-size: 1rem;
-  margin: 0;
-}
 
 /* ===== RESPONSIVE FILTER BAR MEJORADO ===== */
 @media (max-width: 1200px) {

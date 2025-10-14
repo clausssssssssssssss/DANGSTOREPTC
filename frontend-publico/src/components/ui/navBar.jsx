@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
-import { useCart } from '../cart/hook/useCart';
+import { useCart } from '../../context/CartContext';
 import useCategories from '../../hooks/useCategories';
 import { 
   ShoppingCart, 
@@ -27,10 +27,17 @@ export default function NavBar() {
   
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isCategoriesDropdownOpen, setIsCategoriesDropdownOpen] = useState(false);
-  const { cart } = useCart(userId);
+  const { cart, loadCart } = useCart();
   const { categories, loading: categoriesLoading, error: categoriesError } = useCategories();
   const itemCount = Array.isArray(cart) ? cart.reduce((sum, i) => sum + i.quantity, 0) : 0;
   const [hasQuotes, setHasQuotes] = useState(false);
+
+  // Cargar el carrito cuando el usuario cambie
+  useEffect(() => {
+    if (userId) {
+      loadCart(userId);
+    }
+  }, [userId, loadCart]);
 
   useEffect(() => {
     async function fetchQuotes() {

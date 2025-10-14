@@ -5,14 +5,7 @@ import './Toast.css';
 const Toast = ({ message, type = 'info', duration = 4000, onClose, onConfirm, showConfirmButton = false }) => {
   const [isVisible, setIsVisible] = useState(true);
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsVisible(false);
-      setTimeout(onClose, 400); // Esperar a que termine la animación
-    }, duration);
-
-    return () => clearTimeout(timer);
-  }, [duration, onClose]);
+  // No necesitamos manejar el timeout aquí, el hook lo hace
 
   const getIcon = () => {
     switch (type) {
@@ -31,8 +24,7 @@ const Toast = ({ message, type = 'info', duration = 4000, onClose, onConfirm, sh
     if (onConfirm) {
       onConfirm();
     }
-    setIsVisible(false);
-    setTimeout(onClose, 400);
+    onClose(); // Eliminar inmediatamente
   };
 
   return (

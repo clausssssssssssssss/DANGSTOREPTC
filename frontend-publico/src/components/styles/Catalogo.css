@@ -1006,10 +1006,10 @@
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px;
   min-height: 48px;
   touch-action: manipulation;
   position: relative;
@@ -1017,6 +1017,8 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   letter-spacing: 0.025em;
   line-height: 1;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
 }
 
 .btn::before {
@@ -1038,60 +1040,32 @@
   transform: scale(1.1);
 }
 
-/* Alineación perfecta de iconos y texto */
-.btn {
-  align-items: center;
-  justify-content: center;
-}
-
-.btn > * {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* Contenedor específico para iconos y texto */
-.btn svg,
-.btn span {
-  height: 20px;
-  line-height: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
+/* Alineación horizontal perfecta de iconos y texto */
 .btn svg {
   flex-shrink: 0;
   width: 20px;
   height: 20px;
-  display: block;
   transition: transform 0.2s ease;
-  vertical-align: middle;
-  margin-top: -1px;
+  display: inline-block !important;
+  vertical-align: middle !important;
 }
 
 .btn span {
-  flex: 1;
-  text-align: center;
   font-weight: 600;
   letter-spacing: 0.025em;
   line-height: 1;
-  vertical-align: middle;
-  margin-left: 4px;
+  display: inline-block !important;
+  vertical-align: middle !important;
 }
 
-/* Estilos específicos para iconos en botones */
+/* Estilos específicos para iconos de Lucide en botones */
 .btn .lucide {
   flex-shrink: 0;
   width: 20px !important;
   height: 20px !important;
   transition: transform 0.2s ease;
-  vertical-align: middle;
-  margin-top: -2px;
-  display: inline-block;
-  position: relative;
-  top: 1px;
-  margin-right: 4px;
+  display: inline-block !important;
+  vertical-align: middle !important;
 }
 
 .btn-primary {

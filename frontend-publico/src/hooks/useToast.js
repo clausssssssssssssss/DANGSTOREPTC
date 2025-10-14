@@ -19,6 +19,13 @@ export const useToast = () => {
     
     setToasts(prev => [...prev, newToast]);
     
+    // Auto-remove toast after duration
+    if (duration > 0) {
+      setTimeout(() => {
+        setToasts(prev => prev.filter(toast => toast.id !== id));
+      }, duration);
+    }
+    
     return id;
   }, []);
 
@@ -30,7 +37,7 @@ export const useToast = () => {
     return addToast(message, type, duration, options);
   }, [addToast]);
 
-  const showSuccess = useCallback((message, duration = 4000) => {
+  const showSuccess = useCallback((message, duration = 2000) => {
     return addToast(message, 'success', duration);
   }, [addToast]);
 

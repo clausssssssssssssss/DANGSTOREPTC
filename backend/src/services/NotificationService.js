@@ -274,33 +274,6 @@ class NotificationService {
     }
   }
 
-  /**
-   * Crear notificación cuando cliente confirma entrega
-   */
-  static async createDeliveryConfirmedNotification(orderData) {
-    try {
-      const notification = new Notification({
-        title: 'Entrega Confirmada',
-        message: `${orderData.customerName} confirmó la entrega del pedido #${orderData.orderId.slice(-8)}`,
-        type: 'delivery_confirmed',
-        priority: 'normal',
-        data: {
-          orderId: orderData.orderId,
-          customerName: orderData.customerName,
-          deliveryDate: orderData.deliveryDate,
-        },
-        icon: '✅',
-      });
-
-      const savedNotification = await notification.save();
-      console.log('Notificación de entrega confirmada creada:', savedNotification._id);
-      
-      return savedNotification;
-    } catch (error) {
-      console.error('Error creando notificación de entrega confirmada:', error);
-      throw error;
-    }
-  }
 
   /**
    * Crear notificación cuando cliente solicita reprogramación
@@ -411,25 +384,27 @@ class NotificationService {
    */
   static async createDeliveryConfirmedNotification(data) {
     try {
+      console.log('🔔 Creando notificación de entrega confirmada con datos:', data);
+      
       const notification = new Notification({
         title: 'Entrega Confirmada',
-        message: `El cliente ha confirmado la entrega programada para el ${new Date(data.deliveryDate).toLocaleDateString('es-ES')}`,
+        message: `${data.customerName || 'El cliente'} confirmó la entrega del pedido #${data.orderId.slice(-8)}`,
         type: 'delivery_confirmed',
         priority: 'normal',
         data: {
           orderId: data.orderId,
-          customerId: data.customerId,
+          customerName: data.customerName,
           deliveryDate: data.deliveryDate,
         },
         icon: '✅',
       });
 
       const savedNotification = await notification.save();
-      console.log('Notificación de entrega confirmada creada:', savedNotification._id);
+      console.log('✅ Notificación de entrega confirmada creada:', savedNotification._id);
       
       return savedNotification;
     } catch (error) {
-      console.error('Error creando notificación de entrega confirmada:', error);
+      console.error('❌ Error creando notificación de entrega confirmada:', error);
       throw error;
     }
   }

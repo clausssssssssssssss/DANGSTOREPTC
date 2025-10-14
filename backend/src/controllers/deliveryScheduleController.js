@@ -214,6 +214,13 @@ export const confirmDelivery = async (req, res) => {
     }
     
     console.log('📦 Estado actual de la orden:', order.deliveryStatus);
+    console.log('📦 Orden completa:', {
+      _id: order._id,
+      deliveryStatus: order.deliveryStatus,
+      deliveryDate: order.deliveryDate,
+      deliveryConfirmed: order.deliveryConfirmed,
+      user: order.user ? { nombre: order.user.nombre, email: order.user.email } : null
+    });
     
     // Validar que la orden esté programada
     if (order.deliveryStatus !== 'READY_FOR_DELIVERY') {
@@ -224,21 +231,40 @@ export const confirmDelivery = async (req, res) => {
       });
     }
     
+    // Validar que la orden tenga fecha de entrega
+    if (!order.deliveryDate) {
+      console.log('❌ Orden sin fecha de entrega');
+      return res.status(400).json({
+        success: false,
+        message: 'La orden no tiene fecha de entrega programada'
+      });
+    }
+    
     // Actualizar la orden
+    console.log('🔄 Actualizando orden...');
     order.deliveryStatus = 'CONFIRMED';
     order.deliveryConfirmed = true;
     order.reschedulingStatus = 'NONE';
+    
+    // Validar que statusHistory existe
+    if (!order.statusHistory) {
+      order.statusHistory = [];
+    }
+    
     order.statusHistory.push({
       status: 'CONFIRMED',
       changedBy: 'customer',
+      changedAt: new Date(),
       notes: 'Cliente confirmó la entrega'
     });
     
+    console.log('💾 Guardando orden en base de datos...');
     await order.save();
+    console.log('✅ Orden guardada exitosamente');
     
     console.log('✅ Orden actualizada exitosamente a CONFIRMED');
     
-    // Crear notificación para el admin
+    // Crear notificación para el admin (no crítico)
     try {
       await NotificationService.createDeliveryConfirmedNotification({
         orderId: order._id,
@@ -247,7 +273,8 @@ export const confirmDelivery = async (req, res) => {
       });
       console.log('📧 Notificación de confirmación enviada al admin');
     } catch (notificationError) {
-      console.error('❌ Error creando notificación:', notificationError);
+      console.error('❌ Error creando notificación (no crítico):', notificationError.message);
+      // No lanzamos el error porque la confirmación ya se completó exitosamente
     }
     
     res.json({
@@ -256,10 +283,15 @@ export const confirmDelivery = async (req, res) => {
       order
     });
   } catch (error) {
-    console.error('Error confirmando entrega:', error);
+    console.error('❌ ERROR DETALLADO al confirmar entrega:');
+    console.error('Error message:', error.message);
+    console.error('Error stack:', error.stack);
+    console.error('Error name:', error.name);
+    
     res.status(500).json({
       success: false,
-      message: 'Error al confirmar entrega'
+      message: `Error al confirmar entrega: ${error.message}`,
+      error: process.env.NODE_ENV === 'development' ? error.message : 'Error interno del servidor'
     });
   }
 };

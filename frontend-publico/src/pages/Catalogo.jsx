@@ -392,10 +392,18 @@ export default function Catalogo() {
                       className={`favorite-btn ${favorites.includes(product._id) ? 'active' : ''}`}
                       onClick={(e) => handleFavoriteClick(e, product._id)}
                     >
-                      <Heart 
-                        size={20} 
-                        fill={favorites.includes(product._id) ? 'currentColor' : 'none'} 
-                      />
+                      <svg 
+                        width="20" 
+                        height="20" 
+                        viewBox="0 0 24 24" 
+                        fill={favorites.includes(product._id) ? "#e74c3c" : "none"} 
+                        stroke={favorites.includes(product._id) ? "#e74c3c" : "#ccc"} 
+                        strokeWidth="2" 
+                        strokeLinecap="round" 
+                        strokeLinejoin="round"
+                      >
+                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                      </svg>
                     </button>
                   </div>
                   <div className="popular-product-info">
@@ -450,10 +458,18 @@ export default function Catalogo() {
                   className={`favorite-btn ${favorites.includes(product._id) ? 'active' : ''}`}
                   onClick={(e) => handleFavoriteClick(e, product._id)}
                 >
-                  <Heart 
-                    size={20} 
-                    fill={favorites.includes(product._id) ? 'currentColor' : 'none'} 
-                  />
+                  <svg 
+                    width="20" 
+                    height="20" 
+                    viewBox="0 0 24 24" 
+                    fill={favorites.includes(product._id) ? "#e74c3c" : "none"} 
+                    stroke={favorites.includes(product._id) ? "#e74c3c" : "#ccc"} 
+                    strokeWidth="2" 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round"
+                  >
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                  </svg>
                 </button>
                 {/* Badge para productos de encargos personalizados */}
                 {product.isFromCustomOrder && (
@@ -603,7 +619,18 @@ export default function Catalogo() {
                         handleFavoriteClick(e, selectedProduct._id);
                       }}
                     >
-                      <Heart size={20} />
+                      <svg 
+                        width="20" 
+                        height="20" 
+                        viewBox="0 0 24 24" 
+                        fill={favorites.includes(selectedProduct._id) ? "#e74c3c" : "none"} 
+                        stroke={favorites.includes(selectedProduct._id) ? "#e74c3c" : "#666"} 
+                        strokeWidth="2" 
+                        strokeLinecap="round" 
+                        strokeLinejoin="round"
+                      >
+                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                      </svg>
                       <span>Favoritos</span>
                     </button>
                   </div>

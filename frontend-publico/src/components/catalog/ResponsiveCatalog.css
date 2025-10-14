@@ -79,7 +79,15 @@
 }
 
 .catalog-page .favorite-btn.active {
-  color: #e74c3c !important;
+  background: #e74c3c !important;
+  opacity: 1 !important;
+  transform: scale(1) !important;
+  box-shadow: 0 4px 16px rgba(231, 76, 60, 0.4) !important;
+}
+
+.catalog-page .favorite-btn.active svg {
+  fill: white !important;
+  stroke: white !important;
 }
 
 /* Mejoras generales para el catálogo en móviles */

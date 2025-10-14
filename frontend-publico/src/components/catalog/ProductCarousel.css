@@ -294,8 +294,14 @@
 
 .favorite-btn.active {
   background: #e74c3c;
-  color: white;
-  box-shadow: 0 4px 12px rgba(231, 76, 60, 0.4);
+  box-shadow: 0 4px 16px rgba(231, 76, 60, 0.4);
+  opacity: 1 !important;
+  transform: scale(1) !important;
+}
+
+.favorite-btn.active svg {
+  fill: white !important;
+  stroke: white !important;
 }
 
 /* ====== INFORMACIÓN DEL PRODUCTO ====== */

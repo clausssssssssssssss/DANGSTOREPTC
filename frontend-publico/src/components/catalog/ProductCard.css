@@ -220,8 +220,16 @@
 }
 
 .favorite-btn.active {
-  color: #e74c3c !important;
+  background: #e74c3c !important;
   animation: heartBeat 0.3s ease-in-out !important;
+  opacity: 1 !important;
+  transform: scale(1) !important;
+  box-shadow: 0 4px 16px rgba(231, 76, 60, 0.4) !important;
+}
+
+.favorite-btn.active svg {
+  fill: white !important;
+  stroke: white !important;
 }
 
 @keyframes heartBeat {
@@ -718,6 +726,14 @@ button.add-to-cart-btn.btn {
   
   .favorite-btn.active {
     animation: none !important;
+    opacity: 1 !important;
+    transform: scale(1) !important;
+    background: #e74c3c !important;
+  }
+  
+  .favorite-btn.active svg {
+    fill: white !important;
+    stroke: white !important;
   }
 }
 

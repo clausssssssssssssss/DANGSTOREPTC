@@ -537,9 +537,16 @@
 }
 
 .favorite-btn.active {
-  color: var(--secondary-color);
-  background: rgba(230, 57, 70, 0.15);
+  background: #e74c3c;
   animation: heartBeat 0.6s ease-in-out;
+  opacity: 1 !important;
+  transform: scale(1) rotate(0deg) !important;
+  box-shadow: 0 4px 16px rgba(231, 76, 60, 0.4);
+}
+
+.favorite-btn.active svg {
+  fill: white !important;
+  stroke: white !important;
 }
 
 .favorite-btn:hover {

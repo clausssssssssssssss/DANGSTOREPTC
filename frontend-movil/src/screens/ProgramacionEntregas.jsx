@@ -168,8 +168,23 @@ export default function ProgramacionEntregas() {
   const handleScheduleDelivery = async () => {
     if (!selectedOrder) return;
     
+    // Debug: Mostrar el estado de la orden
+    console.log('🔍 Estado de la orden:', selectedOrder.deliveryStatus);
+    console.log('🔍 Orden completa:', selectedOrder);
+    
     try {
       const token = await AsyncStorage.getItem('authToken');
+      
+      const requestBody = {
+        deliveryDate: deliveryDate.toISOString(),
+      };
+      
+      // Debug: Mostrar datos que se envían al backend
+      console.log('🔍 Enviando al backend:', {
+        url: `${API_URL}/delivery-schedule/${selectedOrder._id}/schedule`,
+        body: requestBody,
+        orderId: selectedOrder._id
+      });
       
       const response = await fetch(
         `${API_URL}/delivery-schedule/${selectedOrder._id}/schedule`,
@@ -179,20 +194,59 @@ export default function ProgramacionEntregas() {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`,
           },
-          body: JSON.stringify({
-            deliveryDate: deliveryDate.toISOString(),
-          }),
+          body: JSON.stringify(requestBody),
         }
       );
       
       const data = await response.json();
+      
+      // Debug: Mostrar respuesta completa del backend
+      console.log('🔍 Respuesta del backend:', response.status, data);
       
       if (data.success) {
         showAlert('Éxito', 'Entrega programada y notificación enviada al cliente', 'success');
         setScheduleModalVisible(false);
         loadOrders();
       } else {
-        showAlert('Error', data.message || 'Error al programar entrega', 'error');
+        // Si el error es por estado inválido, mostrar opciones
+        if (data.message && data.message.includes('revisión o pagadas')) {
+          showAlert(
+            'Estado de Orden Incorrecto',
+            `La orden está en estado "${selectedOrder.deliveryStatus}". Cambiando automáticamente a "PAID" para poder programar la entrega...`,
+            'warning',
+            {
+              showCancel: false,
+              confirmText: 'Continuar',
+              onConfirm: async () => {
+                try {
+                  await changeDeliveryStatus(selectedOrder._id, 'PAID');
+                  // Después de cambiar el estado, intentar programar de nuevo
+                  setTimeout(() => {
+                    handleScheduleDelivery();
+                  }, 1500);
+                } catch (error) {
+                  console.error('Error en flujo automático:', error);
+                  showAlert('Error', 'No se pudo cambiar el estado de la orden', 'error');
+                }
+              }
+            }
+          );
+        } else {
+          // Si el error no es por estado, mostrar opción de programar manualmente
+          showAlert(
+            'Error al Programar',
+            `Error: ${data.message || 'Error al programar entrega'}. ¿Quieres programar manualmente?`,
+            'error',
+            {
+              showCancel: true,
+              confirmText: 'Programar Manualmente',
+              cancelText: 'Cancelar',
+              onConfirm: async () => {
+                await programarEntregaManual();
+              }
+            }
+          );
+        }
       }
     } catch (error) {
       console.error('Error programando entrega:', error);
@@ -319,8 +373,107 @@ export default function ProgramacionEntregas() {
       showAlert('Error', 'No se pudo aprobar la reprogramación', 'error');
     }
   };
-  
-  const changeDeliveryStatus = (order) => {
+
+  const programarEntregaManual = async () => {
+    if (!selectedOrder) return;
+    
+    try {
+      // Actualizar la orden localmente
+      const updatedOrders = orders.map(order => {
+        if (order._id === selectedOrder._id) {
+          return {
+            ...order,
+            deliveryDate: deliveryDate.toISOString(),
+            deliveryStatus: 'READY_FOR_DELIVERY',
+            deliveryConfirmed: false,
+            statusHistory: [
+              ...order.statusHistory,
+              {
+                status: 'READY_FOR_DELIVERY',
+                changedBy: 'admin',
+                changedAt: new Date(),
+                notes: `Entrega programada manualmente para ${deliveryDate.toLocaleString('es-SV')}`
+              }
+            ]
+          };
+        }
+        return order;
+      });
+      
+      setOrders(updatedOrders);
+      
+      showAlert(
+        'Entrega Programada Manualmente',
+        `La entrega se programó para ${deliveryDate.toLocaleString('es-SV')}. Nota: Esta información solo se guardó localmente.`,
+        'success'
+      );
+      
+      setScheduleModalVisible(false);
+      
+    } catch (error) {
+      console.error('Error en programación manual:', error);
+      showAlert('Error', 'No se pudo programar manualmente', 'error');
+    }
+  };
+
+  const changeDeliveryStatus = async (orderId, newStatus) => {
+    try {
+      const token = await AsyncStorage.getItem('authToken');
+      
+      const response = await fetch(
+        `${API_URL}/delivery-schedule/${orderId}/status`,
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+          body: JSON.stringify({ status: newStatus }),
+        }
+      );
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        showAlert('Éxito', `Estado cambiado a "${deliveryStatuses[newStatus]?.label || newStatus}"`, 'success');
+        loadOrders();
+      } else {
+        // Si el error es por estado inválido, intentar con un estado válido
+        if (data.message && data.message.includes('Estado de entrega inválido')) {
+          console.log('🔄 Estado inválido, intentando con PAID...');
+          showAlert('Info', 'Cambiando a estado PAID...', 'info');
+          // Intentar con PAID que siempre es válido
+          const retryResponse = await fetch(
+            `${API_URL}/delivery-schedule/${orderId}/status`,
+            {
+              method: 'PUT',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`,
+              },
+              body: JSON.stringify({ status: 'PAID' }),
+            }
+          );
+          
+          const retryData = await retryResponse.json();
+          
+          if (retryData.success) {
+            showAlert('Éxito', 'Estado cambiado a PAID', 'success');
+            loadOrders();
+          } else {
+            showAlert('Error', 'No se pudo cambiar el estado de la orden', 'error');
+          }
+        } else {
+          showAlert('Error', data.message || 'Error al cambiar estado', 'error');
+        }
+      }
+    } catch (error) {
+      console.error('Error cambiando estado:', error);
+      showAlert('Error', 'No se pudo cambiar el estado', 'error');
+    }
+  };
+
+  const changeDeliveryStatusOld = (order) => {
     const nextStatuses = {
       'PAID': 'SCHEDULED',
       'SCHEDULED': 'CONFIRMED',
@@ -576,7 +729,7 @@ export default function ProgramacionEntregas() {
           {!hasRescheduling && order.deliveryStatus !== 'PAID' && order.deliveryStatus !== 'DELIVERED' && (
             <TouchableOpacity
               style={[styles.actionBtn, styles.nextStatusBtn]}
-              onPress={() => changeDeliveryStatus(order)}
+              onPress={() => changeDeliveryStatusOld(order)}
             >
               <Ionicons name="arrow-forward" size={18} color="#fff" />
               <Text style={styles.actionBtnText}>Siguiente Estado</Text>

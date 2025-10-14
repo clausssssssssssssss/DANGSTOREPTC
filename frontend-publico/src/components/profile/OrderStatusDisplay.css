@@ -1,6 +1,6 @@
 .order-status-card {
   border-radius: 12px;
-  padding: 20px;
+  padding: 18px;
   margin-bottom: 16px;
   border-left: 4px solid;
   transition: all 0.3s ease;
@@ -46,7 +46,7 @@
   display: flex;
   align-items: flex-start;
   gap: 12px;
-  margin-bottom: 16px;
+  margin-bottom: 14px;
 }
 
 .status-icon {
@@ -94,8 +94,8 @@
 }
 
 .delivery-actions {
-  margin: 16px 0;
-  padding: 16px;
+  margin: 12px 0;
+  padding: 14px;
   background: rgba(255, 255, 255, 0.5);
   border-radius: 8px;
   border: 1px solid rgba(0, 0, 0, 0.1);
@@ -105,7 +105,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 
 .action-icon {
@@ -119,46 +119,59 @@
   font-size: 0.9rem;
 }
 
+.delivery-details strong {
+  font-weight: 700;
+  color: #2d3748;
+}
+
 .action-buttons {
   display: flex;
-  gap: 12px;
+  gap: 10px;
   flex-wrap: wrap;
+  justify-content: center;
 }
 
 .btn-accept,
 .btn-reject {
-  padding: 8px 16px;
+  padding: 10px 18px;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
   font-size: 0.9rem;
+  min-width: 140px;
+  flex: 1;
 }
 
 .btn-accept {
-  background: #48bb78;
+  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
   color: white;
 }
 
 .btn-accept:hover {
-  background: #38a169;
+  background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
   transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
 }
 
 .btn-reject {
-  background: #f56565;
-  color: white;
+  background: #f3f4f6;
+  color: #6b7280;
+  border: 1px solid #d1d5db;
 }
 
 .btn-reject:hover {
-  background: #e53e3e;
+  background: #e5e7eb;
+  color: #374151;
+  border-color: #9ca3af;
   transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .order-details {
-  margin-top: 16px;
-  padding-top: 16px;
+  margin-top: 12px;
+  padding-top: 12px;
   border-top: 1px solid rgba(0, 0, 0, 0.1);
 }
 
@@ -189,11 +202,13 @@
   
   .action-buttons {
     flex-direction: column;
+    gap: 8px;
   }
   
   .btn-accept,
   .btn-reject {
     width: 100%;
     padding: 12px;
+    min-width: auto;
   }
 }

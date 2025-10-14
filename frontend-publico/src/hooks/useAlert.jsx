@@ -10,7 +10,11 @@ const useAlert = () => {
     onConfirm: null,
     onCancel: null,
     confirmText: 'Aceptar',
-    cancelText: 'Cancelar'
+    cancelText: 'Cancelar',
+    showInput: false,
+    inputPlaceholder: '',
+    inputValue: '',
+    onInputChange: () => {}
   });
 
   const showAlert = ({
@@ -21,7 +25,11 @@ const useAlert = () => {
     onConfirm,
     onCancel,
     confirmText = 'Aceptar',
-    cancelText = 'Cancelar'
+    cancelText = 'Cancelar',
+    showInput = false,
+    inputPlaceholder = '',
+    inputValue = '',
+    onInputChange = () => {}
   }) => {
     setAlert({
       isOpen: true,
@@ -32,7 +40,11 @@ const useAlert = () => {
       onConfirm,
       onCancel,
       confirmText,
-      cancelText
+      cancelText,
+      showInput,
+      inputPlaceholder,
+      inputValue,
+      onInputChange
     });
   };
 
@@ -83,6 +95,22 @@ const useAlert = () => {
     });
   };
 
+  const prompt = (title, message, placeholder, onConfirm, onCancel) => {
+    showAlert({
+      title,
+      message,
+      type: 'warning',
+      showCancel: true,
+      showInput: true,
+      inputPlaceholder: placeholder,
+      inputValue: '',
+      onConfirm,
+      onCancel,
+      confirmText: 'Enviar',
+      cancelText: 'Cancelar'
+    });
+  };
+
   return {
     alert,
     showAlert,
@@ -90,7 +118,8 @@ const useAlert = () => {
     confirm,
     success,
     error,
-    info
+    info,
+    prompt
   };
 };
 

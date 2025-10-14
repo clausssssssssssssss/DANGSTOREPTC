@@ -12,7 +12,11 @@ const Alert = ({
   onConfirm, 
   onCancel,
   confirmText = 'Aceptar',
-  cancelText = 'Cancelar'
+  cancelText = 'Cancelar',
+  showInput = false,
+  inputPlaceholder = '',
+  inputValue = '',
+  onInputChange = () => {}
 }) => {
   if (!isOpen) return null;
 
@@ -49,6 +53,18 @@ const Alert = ({
         
         <div className="alert-body">
           <p className="alert-message">{message}</p>
+          {showInput && (
+            <div className="alert-input-container">
+              <input
+                type="text"
+                className="alert-input"
+                placeholder={inputPlaceholder}
+                value={inputValue}
+                onChange={(e) => onInputChange(e.target.value)}
+                autoFocus
+              />
+            </div>
+          )}
         </div>
         
         <div className="alert-footer">

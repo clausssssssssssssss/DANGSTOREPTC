@@ -5,7 +5,7 @@ import Alert from '../ui/Alert';
 import './OrderStatusDisplay.css';
 
 const OrderStatusDisplay = ({ order }) => {
-  const { alert, showAlert, hideAlert, success, error: showError } = useAlert();
+  const { alert, showAlert, hideAlert, success, error: showError, prompt } = useAlert();
   const getStatusInfo = (status) => {
     switch (status) {
       case 'PAID':
@@ -35,6 +35,13 @@ const OrderStatusDisplay = ({ order }) => {
           description: 'Tu pedido está listo. Revisa los detalles de entrega en tu perfil',
           icon: <MapPin className="status-icon" />,
           color: 'primary'
+        };
+      case 'CONFIRMED':
+        return {
+          title: '¡Gracias por confirmar tu entrega!',
+          description: 'Hemos recibido tu confirmación. Nos vemos en la fecha acordada. ¡Gracias por elegir DangStore!',
+          icon: <CheckCircle className="status-icon" />,
+          color: 'success'
         };
       case 'DELIVERED':
         return {
@@ -117,17 +124,16 @@ const OrderStatusDisplay = ({ order }) => {
   };
 
   const handleRejectDelivery = async (orderId) => {
-    // Usar alerta personalizada para pedir la razón
-    showAlert({
-      title: 'Motivo de reprogramación',
-      message: '¿Por qué necesitas reprogramar la entrega?',
-      type: 'warning',
-      showCancel: true,
-      confirmText: 'Enviar',
-      cancelText: 'Cancelar',
-      onConfirm: async () => {
-        const reason = prompt('Escribe el motivo:'); // Temporal, se puede mejorar
-        if (!reason) return;
+    // Usar prompt personalizado para pedir la razón
+    prompt(
+      'Motivo de reprogramación',
+      '¿Por qué necesitas reprogramar la entrega?',
+      'Escribe el motivo aquí...',
+      async (reason) => {
+        if (!reason || reason.trim() === '') {
+          showError('Error', 'Por favor, escribe un motivo para la reprogramación');
+          return;
+        }
 
         try {
           const token = localStorage.getItem('token');
@@ -137,7 +143,7 @@ const OrderStatusDisplay = ({ order }) => {
               'Content-Type': 'application/json',
               'Authorization': `Bearer ${token}`
             },
-            body: JSON.stringify({ reason })
+            body: JSON.stringify({ reason: reason.trim() })
           });
 
           if (response.ok) {
@@ -151,8 +157,11 @@ const OrderStatusDisplay = ({ order }) => {
           console.error('Error:', error);
           showError('Error de conexión', 'No se pudo conectar con el servidor');
         }
+      },
+      () => {
+        // onCancel - no hacer nada
       }
-    });
+    );
   };
 
   const statusInfo = getStatusInfo(order.deliveryStatus);
@@ -187,6 +196,10 @@ const OrderStatusDisplay = ({ order }) => {
         onCancel={alert.onCancel}
         confirmText={alert.confirmText}
         cancelText={alert.cancelText}
+        showInput={alert.showInput}
+        inputPlaceholder={alert.inputPlaceholder}
+        inputValue={alert.inputValue}
+        onInputChange={alert.onInputChange}
       />
     </div>
   );

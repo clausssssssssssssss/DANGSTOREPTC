@@ -61,6 +61,7 @@ export default function ProgramacionEntregas() {
     { value: 'REVIEWING', label: 'Revisando', icon: 'eye', color: '#F59E0B' },
     { value: 'MAKING', label: 'Elaborando', icon: 'hammer', color: '#EF4444' },
     { value: 'READY_FOR_DELIVERY', label: 'Listos', icon: 'cube', color: '#10B981' },
+    { value: 'CONFIRMED', label: 'Confirmados', icon: 'checkmark-circle', color: '#10B981' },
   ];
   
   const deliveryStatuses = {
@@ -68,6 +69,7 @@ export default function ProgramacionEntregas() {
     'REVIEWING': { label: 'Revisando', color: '#FF9800' },
     'MAKING': { label: 'Elaborando', color: '#FF5722' },
     'READY_FOR_DELIVERY': { label: 'Listo', color: '#9C27B0' },
+    'CONFIRMED': { label: 'Confirmado', color: '#10B981' },
     'DELIVERED': { label: 'Entregado', color: '#4CAF50' },
     'CANCELLED': { label: 'Cancelado', color: '#F44336' },
   };
@@ -418,7 +420,10 @@ export default function ProgramacionEntregas() {
 
   const changeDeliveryStatus = async (orderId, newStatus) => {
     try {
+      console.log('🔄 Cambiando estado:', { orderId, newStatus });
       const token = await AsyncStorage.getItem('authToken');
+      
+      console.log('📤 Enviando petición a:', `${API_URL}/delivery-schedule/${orderId}/status`);
       
       const response = await fetch(
         `${API_URL}/delivery-schedule/${orderId}/status`,
@@ -432,7 +437,10 @@ export default function ProgramacionEntregas() {
         }
       );
       
+      console.log('📨 Respuesta del servidor:', response.status, response.statusText);
+      
       const data = await response.json();
+      console.log('📋 Datos de respuesta:', data);
       
       if (data.success) {
         showAlert('Éxito', `Estado cambiado a "${deliveryStatuses[newStatus]?.label || newStatus}"`, 'success');
@@ -475,10 +483,11 @@ export default function ProgramacionEntregas() {
 
   const changeDeliveryStatusOld = (order) => {
     const nextStatuses = {
-      'PAID': 'SCHEDULED',
-      'SCHEDULED': 'CONFIRMED',
-      'CONFIRMED': 'READY_FOR_DELIVERY',
-      'READY_FOR_DELIVERY': 'DELIVERED',
+      'PAID': 'REVIEWING',
+      'REVIEWING': 'MAKING',
+      'MAKING': 'READY_FOR_DELIVERY',
+      'READY_FOR_DELIVERY': 'CONFIRMED',
+      'CONFIRMED': 'DELIVERED',
     };
     
     const nextStatus = nextStatuses[order.deliveryStatus];
@@ -726,10 +735,36 @@ export default function ProgramacionEntregas() {
             </>
           )}
           
-          {!hasRescheduling && order.deliveryStatus !== 'PAID' && order.deliveryStatus !== 'DELIVERED' && (
+          {!hasRescheduling && order.deliveryStatus !== 'PAID' && order.deliveryStatus !== 'DELIVERED' && order.deliveryStatus !== 'CANCELLED' && (
             <TouchableOpacity
               style={[styles.actionBtn, styles.nextStatusBtn]}
-              onPress={() => changeDeliveryStatusOld(order)}
+              onPress={() => {
+                const nextStatuses = {
+                  'PAID': 'REVIEWING',
+                  'REVIEWING': 'MAKING',
+                  'MAKING': 'READY_FOR_DELIVERY',
+                  'READY_FOR_DELIVERY': 'CONFIRMED',
+                  'CONFIRMED': 'DELIVERED',
+                };
+                
+                const nextStatus = nextStatuses[order.deliveryStatus];
+                
+                if (nextStatus) {
+                  showAlert(
+                    'Cambiar Estado',
+                    `¿Cambiar estado a "${deliveryStatuses[nextStatus]?.label || nextStatus}"?`,
+                    'info',
+                    {
+                      showCancel: true,
+                      confirmText: 'Confirmar',
+                      cancelText: 'Cancelar',
+                      onConfirm: () => changeDeliveryStatus(order._id, nextStatus)
+                    }
+                  );
+                } else {
+                  showAlert('Info', 'Este pedido ya no puede cambiar de estado', 'info');
+                }
+              }}
             >
               <Ionicons name="arrow-forward" size={18} color="#fff" />
               <Text style={styles.actionBtnText}>Siguiente Estado</Text>

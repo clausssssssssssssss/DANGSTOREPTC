@@ -58,7 +58,7 @@ export const scheduleDelivery = async (req, res) => {
         timeStyle: 'short'
       });
       
-      const confirmUrl = `${process.env.FRONTEND_URL}/confirmar-entrega/${orderId}`;
+      const confirmUrl = `https://dangstoreptc-n9km.vercel.app/`;
       console.log('🔗 URL de confirmación:', confirmUrl);
       
       await sendEmail({
@@ -117,18 +117,14 @@ export const scheduleDelivery = async (req, res) => {
                   </div>
                 </div>
                 
-                <!-- Botones de acción -->
+                <!-- Botón de acción -->
                 <div style="text-align: center; margin: 30px 0;">
                   <p style="color: #374151; font-size: 16px; margin-bottom: 20px; font-weight: 500;">
-                    Por favor, confirma tu disponibilidad:
+                    Ingresa a tu perfil para confirmar o reprogramar tu entrega:
                   </p>
                   
-                  <a href="${confirmUrl}?action=confirm" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; display: inline-block; margin: 5px 10px; font-weight: 600; box-shadow: 0 2px 4px rgba(16, 185, 129, 0.3);">
-                    ✅ Aceptar Entrega
-                  </a>
-                  
-                  <a href="${confirmUrl}?action=reschedule" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; display: inline-block; margin: 5px 10px; font-weight: 600; box-shadow: 0 2px 4px rgba(245, 158, 11, 0.3);">
-                    📅 Solicitar Reprogramación
+                  <a href="${confirmUrl}" style="background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%); color: white; padding: 18px 40px; text-decoration: none; border-radius: 12px; display: inline-block; margin: 10px 0; font-weight: 600; box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3); font-size: 16px;">
+                    📱 Ir a Mi Perfil
                   </a>
                 </div>
                 
@@ -151,7 +147,7 @@ export const scheduleDelivery = async (req, res) => {
                 <!-- Instrucciones -->
                 <div style="background-color: #eff6ff; border-left: 4px solid #3b82f6; padding: 16px; border-radius: 4px; margin: 25px 0;">
                   <p style="color: #1e40af; font-size: 14px; margin: 0; font-weight: 500;">
-                    💡 <strong>Importante:</strong> Revisa tu perfil en la app para conocer todos los detalles de entrega y poder confirmar o reprogramar tu entrega.
+                    💡 <strong>Importante:</strong> Haz clic en "Ir a Mi Perfil" para acceder a la aplicación y confirmar o reprogramar tu entrega desde tu cuenta.
                   </p>
                 </div>
                 
@@ -491,25 +487,37 @@ export const updateDeliveryStatus = async (req, res) => {
     const { orderId } = req.params;
     const { status, notes } = req.body;
     
+    console.log('🔄 Actualizando estado de entrega:', { orderId, status, notes });
+    
     const validStatuses = ['PAID', 'REVIEWING', 'MAKING', 'SCHEDULED', 'CONFIRMED', 'READY_FOR_DELIVERY', 'DELIVERED', 'CANCELLED'];
     
     if (!validStatuses.includes(status)) {
+      console.log('❌ Estado inválido:', status);
       return res.status(400).json({
         success: false,
         message: 'Estado de entrega inválido'
       });
     }
     
+    console.log('✅ Estado válido, buscando orden...');
+    
     const order = await Order.findById(orderId)
       .populate('user', 'nombre email')
       .populate('deliveryPoint');
     
     if (!order) {
+      console.log('❌ Orden no encontrada:', orderId);
       return res.status(404).json({
         success: false,
         message: 'Orden no encontrada'
       });
     }
+    
+    console.log('✅ Orden encontrada:', {
+      _id: order._id,
+      currentStatus: order.deliveryStatus,
+      newStatus: status
+    });
     
     const previousStatus = order.deliveryStatus;
     order.deliveryStatus = status;
@@ -519,7 +527,9 @@ export const updateDeliveryStatus = async (req, res) => {
       notes: notes || `Estado actualizado de ${previousStatus} a ${status}`
     });
     
+    console.log('💾 Guardando orden actualizada...');
     await order.save();
+    console.log('✅ Orden guardada exitosamente');
     
     // Enviar email al cliente sobre el cambio de estado
     if (order.user && order.user.email) {
@@ -545,13 +555,16 @@ export const updateDeliveryStatus = async (req, res) => {
       );
     }
     
+    console.log('📤 Enviando respuesta exitosa');
     res.json({
       success: true,
       message: 'Estado actualizado exitosamente',
       order
     });
   } catch (error) {
-    console.error('Error actualizando estado:', error);
+    console.error('❌ ERROR al actualizar estado:', error);
+    console.error('Error message:', error.message);
+    console.error('Error stack:', error.stack);
     res.status(500).json({
       success: false,
       message: 'Error al actualizar estado'

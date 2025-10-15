@@ -926,9 +926,9 @@ const FormPaymentFake = () => {
                   required 
                 />
                 <InputField 
-                  id="añoVencimiento" 
-                  name="añoVencimiento" 
-                  value={formData.añoVencimiento || ''} 
+                  id="anioVencimiento" 
+                  name="anioVencimiento" 
+                  value={formData.anioVencimiento || ''} 
                   onChange={handleFieldChange} 
                   type="text" 
                   label="Año" 

@@ -1,6 +1,8 @@
 import StoreConfig from '../models/StoreConfig.js';
 import Product from '../models/Product.js';
+import Customer from '../models/Customer.js';
 import NotificationService from '../services/NotificationService.js';
+import { sendStockAvailableNotification } from '../utils/mailService.js';
 
 /**
  * Resetear contadores semanales de pedidos (catálogo y encargos)
@@ -121,6 +123,7 @@ export const getStoreConfig = async (req, res) => {
 
 /**
  * Actualizar configuración de la tienda
+ * INCLUYE: Envío automático de emails cuando se reactive el stock
  */
 export const updateStoreConfig = async (req, res) => {
   try {
@@ -131,6 +134,10 @@ export const updateStoreConfig = async (req, res) => {
     console.log('🎯 Stock limits recibidos:', JSON.stringify(stockLimits, null, 2));
     
     let config = await StoreConfig.findOne();
+    
+    // 🔔 DETECTAR SI EL STOCK SE ESTÁ REACTIVANDO (ANTES de actualizar)
+    const wasInactive = config ? !config.stockLimits?.isStockLimitActive : true;
+    const isNowActive = stockLimits?.isStockLimitActive === true;
     
     if (!config) {
       console.log('📝 Creando nueva configuración...');
@@ -226,9 +233,57 @@ export const updateStoreConfig = async (req, res) => {
     console.log('✅ Configuración guardada exitosamente');
     console.log('📊 Configuración final:', JSON.stringify(config.stockLimits, null, 2));
     
+    // 🔔 ENVIAR NOTIFICACIONES SI EL STOCK SE REACTIVÓ
+    if (wasInactive && isNowActive) {
+      console.log('🔔 Stock reactivado - Iniciando envío de notificaciones...');
+      
+      // No bloquear la respuesta, ejecutar en segundo plano
+      setImmediate(async () => {
+        try {
+          // Obtener todos los clientes con email
+          const customers = await Customer.find(
+            { 
+              email: { $exists: true, $ne: null, $ne: '' }
+            },
+            'email name'
+          );
+
+          if (customers.length > 0) {
+            const userEmails = customers.map(customer => customer.email);
+            
+            // Información del stock para mostrar en el email
+            const stockInfo = {
+              catalogMaxStock: stockLimits.catalog?.defaultMaxStock,
+              customOrdersMaxStock: stockLimits.customOrders?.defaultMaxStock,
+              defaultMaxStock: stockLimits.global?.defaultMaxStock || stockLimits.defaultMaxStock,
+            };
+
+            console.log(`📧 Enviando notificaciones a ${userEmails.length} usuarios...`);
+
+            // Enviar notificaciones
+            const results = await sendStockAvailableNotification(userEmails, stockInfo);
+            
+            console.log('✅ Notificaciones procesadas:');
+            console.log(`   - Enviados: ${results.sent.length}`);
+            console.log(`   - Fallidos: ${results.failed.length}`);
+            
+            if (results.failed.length > 0) {
+              console.log('❌ Emails fallidos:', results.failed);
+            }
+          } else {
+            console.log('⚠️ No hay clientes registrados para notificar');
+          }
+        } catch (emailError) {
+          console.error('❌ Error enviando notificaciones:', emailError);
+        }
+      });
+    }
+    
     res.status(200).json({
       success: true,
-      message: 'Configuración actualizada exitosamente',
+      message: wasInactive && isNowActive 
+        ? 'Configuración actualizada. Enviando notificaciones a los clientes...'
+        : 'Configuración actualizada exitosamente',
       data: config
     });
   } catch (error) {

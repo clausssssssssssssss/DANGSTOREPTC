@@ -693,8 +693,8 @@ export default function Catalogo() {
                   alt={zoomImage.name}
                   className="zoom-image"
                 />
-                <p className="zoom-image-title">{zoomImage.name}</p>
               </div>
+              <p className="zoom-image-title">{zoomImage.name}</p>
             </div>
           </div>
         )}

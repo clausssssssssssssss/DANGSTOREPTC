@@ -23,7 +23,7 @@ export function useProducts() {
       setUsingLocalhost(!useRailway);
       
       // Skip test para acelerar la carga
-      console.log('🛍️ Cargando productos directamente desde:', `${currentAPI}/products`);
+      // console.log('🛍️ Cargando productos directamente desde:', `${currentAPI}/products`);
       
       const response = await fetch(`${currentAPI}/products`, {
         method: 'GET',

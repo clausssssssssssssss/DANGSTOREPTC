@@ -22,21 +22,8 @@ export function useProducts() {
       const currentAPI = useRailway ? RAILWAY_API : LOCAL_API;
       setUsingLocalhost(!useRailway);
       
-      // Primero probar el endpoint de test
-      if (useRailway) {
-        console.log('🧪 Probando conectividad con Railway...');
-        try {
-          const testResponse = await fetch(`${currentAPI}/products/test`);
-          const testData = await testResponse.json();
-          console.log('✅ Railway responde:', testData);
-        } catch (testError) {
-          console.log('❌ Railway no responde, usando localhost');
-          await fetchProducts(false);
-          return;
-        }
-      }
-      
-      console.log('🛍️ Cargando productos desde:', `${currentAPI}/products`);
+      // Skip test para acelerar la carga
+      console.log('🛍️ Cargando productos directamente desde:', `${currentAPI}/products`);
       
       const response = await fetch(`${currentAPI}/products`, {
         method: 'GET',

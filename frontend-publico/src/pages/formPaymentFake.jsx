@@ -150,22 +150,20 @@ const FormPaymentFake = () => {
     fetchDeliveryPoints();
   }, []);
 
+  // Estados - TODOS AL PRINCIPIO
+  const [currentStep, setCurrentStep] = useState(1); // Nuevo estado para controlar los pasos
+  const [fieldErrors, setFieldErrors] = useState({});
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false); // Estado para mostrar pantalla de carga
+  const [showProcessingScreen, setShowProcessingScreen] = useState(false); // Estado para pantalla independiente
+
+  const { showSuccess, showError, showWarning, showInfo, toasts, removeToast } = useToast();
+
   // Toast de bienvenida cuando se carga el componente
   useEffect(() => {
     if (currentStep === 1) {
       showInfo('¡Bienvenido! Completa los datos de tu tarjeta para continuar con el pago simulado.', 4000);
     }
   }, [currentStep]);
-
-  const { showSuccess, showError, showWarning, showInfo } = useToast();
-
-  // Obtener el estado de los toasts del hook
-  const { toasts, removeToast } = useToast();
-
-  const [fieldErrors, setFieldErrors] = useState({});
-  const [currentStep, setCurrentStep] = useState(1); // Nuevo estado para controlar los pasos
-  const [isProcessingPayment, setIsProcessingPayment] = useState(false); // Estado para mostrar pantalla de carga
-  const [showProcessingScreen, setShowProcessingScreen] = useState(false); // Estado para pantalla independiente
 
   // Validar campo individual en tiempo real
   const validateField = (name, value) => {

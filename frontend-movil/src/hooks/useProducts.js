@@ -18,18 +18,8 @@ export function useProducts() {
       setLoading(true);
       setError(null);
       
-      // Primero probar el endpoint de test
-      console.log('🧪 Probando conectividad con Railway...');
-      try {
-        const testResponse = await fetch(`${apiBase}/products/test`);
-        const testData = await testResponse.json();
-        console.log('✅ Railway responde:', testData);
-      } catch (testError) {
-        console.log('❌ Railway no responde:', testError.message);
-        throw testError;
-      }
-      
-      console.log('🛍️ Cargando productos desde:', `${apiBase}/products`);
+      // Skip test para acelerar la carga
+      console.log('🛍️ Cargando productos directamente desde:', `${apiBase}/products`);
       
       const response = await fetch(`${apiBase}/products`, {
         method: 'GET',

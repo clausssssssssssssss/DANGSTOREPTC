@@ -19,6 +19,7 @@ export const CartProvider = ({ children }) => {
     if (!token) throw new Error('No estás autenticado');
 
     try {
+      console.log('🛒 Cart API Request:', `${API_BASE}${path}`, opts.method || 'GET');
       const res = await fetch(`${API_BASE}${path}`, {
         ...opts,
         headers: {
@@ -40,9 +41,11 @@ export const CartProvider = ({ children }) => {
         throw new Error(`Error ${res.status}: ${text}`);
       }
 
-      return res.json();
+      const data = await res.json();
+      console.log('🛒 Cart API Response:', res.status, data);
+      return data;
     } catch (error) {
-      console.error('Error en authFetch:', error);
+      console.error('❌ Error en authFetch:', error);
       throw error;
     }
   }

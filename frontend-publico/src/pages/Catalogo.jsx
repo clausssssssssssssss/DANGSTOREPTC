@@ -22,7 +22,7 @@ import '../components/catalog/ResponsiveCatalog.css';
 export default function Catalogo() {
   const { user } = useAuth();
   const userId = user?.id;
-  const { products, loading, error, refresh, lastUpdate } = useProducts();
+  const { products, loading, error, refresh, lastUpdate, usingLocalhost } = useProducts();
   const { categories, loading: categoriesLoading, error: categoriesError } = useCategories();
   const { addToCart } = useCart();
   const { favorites, toggleFavorite } = useFavorites(userId);
@@ -321,6 +321,22 @@ export default function Catalogo() {
       <div className="pixel-grid"></div>
 
       <div className="container">
+        {/* Indicador de conexión */}
+        {usingLocalhost && (
+          <div style={{
+            background: '#fff3cd',
+            border: '1px solid #ffeaa7',
+            borderRadius: '8px',
+            padding: '8px 16px',
+            margin: '10px 0',
+            textAlign: 'center',
+            color: '#856404',
+            fontSize: '14px'
+          }}>
+            🔧 Usando servidor local (Railway no disponible)
+          </div>
+        )}
+        
         {/* Banner Principal */}
         <div className="popular-banner">
           <h1 className="popular-title">{getDynamicTitle()}</h1>

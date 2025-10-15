@@ -46,13 +46,31 @@ const uploadToCloudinary = (buffer, folder = 'product_images') => {
   });
 };
 
+// GET /api/products/test - Endpoint de prueba
+router.get('/test', (req, res) => {
+  console.log('🧪 Endpoint de prueba llamado');
+  res.json({ 
+    success: true, 
+    message: 'Railway funciona correctamente',
+    timestamp: new Date().toISOString()
+  });
+});
+
 // GET /api/products - Obtener todos los productos
 router.get('/', async (req, res) => {
   try {
+    console.log('🛍️ === SOLICITUD DE PRODUCTOS ===');
+    console.log('📅 Timestamp:', new Date().toISOString());
+    console.log('🌐 Origen:', req.get('origin') || 'Desconocido');
+    
     const products = await Product.find();
+    console.log('📦 Productos encontrados:', products.length);
+    console.log('✅ Enviando respuesta exitosa');
+    
     res.json(products);
   } catch (error) {
-    console.error('Error al obtener productos:', error);
+    console.error('❌ Error al obtener productos:', error);
+    console.error('❌ Stack trace:', error.stack);
     res.status(500).json({ error: 'Error interno del servidor' });
   }
 });

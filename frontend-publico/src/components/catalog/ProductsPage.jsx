@@ -1,7 +1,7 @@
 // src/pages/ProductsPage.jsx
 import React from 'react';
-import { useProducts } from '../../hooks/useProducts';
-import ProductList from '../components/ProductList/ProductList';
+import { useProducts } from './hook/useProducts';
+import ProductList from './ProductList';
 
 const ProductsPage = () => {
   const { products, loading, error, refetch } = useProducts();

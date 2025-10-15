@@ -1,33 +1,59 @@
 import { useState, useEffect } from 'react';
 
-// URL del servidor en producción (Railway)
-const API_BASE = 'https://dangstoreptc-production.up.railway.app/api';
+// URLs del servidor
+const RAILWAY_API = 'https://dangstoreptc-production.up.railway.app/api';
+const LOCAL_API = 'http://localhost:4000/api';
+
+// Intentar Railway primero, luego localhost como fallback
+const API_BASE = RAILWAY_API;
 
 export function useProducts() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [lastUpdate, setLastUpdate] = useState(null);
+  const [usingLocalhost, setUsingLocalhost] = useState(false);
 
-  const fetchProducts = async () => {
+  const fetchProducts = async (useRailway = true) => {
     try {
       setLoading(true);
       setError(null);
       
+      const currentAPI = useRailway ? RAILWAY_API : LOCAL_API;
+      setUsingLocalhost(!useRailway);
       
-      const response = await fetch(`${API_BASE}/products`, {
+      // Primero probar el endpoint de test
+      if (useRailway) {
+        console.log('🧪 Probando conectividad con Railway...');
+        try {
+          const testResponse = await fetch(`${currentAPI}/products/test`);
+          const testData = await testResponse.json();
+          console.log('✅ Railway responde:', testData);
+        } catch (testError) {
+          console.log('❌ Railway no responde, usando localhost');
+          await fetchProducts(false);
+          return;
+        }
+      }
+      
+      console.log('🛍️ Cargando productos desde:', `${currentAPI}/products`);
+      
+      const response = await fetch(`${currentAPI}/products`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
         },
-        timeout: 8000,
       });
+      
+      console.log('📨 Respuesta del servidor:', response.status, response.statusText);
       
       if (!response.ok) {
         throw new Error(`Error ${response.status}: ${response.statusText}`);
       }
       
       const data = await response.json();
+      console.log('📦 Datos recibidos:', data);
+      console.log('📊 Cantidad de productos:', data.length);
       
       // Transformar los datos del backend al formato esperado por el frontend
       const transformedProducts = data.map(product => {
@@ -74,13 +100,20 @@ export function useProducts() {
       
       setProducts(transformedProducts);
       setLastUpdate(new Date().toISOString());
+      console.log('✅ Productos cargados exitosamente:', transformedProducts.length);
     } catch (err) {
-      console.error('Error al obtener productos:', err.message);
+      console.error('❌ Error al obtener productos:', err.message);
+      console.error('❌ Error completo:', err);
       
-      if (err.message.includes('Failed to fetch')) {
-        setError('No se puede conectar al servidor. Verifica que esté ejecutándose.');
-      } else if (err.message.includes('timeout')) {
-        setError('El servidor tardó demasiado en responder. Verifica tu conexión.');
+      if (useRailway && (err.name === 'AbortError' || err.message.includes('Failed to fetch'))) {
+        console.log('🔄 Railway falló, intentando con localhost...');
+        try {
+          await fetchProducts(false); // Intentar con localhost
+          return;
+        } catch (localhostError) {
+          console.error('❌ Localhost también falló:', localhostError);
+          setError('Railway y localhost fallaron. Verifica tu conexión a internet.');
+        }
       } else {
         setError(`Error: ${err.message}`);
       }
@@ -100,5 +133,5 @@ export function useProducts() {
     fetchProducts();
   };
 
-  return { products, loading, error, refresh, lastUpdate };
+  return { products, loading, error, refresh, lastUpdate, usingLocalhost };
 }

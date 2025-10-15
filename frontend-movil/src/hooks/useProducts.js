@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 
 // URLs alternativas para probar conexión
 const API_BASES = [
-  'https://dangstoreptc-production.up.railway.app/api', // IP principal
+  'https://dangstoreptc-production.up.railway.app/api', // Railway principal
+  'http://localhost:4000/api', // Localhost fallback
 ];
 
 export function useProducts() {
@@ -17,19 +18,25 @@ export function useProducts() {
       setLoading(true);
       setError(null);
       
-      // Crear AbortController para timeout
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 8000);
+      // Primero probar el endpoint de test
+      console.log('🧪 Probando conectividad con Railway...');
+      try {
+        const testResponse = await fetch(`${apiBase}/products/test`);
+        const testData = await testResponse.json();
+        console.log('✅ Railway responde:', testData);
+      } catch (testError) {
+        console.log('❌ Railway no responde:', testError.message);
+        throw testError;
+      }
+      
+      console.log('🛍️ Cargando productos desde:', `${apiBase}/products`);
       
       const response = await fetch(`${apiBase}/products`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
         },
-        signal: controller.signal,
       });
-      
-      clearTimeout(timeoutId);
       
       if (!response.ok) {
         throw new Error(`HTTP ${response.status} ${response.statusText}`);

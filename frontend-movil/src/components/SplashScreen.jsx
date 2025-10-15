@@ -167,11 +167,13 @@ export default function SplashScreen({ navigation }) {
               ],
             }}
           >
-            <Image
-              source={require('../assets/DANGSTORELOGOPRUEBA__1.png')}
-              style={styles.logo}
-              resizeMode="contain"
-            />
+            <View style={styles.logoContainer}>
+              <Image
+                source={require('../assets/DANGSTORELOGOPRUEBA__1.png')}
+                style={styles.logo}
+                resizeMode="cover"
+              />
+            </View>
           </Animated.View>
         </View>
 
@@ -265,14 +267,23 @@ const styles = StyleSheet.create({
     shadowRadius: 20,
     elevation: 10,
   },
-  logo: {
+  logoContainer: {
     width: 120,
     height: 120,
+    borderRadius: 60,
+    overflow: 'hidden',
+    backgroundColor: '#FFFFFF',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 8,
+    borderWidth: 3,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+  },
+  logo: {
+    width: '100%',
+    height: '100%',
   },
   brandSection: {
     alignItems: 'center',

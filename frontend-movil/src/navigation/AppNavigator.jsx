@@ -52,7 +52,6 @@ const ConfigStack = () => (
 );
 
 
-
 // Tab Navigator para la aplicación principal (después de la autenticación)
 const MainTabNavigator = () => {
   const insets = useSafeAreaInsets();
@@ -91,11 +90,11 @@ const MainTabNavigator = () => {
         tabBarInactiveTintColor: '#6B7280',
         tabBarStyle: {
           backgroundColor: 'white',
-          borderTopWidth: 1,
+          borderTopWidth: 2,
           borderTopColor: '#E5E7EB',
           paddingBottom: Math.max(insets.bottom, 5),
-          paddingTop: 5,
-          height: 60 + insets.bottom,
+          paddingTop: 6,
+          height: 55 + insets.bottom,
         },
         tabBarLabelStyle: {
           fontSize: 10,

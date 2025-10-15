@@ -124,6 +124,11 @@ const FormPaymentFake = () => {
     // Buscar el punto completo por ID
     const point = deliveryPoints.find(p => p._id === pointId);
     setSelectedDeliveryPoint(point);
+    
+    // Mostrar toast de confirmación
+    if (point) {
+      showSuccess(`Punto de entrega seleccionado: ${point.nombre}`, 3000);
+    }
   };
 
   // Función para cargar puntos de entrega
@@ -145,6 +150,13 @@ const FormPaymentFake = () => {
     fetchDeliveryPoints();
   }, []);
 
+  // Toast de bienvenida cuando se carga el componente
+  useEffect(() => {
+    if (currentStep === 1) {
+      showInfo('¡Bienvenido! Completa los datos de tu tarjeta para continuar con el pago simulado.', 4000);
+    }
+  }, [currentStep]);
+
   const { showSuccess, showError, showWarning, showInfo } = useToast();
 
   // Obtener el estado de los toasts del hook
@@ -158,16 +170,23 @@ const FormPaymentFake = () => {
   // Validar campo individual en tiempo real
   const validateField = (name, value) => {
     let error = '';
+    
+    console.log(`validateField called: ${name} = "${value}"`);
 
     switch (name) {
       case 'numeroTarjeta':
         const cleanNumber = value.replace(/\s/g, '');
         if (!value) {
           error = 'Número de tarjeta es requerido';
-        } else if (cleanNumber.length !== 16) {
-          error = 'Debe tener exactamente 16 dígitos';
         } else if (!/^\d+$/.test(cleanNumber)) {
           error = 'Solo números permitidos';
+        } else if (cleanNumber.length !== 16) {
+          error = 'Debe tener exactamente 16 dígitos';
+        } else {
+          // Validación adicional: verificar que no sean todos los mismos dígitos
+          if (/^(\d)\1{15}$/.test(cleanNumber)) {
+            error = 'Número de tarjeta inválido';
+          }
         }
         break;
         
@@ -176,10 +195,8 @@ const FormPaymentFake = () => {
           error = 'CVV es requerido';
         } else if (!/^\d+$/.test(value)) {
           error = 'Solo números permitidos';
-        } else if (value.length < 3) {
-          error = 'Mínimo 3 dígitos';
-        } else if (value.length > 4) {
-          error = 'Máximo 4 dígitos';
+        } else if (value.length !== 3) {
+          error = 'Debe tener exactamente 3 dígitos';
         }
         break;
         
@@ -188,12 +205,16 @@ const FormPaymentFake = () => {
           error = 'Mes es requerido';
         } else if (!/^\d+$/.test(value)) {
           error = 'Solo números permitidos';
-        } else if (parseInt(value) < 1 || parseInt(value) > 12) {
-          error = 'Mes inválido (1-12)';
+        } else {
+          const month = parseInt(value);
+          if (month < 1 || month > 12) {
+            error = 'El mes debe estar entre 1 y 12';
+          }
         }
         break;
         
       case 'anioVencimiento':
+        console.log('Validando año:', { value, type: typeof value });
         if (!value) {
           error = 'Año es requerido';
         } else if (!/^\d+$/.test(value)) {
@@ -203,23 +224,28 @@ const FormPaymentFake = () => {
         } else {
           const currentYear = new Date().getFullYear();
           const inputYear = parseInt(value);
+          console.log('Comparando años:', { currentYear, inputYear, isLess: inputYear < currentYear });
           if (inputYear < currentYear) {
-            error = 'Año no puede ser anterior al actual';
+            error = 'El año no puede ser anterior al actual (' + currentYear + ')';
+            console.log('❌ Año anterior detectado:', inputYear, '<', currentYear);
           } else if (inputYear > currentYear + 20) {
-            error = 'Año muy lejano';
+            error = 'El año no puede ser más de 20 años en el futuro';
           }
         }
+        console.log('Error del año:', error);
         break;
         
       case 'nombreTitular':
         if (!value) {
           error = 'Nombre del titular es requerido';
         } else if (value.trim().length < 2) {
-          error = 'Mínimo 2 caracteres';
+          error = 'El nombre debe tener al menos 2 caracteres';
         } else if (value.trim().length > 50) {
-          error = 'Máximo 50 caracteres';
+          error = 'El nombre no puede tener más de 50 caracteres';
         } else if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(value.trim())) {
-          error = 'Solo letras y espacios permitidos';
+          error = 'Solo se permiten letras y espacios';
+        } else if (value.trim().split(' ').length < 2) {
+          error = 'Debe incluir nombre y apellido';
         }
         break;
         
@@ -239,9 +265,11 @@ const FormPaymentFake = () => {
         if (!value) {
           error = 'Email de facturación es requerido';
         } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
-          error = 'Formato de email inválido';
+          error = 'Formato de email inválido (ejemplo: usuario@ejemplo.com)';
         } else if (value.length > 100) {
-          error = 'Máximo 100 caracteres';
+          error = 'El email no puede tener más de 100 caracteres';
+        } else if (value.includes('..') || value.startsWith('.') || value.endsWith('.')) {
+          error = 'Formato de email inválido';
         }
         break;
         
@@ -251,9 +279,11 @@ const FormPaymentFake = () => {
         } else {
           const cleanPhone = value.replace(/[^0-9]/g, '');
           if (cleanPhone.length < 7) {
-          error = 'Mínimo 7 dígitos';
+            error = 'El teléfono debe tener al menos 7 dígitos';
           } else if (cleanPhone.length > 15) {
-            error = 'Máximo 15 dígitos';
+            error = 'El teléfono no puede tener más de 15 dígitos';
+          } else if (!/^[0-9\s\(\)\-\+]+$/.test(value)) {
+            error = 'Formato de teléfono inválido';
           }
         }
         break;
@@ -334,6 +364,26 @@ const FormPaymentFake = () => {
       [name]: error
     }));
 
+    // Mostrar toasts de ayuda para ciertos campos
+    if (name === 'numeroTarjeta' && value && value.replace(/\s/g, '').length === 16) {
+      showSuccess('¡Número de tarjeta válido!', 2000);
+    } else if (name === 'cvv' && value && value.length === 3) {
+      showSuccess('¡CVV válido!', 2000);
+    } else if (name === 'anioVencimiento' && value && value.length === 4) {
+      const year = parseInt(value);
+      const currentYear = new Date().getFullYear();
+      if (year < currentYear) {
+        showError('El año no puede ser anterior al actual', 3000);
+      } else {
+        showSuccess('¡Año válido!', 2000);
+      }
+    } else if (name === 'mesVencimiento' && value) {
+      const month = parseInt(value);
+      if (month >= 1 && month <= 12) {
+        showSuccess('¡Mes válido!', 2000);
+      }
+    }
+
     // Llamar al handleChange original
     handleChange(e);
   };
@@ -375,6 +425,7 @@ const FormPaymentFake = () => {
     // Mostrar pantalla independiente de procesamiento
     setShowProcessingScreen(true);
     console.log('🔄 Mostrando pantalla independiente de procesamiento...');
+    showInfo('Procesando tu pago simulado... Por favor espera.', 2000);
     
     try {
       let itemsParaOrden;
@@ -437,7 +488,7 @@ const FormPaymentFake = () => {
     // Mostrar mensaje según el resultado
     if (result?.success) {
       console.log('✅ Pago exitoso confirmado por el servidor');
-      showSuccess('¡Pago simulado exitoso!', 4000);
+      showSuccess('¡Pago simulado exitoso! Tu orden ha sido procesada.', 4000);
     } else {
       console.log('⚠️ Error en respuesta del servidor');
       
@@ -450,7 +501,7 @@ const FormPaymentFake = () => {
         showError(result.error.message, 6000);
         return; // No continuar al paso 4 si hay error de límite
       } else {
-        showWarning('El pago se procesó. Verifica tu perfil para confirmar la compra.', 5000);
+        showWarning('El pago se procesó con advertencias. Verifica tu perfil para confirmar la compra.', 5000);
       }
     }
     
@@ -465,8 +516,10 @@ const FormPaymentFake = () => {
     try {
       await clearCart();
       console.log('✅ Carrito limpiado exitosamente');
+      showInfo('Carrito limpiado. Tu orden ha sido guardada en tu perfil.', 3000);
     } catch (err) {
       console.error('Error al limpiar carrito:', err);
+      showWarning('La orden se procesó pero hubo un problema al limpiar el carrito.', 4000);
     }
     
     // Limpiar formulario y navegar al paso 4
@@ -480,7 +533,7 @@ const FormPaymentFake = () => {
     } catch (error) {
       console.error('❌ Error en el proceso de pago:', error);
       setShowProcessingScreen(false); // Ocultar pantalla independiente en caso de error
-      showError('Error al procesar el pago. Intenta de nuevo.');
+      showError('Error al procesar el pago. Por favor, verifica tu conexión e intenta de nuevo.', 5000);
     }
   };
 
@@ -492,17 +545,21 @@ const FormPaymentFake = () => {
       console.log('⏰ Configurando timeout de 19 segundos para redirigir...');
       timeoutId = setTimeout(() => {
         console.log('⏰ Timeout ejecutado - redirigiendo al catálogo');
-        setCurrentStep(1);
-        limpiarFormulario();
-        setFieldErrors({});
-        clearCart();
+        showInfo('Redirigiendo automáticamente al catálogo...', 2000);
         
-        // Si era pago de cotización, redirigir al perfil
-        if (isQuotePayment) {
-          navigate('/perfil', { state: { activeSection: 'quotes' } });
-        } else {
-          navigate('/catalogo');
-        }
+        setTimeout(() => {
+          setCurrentStep(1);
+          limpiarFormulario();
+          setFieldErrors({});
+          clearCart();
+          
+          // Si era pago de cotización, redirigir al perfil
+          if (isQuotePayment) {
+            navigate('/perfil', { state: { activeSection: 'quotes' } });
+          } else {
+            navigate('/catalogo');
+          }
+        }, 2000); // Esperar 2 segundos para mostrar el toast
       }, 19000); // 19 segundos
     }
 
@@ -523,20 +580,56 @@ const FormPaymentFake = () => {
     switch (currentStep) {
       case 1: // Datos de tarjeta
         const cardFields = ['numeroTarjeta', 'nombreTitular', 'mesVencimiento', 'anioVencimiento', 'cvv'];
+        
+        // Verificar que todos los campos estén completos y sin errores
         cardFields.forEach(field => {
-          const error = validateField(field, formData[field] || '');
-          if (error) {
+          const value = formData[field] || '';
+          const error = validateField(field, value);
+          
+          console.log(`Validando campo ${field}:`, { value, error });
+          
+          // Verificar si el campo está vacío
+          if (!value || value.trim() === '') {
+            invalidFields.push(field);
+            isValid = false;
+          } else if (error) {
+            // Verificar si hay errores de validación
             invalidFields.push(field);
             isValid = false;
           }
         });
         
-        if (!isValid) {
+        // Validación adicional: verificar que la fecha no haya expirado
+        if (isValid && formData.mesVencimiento && formData.anioVencimiento) {
+          const currentDate = new Date();
+          const currentYear = currentDate.getFullYear();
+          const currentMonth = currentDate.getMonth() + 1;
+          const expiryYear = parseInt(formData.anioVencimiento);
+          const expiryMonth = parseInt(formData.mesVencimiento);
+          
+          console.log('Validación de fecha:', {
+            currentYear,
+            currentMonth,
+            expiryYear,
+            expiryMonth,
+            isExpired: expiryYear < currentYear || (expiryYear === currentYear && expiryMonth < currentMonth)
+          });
+          
+          if (expiryYear < currentYear) {
+            isValid = false;
+            message = `El año ${expiryYear} no puede ser anterior al actual (${currentYear})`;
+          } else if (expiryYear === currentYear && expiryMonth < currentMonth) {
+            isValid = false;
+            message = 'La tarjeta ha expirado este mes. Verifica la fecha de vencimiento.';
+          }
+        }
+        
+        if (!isValid && !message) {
           const fieldNames = {
             numeroTarjeta: 'Número de tarjeta',
             nombreTitular: 'Nombre del titular',
             mesVencimiento: 'Mes de vencimiento',
-            añoVencimiento: 'Año de vencimiento',
+            anioVencimiento: 'Año de vencimiento',
             cvv: 'CVV'
           };
           message = `Completa correctamente: ${invalidFields.map(field => fieldNames[field]).join(', ')}`;
@@ -547,9 +640,18 @@ const FormPaymentFake = () => {
         const billingFields = [
           'nombreFacturacion', 'emailFacturacion', 'telefonoFacturacion'
         ];
+        
+        // Verificar que todos los campos estén completos y sin errores
         billingFields.forEach(field => {
-          const error = validateField(field, formData[field] || '');
-          if (error) {
+          const value = formData[field] || '';
+          const error = validateField(field, value);
+          
+          // Verificar si el campo está vacío
+          if (!value || value.trim() === '') {
+            invalidFields.push(field);
+            isValid = false;
+          } else if (error) {
+            // Verificar si hay errores de validación
             invalidFields.push(field);
             isValid = false;
           }
@@ -558,18 +660,25 @@ const FormPaymentFake = () => {
         // Validar que se haya seleccionado un punto de entrega
         if (!selectedDeliveryPoint) {
           isValid = false;
-          message = 'Debes seleccionar un punto de entrega para continuar';
-        }
-        
-        if (!isValid) {
           if (invalidFields.length > 0) {
-            const fieldNames = {
-              nombreFacturacion: 'Nombre completo',
-              emailFacturacion: 'Email de facturación',
-              telefonoFacturacion: 'Teléfono'
-            };
-            message = `Completa correctamente: ${invalidFields.map(field => fieldNames[field]).join(', ')}`;
+            message = `Completa correctamente: ${invalidFields.map(field => {
+              const fieldNames = {
+                nombreFacturacion: 'Nombre completo',
+                emailFacturacion: 'Email de facturación',
+                telefonoFacturacion: 'Teléfono'
+              };
+              return fieldNames[field];
+            }).join(', ')} y selecciona un punto de entrega`;
+          } else {
+            message = 'Debes seleccionar un punto de entrega para continuar';
           }
+        } else if (!isValid) {
+          const fieldNames = {
+            nombreFacturacion: 'Nombre completo',
+            emailFacturacion: 'Email de facturación',
+            telefonoFacturacion: 'Teléfono'
+          };
+          message = `Completa correctamente: ${invalidFields.map(field => fieldNames[field]).join(', ')}`;
         }
         break;
         
@@ -585,14 +694,55 @@ const FormPaymentFake = () => {
 
   // Función para ir al siguiente paso
   const nextStep = () => {
-    if (validateCurrentStep()) {
-      setCurrentStep(prev => prev + 1);
+    console.log('=== INTENTANDO AVANZAR AL SIGUIENTE PASO ===');
+    console.log('Current step:', currentStep);
+    console.log('Form data:', formData);
+    
+    // Validar el paso actual antes de continuar
+    const isValid = validateCurrentStep();
+    
+    console.log('Validación result:', isValid);
+    
+    if (isValid) {
+      console.log('✅ Validación exitosa, avanzando...');
+      setCurrentStep(prev => {
+        const newStep = prev + 1;
+        
+        // Mostrar toasts informativos según el paso
+        if (newStep === 2) {
+          showInfo('¡Excelente! Datos de tarjeta completados. Ahora selecciona tu punto de entrega.', 3000);
+        } else if (newStep === 3) {
+          showInfo('¡Perfecto! Ahora revisa todos los datos antes de confirmar el pago.', 3000);
+        }
+        
+        return newStep;
+      });
+      // Limpiar errores de campos al avanzar exitosamente
+      setFieldErrors({});
+    } else {
+      console.log('❌ Validación falló, no se puede avanzar');
+      showWarning('Por favor, corrige los errores antes de continuar', 3000);
     }
+    // Si no es válido, validateCurrentStep ya mostró el error
   };
 
   // Función para ir al paso anterior
   const prevStep = () => {
-    setCurrentStep(prev => prev - 1);
+    console.log('=== VOLVIENDO AL PASO ANTERIOR ===');
+    console.log('Current step:', currentStep);
+    setCurrentStep(prev => {
+      const newStep = prev - 1;
+      console.log('New step:', newStep);
+      
+      // Mostrar toasts informativos al volver
+      if (newStep === 1) {
+        showInfo('Volviendo a los datos de tarjeta. Puedes modificar cualquier campo.', 2500);
+      } else if (newStep === 2) {
+        showInfo('Volviendo a selección de punto de entrega.', 2500);
+      }
+      
+      return newStep;
+    });
   };
 
   // Debug: Log del currentStep (comentado para evitar spam)
@@ -801,7 +951,7 @@ const FormPaymentFake = () => {
                     onChange={handleFieldChange}
                        className="input"
                     placeholder="123"
-                    maxLength="4"
+                    maxLength="3"
                     required
                   />
                 </div>

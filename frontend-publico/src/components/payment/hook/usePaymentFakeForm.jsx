@@ -61,13 +61,14 @@ const usePaymentFakeForm = () => {
       case 'numeroTarjeta':
         return value.replace(/\s/g, '').length >= 13 && value.replace(/\s/g, '').length <= 19;
       case 'cvv':
-        return value.length >= 3 && value.length <= 4;
+        return value.length === 3;
       case 'mesVencimiento':
         const month = parseInt(value);
         return month >= 1 && month <= 12;
       case 'anioVencimiento':
         const year = parseInt(value);
-        return year >= new Date().getFullYear() && year <= new Date().getFullYear() + 20;
+        const currentYear = new Date().getFullYear();
+        return year >= currentYear && year <= currentYear + 20;
       case 'nombreTitular':
         return value.trim().length >= 2;
       case 'nombreFacturacion':
@@ -137,26 +138,41 @@ const usePaymentFakeForm = () => {
     }
     
     if (name === 'cvv') {
-      // Solo permitir números, máximo 4 dígitos
+      // Solo permitir números, máximo 3 dígitos
       processedValue = value.replace(/\D/g, '');
-      if (processedValue.length > 4) return;
+      if (processedValue.length > 3) {
+        processedValue = processedValue.slice(0, 3);
+      }
     }
     
     if (name === 'mesVencimiento') {
       // Solo permitir números del 1 al 12
       processedValue = value.replace(/\D/g, '');
-      if (processedValue > 12) processedValue = 12;
-      if (processedValue < 1) processedValue = 1;
-      // Asegurar que sea string
-      processedValue = processedValue.toString();
+      // Permitir campo vacío
+      if (processedValue === '') {
+        processedValue = '';
+      } else {
+        const monthNum = parseInt(processedValue);
+        if (monthNum > 12) processedValue = '12';
+        else if (monthNum < 1) processedValue = '1';
+        else processedValue = monthNum.toString();
+      }
     }
     
     if (name === 'anioVencimiento') {
-      // Solo permitir números, ser menos restrictivo con el año
+      // Solo permitir números y validar año actual
       processedValue = value.replace(/\D/g, '');
-      // Solo validar que tenga 4 dígitos, no restringir por año actual
       if (processedValue.length > 4) {
         processedValue = processedValue.slice(0, 4);
+      }
+      // Validar que no sea un año muy antiguo
+      if (processedValue.length === 4) {
+        const year = parseInt(processedValue);
+        const currentYear = new Date().getFullYear();
+        if (year < currentYear) {
+          // No permitir años pasados
+          processedValue = currentYear.toString();
+        }
       }
       // Asegurar que sea string
       processedValue = processedValue.toString();
@@ -262,35 +278,61 @@ const usePaymentFakeForm = () => {
       telefonoFacturacion
     } = formData;
 
-    if (!numeroTarjeta || numeroTarjeta.replace(/\s/g, '').length < 13) {
-      return { isValid: false, message: 'Número de tarjeta inválido (mínimo 13 dígitos)' };
+    // Validación del número de tarjeta
+    if (!numeroTarjeta || numeroTarjeta.replace(/\s/g, '').length !== 16) {
+      return { isValid: false, message: 'Número de tarjeta debe tener exactamente 16 dígitos' };
     }
 
-    if (!cvv || cvv.length < 3) {
-      return { isValid: false, message: 'CVV es requerido (mínimo 3 dígitos)' };
+    // Validación del CVV
+    if (!cvv || cvv.length !== 3) {
+      return { isValid: false, message: 'CVV debe tener exactamente 3 dígitos' };
     }
 
+    // Validación del mes
     if (!mesVencimiento || mesVencimiento.trim().length === 0) {
       return { isValid: false, message: 'Mes de vencimiento es requerido' };
     }
+    const month = parseInt(mesVencimiento);
+    if (month < 1 || month > 12) {
+      return { isValid: false, message: 'Mes de vencimiento debe estar entre 1 y 12' };
+    }
 
+    // Validación del año
     if (!anioVencimiento || anioVencimiento.trim().length === 0) {
       return { isValid: false, message: 'Año de vencimiento es requerido' };
     }
+    const year = parseInt(anioVencimiento);
+    const currentYear = new Date().getFullYear();
+    if (year < currentYear) {
+      return { isValid: false, message: 'El año no puede ser anterior al actual (' + currentYear + ')' };
+    }
 
+    // Validación de la fecha completa
+    if (year === currentYear && month < new Date().getMonth() + 1) {
+      return { isValid: false, message: 'La tarjeta ha expirado' };
+    }
+
+    // Validación del nombre del titular
     if (!nombreTitular || nombreTitular.trim().length < 2) {
       return { isValid: false, message: 'Nombre del titular es requerido (mínimo 2 caracteres)' };
     }
+    if (nombreTitular.trim().split(' ').length < 2) {
+      return { isValid: false, message: 'Nombre del titular debe incluir nombre y apellido' };
+    }
 
+    // Validación del nombre de facturación
     if (!nombreFacturacion || nombreFacturacion.trim().length < 2) {
       return { isValid: false, message: 'Nombre de facturación es requerido (mínimo 2 caracteres)' };
     }
 
+    // Validación del email
     if (!emailFacturacion || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailFacturacion)) {
       return { isValid: false, message: 'Email de facturación inválido' };
     }
 
-    if (!telefonoFacturacion || telefonoFacturacion.trim().length < 7) {
+    // Validación del teléfono
+    const cleanPhone = telefonoFacturacion.replace(/[^0-9]/g, '');
+    if (!telefonoFacturacion || cleanPhone.length < 7) {
       return { isValid: false, message: 'Teléfono es requerido (mínimo 7 dígitos)' };
     }
 

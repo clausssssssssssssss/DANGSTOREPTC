@@ -111,7 +111,7 @@ html, body {
 
 .footer-bottom-content {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
   flex-wrap: wrap;
   gap: 1rem;
@@ -124,6 +124,7 @@ html, body {
   font-size: 0.85rem;
   color: #cccccc;
   margin: 0;
+  text-align: center;
 }
 
 .footer-title {

@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Heart, ShoppingCart, X, Star, TrendingUp, Plus, Check } from 'lucide-react';
+import { Heart, ShoppingCart, X, Star, TrendingUp, Plus, Check, ZoomIn } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth.jsx';
 import { useProducts } from '../components/catalog/hook/useProducts.jsx';
 import useCategories from '../hooks/useCategories.jsx';
@@ -96,6 +96,7 @@ export default function Catalogo() {
   
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [catalogLimitInfo, setCatalogLimitInfo] = useState(null);
+  const [zoomImage, setZoomImage] = useState(null);
   
   // Obtener categoría seleccionada desde los parámetros de URL
   const selectedCategory = searchParams.get('category') || '';
@@ -182,6 +183,15 @@ export default function Catalogo() {
     setSelectedProduct(null);
     // Reactivar scroll del body
     document.body.style.overflow = '';
+  };
+
+  const handleZoomImage = (e, imageUrl, productName) => {
+    e.stopPropagation();
+    setZoomImage({ url: imageUrl, name: productName });
+  };
+
+  const closeZoomImage = () => {
+    setZoomImage(null);
   };
 
   // Limpiar estilos del body cuando el componente se desmonte
@@ -362,6 +372,10 @@ export default function Catalogo() {
             <div className="popular-section-header">
               <TrendingUp className="trending-icon" size={24} />
               <h2 className="popular-section-title">Productos Populares</h2>
+              <div className="popular-badge-header">
+                <Star size={16} fill="gold" />
+                <span>Popular</span>
+              </div>
             </div>
             
             <div className="popular-products-centered">
@@ -378,10 +392,6 @@ export default function Catalogo() {
                       alt={product.name}
                       style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                     />
-                    <div className="popular-badge-overlay">
-                      <Star size={16} fill="gold" />
-                      <span>Popular</span>
-                    </div>
                     {/* Badge para productos de encargos personalizados */}
                     {product.isFromCustomOrder && (
                       <div className="custom-order-badge">
@@ -404,6 +414,13 @@ export default function Catalogo() {
                       >
                         <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
                       </svg>
+                    </button>
+                    <button
+                      className="zoom-btn"
+                      onClick={(e) => handleZoomImage(e, product.images?.[0] || '/src/assets/llavero.png', product.name)}
+                      aria-label="Ver imagen ampliada"
+                    >
+                      <ZoomIn size={18} />
                     </button>
                   </div>
                   <div className="popular-product-info">
@@ -470,6 +487,13 @@ export default function Catalogo() {
                   >
                     <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
                   </svg>
+                </button>
+                <button
+                  className="zoom-btn"
+                  onClick={(e) => handleZoomImage(e, product.images?.[0] || '/src/assets/llavero.png', product.name)}
+                  aria-label="Ver imagen ampliada"
+                >
+                  <ZoomIn size={18} />
                 </button>
                 {/* Badge para productos de encargos personalizados */}
                 {product.isFromCustomOrder && (
@@ -635,6 +659,25 @@ export default function Catalogo() {
                     </button>
                   </div>
                 </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Modal de Zoom de Imagen */}
+        {zoomImage && (
+          <div className="zoom-modal-overlay" onClick={closeZoomImage}>
+            <div className="zoom-modal-content" onClick={(e) => e.stopPropagation()}>
+              <button className="zoom-close-btn" onClick={closeZoomImage}>
+                <X size={24} />
+              </button>
+              <div className="zoom-image-container">
+                <img 
+                  src={zoomImage.url} 
+                  alt={zoomImage.name}
+                  className="zoom-image"
+                />
+                <p className="zoom-image-title">{zoomImage.name}</p>
               </div>
             </div>
           </div>

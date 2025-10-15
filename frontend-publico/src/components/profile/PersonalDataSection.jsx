@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../hooks/useAuth';
-import { User, Mail, Phone, MapPin, Edit, Save, X } from 'lucide-react';
+import { User, Mail, Phone, Edit, Save, X } from 'lucide-react';
 
 // URL del servidor local para desarrollo
 const API_BASE = 'https://dangstoreptc-production.up.railway.app/api';
@@ -9,8 +9,7 @@ const PersonalDataSection = ({ userId, showSuccess, showError }) => {
   const [personalData, setPersonalData] = useState({
     name: '',
     email: '',
-    telephone: '',
-    address: ''
+    telephone: ''
   });
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -43,8 +42,7 @@ const PersonalDataSection = ({ userId, showSuccess, showError }) => {
       setPersonalData({
         name: data.name || '',
         email: data.email || '',
-        telephone: data.telephone || '',
-        address: data.address || ''
+        telephone: data.telephone || ''
       });
       
     } catch (err) {
@@ -169,16 +167,6 @@ const PersonalDataSection = ({ userId, showSuccess, showError }) => {
           />
         </div>
         
-        <div className="form-field full-width">
-          <label className="form-label">Dirección</label>
-          <input
-            className="form-input"
-            value={personalData.address || ''}
-            disabled={!isEditing}
-            onChange={e => setPersonalData({ ...personalData, address: e.target.value })}
-            placeholder="Tu dirección completa"
-          />
-        </div>
       </div>
 
       {isEditing && (

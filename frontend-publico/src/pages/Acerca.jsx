@@ -195,10 +195,7 @@ const About = () => {
                 Llaveros de Hama Beads hechos a mano inspirados en videojuegos, anime y nostalgia.
                 Cada pieza está elaborada con precisión y cariño para capturar momentos especiales.
               </p>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '5px', marginTop: '1rem' }}>
-                <Heart size={16} color="#E91E63" fill="#E91E63" />
-                <span style={{ color: '#b0b0b0', fontSize: '0.9rem' }}>Hecho con amor en El Salvador</span>
-              </div>
+             
             </div>
 
             {/* Columna 2: Links */}
@@ -249,10 +246,6 @@ const About = () => {
           <div className="footer-bottom">
             <div className="footer-bottom-content">
               <p className="footer-copyright">© {new Date().getFullYear()} DANGSTORE. Todos los derechos reservados.</p>
-              <p className="footer-copyright">
-                <Heart size={14} color="#E91E63" fill="#E91E63" /> 
-                Creado por estudiantes del Instituto Técnico Ricaldone
-              </p>
             </div>
           </div>
         </div>

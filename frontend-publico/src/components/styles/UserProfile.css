@@ -1173,6 +1173,7 @@
 
 /* ===== BOTÓN ESTÁTICO DE TÉRMINOS Y CONDICIONES ===== */
 .terms-button-container {
+  margin-top: 20px;
   margin-bottom: 24px;
   display: flex;
   justify-content: flex-end;
@@ -2194,6 +2195,7 @@
   
   .terms-button-container {
     justify-content: center;
+    margin-top: 16px;
     margin-bottom: 20px;
   }
   

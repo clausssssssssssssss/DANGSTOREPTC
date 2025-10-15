@@ -70,8 +70,9 @@ const FormPayment = () => {
         }
       });
       
-      // Validar el CVV
-      validateField(fieldName, numericValue, { cardType });
+      // Validar el CVV - solo permitir exactamente 3 dígitos
+      const cvvValue = numericValue.slice(0, 3);
+      validateField(fieldName, cvvValue, { cardType });
     } else if (fieldName === 'mesVencimiento' || fieldName === 'anioVencimiento') {
       // Actualizar el estado primero
       handleChangeTarjeta({
@@ -151,30 +152,58 @@ const FormPayment = () => {
       
       // Verificar si algún campo está vacío
       const camposFaltantes = [];
+      const camposConError = [];
       
-      if (!numeroTarjeta || numeroTarjeta.replace(/\s/g, '').length < 13) {
+      // Validar número de tarjeta
+      if (!numeroTarjeta || numeroTarjeta.trim() === '') {
         camposFaltantes.push('número de tarjeta');
+      } else if (numeroTarjeta.replace(/\s/g, '').length < 13) {
+        camposConError.push('número de tarjeta (mínimo 13 dígitos)');
       }
       
-      if (!nombreTarjeta || nombreTarjeta.trim().length < 2) {
+      // Validar nombre del titular
+      if (!nombreTarjeta || nombreTarjeta.trim() === '') {
         camposFaltantes.push('nombre del titular');
+      } else if (nombreTarjeta.trim().length < 2) {
+        camposConError.push('nombre del titular (mínimo 2 caracteres)');
       }
       
-      if (!mesVencimiento) {
+      // Validar mes
+      if (!mesVencimiento || mesVencimiento.trim() === '') {
         camposFaltantes.push('mes de vencimiento');
+      } else {
+        const month = parseInt(mesVencimiento);
+        if (month < 1 || month > 12) {
+          camposConError.push('mes de vencimiento (1-12)');
+        }
       }
       
-      if (!anioVencimiento) {
+      // Validar año
+      if (!anioVencimiento || anioVencimiento.trim() === '') {
         camposFaltantes.push('año de vencimiento');
+      } else {
+        const year = parseInt(anioVencimiento);
+        const currentYear = new Date().getFullYear();
+        if (year < currentYear) {
+          camposConError.push('año de vencimiento (no puede ser anterior al actual)');
+        }
       }
       
-      if (!cvv || cvv.length !== 3) {
+      // Validar CVV
+      if (!cvv || cvv.trim() === '') {
         camposFaltantes.push('CVV');
+      } else if (cvv.length !== 3) {
+        camposConError.push('CVV (debe tener exactamente 3 dígitos)');
       }
       
-      // Si faltan campos, mostrar toast
+      // Mostrar mensaje de error apropiado
       if (camposFaltantes.length > 0) {
-        showError('Rellena todos los campos');
+        showError(`Completa los siguientes campos: ${camposFaltantes.join(', ')}`);
+        return false;
+      }
+      
+      if (camposConError.length > 0) {
+        showError(`Corrige los siguientes campos: ${camposConError.join(', ')}`);
         return false;
       }
       
@@ -195,7 +224,7 @@ const FormPayment = () => {
     
     if (step === 2) {
       if (!selectedDeliveryPoint) {
-        showError('Rellena todos los campos');
+        showError('Debes seleccionar un punto de entrega para continuar');
         return false;
       }
       return true;
@@ -205,13 +234,19 @@ const FormPayment = () => {
   };
 
   const continueToNextStep = () => {
-    if (validateCurrentStep()) {
+    // Validar el paso actual antes de continuar
+    const isValid = validateCurrentStep();
+    
+    if (isValid) {
       if (step === 1) {
         setStep(2);
       } else if (step === 2) {
         setStep(3);
       }
+      // Limpiar errores al avanzar exitosamente
+      clearErrors();
     }
+    // Si no es válido, validateCurrentStep ya mostró el error
   };
 
   const continueToConfirmation = () => {

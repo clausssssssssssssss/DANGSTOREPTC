@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../../hooks/useAuth.jsx';
 
-// URL del servidor en producción (Render)
+// URL del servidor en producción (Railway)
 const API_BASE = 'https://dangstoreptc-production.up.railway.app/api';
 
 export const useRatings = (productId) => {

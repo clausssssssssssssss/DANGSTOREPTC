@@ -4,7 +4,7 @@ export const config = {
   API_BASE_URL: 'http://localhost:4000/api',
   
   // URL del servidor de producción (para cuando se despliegue)
-  PRODUCTION_API_URL: 'https://dangstoreptc.onrender.com/api',
+  PRODUCTION_API_URL: 'https://dangstoreptc-production.up.railway.app/api',
   
   // Determinar qué URL usar basado en el entorno
   getApiUrl: () => {
@@ -14,7 +14,7 @@ export const config = {
     }
     
     // En producción, usar la URL de producción
-    return 'https://dangstoreptc.onrender.com/api';
+    return 'https://dangstoreptc-production.up.railway.app/api';
   }
 };
 

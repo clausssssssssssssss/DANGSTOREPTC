@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
-import { useCart } from '../context/CartContext';
+import { useCart } from '../components/cart/hook/useCart.jsx';
 import { useToast } from '../hooks/useToast';
 import usePaymentFakeForm from '../components/payment/hook/usePaymentFakeForm';
 import useStoreLimits from '../hooks/useStoreLimits';
@@ -14,7 +14,7 @@ import '../components/styles/PixelDecorations.css';
 const CarritoDeCompras = () => {
   const { user } = useAuth();
   const userId = user?.id;
-  const { cart, clearCart, updateQuantity, removeFromCart, refreshCart, loadCart } = useCart();
+  const { cart, clearCart, updateQuantity, removeFromCart, refreshCart } = useCart(userId);
   const { toasts, showSuccess, showError, showWarning, removeToast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
@@ -35,12 +35,28 @@ const CarritoDeCompras = () => {
   const [error, setError] = useState('');
   const [paidTotal, setPaidTotal] = useState(null);
 
-  // Cargar carrito cuando el usuario esté disponible
+  // Recargar carrito cuando se llegue a la página
   useEffect(() => {
-    if (userId) {
-      loadCart(userId);
+    if (userId && refreshCart) {
+     
+      refreshCart(userId); // Pasar el userId explícitamente
     }
-  }, [userId, loadCart]);
+  }, [userId, refreshCart]);
+
+  // Forzar recarga adicional cuando se llegue a la página
+  useEffect(() => {
+    const forceRefresh = async () => {
+      if (userId && refreshCart) {
+     
+        // Esperar un poco y luego recargar
+        setTimeout(async () => {
+          await refreshCart(userId);
+        }, 500);
+      }
+    };
+    
+    forceRefresh();
+  }, []); // Solo se ejecuta una vez al montar el componente
 
   const total = cart.reduce((acc, item) => {
     const price = item.product?.price || 0;

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 
-// URL del servidor en producción (Render)
+// URL del servidor en producción (Railway)
 const API_BASE = 'https://dangstoreptc-production.up.railway.app/api';
 
 function useCategories() {

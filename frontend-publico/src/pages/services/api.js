@@ -1,5 +1,5 @@
 // src/services/api.js
-// URL del servidor en producción (Render)
+// URL del servidor en producción (Railway)
 const API_URL = 'https://dangstoreptc-production.up.railway.app/api';
 
 const getAuthHeaders = () => {

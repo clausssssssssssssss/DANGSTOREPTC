@@ -46,17 +46,12 @@ const QuotesSection = ({ setHasQuotesFlag, showSuccess, showError, showWarning }
     setLoadingQuotes(true);
     setErrorQuotes('');
     
+    // Debug info
+    
     try {
-      // Agregar timeout de 15 segundos para cotizaciones
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 15000);
-      
       const res = await fetch(`${API_URL}/custom-orders/me`, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
-        signal: controller.signal
       });
-      
-      clearTimeout(timeoutId);
       
       
       if (!res.ok) throw new Error(`Status ${res.status}`);
@@ -75,8 +70,26 @@ const QuotesSection = ({ setHasQuotesFlag, showSuccess, showError, showWarning }
       
       
       
-      // Log resumido para debugging
-      console.log(`📋 Cargadas ${data.length} cotizaciones`);
+      // Mostrar todos los estados únicos que existen
+      const uniqueStatuses = [...new Set(data.map(item => item.status))];
+      console.log('Estados únicos encontrados en las cotizaciones:', uniqueStatuses);
+      console.log('Cotizaciones con detalles:', data.map(item => ({ 
+        id: item._id, 
+        status: item.status, 
+        modelType: item.modelType 
+      })));
+      
+      // Log detallado de cada cotización
+      data.forEach((quote, index) => {
+        console.log(`Cotización ${index + 1}:`, {
+          id: quote._id,
+          status: quote.status,
+          modelType: quote.modelType,
+          price: quote.price,
+          decision: quote.decision,
+          status: quote.status
+        });
+      });
 
       
 
@@ -94,18 +107,12 @@ const QuotesSection = ({ setHasQuotesFlag, showSuccess, showError, showWarning }
 
 
       setQuotes(filteredQuotes);
-      // Puntito de notificación si hay alguna 'quoted' (usando setTimeout para evitar error de React)
-      setTimeout(() => {
-        setHasQuotesFlag(filteredQuotes.some((o) => o.status === 'quoted'));
-      }, 0);
+      // Puntito de notificación si hay alguna 'quoted'
+      setHasQuotesFlag(filteredQuotes.some((o) => o.status === 'quoted'));
       
     } catch (err) {
       console.error('ERROR:', err);
-      if (err.name === 'AbortError') {
-        setErrorQuotes('Timeout: La carga de cotizaciones está tardando demasiado');
-      } else {
-        setErrorQuotes(`Error: ${err.message || err}`);
-      }
+      setErrorQuotes(`Error: ${err.message || err}`);
     } finally {
       setLoadingQuotes(false);
     }
@@ -114,10 +121,9 @@ const QuotesSection = ({ setHasQuotesFlag, showSuccess, showError, showWarning }
 
 
 const handleDecision = async (orderId, decision) => {
-  console.log('🔄 Handle decision iniciado:', { orderId, decision });
+  console.log('Handle decision:', { orderId, decision });
 
   try {
-    console.log('📤 Enviando petición al backend...');
     const res = await fetch(`${API_URL}/custom-orders/${orderId}/respond`, {
       method: 'PUT',
       headers: {
@@ -127,85 +133,48 @@ const handleDecision = async (orderId, decision) => {
       body: JSON.stringify({ decision }),
     });
 
-    console.log('📨 Respuesta HTTP:', res.status, res.statusText);
-    
     if (!res.ok) throw new Error(`Status ${res.status}`);
     const updatedOrder = await res.json();
     
-    console.log('📦 Respuesta completa del servidor:', updatedOrder);
-    console.log('🔍 ProductId encontrado:', updatedOrder.productId);
-    console.log('🔍 Data.productId:', updatedOrder.data?.productId);
+    console.log('📦 Respuesta del servidor:', updatedOrder);
 
     // Actualizar estado local
     setQuotes((q) => {
       const updatedQuotes = q.map((item) =>
         item._id === orderId ? { ...item, status: decision === 'accept' ? 'accepted' : 'rejected' } : item
       );
-      // Actualizar flag después de actualizar quotes
-      setTimeout(() => {
-        setHasQuotesFlag(updatedQuotes.some((o) => o.status === 'quoted'));
-      }, 0);
+      setHasQuotesFlag(updatedQuotes.some((o) => o.status === 'quoted'));
       return updatedQuotes;
     });
 
     if (decision === 'accept') {
-      console.log('✅ Usuario aceptó la cotización');
       showSuccess('¡Has aceptado la cotización! Agregando al carrito...');
       
       // 🔥 CAMBIO: Verificar si el backend retornó un productId
-      const productId = updatedOrder.productId || updatedOrder.data?.productId;
-      console.log('🔍 ProductId final extraído:', productId);
-      
-      if (productId) {
-        console.log('✅ Producto creado en catálogo, ID:', productId);
+      if (updatedOrder.productId) {
+        console.log('✅ Producto creado en catálogo, ID:', updatedOrder.productId);
         
-        // Agregar como producto NORMAL del catálogo con retry
+        // Agregar como producto NORMAL del catálogo
         try {
-          console.log('🛒 Llamando a addToCart con:', { productId, quantity: 1 });
+          await addToCart({
+            productId: updatedOrder.productId,
+            quantity: 1
+          });
           
-          // Intentar agregar al carrito con retry
-          let retryCount = 0;
-          const maxRetries = 3;
-          let success = false;
-          
-          while (retryCount < maxRetries && !success) {
-            try {
-              await addToCart({
-                productId: productId,
-                quantity: 1
-              });
-              success = true;
-              console.log('✅ Producto agregado al carrito exitosamente');
-            } catch (retryError) {
-              retryCount++;
-              console.log(`⚠️ Intento ${retryCount} falló:`, retryError.message);
-              
-              if (retryCount < maxRetries) {
-                console.log(`🔄 Reintentando en 2 segundos... (${retryCount}/${maxRetries})`);
-                await new Promise(resolve => setTimeout(resolve, 2000));
-              } else {
-                throw retryError;
-              }
-            }
-          }
-          
+          console.log('✅ Producto agregado al carrito como producto normal');
           showSuccess('¡Producto agregado al carrito! Redirigiendo...');
           
-          console.log('🔄 Programando redirección al carrito en 1.5 segundos...');
           setTimeout(() => {
-            console.log('🚀 Ejecutando navigate("/cart")');
             navigate('/cart');
           }, 1500);
           
         } catch (cartError) {
-          console.error('❌ Error al agregar al carrito después de todos los intentos:', cartError);
+          console.error('❌ Error al agregar al carrito:', cartError);
           showError('Error al agregar el producto al carrito: ' + cartError.message);
         }
       } else {
         // Fallback si no hay productId
         console.warn('⚠️ Backend no retornó productId');
-        console.log('📋 Respuesta completa del backend:', updatedOrder);
-        console.log('🔍 Estructura de la respuesta:', JSON.stringify(updatedOrder, null, 2));
         showError('Error: No se pudo crear el producto en el catálogo');
       }
       
@@ -213,10 +182,8 @@ const handleDecision = async (orderId, decision) => {
       showSuccess('Cotización rechazada correctamente');
     }
   } catch (err) {
-    console.error('❌ Error in handleDecision:', err);
-    console.error('❌ Error message:', err.message);
-    console.error('❌ Error stack:', err.stack);
-    showError('Error al procesar la decisión: ' + err.message);
+    console.error('Error in handleDecision:', err);
+    showError('Error al procesar la decisión');
   }
 };
   const handleDeleteQuote = (quoteId, event) => {
@@ -247,11 +214,9 @@ const handleDecision = async (orderId, decision) => {
         
         // Actualizar el flag de cotizaciones pendientes si es necesario
         const remainingQuotes = quotes.filter(quote => quote._id !== quoteToDelete);
-        setTimeout(() => {
-          if (!remainingQuotes.some(q => q.status === 'quoted')) {
-            setHasQuotesFlag(false);
-          }
-        }, 0);
+        if (!remainingQuotes.some(q => q.status === 'quoted')) {
+          setHasQuotesFlag(false);
+        }
         
         showSuccess('Cotización eliminada correctamente');
       } else {

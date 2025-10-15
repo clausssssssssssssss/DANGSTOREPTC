@@ -292,6 +292,12 @@ productController.createProductFromCustomOrder = async (customOrderId) => {
     
     const savedProduct = await newProduct.save();
     console.log('✅ Producto creado exitosamente desde encargo:', savedProduct._id);
+    console.log('📋 Producto creado:', {
+      _id: savedProduct._id,
+      nombre: savedProduct.nombre,
+      precio: savedProduct.precio,
+      originalCustomOrderId: savedProduct.originalCustomOrderId
+    });
     
     return savedProduct;
     

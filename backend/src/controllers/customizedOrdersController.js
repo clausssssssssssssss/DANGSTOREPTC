@@ -491,6 +491,13 @@ export const respondCustomOrder = async (req, res) => {
     }
 
     // 🔥 CAMBIO: Retornar el productId creado
+    console.log('📤 Enviando respuesta al frontend:', {
+      success: true,
+      message: `Orden ${decision === 'accept' ? 'aceptada' : 'rechazada'} exitosamente`,
+      productId: createdProductId,
+      isNewProduct: createdProductId !== null
+    });
+    
     res.status(200).json({
       success: true,
       message: `Orden ${decision === 'accept' ? 'aceptada' : 'rechazada'} exitosamente`,

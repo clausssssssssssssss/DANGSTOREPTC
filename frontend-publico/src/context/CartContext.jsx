@@ -188,16 +188,36 @@ export const CartProvider = ({ children }) => {
 
   const clearCart = async () => {
     try {
-      for (const item of cart) {
-        await authFetch('/cart', {
-          method: 'DELETE',
-          body: JSON.stringify({ itemId: item.product.id, type: 'product' })
-        });
+      console.log('🧹 Iniciando limpieza del carrito...');
+      
+      // Limpiar carrito local primero para mejor UX
+      setCart([]);
+      
+      // Intentar limpiar en el servidor
+      if (cart.length > 0) {
+        console.log(`🗑️ Eliminando ${cart.length} items del servidor...`);
+        
+        // Eliminar todos los items en paralelo para mejor rendimiento
+        const deletePromises = cart.map(item => 
+          authFetch('/cart', {
+            method: 'DELETE',
+            body: JSON.stringify({ 
+              itemId: item.product.id || item.product._id, 
+              type: 'product' 
+            })
+          }).catch(err => {
+            console.warn('Error eliminando item individual:', err);
+            return null; // Continuar aunque falle un item
+          })
+        );
+        
+        await Promise.allSettled(deletePromises);
+        console.log('✅ Carrito limpiado en el servidor');
       }
+      
     } catch (err) {
       console.error('Error al limpiar carrito:', err);
-    } finally {
-      setCart([]);
+      // Aunque falle en el servidor, el carrito local ya está limpio
     }
   };
 
@@ -207,17 +227,36 @@ export const CartProvider = ({ children }) => {
     }, 0);
   }, [cart]);
 
+  // ✅ Función refreshCart para recargar el carrito manualmente
+  const refreshCart = useCallback(async (userId) => {
+    if (!userId) {
+      setCart([]);
+      setLoading(false);
+      return;
+    }
+    
+    setLoading(true);
+    try {
+      await loadCart(userId);
+    } catch (error) {
+      console.error('Error refreshing cart:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, [loadCart]);
+
   const value = useMemo(() => ({
     cart,
     loading,
     loadCart,
+    refreshCart, // ✅ Nueva función exportada
     addToCart,
     addCustomToCart, // ✅ Nueva función exportada
     updateQuantity,
     removeFromCart,
     clearCart,
     getTotal
-  }), [cart, loading, getTotal]);
+  }), [cart, loading, loadCart, refreshCart, addToCart, addCustomToCart, updateQuantity, removeFromCart, clearCart, getTotal]);
 
   return (
     <CartContext.Provider value={value}>

@@ -18,24 +18,40 @@ const OrdersSection = ({ userId }) => {
     loadOrders();
   }, [userId]);
 
-  const loadOrders = () => {
+  const loadOrders = async () => {
     const token = localStorage.getItem('token');
     
-    fetch(`${API_BASE}/profile/orders`, {
+    try {
+      // Agregar timeout de 10 segundos
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000);
+      
+      const response = await fetch(`${API_BASE}/profile/orders`, {
       headers: {
-        'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${token}`
+        },
+        signal: controller.signal
+      });
+      
+      clearTimeout(timeoutId);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
-    })
-    .then(res => res.json())
-    .then(data => {
+      
+      const data = await response.json();
       setOrders(data || []);
-      setLoading(false);
-    })
-    .catch(err => {
+      
+    } catch (err) {
       console.error('Error fetching orders:', err);
+      if (err.name === 'AbortError') {
+        setError('Timeout: La carga de pedidos está tardando demasiado');
+      } else {
       setError('Error al cargar las órdenes');
+      }
+    } finally {
       setLoading(false);
-    });
+    }
   };
 
   const deleteOrder = async (orderId) => {

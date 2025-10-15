@@ -35,10 +35,15 @@ const app = express();
 
 // Configuración de CORS para permitir solicitudes desde la app móvil y frontend web
 app.use(cors({
-  origin: true, // Permitir todos los orígenes temporalmente
+  origin: [
+    'http://localhost:5173',
+    'http://localhost:3000',
+    'https://dangstoreptc-n9km.vercel.app',
+    'https://dangstoreptc-production.up.railway.app'
+  ],
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin']
 }));
 
 /** Habilita el parseo de JSON en el cuerpo de las solicitudes */
@@ -49,6 +54,28 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 /** Habilita el parseo de cookies en las solicitudes */
 app.use(cookieParser());
+
+// Middleware adicional para CORS preflight
+app.use((req, res, next) => {
+  console.log('🌐 CORS Request:', {
+    origin: req.headers.origin,
+    method: req.method,
+    path: req.path,
+    userAgent: req.headers['user-agent']?.substring(0, 50)
+  });
+  
+  res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  
+  if (req.method === 'OPTIONS') {
+    console.log('✅ CORS Preflight OK');
+    res.sendStatus(200);
+  } else {
+    next();
+  }
+});
 // Configuración de multer para subir imágenes
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {

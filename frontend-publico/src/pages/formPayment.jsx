@@ -112,7 +112,7 @@ const FormPayment = () => {
   useEffect(() => {
     const fetchDeliveryPoints = async () => {
       try {
-        const response = await fetch('http://localhost:3000/api/delivery-points');
+        const response = await fetch('https://dangstoreptc-production.up.railway.app/api/delivery-points');
         const data = await response.json();
         
         if (data.success) {

@@ -3,7 +3,7 @@ import { Package } from 'lucide-react';
 import OrderStatusDisplay from './OrderStatusDisplay';
 
 // URL del servidor
-const API_BASE = 'http://localhost:4000/api';
+const API_BASE = 'https://dangstoreptc-production.up.railway.app/api';
 
 const OrdersSection = ({ userId }) => {
   const [orders, setOrders] = useState([]);

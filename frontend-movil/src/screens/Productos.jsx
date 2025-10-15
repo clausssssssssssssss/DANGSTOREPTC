@@ -794,7 +794,7 @@ const Productos = ({ navigation }) => {
             style={ProductosStyles.stockButton}
             onPress={() => abrirModalStock(item)}
           >
-            <Ionicons name="settings-outline" size={16} color="#FFFFFF" />
+            <Ionicons name="settings-outline" size={16} color="#000000" />
           </TouchableOpacity>
           
         <TouchableOpacity 

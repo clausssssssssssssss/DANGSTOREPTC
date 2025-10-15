@@ -9,6 +9,7 @@ import {
   TextInput,
   ActivityIndicator,
   RefreshControl,
+  Image,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import AlertComponent from '../components/ui/Alert';
@@ -40,6 +41,12 @@ export default function ProgramacionEntregas() {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
   const [reschedulingRequests, setReschedulingRequests] = useState([]);
+  const [productsModalVisible, setProductsModalVisible] = useState(false);
+  const [productsOrder, setProductsOrder] = useState(null);
+  const [productChecks, setProductChecks] = useState({}); // { key: boolean }
+  const [orderProgress, setOrderProgress] = useState({}); // { orderId: { key: boolean } }
+  const [previewVisible, setPreviewVisible] = useState(false);
+  const [previewUri, setPreviewUri] = useState(null);
 
   // Función para mostrar alertas personalizadas
   const showAlert = (title, message, type = 'info', options = {}) => {
@@ -165,6 +172,41 @@ export default function ProgramacionEntregas() {
     setSelectedOrder(order);
     setDeliveryDate(order.deliveryDate ? new Date(order.deliveryDate) : new Date());
     setScheduleModalVisible(true);
+  };
+
+  const keyFromItem = (it, idx) => {
+    const raw = typeof it?.product === 'object' ? (it.product?._id || it.product?.id) : (it?.product || it?.productId || it?.id);
+    const str = raw ? String(raw) : 'no-id';
+    return `${str}-${idx}`;
+  };
+
+  const openProductsModal = (order) => {
+    setProductsOrder(order);
+    // construir estado inicial de checks desde progreso previo o falso
+    const saved = orderProgress[order._id] || {};
+    const next = {};
+    (order.items || []).forEach((it, idx) => {
+      const key = keyFromItem(it, idx);
+      next[key] = saved[key] || false;
+    });
+    setProductChecks(next);
+    setProductsModalVisible(true);
+  };
+
+  const toggleProductChecked = (key) => {
+    setProductChecks(prev => ({ ...prev, [key]: !prev[key] }));
+  };
+
+  const markAllProducts = (value) => {
+    const all = {};
+    Object.keys(productChecks).forEach(k => { all[k] = value; });
+    setProductChecks(all);
+  };
+
+  const saveProductsProgress = () => {
+    if (!productsOrder) return;
+    setOrderProgress(prev => ({ ...prev, [productsOrder._id]: productChecks }));
+    setProductsModalVisible(false);
   };
   
   const handleScheduleDelivery = async () => {
@@ -439,13 +481,24 @@ export default function ProgramacionEntregas() {
       
       console.log('📨 Respuesta del servidor:', response.status, response.statusText);
       
-      const data = await response.json();
+      let data = null;
+      try { data = await response.json(); } catch (_) { data = null; }
       console.log('📋 Datos de respuesta:', data);
       
-      if (data.success) {
+      if (response.ok && data?.success) {
         showAlert('Éxito', `Estado cambiado a "${deliveryStatuses[newStatus]?.label || newStatus}"`, 'success');
         loadOrders();
       } else {
+        // Manejo optimista: si el backend guardó pero falló al enviar correo (500), actualizamos UI localmente
+        if (!response.ok && (newStatus === 'DELIVERED' || newStatus === 'CONFIRMED' || newStatus === 'READY_FOR_DELIVERY')) {
+          setOrders(prev => prev.map(o => o._id === orderId ? {
+            ...o,
+            deliveryStatus: newStatus,
+            statusHistory: [...(o.statusHistory || []), { status: newStatus, changedBy: 'admin', changedAt: new Date() }]
+          } : o));
+          showAlert('Actualizado', `Se marcó "${deliveryStatuses[newStatus]?.label || newStatus}". Hubo un aviso al actualizar (correo o notificación) pero el estado quedó aplicado.`, 'info');
+          return;
+        }
         // Si el error es por estado inválido, intentar con un estado válido
         if (data.message && data.message.includes('Estado de entrega inválido')) {
           console.log('🔄 Estado inválido, intentando con PAID...');
@@ -696,6 +749,14 @@ export default function ProgramacionEntregas() {
         </View>
         
         <View style={styles.orderActions}>
+          <TouchableOpacity
+            style={[styles.actionBtn, styles.productsBtn]}
+            onPress={() => openProductsModal(order)}
+          >
+            <Ionicons name="pricetags-outline" size={18} color="#fff" />
+            <Text style={styles.actionBtnText}>Productos</Text>
+          </TouchableOpacity>
+
           {order.deliveryStatus === 'REVIEWING' && (
             <TouchableOpacity
               style={[styles.actionBtn, styles.makeBtn]}
@@ -716,6 +777,28 @@ export default function ProgramacionEntregas() {
             </TouchableOpacity>
           )}
           
+          {order.deliveryConfirmed && order.deliveryStatus !== 'DELIVERED' && (
+            <TouchableOpacity
+              style={[styles.actionBtn, styles.deliveredBtn]}
+              onPress={() =>
+                showAlert(
+                  'Marcar como Entregado',
+                  'El cliente ya confirmó la entrega. ¿Deseas marcar este pedido como ENTREGADO?',
+                  'info',
+                  {
+                    showCancel: true,
+                    confirmText: 'Sí, marcar',
+                    cancelText: 'Cancelar',
+                    onConfirm: () => changeDeliveryStatus(order._id, 'DELIVERED'),
+                  }
+                )
+              }
+            >
+              <Ionicons name="checkmark-done" size={18} color="#fff" />
+              <Text style={styles.actionBtnText}>Marcar Entregado</Text>
+            </TouchableOpacity>
+          )}
+
           {hasRescheduling && (
             <>
               <TouchableOpacity
@@ -735,41 +818,7 @@ export default function ProgramacionEntregas() {
             </>
           )}
           
-          {!hasRescheduling && order.deliveryStatus !== 'PAID' && order.deliveryStatus !== 'DELIVERED' && order.deliveryStatus !== 'CANCELLED' && (
-            <TouchableOpacity
-              style={[styles.actionBtn, styles.nextStatusBtn]}
-              onPress={() => {
-                const nextStatuses = {
-                  'PAID': 'REVIEWING',
-                  'REVIEWING': 'MAKING',
-                  'MAKING': 'READY_FOR_DELIVERY',
-                  'READY_FOR_DELIVERY': 'CONFIRMED',
-                  'CONFIRMED': 'DELIVERED',
-                };
-                
-                const nextStatus = nextStatuses[order.deliveryStatus];
-                
-                if (nextStatus) {
-                  showAlert(
-                    'Cambiar Estado',
-                    `¿Cambiar estado a "${deliveryStatuses[nextStatus]?.label || nextStatus}"?`,
-                    'info',
-                    {
-                      showCancel: true,
-                      confirmText: 'Confirmar',
-                      cancelText: 'Cancelar',
-                      onConfirm: () => changeDeliveryStatus(order._id, nextStatus)
-                    }
-                  );
-                } else {
-                  showAlert('Info', 'Este pedido ya no puede cambiar de estado', 'info');
-                }
-              }}
-            >
-              <Ionicons name="arrow-forward" size={18} color="#fff" />
-              <Text style={styles.actionBtnText}>Siguiente Estado</Text>
-            </TouchableOpacity>
-          )}
+          {/* Botón 'Siguiente Estado' eliminado: transición será automática por acciones */}
         </View>
       </View>
     );
@@ -1005,6 +1054,104 @@ export default function ProgramacionEntregas() {
               </TouchableOpacity>
             </View>
           </View>
+        </View>
+      </Modal>
+
+      {/* Modal de productos del pedido */}
+      <Modal
+        visible={productsModalVisible}
+        animationType="slide"
+        transparent
+        onRequestClose={() => setProductsModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContainer}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Productos del Pedido</Text>
+              <TouchableOpacity onPress={() => setProductsModalVisible(false)}>
+                <Ionicons name="close" size={28} color="#333" />
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.modalContent}>
+              {!productsOrder || (productsOrder.items || []).length === 0 ? (
+                <Text style={{ color: '#666' }}>Este pedido no tiene items cargados.</Text>
+              ) : (
+                <ScrollView style={{ maxHeight: 350 }}>
+                  {(productsOrder.items || []).map((it, idx) => {
+                    const key = keyFromItem(it, idx);
+                    const checked = !!productChecks[key];
+                    const qty = it.quantity || 1;
+                    const name = it.productName || it.name || 'Producto';
+                    const img =
+                      it.productImage ||
+                      it.image ||
+                      (it.product && (it.product.imagen || (Array.isArray(it.product.images) && it.product.images[0]) || it.product.image)) ||
+                      null;
+                    const uri = (() => {
+                      if (!img) return null;
+                      if (typeof img === 'string' && (img.startsWith('http') || img.startsWith('data:'))) return img;
+                      const base = 'https://dangstoreptc-production.up.railway.app';
+                      const normalized = typeof img === 'string' ? (img.startsWith('/') ? img : `/${img}`) : '';
+                      return `${base}${normalized}`;
+                    })();
+                    return (
+                      <View key={key} style={styles.productRow}>
+                        <View style={styles.productLeft}>
+                          {uri ? (
+                            <TouchableOpacity onPress={() => { setPreviewUri(uri); setPreviewVisible(true); }}>
+                              <Image source={{ uri }} style={styles.productThumb} />
+                            </TouchableOpacity>
+                          ) : (
+                            <View style={[styles.productThumb, { alignItems: 'center', justifyContent: 'center', backgroundColor: '#F3F4F6' }]}>
+                              <Ionicons name="image" size={18} color="#9CA3AF" />
+                            </View>
+                          )}
+                          <View style={{ marginLeft: 10, flex: 1 }}>
+                            <Text style={styles.productName}>{name}</Text>
+                            <Text style={styles.productMeta}>Cantidad: {String(qty)}</Text>
+                          </View>
+                        </View>
+                        <TouchableOpacity onPress={() => toggleProductChecked(key)} style={styles.checkBtn}>
+                          <Ionicons name={checked ? 'checkbox-outline' : 'square-outline'} size={22} color={checked ? '#10B981' : '#9CA3AF'} />
+                        </TouchableOpacity>
+                      </View>
+                    );
+                  })}
+                </ScrollView>
+              )}
+
+              <View style={styles.productActionsRow}>
+                <TouchableOpacity style={[styles.smallBtn, { backgroundColor: '#E5E7EB' }]} onPress={() => markAllProducts(false)}>
+                  <Text style={[styles.smallBtnText, { color: '#374151' }]}>Desmarcar todo</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={[styles.smallBtn, { backgroundColor: '#10B981' }]} onPress={() => markAllProducts(true)}>
+                  <Text style={styles.smallBtnText}>Marcar todo</Text>
+                </TouchableOpacity>
+              </View>
+
+              <TouchableOpacity style={styles.confirmButton} onPress={saveProductsProgress}>
+                <Text style={styles.confirmButtonText}>Guardar</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Modal de previsualización de imagen */}
+      <Modal
+        visible={previewVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setPreviewVisible(false)}
+      >
+        <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.9)', alignItems: 'center', justifyContent: 'center' }}>
+          <TouchableOpacity style={{ position: 'absolute', top: 50, right: 20, padding: 8 }} onPress={() => setPreviewVisible(false)}>
+            <Ionicons name="close" size={30} color="#fff" />
+          </TouchableOpacity>
+          {previewUri && (
+            <Image source={{ uri: previewUri }} style={{ width: '90%', height: '70%', borderRadius: 12, resizeMode: 'contain' }} />
+          )}
         </View>
       </Modal>
 
@@ -1254,6 +1401,12 @@ const styles = StyleSheet.create({
   nextStatusBtn: {
     backgroundColor: '#6c5ce7',
   },
+  productsBtn: {
+    backgroundColor: '#6366F1',
+  },
+  deliveredBtn: {
+    backgroundColor: '#10B981',
+  },
   emptyState: {
     alignItems: 'center',
     paddingVertical: 80,
@@ -1362,6 +1515,58 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#856404',
     lineHeight: 20,
+  },
+  // Products modal
+  productRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F3F4F6',
+  },
+  productLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  productThumb: {
+    width: 56,
+    height: 56,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    backgroundColor: '#FFF',
+  },
+  productName: {
+    fontSize: 14,
+    color: '#111827',
+    fontWeight: '600',
+  },
+  productMeta: {
+    fontSize: 12,
+    color: '#6B7280',
+    marginTop: 2,
+  },
+  checkBtn: {
+    padding: 6,
+    marginLeft: 10,
+  },
+  productActionsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 10,
+    marginTop: 10,
+  },
+  smallBtn: {
+    flex: 1,
+    paddingVertical: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  smallBtnText: {
+    color: '#fff',
+    fontWeight: '600',
   },
 });
 

@@ -24,7 +24,19 @@ export const inicioStyles = StyleSheet.create({
            fontSize: 18,
            color: '#A78BFA',
            textAlign: 'center',
+         },
+         greetingContainer: {
+           flexDirection: 'row',
+           justifyContent: 'center',
+           alignItems: 'center',
            width: '100%',
+           marginBottom: 20,
+         },
+         timeText: {
+           fontSize: 18,
+           color: '#A78BFA',
+           marginLeft: 10,
+           fontWeight: 'bold',
          },
   
   // Botón de notificaciones - Completamente independiente del header
@@ -39,8 +51,6 @@ export const inicioStyles = StyleSheet.create({
   bellIcon: {
     width: 45,
     height: 45,
-    backgroundColor: '#FCD34D',
-    borderRadius: 22.5,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -66,34 +76,70 @@ export const inicioStyles = StyleSheet.create({
            paddingHorizontal: 20,
            paddingTop: 0,
            position: 'relative',
+           backgroundColor: '#FFFFFF',
          },
   
   // Burbujas del fondo
   backgroundBubble: {
     position: 'absolute',
     borderRadius: 50,
-    opacity: 0.1,
+    opacity: 0.15,
+    shadowColor: '#8B5CF6',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 3,
   },
            bubble1: {
-           width: 100,
-           height: 100,
+           width: 120,
+           height: 120,
            backgroundColor: '#9281BF',
-           top: 50,
-           right: 30,
+           top: 80,
+           right: 20,
+           borderRadius: 60,
          },
          bubble2: {
-           width: 80,
-           height: 80,
+           width: 90,
+           height: 90,
            backgroundColor: '#A78BFA',
-           top: 200,
-           left: 20,
+           top: 250,
+           left: 15,
+           borderRadius: 45,
          },
          bubble3: {
-           width: 60,
-           height: 60,
+           width: 70,
+           height: 70,
            backgroundColor: '#C4B5FD',
-           top: 350,
-           right: 50,
+           top: 400,
+           right: 40,
+           borderRadius: 35,
+         },
+         bubble4: {
+           width: 85,
+           height: 85,
+           backgroundColor: '#DDD6FE',
+           top: 550,
+           left: 30,
+           borderRadius: 42.5,
+         },
+         bubble5: {
+           width: 65,
+           height: 65,
+           backgroundColor: '#E9D5FF',
+           top: 650,
+           right: 25,
+           borderRadius: 32.5,
+         },
+         bubble6: {
+           width: 75,
+           height: 75,
+           backgroundColor: '#F3E8FF',
+           top: 750,
+           left: 50,
+           borderRadius: 37.5,
          },
   
   // Widget principal - Este día
@@ -181,7 +227,7 @@ verButton: {
   },
            smallWidget: {
            flex: 1,
-           backgroundColor: '#A7F3D0',
+           backgroundColor: '#5abac3',
            borderRadius: 20,
            padding: 22,
            marginHorizontal: 8,
@@ -193,8 +239,6 @@ verButton: {
            shadowOpacity: 0.15,
            shadowRadius: 8,
            elevation: 8,
-           borderWidth: 2,
-           borderColor: 'white',
          },
            widgetTitle: {
            fontSize: 18,
@@ -257,7 +301,7 @@ verButton: {
            pendientesTitle: {
            fontSize: 22,
            fontWeight: 'bold',
-           color: 'white',
+           color: '#8B5CF6',
            marginBottom: 18,
          },
   pendientesCard: {
@@ -275,6 +319,7 @@ verButton: {
     shadowOpacity: 0.1,
     shadowRadius: 3.84,
     elevation: 5,
+    marginBottom: 12,
   },
   pendientesText: {
     fontSize: 18,
@@ -306,7 +351,7 @@ verButton: {
   limitsTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: 'white',
+    color: '#8B5CF6',
     marginBottom: 15,
     textAlign: 'center',
   },
@@ -352,8 +397,6 @@ verButton: {
   logoutIcon: {
     width: 45,
     height: 45,
-    backgroundColor: '#EF4444',
-    borderRadius: 22.5,
     justifyContent: 'center',
     alignItems: 'center',
   },

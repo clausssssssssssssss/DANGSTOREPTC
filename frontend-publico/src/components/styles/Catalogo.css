@@ -478,13 +478,13 @@
 }
 
 .add-to-cart-btn {
-  background: var(--primary-color);
-  color: white;
-  border: none;
+  background: var(--primary-color) !important;
+  color: white !important;
+  border: none !important;
   min-width: 44px;
   min-height: 44px;
   border-radius: var(--border-radius-small);
-  display: flex;
+  display: flex !important;
   align-items: center;
   justify-content: center;
   cursor: pointer;
@@ -494,6 +494,8 @@
   white-space: nowrap;
   position: relative;
   overflow: hidden;
+  visibility: visible !important;
+  opacity: 1 !important;
 }
 
 .add-to-cart-btn::before {
@@ -670,14 +672,17 @@
   background: white;
   border-radius: var(--border-radius);
   overflow: hidden;
-  box-shadow: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   transition: all 0.3s ease;
   cursor: pointer;
   border: 1px solid var(--border-color);
   width: 100%;
-  height: 400px;
+  height: 460px;
+  min-height: 460px;
+  max-height: 460px;
   display: flex;
   flex-direction: column;
+  position: relative;
 }
 
 .product-card:hover {
@@ -687,16 +692,23 @@
 
 .product-image {
   width: 100%;
-  height: 240px;
+  height: 220px;
+  min-height: 220px;
+  max-height: 220px;
   position: relative;
   overflow: hidden;
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fafafa;
 }
 
 .product-image img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
+  object-position: center;
   transition: transform 0.3s ease;
 }
 
@@ -705,25 +717,39 @@
 }
 
 .product-info {
-  padding: var(--spacing-sm);
-  flex: 1;
+  padding: 12px;
+  height: 240px;
+  min-height: 240px;
+  max-height: 240px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  gap: 0;
+  overflow: hidden;
 }
 
 .product-title {
   font-size: 1rem;
   font-weight: 600;
   color: var(--text-primary);
-  margin-bottom: var(--spacing-xs);
-  line-height: 1.3;
+  margin: 0 0 6px 0;
+  line-height: 1.4;
+  max-height: 2.8em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
 }
 
 .product-subtitle {
   font-size: 0.85rem;
   color: var(--text-secondary);
-  margin-bottom: var(--spacing-xs);
+  margin: 0 0 8px 0;
+  overflow: visible;
+  text-overflow: clip;
+  white-space: normal;
+  line-height: 1.3;
 }
 
 .product-description {
@@ -742,8 +768,10 @@
 .product-rating {
   display: flex;
   align-items: center;
-  gap: var(--spacing-xs);
-  margin-bottom: var(--spacing-sm);
+  gap: 4px;
+  margin: 6px 0;
+  height: 20px;
+  flex-shrink: 0;
 }
 
 .rating-stars-small {
@@ -757,10 +785,15 @@
 }
 
 .product-footer {
-  display: flex;
+  display: flex !important;
   justify-content: space-between;
-  align-items: center;
-  gap: var(--spacing-xs);
+  align-items: flex-end;
+  gap: 8px;
+  width: 100%;
+  margin-top: auto;
+  padding: 8px 0 0 0;
+  height: auto;
+  flex-shrink: 0;
 }
 
 .product-price {
@@ -1410,7 +1443,9 @@
   
   .popular-product-card {
     max-width: 250px;
-    height: 400px;
+    height: 460px;
+    min-height: 460px;
+    max-height: 460px;
   }
   
   .popular-product-image {
@@ -1486,7 +1521,9 @@
   .popular-product-card {
     max-width: 100%;
     width: 100%;
-    height: 400px;
+    height: 460px;
+    min-height: 460px;
+    max-height: 460px;
   }
   
   .popular-product-image {
@@ -1652,7 +1689,9 @@
   }
   
   .product-card {
-    min-height: 320px;
+    height: 460px;
+    min-height: 460px;
+    max-height: 460px;
   }
   
   /* Mejora la experiencia táctil */
@@ -1827,10 +1866,14 @@
   }
   
   .search-filter-section,
-  .action-buttons,
+  .action-buttons {
+    display: none;
+  }
+  
+  /* Mantener botones de interacción visibles */
   .favorite-btn,
   .add-to-cart-btn {
-    display: none;
+    display: flex !important;
   }
   
   .product-grid {
@@ -2518,6 +2561,7 @@ img {
   flex-direction: column;
   gap: 0.25rem;
   align-items: flex-start;
+  flex: 1;
 }
 
 .stock-indicator {
@@ -2886,4 +2930,212 @@ button[class*="zoom-btn"]:hover svg,
 .zoom-btn:hover svg {
   stroke: white !important;
   fill: none !important;
+}
+
+/* ===== ESTILOS ULTRA-ESPECÍFICOS PARA CART BUTTON ===== */
+/* Forzar visibilidad del botón del carrito */
+.product-card .add-to-cart-btn,
+.popular-product-card .add-to-cart-btn,
+button[class*="add-to-cart-btn"],
+.add-to-cart-btn {
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  background: #6c5ce7 !important;
+  background-color: #6c5ce7 !important;
+  color: white !important;
+  border: none !important;
+  min-width: 44px !important;
+  min-height: 44px !important;
+  border-radius: 8px !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  position: relative !important;
+  overflow: hidden !important;
+  flex-shrink: 0 !important;
+  padding: 8px 16px !important;
+  gap: 0.5rem !important;
+  white-space: nowrap !important;
+  transition: all 0.3s ease !important;
+  z-index: 999 !important; /* DEBUG: Z-index alto */
+}
+
+.product-card .add-to-cart-btn:hover,
+.popular-product-card .add-to-cart-btn:hover,
+button[class*="add-to-cart-btn"]:hover,
+.add-to-cart-btn:hover {
+  background: #5d4aec !important;
+  background-color: #5d4aec !important;
+  transform: translateY(-2px) scale(1.05) !important;
+  box-shadow: 0 8px 20px rgba(108, 92, 231, 0.3) !important;
+}
+
+.product-card .add-to-cart-btn:active,
+.popular-product-card .add-to-cart-btn:active,
+button[class*="add-to-cart-btn"]:active,
+.add-to-cart-btn:active {
+  transform: translateY(0) scale(0.98) !important;
+}
+
+/* Asegurar que el footer del producto muestre el botón */
+.product-card .product-footer,
+.popular-product-card .popular-product-footer {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  gap: 0.5rem !important;
+  width: 100% !important;
+  margin-top: auto !important;
+}
+
+/* Asegurar que el contenedor de precio y stock no oculte el botón */
+.product-card .price-stock-container,
+.popular-product-card .price-stock-container {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0.25rem !important;
+  align-items: flex-start !important;
+  flex: 1 !important;
+}
+
+/* ===== ESTILOS ULTRA-ESPECÍFICOS PARA GRID REGULAR ===== */
+/* Forzar visibilidad del botón en el grid de productos regulares */
+.product-grid .product-card .add-to-cart-btn,
+.product-grid .product-card button.add-to-cart-btn,
+.product-grid .product-card .product-footer .add-to-cart-btn,
+.product-grid .product-card .product-footer button.add-to-cart-btn {
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  background: #6c5ce7 !important;
+  background-color: #6c5ce7 !important;
+  color: white !important;
+  border: none !important;
+  min-width: 44px !important;
+  min-height: 44px !important;
+  border-radius: 8px !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  position: relative !important;
+  overflow: hidden !important;
+  flex-shrink: 0 !important;
+  padding: 8px 16px !important;
+  gap: 0.5rem !important;
+  white-space: nowrap !important;
+  transition: all 0.3s ease !important;
+  z-index: 999 !important;
+  width: auto !important;
+  height: auto !important;
+  margin: 0 !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  text-decoration: none !important;
+  outline: none !important;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+}
+
+/* Forzar que el SVG del icono sea visible */
+.product-grid .product-card .add-to-cart-btn svg,
+.product-grid .product-card button.add-to-cart-btn svg,
+.product-grid .product-card .product-footer .add-to-cart-btn svg,
+.product-grid .product-card .product-footer button.add-to-cart-btn svg {
+  display: inline-block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  width: 18px !important;
+  height: 18px !important;
+  color: white !important;
+  stroke: white !important;
+  fill: none !important;
+}
+
+.product-grid .product-card .product-footer,
+.product-grid .product-card .product-info .product-footer {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: flex-end !important;
+  gap: 0.5rem !important;
+  width: 100% !important;
+  margin-top: auto !important;
+  padding: 8px 0 0 0 !important;
+  position: relative !important;
+  z-index: 10 !important;
+  flex-direction: row !important;
+}
+
+.product-grid .product-card .price-stock-container,
+.product-grid .product-card .product-footer .price-stock-container {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0.25rem !important;
+  align-items: flex-start !important;
+  flex: 1 !important;
+  min-width: 0 !important;
+  justify-content: center !important;
+  align-self: center !important;
+}
+
+/* Asegurar que el contenedor del producto tenga flex */
+.product-grid .product-card .product-info {
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between !important;
+  flex: 1 !important;
+  min-height: 0 !important;
+}
+
+/* ===== ESTILO DE EMERGENCIA - MÁXIMA ESPECIFICIDAD ===== */
+/* Este estilo debe forzar la visibilidad del botón sin importar qué */
+div.product-grid div.product-card div.product-info div.product-footer button.add-to-cart-btn,
+div.product-grid div.product-card div.product-footer button.add-to-cart-btn,
+.product-grid .product-card button[class*="add-to-cart"],
+.product-grid .product-card .product-footer button {
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  background: #6c5ce7 !important;
+  background-color: #6c5ce7 !important;
+  color: white !important;
+  border: 2px solid #5a4fcf !important;
+  min-width: 44px !important;
+  min-height: 44px !important;
+  border-radius: 8px !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  position: relative !important;
+  overflow: visible !important;
+  flex-shrink: 0 !important;
+  padding: 8px !important;
+  gap: 4px !important;
+  white-space: nowrap !important;
+  transition: all 0.3s ease !important;
+  z-index: 9999 !important;
+  width: auto !important;
+  height: auto !important;
+  margin: 0 !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  text-decoration: none !important;
+  outline: none !important;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2) !important;
+  transform: none !important;
+  align-self: center !important;
+}
+
+/* Forzar el SVG */
+div.product-grid div.product-card button.add-to-cart-btn svg,
+div.product-grid div.product-card .product-footer button svg,
+.product-grid .product-card button[class*="add-to-cart"] svg {
+  display: inline-block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  width: 18px !important;
+  height: 18px !important;
+  color: white !important;
+  stroke: white !important;
+  fill: none !important;
+  stroke-width: 2 !important;
 }

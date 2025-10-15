@@ -1,10 +1,18 @@
 import { useState, useEffect } from 'react';
 
-// URLs alternativas para probar conexión
-const API_BASES = [
-  'https://dangstoreptc-production.up.railway.app/api', // Railway principal
-  'http://localhost:4000/api', // Localhost fallback
-];
+// Construir lista de endpoints según entorno
+const ENV_URL = (typeof process !== 'undefined' && process.env && process.env.EXPO_PUBLIC_API_URL)
+  ? process.env.EXPO_PUBLIC_API_URL
+  : null;
+
+// En producción (o cuando se define EXPO_PUBLIC_API_URL), solo usar ese endpoint.
+// En desarrollo sin ENV, permitir fallback a localhost.
+const API_BASES = ENV_URL
+  ? [ENV_URL]
+  : [
+      'https://dangstoreptc-production.up.railway.app/api', // Railway principal
+      'http://localhost:4000/api', // Localhost fallback (solo dev)
+    ];
 
 export function useProducts() {
   const [products, setProducts] = useState([]);
@@ -12,21 +20,31 @@ export function useProducts() {
   const [error, setError] = useState(null);
   const [currentApiBase, setCurrentApiBase] = useState('');
   const [lastStockUpdate, setLastStockUpdate] = useState(null);
+  const [isFetching, setIsFetching] = useState(false);
 
   const fetchProducts = async (apiBase) => {
     try {
+      // Evitar solicitudes en paralelo que puedan saturar o crear bucles
+      if (isFetching) return false;
+      setIsFetching(true);
       setLoading(true);
       setError(null);
       
       // Skip test para acelerar la carga
       console.log('🛍️ Cargando productos directamente desde:', `${apiBase}/products`);
-      
+
+      // Timeout de 12s para evitar que la pantalla quede "colgada"
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 12000);
+
       const response = await fetch(`${apiBase}/products`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
         },
+        signal: controller.signal,
       });
+      clearTimeout(timeoutId);
       
       if (!response.ok) {
         throw new Error(`HTTP ${response.status} ${response.statusText}`);
@@ -83,6 +101,7 @@ export function useProducts() {
       return false;
     } finally {
       setLoading(false);
+      setIsFetching(false);
     }
   };
 

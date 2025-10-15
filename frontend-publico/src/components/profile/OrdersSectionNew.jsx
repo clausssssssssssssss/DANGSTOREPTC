@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Package } from 'lucide-react';
+import { Package, Loader2 } from 'lucide-react';
 import OrderStatusDisplay from './OrderStatusDisplay';
 
 // URL del servidor
@@ -45,8 +45,19 @@ const OrdersSection = ({ userId }) => {
           </div>
         </div>
         <div className="loading-state">
-          <div className="spinner"></div>
-          <p>Cargando pedidos...</p>
+          <div className="loading-container">
+            <div className="loading-icon">
+              <Package size={48} className="loading-package-icon" />
+              <Loader2 size={24} className="animate-spin loading-spinner" />
+            </div>
+            <h4 className="loading-title">Cargando tus pedidos...</h4>
+            <p className="loading-description">Estamos obteniendo la información de tus compras</p>
+            <div className="loading-dots">
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+          </div>
         </div>
       </div>
     );

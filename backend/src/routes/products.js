@@ -62,7 +62,16 @@ router.get('/', async (req, res) => {
     console.log('🛍️ === SOLICITUD DE PRODUCTOS ===');
     console.log('📅 Timestamp:', new Date().toISOString());
     console.log('🌐 Origen:', req.get('origin') || 'Desconocido');
-    
+
+    // Responder rápido si la DB no está lista para evitar que el cliente quede esperando
+    if (mongoose.connection.readyState !== 1) {
+      console.warn('⚠️ MongoDB no está conectado (readyState:', mongoose.connection.readyState, '). Respondiendo 503.');
+      return res.status(503).json({
+        error: 'Servicio temporalmente no disponible. Intenta nuevamente en unos segundos.',
+        dbReadyState: mongoose.connection.readyState,
+      });
+    }
+
     const products = await Product.find();
     console.log('📦 Productos encontrados:', products.length);
     console.log('✅ Enviando respuesta exitosa');

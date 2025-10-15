@@ -11,6 +11,11 @@ async function main() {
     const server = app.listen(PORT, '0.0.0.0', () => {
     });
 
+    // Ajustes de timeouts para evitar 502 por proxies cuando hay latencia
+    // Mantener conexiones vivas un poco más y dar tiempo a headers
+    server.keepAliveTimeout = 65000; // 65s
+    server.headersTimeout = 66000;   // 66s
+
     // Manejo de cierre graceful
     const gracefulShutdown = (signal) => {
       console.log(`\n${signal} received. Shutting down gracefully...`);

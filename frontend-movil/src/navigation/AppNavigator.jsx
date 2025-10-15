@@ -1,12 +1,9 @@
-import React, { useContext, useState, useEffect } from 'react';
-import { View, Text } from 'react-native';
+import React, { useContext } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useNavigation } from '@react-navigation/native';
-import { TouchableOpacity } from 'react-native';
 
 // Importar pantallas
 import SplashScreen from '../components/SplashScreen';
@@ -54,53 +51,6 @@ const ConfigStack = () => (
   </Stack.Navigator>
 );
 
-// Botón de configuración para la tab bar
-const ConfigButton = ({ onPress, accessibilityState }) => {
-  const navigation = useNavigation();
-  const [isFocused, setIsFocused] = useState(false);
-
-  // Detectar si la pantalla está activa
-  useEffect(() => {
-    const unsubscribe = navigation.addListener('state', (e) => {
-      const currentRoute = navigation.getState()?.routes[navigation.getState()?.index];
-      const isConfigActive = currentRoute?.name === 'StockLimites' || currentRoute?.name === 'StockLimitesMain';
-      setIsFocused(isConfigActive);
-    });
-
-    return unsubscribe;
-  }, [navigation]);
-
-  const focused = accessibilityState?.selected;
-
-  return (
-    <TouchableOpacity 
-      onPress={() => navigation.navigate('StockLimites')} 
-      style={{ 
-        alignItems: 'center', 
-        justifyContent: 'center', 
-        flex: 1,
-        paddingVertical: 5,
-        paddingHorizontal: 1,
-      }}
-    >
-      <Ionicons 
-        name={focused ? "settings" : "settings-outline"} 
-        size={20} 
-        color={focused ? "#8B5CF6" : "#6B7280"} 
-      />
-      <Text style={{ 
-        fontSize: 10, 
-        color: focused ? "#8B5CF6" : "#6B7280", 
-        fontWeight: '600',
-        marginTop: 2,
-        textAlign: 'center',
-        lineHeight: 10,
-      }}>
-        Configuración
-      </Text>
-    </TouchableOpacity>
-  );
-};
 
 
 // Tab Navigator para la aplicación principal (después de la autenticación)
@@ -122,6 +72,8 @@ const MainTabNavigator = () => {
             iconName = focused ? 'cube' : 'cube-outline';
           } else if (route.name === 'Ventas') {
             iconName = focused ? 'trending-up' : 'trending-up-outline';
+          } else if (route.name === 'StockLimites') {
+            iconName = focused ? 'settings' : 'settings-outline';
           }
 
           if (iconName) {
@@ -146,7 +98,7 @@ const MainTabNavigator = () => {
           height: 60 + insets.bottom,
         },
         tabBarLabelStyle: {
-          fontSize: 12,
+          fontSize: 10,
           fontWeight: '600',
         },
       })}
@@ -184,7 +136,6 @@ const MainTabNavigator = () => {
         component={ConfigStack}
         options={{
           tabBarLabel: 'Configuración',
-          tabBarButton: (props) => <ConfigButton {...props} />,
         }}
       />
     </Tab.Navigator>

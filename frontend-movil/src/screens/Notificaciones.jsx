@@ -8,6 +8,7 @@ import {
   Alert,
   StatusBar,
   ActivityIndicator,
+  Image,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNotifications } from '../hooks/useNotifications.js';
@@ -298,6 +299,52 @@ const Notificaciones = ({ navigation }) => {
       }
     };
 
+    const resolveImageUrl = (path) => {
+      if (!path) return null;
+      if (typeof path !== 'string') return null;
+      if (path.startsWith('http') || path.startsWith('data:')) return path;
+      // backend base (remove trailing /api if present)
+      const base = 'https://dangstoreptc-production.up.railway.app';
+      const normalized = path.startsWith('/') ? path : `/${path}`;
+      return `${base}${normalized}`;
+    };
+
+    // Construir lista de imágenes desde diferentes posibles campos del payload
+    const collectThumbs = () => {
+      const urls = [];
+      // imageUrl directo
+      if (item?.data?.imageUrl) urls.push(item.data.imageUrl);
+      // lista plana de imageUrls
+      if (Array.isArray(item?.data?.imageUrls)) urls.push(...item.data.imageUrls);
+      // itemsPreview con image
+      if (Array.isArray(item?.data?.itemsPreview)) {
+        for (const it of item.data.itemsPreview) {
+          if (it?.image) urls.push(it.image);
+        }
+      }
+      // items con productImage
+      if (Array.isArray(item?.data?.items)) {
+        for (const it of item.data.items) {
+          if (it?.productImage) urls.push(it.productImage);
+          if (it?.image) urls.push(it.image);
+        }
+      }
+      // Limpiar, normalizar, limitar
+      const resolved = urls
+        .filter(Boolean)
+        .map(resolveImageUrl)
+        .filter(Boolean);
+      // quitar duplicados conservando orden
+      const seen = new Set();
+      const unique = [];
+      for (const u of resolved) {
+        if (!seen.has(u)) { seen.add(u); unique.push(u); }
+      }
+      return unique.slice(0, 6);
+    };
+
+    const thumbnails = collectThumbs();
+
     return (
       <TouchableOpacity
         style={[
@@ -360,6 +407,26 @@ const Notificaciones = ({ navigation }) => {
             ) : null}
           </View>
           
+          {/* Thumbnails row if there are images */}
+          {thumbnails.length > 0 && (
+            <View style={NotificacionesStyles.thumbnailsRow}>
+              {thumbnails.slice(0, 5).map((uri, idx) => (
+                <Image
+                  key={`thumb-${idx}`}
+                  source={{ uri }}
+                  style={NotificacionesStyles.thumbnailImage}
+                />
+              ))}
+              {thumbnails.length > 5 && (
+                <View style={NotificacionesStyles.thumbnailMore}>
+                  <Text style={NotificacionesStyles.thumbnailMoreText}>
+                    +{String(thumbnails.length - 5)}
+                  </Text>
+                </View>
+              )}
+            </View>
+          )}
+
           <View style={NotificacionesStyles.cardActions}>
             {!item.isRead && <View style={NotificacionesStyles.unreadDot} />}
             <TouchableOpacity

@@ -67,10 +67,10 @@ export const createCustomOrder = async (req, res) => {
               currentCount: currentCustomOrders,
               modelType: modelType
             });
-            console.log('✅ Notificación de límite de pedidos creada');
+            console.log(' Notificación de límite de pedidos creada');
           }
         } catch (notificationError) {
-          console.error('❌ Error creando notificación de límite:', notificationError);
+          console.error(' Error creando notificación de límite:', notificationError);
         }
 
         return res.status(400).json({
@@ -147,9 +147,9 @@ export const createCustomOrder = async (req, res) => {
             currentCount: newCount,
             modelType: modelType
           });
-          console.log(`⚠️ Notificación preventiva: ${newCount}/${limit} encargos personalizados`);
+          console.log(` Notificación preventiva: ${newCount}/${limit} encargos personalizados`);
         } catch (notificationError) {
-          console.error('❌ Error creando notificación preventiva:', notificationError);
+          console.error(' Error creando notificación preventiva:', notificationError);
         }
       }
     }
@@ -459,9 +459,9 @@ export const respondCustomOrder = async (req, res) => {
     // Si el cliente acepta el encargo, crear automáticamente un producto en el catálogo
     if (decision === 'accept') {
       try {
-        console.log('🎉 Cliente aceptó el encargo, creando producto en el catálogo...');
+        console.log(' Cliente aceptó el encargo, creando producto en el catálogo...');
         const newProduct = await productController.createProductFromCustomOrder(order._id);
-        console.log('✅ Producto agregado al catálogo:', newProduct._id);
+        console.log(' Producto agregado al catálogo:', newProduct._id);
         
         // Guardar el ID del producto creado
         createdProductId = newProduct._id;
@@ -472,7 +472,7 @@ export const respondCustomOrder = async (req, res) => {
         });
         
       } catch (productError) {
-        console.error('❌ Error creando producto desde encargo aceptado:', productError);
+        console.error(' Error creando producto desde encargo aceptado:', productError);
         // No fallar la respuesta si hay error creando el producto
       }
     }
@@ -490,13 +490,13 @@ export const respondCustomOrder = async (req, res) => {
       console.error('Error creando notificación de respuesta:', notificationError);
     }
 
-    // 🔥 CAMBIO: Retornar el productId creado
+    //  CAMBIO: Retornar el productId creado
     res.status(200).json({
       success: true,
       message: `Orden ${decision === 'accept' ? 'aceptada' : 'rechazada'} exitosamente`,
       data: order,
-      productId: createdProductId,           // ← NUEVO
-      isNewProduct: createdProductId !== null // ← NUEVO
+      productId: createdProductId,          
+      isNewProduct: createdProductId !== null 
     });
 
   } catch (error) {

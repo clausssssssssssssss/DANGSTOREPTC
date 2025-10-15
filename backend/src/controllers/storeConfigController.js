@@ -140,10 +140,10 @@ export const updateStoreConfig = async (req, res) => {
     const isNowActive = stockLimits?.isStockLimitActive === true;
     
     if (!config) {
-      console.log('📝 Creando nueva configuración...');
+      console.log(' Creando nueva configuración...');
       config = new StoreConfig();
     } else {
-      console.log('📝 Configuración existente encontrada');
+      console.log(' Configuración existente encontrada');
     }
     
     // Actualizar límites de pedidos
@@ -230,12 +230,12 @@ export const updateStoreConfig = async (req, res) => {
     
     await config.save();
     
-    console.log('✅ Configuración guardada exitosamente');
-    console.log('📊 Configuración final:', JSON.stringify(config.stockLimits, null, 2));
+    console.log(' Configuración guardada exitosamente');
+    console.log(' Configuración final:', JSON.stringify(config.stockLimits, null, 2));
     
     // 🔔 ENVIAR NOTIFICACIONES SI EL STOCK SE REACTIVÓ
     if (wasInactive && isNowActive) {
-      console.log('🔔 Stock reactivado - Iniciando envío de notificaciones...');
+      console.log(' Stock reactivado - Iniciando envío de notificaciones...');
       
       // No bloquear la respuesta, ejecutar en segundo plano
       setImmediate(async () => {
@@ -263,18 +263,18 @@ export const updateStoreConfig = async (req, res) => {
             // Enviar notificaciones
             const results = await sendStockAvailableNotification(userEmails, stockInfo);
             
-            console.log('✅ Notificaciones procesadas:');
+            console.log(' Notificaciones procesadas:');
             console.log(`   - Enviados: ${results.sent.length}`);
             console.log(`   - Fallidos: ${results.failed.length}`);
             
             if (results.failed.length > 0) {
-              console.log('❌ Emails fallidos:', results.failed);
+              console.log(' Emails fallidos:', results.failed);
             }
           } else {
-            console.log('⚠️ No hay clientes registrados para notificar');
+            console.log(' No hay clientes registrados para notificar');
           }
         } catch (emailError) {
-          console.error('❌ Error enviando notificaciones:', emailError);
+          console.error(' Error enviando notificaciones:', emailError);
         }
       });
     }

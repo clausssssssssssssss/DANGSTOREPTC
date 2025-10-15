@@ -278,6 +278,37 @@ const NotificacionesStyles = StyleSheet.create({
     color: '#10B981',
   },
 
+  // Thumbnails row inside notification card
+  thumbnailsRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    marginTop: 8,
+  },
+  thumbnailImage: {
+    width: 46,
+    height: 46,
+    borderRadius: 8,
+    backgroundColor: '#F3F4F6',
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+  },
+  thumbnailMore: {
+    width: 46,
+    height: 46,
+    borderRadius: 8,
+    backgroundColor: '#EEF2FF',
+    borderWidth: 1,
+    borderColor: '#E0E7FF',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  thumbnailMoreText: {
+    color: '#6366F1',
+    fontSize: 12,
+    fontWeight: '600',
+  },
+
   // Empty State
   emptyContainer: {
     flex: 1,

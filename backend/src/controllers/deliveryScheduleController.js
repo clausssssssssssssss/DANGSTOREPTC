@@ -171,9 +171,9 @@ export const scheduleDelivery = async (req, res) => {
         `
       });
       
-      console.log('✅ Email enviado exitosamente');
+      console.log(' Email enviado exitosamente');
     } else {
-      console.log('⚠️ No se pudo enviar email: usuario sin email');
+      console.log(' No se pudo enviar email: usuario sin email');
     }
     
     res.json({
@@ -202,15 +202,15 @@ export const confirmDelivery = async (req, res) => {
       .populate('deliveryPoint');
     
     if (!order) {
-      console.log('❌ Orden no encontrada:', orderId);
+      console.log(' Orden no encontrada:', orderId);
       return res.status(404).json({
         success: false,
         message: 'Orden no encontrada'
       });
     }
     
-    console.log('📦 Estado actual de la orden:', order.deliveryStatus);
-    console.log('📦 Orden completa:', {
+    console.log(' Estado actual de la orden:', order.deliveryStatus);
+    console.log(' Orden completa:', {
       _id: order._id,
       deliveryStatus: order.deliveryStatus,
       deliveryDate: order.deliveryDate,
@@ -220,7 +220,7 @@ export const confirmDelivery = async (req, res) => {
     
     // Validar que la orden esté programada
     if (order.deliveryStatus !== 'READY_FOR_DELIVERY') {
-      console.log('❌ Estado inválido para confirmación:', order.deliveryStatus);
+      console.log(' Estado inválido para confirmación:', order.deliveryStatus);
       return res.status(400).json({
         success: false,
         message: `Solo se pueden confirmar entregas programadas. Estado actual: ${order.deliveryStatus}`
@@ -229,7 +229,7 @@ export const confirmDelivery = async (req, res) => {
     
     // Validar que la orden tenga fecha de entrega
     if (!order.deliveryDate) {
-      console.log('❌ Orden sin fecha de entrega');
+      console.log(' Orden sin fecha de entrega');
       return res.status(400).json({
         success: false,
         message: 'La orden no tiene fecha de entrega programada'
@@ -237,7 +237,7 @@ export const confirmDelivery = async (req, res) => {
     }
     
     // Actualizar la orden
-    console.log('🔄 Actualizando orden...');
+    console.log(' Actualizando orden...');
     order.deliveryStatus = 'CONFIRMED';
     order.deliveryConfirmed = true;
     order.reschedulingStatus = 'NONE';
@@ -254,11 +254,11 @@ export const confirmDelivery = async (req, res) => {
       notes: 'Cliente confirmó la entrega'
     });
     
-    console.log('💾 Guardando orden en base de datos...');
+    console.log(' Guardando orden en base de datos...');
     await order.save();
-    console.log('✅ Orden guardada exitosamente');
+    console.log(' Orden guardada exitosamente');
     
-    console.log('✅ Orden actualizada exitosamente a CONFIRMED');
+    console.log(' Orden actualizada exitosamente a CONFIRMED');
     
     // Crear notificación para el admin (no crítico)
     try {
@@ -267,9 +267,9 @@ export const confirmDelivery = async (req, res) => {
         customerName: order.user?.nombre || 'Cliente',
         deliveryDate: order.deliveryDate
       });
-      console.log('📧 Notificación de confirmación enviada al admin');
+      console.log(' Notificación de confirmación enviada al admin');
     } catch (notificationError) {
-      console.error('❌ Error creando notificación (no crítico):', notificationError.message);
+      console.error(' Error creando notificación (no crítico):', notificationError.message);
       // No lanzamos el error porque la confirmación ya se completó exitosamente
     }
     
@@ -279,7 +279,7 @@ export const confirmDelivery = async (req, res) => {
       order
     });
   } catch (error) {
-    console.error('❌ ERROR DETALLADO al confirmar entrega:');
+    console.error(' ERROR DETALLADO al confirmar entrega:');
     console.error('Error message:', error.message);
     console.error('Error stack:', error.stack);
     console.error('Error name:', error.name);
@@ -487,33 +487,33 @@ export const updateDeliveryStatus = async (req, res) => {
     const { orderId } = req.params;
     const { status, notes } = req.body;
     
-    console.log('🔄 Actualizando estado de entrega:', { orderId, status, notes });
+    console.log(' Actualizando estado de entrega:', { orderId, status, notes });
     
     const validStatuses = ['PAID', 'REVIEWING', 'MAKING', 'SCHEDULED', 'CONFIRMED', 'READY_FOR_DELIVERY', 'DELIVERED', 'CANCELLED'];
     
     if (!validStatuses.includes(status)) {
-      console.log('❌ Estado inválido:', status);
+      console.log(' Estado inválido:', status);
       return res.status(400).json({
         success: false,
         message: 'Estado de entrega inválido'
       });
     }
     
-    console.log('✅ Estado válido, buscando orden...');
+    console.log(' Estado válido, buscando orden...');
     
     const order = await Order.findById(orderId)
       .populate('user', 'nombre email')
       .populate('deliveryPoint');
     
     if (!order) {
-      console.log('❌ Orden no encontrada:', orderId);
+      console.log(' Orden no encontrada:', orderId);
       return res.status(404).json({
         success: false,
         message: 'Orden no encontrada'
       });
     }
     
-    console.log('✅ Orden encontrada:', {
+    console.log(' Orden encontrada:', {
       _id: order._id,
       currentStatus: order.deliveryStatus,
       newStatus: status
@@ -527,9 +527,9 @@ export const updateDeliveryStatus = async (req, res) => {
       notes: notes || `Estado actualizado de ${previousStatus} a ${status}`
     });
     
-    console.log('💾 Guardando orden actualizada...');
+    console.log(' Guardando orden actualizada...');
     await order.save();
-    console.log('✅ Orden guardada exitosamente');
+    console.log(' Orden guardada exitosamente');
     
     // Enviar email al cliente sobre el cambio de estado
     if (order.user && order.user.email) {
@@ -555,14 +555,14 @@ export const updateDeliveryStatus = async (req, res) => {
       );
     }
     
-    console.log('📤 Enviando respuesta exitosa');
+    console.log(' Enviando respuesta exitosa');
     res.json({
       success: true,
       message: 'Estado actualizado exitosamente',
       order
     });
   } catch (error) {
-    console.error('❌ ERROR al actualizar estado:', error);
+    console.error(' ERROR al actualizar estado:', error);
     console.error('Error message:', error.message);
     console.error('Error stack:', error.stack);
     res.status(500).json({

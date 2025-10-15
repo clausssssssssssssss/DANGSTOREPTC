@@ -34,7 +34,7 @@ const checkLowStockAndNotify = async (product) => {
     const storeConfig = await storeConfigService.getStoreConfig();
     
     if (!storeConfig || !storeConfig.notifications?.lowStockEnabled) {
-      console.log('⚠️ Notificaciones de stock bajo deshabilitadas');
+      console.log(' Notificaciones de stock bajo deshabilitadas');
       return;
     }
 
@@ -42,7 +42,7 @@ const checkLowStockAndNotify = async (product) => {
     
     // Verificar si el stock está bajo
     if (product.disponibles <= lowStockThreshold && product.disponibles > 0) {
-      console.log(`📦 Stock bajo detectado para ${product.nombre}: ${product.disponibles} unidades`);
+      console.log(` Stock bajo detectado para ${product.nombre}: ${product.disponibles} unidades`);
       
       await NotificationService.createLowStockNotification({
         productId: product._id,
@@ -50,12 +50,12 @@ const checkLowStockAndNotify = async (product) => {
         available: product.disponibles
       });
       
-      console.log(`✅ Notificación de stock bajo creada para ${product.nombre}`);
+      console.log(` Notificación de stock bajo creada para ${product.nombre}`);
     }
     
     // Verificar si el stock se agotó
     if (product.disponibles === 0) {
-      console.log(`🚫 Stock agotado detectado para ${product.nombre}`);
+      console.log(` Stock agotado detectado para ${product.nombre}`);
       
       await NotificationService.createLowStockNotification({
         productId: product._id,
@@ -63,10 +63,10 @@ const checkLowStockAndNotify = async (product) => {
         available: 0
       });
       
-      console.log(`✅ Notificación de stock agotado creada para ${product.nombre}`);
+      console.log(` Notificación de stock agotado creada para ${product.nombre}`);
     }
   } catch (error) {
-    console.error('❌ Error verificando stock bajo:', error);
+    console.error(' Error verificando stock bajo:', error);
   }
 };
 
@@ -249,7 +249,7 @@ productController.deleteProduct = async (req, res) => {
  */
 productController.createProductFromCustomOrder = async (customOrderId) => {
   try {
-    console.log('🔄 Creando producto desde encargo personalizado:', customOrderId);
+    console.log(' Creando producto desde encargo personalizado:', customOrderId);
     
     // Buscar el encargo personalizado
     const customOrder = await CustomizedOrder.findById(customOrderId)
@@ -291,12 +291,12 @@ productController.createProductFromCustomOrder = async (customOrderId) => {
     });
     
     const savedProduct = await newProduct.save();
-    console.log('✅ Producto creado exitosamente desde encargo:', savedProduct._id);
+    console.log(' Producto creado exitosamente desde encargo:', savedProduct._id);
     
     return savedProduct;
     
   } catch (error) {
-    console.error('❌ Error creando producto desde encargo personalizado:', error);
+    console.error(' Error creando producto desde encargo personalizado:', error);
     throw error;
   }
 };

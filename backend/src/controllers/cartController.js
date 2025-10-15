@@ -222,24 +222,24 @@ export const updateCartItem = async (req, res) => {
       const idx = cart.customizedProducts.findIndex(p => p.item.toString() === itemId);
       
       if (idx < 0) {
-        console.error('❌ Producto personalizado no encontrado en carrito');
+        console.error(' Producto personalizado no encontrado en carrito');
         console.error('   Buscando ID:', itemId);
         console.error('   IDs disponibles:', cart.customizedProducts.map(p => p.item.toString()));
         return res.status(404).json({ message: 'Ítem personalizado no en carrito' });
       }
       
-      console.log(`✅ Producto personalizado encontrado en índice ${idx}`);
+      console.log(` Producto personalizado encontrado en índice ${idx}`);
       console.log(`   Cantidad anterior: ${cart.customizedProducts[idx].quantity}`);
       cart.customizedProducts[idx].quantity = quantity;
       console.log(`   Cantidad nueva: ${quantity}`);
       
     } else {
-      console.error('❌ Tipo inválido:', type);
+      console.error(' Tipo inválido:', type);
       return res.status(400).json({ message: 'Tipo inválido. Debe ser "product" o "custom"' });
     }
 
     await cart.save();
-    console.log('💾 Carrito guardado');
+    console.log(' Carrito guardado');
 
     // Repoblar
     cart = await Cart.findOne({ user: userId })
@@ -248,7 +248,7 @@ export const updateCartItem = async (req, res) => {
 
     cart.products = cart.products.map(normalizeCartProduct).filter(Boolean);
 
-    console.log('✅ Carrito actualizado exitosamente');
+    console.log(' Carrito actualizado exitosamente');
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
 
     return res.status(200).json({ 
@@ -258,7 +258,7 @@ export const updateCartItem = async (req, res) => {
     });
   } catch (error) {
     console.error('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    console.error('❌ Error actualizando carrito:', error);
+    console.error(' Error actualizando carrito:', error);
     console.error('Stack:', error.stack);
     console.error('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
     return res.status(500).json({ 
@@ -315,7 +315,7 @@ export const createOrder = async (req, res) => {
 
     // 🔍 LOG CRÍTICO: Ver estructura de items
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    console.log('📦 ITEMS RECIBIDOS EN createOrder:');
+    console.log(' ITEMS RECIBIDOS EN createOrder:');
     console.log(JSON.stringify(items, null, 2));
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
@@ -433,7 +433,7 @@ for (const item of items) {
   }
 }
 
-console.log('✅ Items después de expansión:', expandedItems.length);
+console.log(' Items después de expansión:', expandedItems.length);
 
     const order = new Order({
       user: userId,
@@ -456,14 +456,14 @@ console.log('✅ Items después de expansión:', expandedItems.length);
     await Customer.findByIdAndUpdate(userId, { $push: { orders: savedOrder._id } });
 
     if (wompiStatus === "COMPLETED") {
-      // 🔥 CREAR VENTAS PARA CADA ÍTEM
+      // CREAR VENTAS PARA CADA ÍTEM
       console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      console.log('🛒 INICIANDO CREACIÓN DE VENTAS');
+      console.log(' INICIANDO CREACIÓN DE VENTAS');
       console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
       
       for (const item of items) {
         try {
-          console.log('\n📋 Procesando item:', {
+          console.log('\n Procesando item:', {
             type: item.type,
             itemId: item.item,
             productId: item.product,
@@ -474,12 +474,12 @@ console.log('✅ Items después de expansión:', expandedItems.length);
           // Producto personalizado (cotización)
           if (item.type === 'custom') {
             const customOrderId = item.item || item.customOrder || item.id;
-            console.log('🎨 Buscando orden personalizada con ID:', customOrderId);
+            console.log(' Buscando orden personalizada con ID:', customOrderId);
             
             const customOrder = await CustomizedOrder.findById(customOrderId);
             
             if (customOrder) {
-              console.log('✅ Orden personalizada encontrada:', {
+              console.log(' Orden personalizada encontrada:', {
                 id: customOrder._id,
                 price: customOrder.price,
                 modelType: customOrder.modelType,
@@ -492,13 +492,13 @@ const basePrice = Number(item.price || customOrder.price || 0);
 const saleAmount = basePrice * quantity;
 
 // ✅ Asegurar que el total refleje la cantidad real
-console.log('💰 Calculando venta (producto personalizado):', {
+console.log(' Calculando venta (producto personalizado):', {
   basePrice,
   quantity,
   saleAmount
 });
               
-              console.log('💰 Calculando venta:', {
+              console.log(' Calculando venta:', {
                 itemPrice,
                 quantity: item.quantity || 1,
                 saleAmount
@@ -528,7 +528,7 @@ if (quantity > 1) {
   }
 }
               
-              console.log('✅✅✅ VENTA CREADA EXITOSAMENTE');
+              console.log(' VENTA CREADA EXITOSAMENTE');
               console.log('   ID de venta:', newSale._id);
               console.log('   Total:', saleAmount);
               console.log('   Categoría:', newSale.category);
@@ -538,10 +538,10 @@ if (quantity > 1) {
                 customOrder.status = 'completed';
                 customOrder.purchaseDate = new Date();
                 await customOrder.save();
-                console.log('✅ Orden personalizada marcada como completada');
+                console.log(' Orden personalizada marcada como completada');
               }
             } else {
-              console.error('❌❌❌ ORDEN PERSONALIZADA NO ENCONTRADA');
+              console.error(' ORDEN PERSONALIZADA NO ENCONTRADA');
               console.error('   ID buscado:', customOrderId);
             }
           }
@@ -549,12 +549,12 @@ if (quantity > 1) {
           // Producto del catálogo
           else if (item.product || item.productId) {
             const productId = item.product || item.productId;
-            console.log('📦 Buscando producto de catálogo con ID:', productId);
+            console.log(' Buscando producto de catálogo con ID:', productId);
             
             const product = await Product.findById(productId);
             
             if (product) {
-              console.log('✅ Producto encontrado:', {
+              console.log(' Producto encontrado:', {
                 id: product._id,
                 nombre: product.nombre,
                 precio: product.precio,
@@ -564,7 +564,7 @@ if (quantity > 1) {
               const itemPrice = item.price || product.precio || 0;
               const saleAmount = itemPrice * (item.quantity || 1);
               
-              console.log('💰 Calculando venta:', {
+              console.log(' Calculando venta:', {
                 itemPrice,
                 quantity: item.quantity || 1,
                 saleAmount
@@ -579,27 +579,27 @@ if (quantity > 1) {
                 date: new Date()
               });
               
-              console.log('✅✅✅ VENTA CREADA EXITOSAMENTE');
+              console.log(' VENTA CREADA EXITOSAMENTE');
               console.log('   ID de venta:', newSale._id);
               console.log('   Total:', saleAmount);
               console.log('   Categoría:', newSale.category);
             } else {
-              console.error('❌❌❌ PRODUCTO NO ENCONTRADO');
+              console.error(' PRODUCTO NO ENCONTRADO');
               console.error('   ID buscado:', productId);
             }
           } else {
-            console.warn('⚠️⚠️⚠️ ITEM SIN IDENTIFICADOR VÁLIDO');
+            console.warn(' ITEM SIN IDENTIFICADOR VÁLIDO');
             console.warn('   Item completo:', item);
           }
         } catch (saleError) {
-          console.error('❌❌❌ ERROR CREANDO VENTA');
+          console.error(' ERROR CREANDO VENTA');
           console.error('   Error:', saleError.message);
           console.error('   Stack:', saleError.stack);
         }
       }
 
       console.log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      console.log('✅ PROCESO DE VENTAS COMPLETADO');
+      console.log(' PROCESO DE VENTAS COMPLETADO');
       console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
 
       // Incrementar contador de pedidos semanales
@@ -680,11 +680,24 @@ if (quantity > 1) {
           orderId: savedOrder._id,
           customerName: customer?.name || 'Cliente',
           total: totalAmount,
-          itemsCount: items.length
+          itemsCount: items.length,
+          // Proveer previsualización de ítems con imágenes para la app móvil
+          itemsPreview: (enrichedItems || []).slice(0, 4).map((it) => ({
+            productId: it.product,
+            name: it.productName,
+            quantity: it.quantity,
+            price: it.price,
+            image: it.productImage || null,
+          })),
+          // Además, lista plana de URLs por si se desea solo renderizar imágenes
+          imageUrls: (enrichedItems || [])
+            .map((it) => it.productImage)
+            .filter(Boolean)
+            .slice(0, 6),
         });
-        console.log('✅ Notificación de compra creada:', savedOrder._id);
+        console.log(' Notificación de compra creada:', savedOrder._id);
       } catch (notificationError) {
-        console.error('❌ Error creando notificación de compra:', notificationError);
+        console.error(' Error creando notificación de compra:', notificationError);
       }
     }
 
@@ -710,7 +723,7 @@ if (quantity > 1) {
         });
       }
     } catch (mailErr) {
-      console.error('❌ ERROR ENVIANDO CORREO DE CONFIRMACIÓN:', mailErr.message);
+      console.error(' ERROR ENVIANDO CORREO DE CONFIRMACIÓN:', mailErr.message);
     }
 
     return res.status(201).json({ 

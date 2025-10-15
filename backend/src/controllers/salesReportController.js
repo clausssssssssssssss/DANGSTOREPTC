@@ -16,31 +16,30 @@ salesController.getAllSales = async (req, res) => {
 // 👇 NUEVO: Obtener las últimas 10 ventas/pedidos
 salesController.getLatestSales = async (req, res) => {
   try {
-    console.log('🔍 Intentando obtener las últimas ventas...');
+    console.log(' Intentando obtener las últimas ventas...');
     
     // Primero verifica si hay datos en la colección
     const totalCount = await SalesModel.countDocuments();
-    console.log(`📊 Total de ventas en la base: ${totalCount}`);
+    console.log(` Total de ventas en la base: ${totalCount}`);
     
     if (totalCount === 0) {
-      console.log('⚠️ No hay ventas en la base de datos');
+      console.log(' No hay ventas en la base de datos');
       return res.status(200).json([]);
     }
     
-    // 👇 AQUÍ ESTÁ EL CAMBIO IMPORTANTE
     const latestSales = await SalesModel
       .find()
-      .populate('customer', 'name email username') // 👈 Esto trae la info del cliente
+      .populate('customer', 'name email username') 
       .sort({ _id: -1 })
       .limit(10)
       .lean();
     
-    console.log(`✅ Ventas encontradas: ${latestSales.length}`);
-    console.log('📋 Primeras 2 ventas:', JSON.stringify(latestSales.slice(0, 2), null, 2));
+    console.log(` Ventas encontradas: ${latestSales.length}`);
+    console.log(' Primeras 2 ventas:', JSON.stringify(latestSales.slice(0, 2), null, 2));
     
     res.status(200).json(latestSales);
   } catch (error) {
-    console.error('❌ Error en getLatestSales:', error);
+    console.error(' Error en getLatestSales:', error);
     res.status(500).json({ 
       message: "Error al obtener las últimas ventas", 
       error: error.message 
@@ -48,18 +47,18 @@ salesController.getLatestSales = async (req, res) => {
   }
 };
 
-// 🎯 BONUS: Si también quieres agregar populate a getAllSales
+
 salesController.getAllSales = async (req, res) => {
   try {
     const sales = await SalesModel
       .find()
-      .populate('customer', 'name email username') // 👈 También aquí
+      .populate('customer', 'name email username') 
       .sort({ _id: -1 })
       .lean();
     
     res.status(200).json(sales);
   } catch (error) {
-    console.error('❌ Error en getAllSales:', error);
+    console.error(' Error en getAllSales:', error);
     res.status(500).json({ 
       message: "Error al obtener todas las ventas", 
       error: error.message 
@@ -263,10 +262,10 @@ salesController.getDashboardSummary = async (req, res) => {
       monthlyIncome: monthlyResult[0]?.total || 0
     };
 
-    console.log('📊 Dashboard summary calculado:', summary);
+    console.log(' Dashboard summary calculado:', summary);
     res.status(200).json(summary);
   } catch (error) {
-    console.error('❌ Error en getDashboardSummary:', error);
+    console.error(' Error en getDashboardSummary:', error);
     res.status(500).json({ message: "Error al obtener resumen del dashboard", error: error.message });
   }
 };

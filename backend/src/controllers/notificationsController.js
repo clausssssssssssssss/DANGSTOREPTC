@@ -132,9 +132,9 @@ export const deleteAllNotifications = async (req, res) => {
  */
 export const getUnreadCount = async (req, res) => {
   try {
-    console.log('🔔 Controller: Obteniendo conteo de no leídas...');
+    console.log(' Controller: Obteniendo conteo de no leídas...');
     const count = await NotificationService.getUnreadCount();
-    console.log('🔔 Controller: Conteo obtenido:', count);
+    console.log(' Controller: Conteo obtenido:', count);
     
     res.status(200).json({
       success: true,
@@ -142,8 +142,8 @@ export const getUnreadCount = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('❌ Error obteniendo conteo no leídas:', error);
-    console.error('❌ Stack trace:', error.stack);
+    console.error(' Error obteniendo conteo no leídas:', error);
+    console.error(' Stack trace:', error.stack);
     res.status(500).json({
       success: false,
       message: 'Error interno del servidor',

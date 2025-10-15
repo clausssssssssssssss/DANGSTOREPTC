@@ -139,8 +139,8 @@ ratingsController.createRating = async (req, res) => {
 
     // Crear notificación de rating
     try {
-      console.log('🔔 Intentando crear notificación de rating...');
-      console.log('🔔 Datos del rating:', {
+      console.log(' Intentando crear notificación de rating...');
+      console.log(' Datos del rating:', {
         productId: id_product,
         customerName: newRating.id_customer.name,
         rating: rating,
@@ -156,10 +156,10 @@ ratingsController.createRating = async (req, res) => {
         comment: comment.trim()
       });
       
-      console.log('✅ Notificación de rating creada exitosamente:', notification._id);
+      console.log(' Notificación de rating creada exitosamente:', notification._id);
     } catch (notificationError) {
-      console.error('❌ Error creando notificación de rating:', notificationError);
-      console.error('❌ Stack trace:', notificationError.stack);
+      console.error(' Error creando notificación de rating:', notificationError);
+      console.error(' Stack trace:', notificationError.stack);
     }
 
     res.status(201).json({

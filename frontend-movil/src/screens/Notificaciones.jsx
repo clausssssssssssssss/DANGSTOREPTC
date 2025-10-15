@@ -568,14 +568,6 @@ const Notificaciones = ({ navigation }) => {
         
         {/* Sección derecha */}
         <View style={NotificacionesStyles.headerRight}>
-          {safeUnreadCount > 0 && (
-            <View style={NotificacionesStyles.badgeContainer}>
-              <Text style={NotificacionesStyles.badgeText}>
-                {String(safeUnreadCount)}
-              </Text>
-            </View>
-          )}
-          
           <TouchableOpacity 
             onPress={() => setShowFilterModal(true)} 
             style={NotificacionesStyles.headerButton}

@@ -474,7 +474,7 @@ const Pendientes = ({ navigation }) => {
             </View>
 
             <View style={styles.formSection}>
-              <Text style={styles.inputLabel}>Precio (COP)</Text>
+              <Text style={styles.inputLabel}>Precio</Text>
               <TextInput
                 style={[
                   styles.priceInput,

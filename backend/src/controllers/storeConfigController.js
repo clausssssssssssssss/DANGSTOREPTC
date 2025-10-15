@@ -1,6 +1,6 @@
 import StoreConfig from '../models/StoreConfig.js';
 import Product from '../models/Product.js';
-import Customer from '../models/Customer.js';
+import Customer from '../models/Customers.js';
 import NotificationService from '../services/NotificationService.js';
 import { sendStockAvailableNotification } from '../utils/mailService.js';
 

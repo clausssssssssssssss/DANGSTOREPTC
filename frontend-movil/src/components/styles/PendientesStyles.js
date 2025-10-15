@@ -284,37 +284,42 @@ export const pendientesStyles = StyleSheet.create({
   modalActions: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    gap: 12,
+    gap: 8,
   },
   modalButton: {
     flex: 1,
-    paddingVertical: 12,
-    borderRadius: 8,
+    paddingVertical: 14,
+    paddingHorizontal: 8,
+    borderRadius: 10,
     alignItems: 'center',
+    minHeight: 48,
   },
   cancelButton: {
     backgroundColor: '#F3F4F6',
   },
   cancelButtonText: {
     color: '#6B7280',
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '600',
+    textAlign: 'center',
   },
   confirmButton: {
     backgroundColor: '#8B5CF6',
   },
   confirmButtonText: {
     color: 'white',
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '600',
+    textAlign: 'center',
   },
   rejectButton: {
     backgroundColor: '#EF4444',
   },
   rejectButtonText: {
     color: 'white',
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '600',
+    textAlign: 'center',
   },
   errorText: {
     color: '#EF4444',

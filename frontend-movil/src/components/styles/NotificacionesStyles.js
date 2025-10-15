@@ -54,7 +54,7 @@ const NotificacionesStyles = StyleSheet.create({
   },
   
   headerTitle: {
-    fontSize: 21,
+    fontSize: 19,
     fontWeight: '700',
     color: '#1F2937',
     textAlign: 'left',
@@ -64,11 +64,11 @@ const NotificacionesStyles = StyleSheet.create({
   },
   
   headerRight: {
-    width: 120,
+    width: 140,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'flex-start',
-    paddingLeft: 10,
+    justifyContent: 'flex-end',
+    paddingRight: 5,
   },
 
   backButton: {
@@ -77,8 +77,8 @@ const NotificacionesStyles = StyleSheet.create({
   },
   
   headerButton: {
-    marginLeft: 3,
-    padding: 6,
+    marginLeft: 8,
+    padding: 8,
     borderRadius: 18,
   },
   

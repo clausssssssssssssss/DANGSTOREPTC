@@ -18,6 +18,7 @@ import '../components/styles/Catalogo.css';
 import '../components/styles/Ratings.css';
 import '../components/styles/PixelDecorations.css';
 import '../components/catalog/ResponsiveCatalog.css';
+import '../components/styles/DisabledButton.css';
 
 export default function Catalogo() {
   const { user } = useAuth();
@@ -386,12 +387,10 @@ export default function Catalogo() {
         {popularProducts.length > 0 && (
           <div className="popular-products-section">
             <div className="popular-section-header">
-              <TrendingUp className="trending-icon" size={24} />
-              <h2 className="popular-section-title">Productos Populares</h2>
-              <div className="popular-badge-header">
-                <Star size={16} fill="gold" />
-                <span>Popular</span>
-              </div>
+              <h2 className="popular-section-title">
+                <Star className="title-star" size={28} fill="gold" />
+                Productos Populares
+              </h2>
             </div>
             
             <div className="popular-products-centered">
@@ -455,10 +454,20 @@ export default function Catalogo() {
                           e.stopPropagation();
                           if (getStockStatus(product).status !== 'agotado') {
                             handleAddToCart(product._id);
+                          } else {
+                            // Mostrar toast de que está agotado
+                            showWarning(`"${product.name}" está agotado. No se puede agregar al carrito.`, 4000);
                           }
                         }}
-                        aria-label="Añadir al carrito"
-                        disabled={getStockStatus(product).status === 'agotado'}
+                        aria-label={getStockStatus(product).status === 'agotado' ? 'Producto agotado' : 'Añadir al carrito'}
+                        style={getStockStatus(product).status === 'agotado' ? {
+                          background: '#d1d5db',
+                          color: '#6b7280',
+                          cursor: 'not-allowed',
+                          opacity: 0.6,
+                          border: '2px solid #9ca3af',
+                          boxShadow: 'inset 0 4px 8px rgba(0, 0, 0, 0.3)'
+                        } : {}}
                       >
                         <ShoppingCart size={18} />
                       </button>
@@ -558,10 +567,20 @@ export default function Catalogo() {
                       e.stopPropagation();
                       if (getStockStatus(product).status !== 'agotado') {
                         handleAddToCart(product._id, product.name);
+                      } else {
+                        // Mostrar toast de que está agotado
+                        showWarning(`"${product.name}" está agotado. No se puede agregar al carrito.`, 4000);
                       }
                     }}
-                    aria-label="Añadir al carrito"
-                    disabled={getStockStatus(product).status === 'agotado'}
+                    aria-label={getStockStatus(product).status === 'agotado' ? 'Producto agotado' : 'Añadir al carrito'}
+                    style={getStockStatus(product).status === 'agotado' ? {
+                      background: '#d1d5db',
+                      color: '#6b7280',
+                      cursor: 'not-allowed',
+                      opacity: 0.6,
+                      border: '2px solid #9ca3af',
+                      boxShadow: 'inset 0 4px 8px rgba(0, 0, 0, 0.3)'
+                    } : {}}
                   >
                     <ShoppingCart size={18} />
                   </button>

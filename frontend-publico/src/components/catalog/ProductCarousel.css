@@ -34,11 +34,6 @@
   gap: 0.75rem;
 }
 
-.carousel-icon {
-  color: #f39c12;
-  filter: drop-shadow(0 2px 4px rgba(243, 156, 18, 0.3));
-}
-
 .carousel-title {
   font-size: 1.75rem;
   font-weight: 700;
@@ -48,6 +43,26 @@
   background-clip: text;
   margin: 0;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.title-star {
+  color: #ffd700;
+  filter: drop-shadow(0 2px 4px rgba(255, 215, 0, 0.6));
+  animation: starPulse 2s ease-in-out infinite;
+}
+
+@keyframes starPulse {
+  0%, 100% {
+    transform: scale(1);
+    filter: drop-shadow(0 2px 4px rgba(255, 215, 0, 0.6));
+  }
+  50% {
+    transform: scale(1.1);
+    filter: drop-shadow(0 3px 6px rgba(255, 215, 0, 0.8));
+  }
 }
 
 /* ====== INDICADORES ====== */

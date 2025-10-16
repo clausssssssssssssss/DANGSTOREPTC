@@ -116,8 +116,10 @@ const ProductCarousel = ({
     >
       <div className="carousel-header">
         <div className="carousel-title-section">
-          <Star className="carousel-icon" size={24} />
-          <h2 className="carousel-title">Productos Populares</h2>
+          <h2 className="carousel-title">
+            <Star className="title-star" size={28} fill="gold" />
+            Productos Populares
+          </h2>
         </div>
         <div className="carousel-indicators">
           {Array.from({ length: maxIndex + 1 }, (_, index) => (

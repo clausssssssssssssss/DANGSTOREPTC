@@ -1,0 +1,83 @@
+/* ===== ESTILOS ULTRA-ESPECÍFICOS PARA BOTÓN DESHABILITADO ===== */
+/* Este archivo tiene máxima prioridad para forzar el estilo del botón deshabilitado */
+
+/* Selectores con máxima especificidad */
+button.add-to-cart-btn.disabled,
+.add-to-cart-btn.disabled,
+button[class*="add-to-cart-btn"][class*="disabled"],
+.popular-product-card button.add-to-cart-btn.disabled,
+.popular-product-card .add-to-cart-btn.disabled,
+.product-card button.add-to-cart-btn.disabled,
+.product-card .add-to-cart-btn.disabled {
+  background: #d1d5db !important;
+  color: #6b7280 !important;
+  cursor: not-allowed !important;
+  opacity: 0.6 !important;
+  border: 2px solid #9ca3af !important;
+  box-shadow: inset 0 4px 8px rgba(0, 0, 0, 0.3) !important;
+  position: relative !important;
+  transform: none !important;
+}
+
+/* Rayas diagonales para indicar bloqueo */
+button.add-to-cart-btn.disabled::before,
+.add-to-cart-btn.disabled::before,
+button[class*="add-to-cart-btn"][class*="disabled"]::before,
+.popular-product-card button.add-to-cart-btn.disabled::before,
+.popular-product-card .add-to-cart-btn.disabled::before,
+.product-card button.add-to-cart-btn.disabled::before,
+.product-card .add-to-cart-btn.disabled::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 4px,
+    rgba(107, 114, 128, 0.4) 4px,
+    rgba(107, 114, 128, 0.4) 8px
+  );
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Estados hover y active deshabilitados */
+button.add-to-cart-btn.disabled:hover,
+.add-to-cart-btn.disabled:hover,
+button[class*="add-to-cart-btn"][class*="disabled"]:hover,
+.popular-product-card button.add-to-cart-btn.disabled:hover,
+.popular-product-card .add-to-cart-btn.disabled:hover,
+.product-card button.add-to-cart-btn.disabled:hover,
+.product-card .add-to-cart-btn.disabled:hover {
+  background: #d1d5db !important;
+  transform: none !important;
+  box-shadow: inset 0 4px 8px rgba(0, 0, 0, 0.3) !important;
+  color: #6b7280 !important;
+}
+
+button.add-to-cart-btn.disabled:active,
+.add-to-cart-btn.disabled:active,
+button[class*="add-to-cart-btn"][class*="disabled"]:active,
+.popular-product-card button.add-to-cart-btn.disabled:active,
+.popular-product-card .add-to-cart-btn.disabled:active,
+.product-card button.add-to-cart-btn.disabled:active,
+.product-card .add-to-cart-btn.disabled:active {
+  transform: none !important;
+  background: #d1d5db !important;
+}
+
+/* Forzar que el ícono también se vea deshabilitado */
+button.add-to-cart-btn.disabled svg,
+.add-to-cart-btn.disabled svg,
+button[class*="add-to-cart-btn"][class*="disabled"] svg,
+.popular-product-card button.add-to-cart-btn.disabled svg,
+.popular-product-card .add-to-cart-btn.disabled svg,
+.product-card button.add-to-cart-btn.disabled svg,
+.product-card .add-to-cart-btn.disabled svg {
+  color: #6b7280 !important;
+  opacity: 0.6 !important;
+}

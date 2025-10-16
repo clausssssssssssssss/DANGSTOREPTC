@@ -15,7 +15,7 @@ body {
 
 /* ===== MAIN CONTAINER ===== */
 .contact-page {
-  padding: var(--spacing-lg) var(--spacing-sm);
+  padding: var(--spacing-md) var(--spacing-sm);
   padding-top: 2rem;
   background: white;
   display: flex;
@@ -25,6 +25,14 @@ body {
   position: relative;
   overflow: hidden;
   min-height: calc(100vh - 3.5rem);
+}
+
+/* Optimización para móviles */
+@media (max-width: 480px) {
+  .contact-page {
+    padding: var(--spacing-sm) 0.5rem;
+    padding-top: 1.5rem;
+  }
 }
 
 /* ===== HEADER STYLES ===== */
@@ -405,9 +413,16 @@ body {
 
 @media (max-width: 768px) {
   .contact-page {
-    padding: 2rem 1rem;
+    padding: 1.5rem 1rem;
     padding-top: 1.5rem;
     justify-content: flex-start;
+  }
+  
+  .contact-container {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    padding: 1.5rem;
+    border-radius: 1.5rem;
   }
   
   .contact-header {

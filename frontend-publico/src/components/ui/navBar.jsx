@@ -218,10 +218,45 @@ export default function NavBar() {
         </div>
 
         <div className="mobile-nav-links">
-          <Link to="/catalogo" className="mobile-nav-link" onClick={closeMobileMenu}>
-            <Grid3X3 className="mobile-nav-icon" size={20} />
-            Catálogo de Productos
-          </Link>
+          {/* Catálogo con submenú desplegable */}
+          <div className="mobile-nav-dropdown">
+            <button 
+              className="mobile-nav-link mobile-nav-dropdown-toggle"
+              onClick={() => setIsCategoriesDropdownOpen(!isCategoriesDropdownOpen)}
+            >
+              <Grid3X3 className="mobile-nav-icon" size={20} />
+              Catálogo de Productos
+              <ChevronDown 
+                className={`mobile-dropdown-arrow ${isCategoriesDropdownOpen ? 'open' : ''}`} 
+                size={16} 
+              />
+            </button>
+            
+            {/* Submenú de categorías */}
+            <div className={`mobile-categories-dropdown ${isCategoriesDropdownOpen ? 'open' : ''}`}>
+              <button 
+                className="mobile-category-item"
+                onClick={() => {
+                  navigate('/catalogo');
+                  closeMobileMenu();
+                }}
+              >
+                Todas las categorías
+              </button>
+              {categories.map(category => (
+                <button
+                  key={category._id}
+                  className="mobile-category-item"
+                  onClick={() => {
+                    navigate(`/catalogo?category=${encodeURIComponent(category.name)}`);
+                    closeMobileMenu();
+                  }}
+                >
+                  {category.name}
+                </button>
+              ))}
+            </div>
+          </div>
 
           <Link to="/encargo" className="mobile-nav-link" onClick={closeMobileMenu}>
             <Package className="mobile-nav-icon" size={20} />

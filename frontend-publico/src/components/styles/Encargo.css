@@ -15,7 +15,7 @@ body {
 /* ===== MAIN CONTAINER ===== */
 .encargo-container {
   min-height: 100vh;
-  padding: var(--spacing-lg) var(--spacing-sm);
+  padding: var(--spacing-md) var(--spacing-sm);
   padding-top: 2rem;
   background: white; /* Mantener fondo blanco original */
   display: flex;
@@ -24,6 +24,14 @@ body {
   align-items: center;
   position: relative;
   overflow: hidden;
+}
+
+/* Optimización para móviles */
+@media (max-width: 480px) {
+  .encargo-container {
+    padding: var(--spacing-sm) 0.5rem;
+    padding-top: 1.5rem;
+  }
 }
 
 /* Decorative elements */

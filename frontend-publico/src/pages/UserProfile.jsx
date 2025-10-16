@@ -162,22 +162,43 @@ const UserProfile = () => {
   return (
     <div className="user-profile-container" style={{ position: 'relative' }}>
       {/* Mobile Header */}
-      <div className="mobile-header">
+      <div className="mobile-profile-header">
         <button 
-          className="mobile-menu-toggle"
+          className="mobile-menu-btn"
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
         >
-          {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+          <Menu size={20} />
+          <span>Menú</span>
         </button>
-        <h2>Mi Perfil</h2>
-        <div className="mobile-user-avatar">
-          <User size={24} />
+        <div className="user-info">
+          <div className="user-avatar">
+            {user?.name?.charAt(0).toUpperCase() || 'U'}
+          </div>
+          <div>
+            <div className="user-name">{user?.name || 'Usuario'}</div>
+            <div className="user-email">{user?.email || ''}</div>
+          </div>
         </div>
       </div>
 
+      {/* Overlay para cerrar el sidebar en móviles */}
+      {isMobileMenuOpen && (
+        <div 
+          className={`sidebar-overlay ${isMobileMenuOpen ? 'open' : ''}`}
+          onClick={() => setIsMobileMenuOpen(false)}
+        />
+      )}
+
       <div className="profile-layout">
         {/* Sidebar */}
-        <aside className={`profile-sidebar ${isMobileMenuOpen ? 'mobile-open' : ''}`}>
+        <aside className={`profile-sidebar ${isMobileMenuOpen ? 'open' : ''}`}>
+          <button 
+            className="sidebar-close-btn"
+            onClick={() => setIsMobileMenuOpen(false)}
+            aria-label="Cerrar menú"
+          >
+            <X size={20} />
+          </button>
           <div className="sidebar-content">
             <UserSection />
             <nav className="profile-navigation">

@@ -22,6 +22,7 @@
   --gradient-secondary: linear-gradient(135deg, #4DD0E1, #BA68C8);
 }
 
+
 /* Estructura principal */
 .user-profile-container {
   min-height: 100vh;
@@ -152,6 +153,57 @@
   font-size: 1.125rem;
 }
 
+/* ==== FIX TEMPORAL - FORZAR SIDEBAR MÓVIL ==== */
+@media (max-width: 768px) {
+  .profile-sidebar {
+    position: fixed !important;
+    top: 0 !important;
+    left: -100% !important;
+    width: 85% !important;
+    max-width: 320px !important;
+    height: 100vh !important;
+    background: white !important;
+    z-index: 1001 !important;
+    transition: left 0.3s ease !important;
+    overflow-y: auto !important;
+    transform: none !important;
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+  
+  .profile-sidebar.open {
+    left: 0 !important;
+  }
+  
+  .sidebar-overlay {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    background: rgba(0, 0, 0, 0.6) !important;
+    z-index: 1000 !important;
+    display: block !important;
+  }
+
+  .sidebar-content {
+    display: flex !important;
+    flex-direction: column !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
+
+  .profile-navigation {
+    display: flex !important;
+    flex-direction: column !important;
+  }
+
+  .nav-button {
+    display: flex !important;
+  }
+}
+
 /* Optimización para móviles - Sidebar como overlay */
 @media (max-width: 768px) {
   .mobile-profile-header {
@@ -161,13 +213,14 @@
   }
   
   .profile-sidebar {
-    width: 100%;
+    width: 85%; /* 🔥 CAMBIO: Era 100%, ahora 85% */
+    max-width: 320px; /* 🔥 AGREGADO: Limita el ancho máximo */
     height: 100vh;
     position: fixed;
     top: 0;
     left: -100%;
     transform: translateX(0);
-    z-index: 1000;
+    z-index: 1001; /* 🔥 CAMBIO: Era 1000, ahora 1001 para estar sobre el overlay */
     transition: left 0.3s ease;
     box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
   }
@@ -177,23 +230,7 @@
   }
   
   /* Overlay para cerrar el sidebar */
-  .sidebar-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: 999;
-    opacity: 0;
-    visibility: hidden;
-    transition: all 0.3s ease;
-  }
-  
-  .sidebar-overlay.open {
-    opacity: 1;
-    visibility: visible;
-  }
+
 }
 
 .sidebar-content {
@@ -3363,5 +3400,127 @@
   .btn-cancel,
   .btn-submit {
     width: 100%;
+  }
+}
+
+/* Estilos para móvil del sidebar */
+@media (max-width: 768px) {
+  .profile-sidebar {
+    position: fixed;
+    top: 0;
+    left: -100%; /* Oculto por defecto */
+    width: 280px;
+    height: 100vh;
+    background: white;
+    z-index: 1000;
+    transition: left 0.3s ease;
+    overflow-y: auto;
+  }
+  
+  .profile-sidebar.open {
+    left: 0; /* Visible cuando tiene clase 'open' */
+  }
+  
+  .sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+  }
+  
+  .sidebar-overlay.open {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  
+  .sidebar-close-btn {
+    display: block;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+  }
+}
+
+/* CSS CRÍTICO para el menú móvil */
+
+@media (max-width: 768px) {
+  /* Sidebar oculto por defecto */
+  .profile-sidebar {
+    position: fixed;
+    top: 0;
+    left: -100%; /* Comienza fuera de la pantalla */
+    width: 85%; /* O 280px fijo */
+    max-width: 320px;
+    height: 100vh;
+    background: white;
+    z-index: 1001; /* MÁS ALTO que el overlay */
+    transition: left 0.3s ease-in-out;
+    overflow-y: auto;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Sidebar visible cuando está abierto */
+  .profile-sidebar.open {
+    left: 0; /* Se desliza hacia adentro */
+  }
+  
+  /* Overlay oscuro detrás */
+  .sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 1000; /* MENOR que el sidebar */
+    display: none;
+  }
+  
+  .sidebar-overlay.open {
+    display: block;
+  }
+  
+  /* Botón de cerrar dentro del sidebar */
+  .sidebar-close-btn {
+    display: block;
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    z-index: 10;
+    color: #333;
+  }
+  
+  .sidebar-close-btn:hover {
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 4px;
+  }
+}
+
+/* Para pantallas grandes, ocultar elementos móviles */
+@media (min-width: 769px) {
+  .sidebar-overlay {
+    display: none;
+  }
+  
+  .sidebar-close-btn {
+    display: none;
+  }
+  
+  .mobile-profile-header {
+    display: none;
   }
 }

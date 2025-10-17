@@ -33,10 +33,22 @@ const UserProfile = () => {
   useEffect(() => {
     if (location.state?.activeSection) {
       setActiveSection(location.state.activeSection);
-      // Limpiar el estado para que no persista en futuras navegaciones
       navigate(location.pathname, { replace: true, state: {} });
     }
   }, [location.state, navigate, location.pathname]);
+
+  // Prevenir scroll del body cuando el menú móvil está abierto
+  useEffect(() => {
+    if (isMobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isMobileMenuOpen]);
 
   // Carga inicial: revisa si hay cotizaciones con status "quoted"
   useEffect(() => {
@@ -48,12 +60,9 @@ const UserProfile = () => {
         if (!res.ok) return;
         const response = await res.json();
         
-        // La API devuelve { success: true, data: [...] }
         const data = response.data;
         
-        // Verificar que data sea un array antes de usar .some()
         if (Array.isArray(data)) {
-          // Solo mostrar notificación si hay cotizaciones pendientes de decisión
           if (data.some(o => o.status === 'quoted')) {
             setHasQuotesFlag(true);
           } else {
@@ -81,8 +90,46 @@ const UserProfile = () => {
 
   const handleSectionChange = (section) => {
     setActiveSection(section);
-    setIsMobileMenuOpen(false); // Cerrar menú móvil al seleccionar una sección
+    setIsMobileMenuOpen(false);
   };
+
+  // Estilos inline para FORZAR la funcionalidad del menú móvil
+  const sidebarStyle = window.innerWidth <= 768 ? {
+    position: 'fixed',
+    top: 0,
+    left: isMobileMenuOpen ? 0 : '-100%',
+    width: '85%',
+    maxWidth: '320px',
+    height: '100vh',
+    background: 'white',
+    zIndex: 1001,
+    transition: 'left 0.3s ease-in-out',
+    overflowY: 'auto',
+    boxShadow: '2px 0 10px rgba(0, 0, 0, 0.1)',
+    backdropFilter: 'blur(10px)'
+  } : {};
+
+  const overlayStyle = {
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    width: '100vw',
+    height: '100vh',
+    background: 'rgba(0, 0, 0, 0.6)',
+    zIndex: 1000,
+    display: isMobileMenuOpen ? 'block' : 'none',
+    pointerEvents: isMobileMenuOpen ? 'auto' : 'none'
+  };
+
+  // Debug: ver qué está pasando
+  console.log('Estado menú:', {
+    isMobileMenuOpen,
+    sidebarLeft: sidebarStyle.left,
+    overlayDisplay: overlayStyle.display,
+    windowWidth: window.innerWidth
+  });
 
   if (!user) {
     return (
@@ -164,11 +211,15 @@ const UserProfile = () => {
       {/* Mobile Header */}
       <div className="mobile-profile-header">
         <button 
-          className="mobile-menu-btn"
-          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          className={`mobile-menu-btn ${isMobileMenuOpen ? 'active' : ''}`}
+          onClick={() => {
+            console.log('Menú clickeado, estado actual:', isMobileMenuOpen);
+            setIsMobileMenuOpen(!isMobileMenuOpen);
+          }}
+          aria-label="Toggle menu"
         >
-          <Menu size={20} />
-          <span>Menú</span>
+          {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+          <span>{isMobileMenuOpen ? 'Cerrar' : 'Menú'}</span>
         </button>
         <div className="user-info">
           <div className="user-avatar">
@@ -182,22 +233,34 @@ const UserProfile = () => {
       </div>
 
       {/* Overlay para cerrar el sidebar en móviles */}
-      {isMobileMenuOpen && (
-        <div 
-          className={`sidebar-overlay ${isMobileMenuOpen ? 'open' : ''}`}
-          onClick={() => setIsMobileMenuOpen(false)}
-        />
-      )}
+      <div 
+        style={overlayStyle}
+        onClick={() => setIsMobileMenuOpen(false)}
+      />
 
       <div className="profile-layout">
-        {/* Sidebar */}
-        <aside className={`profile-sidebar ${isMobileMenuOpen ? 'open' : ''}`}>
+        {/* Sidebar con estilos inline para garantizar funcionamiento */}
+        <aside 
+          className={`profile-sidebar ${isMobileMenuOpen ? 'open' : ''}`}
+          style={sidebarStyle}
+        >
           <button 
             className="sidebar-close-btn"
             onClick={() => setIsMobileMenuOpen(false)}
             aria-label="Cerrar menú"
+            style={{
+              display: 'block',
+              position: 'absolute',
+              top: '15px',
+              right: '15px',
+              background: 'transparent',
+              border: 'none',
+              cursor: 'pointer',
+              padding: '8px',
+              zIndex: 10
+            }}
           >
-            <X size={20} />
+            <X size={24} />
           </button>
           <div className="sidebar-content">
             <UserSection />

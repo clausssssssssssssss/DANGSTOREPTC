@@ -32,15 +32,22 @@ export function useProducts() {
         },
       });
       
-      console.log('📨 Respuesta del servidor:', response.status, response.statusText);
+      // Solo loggear en desarrollo y cuando sea necesario
+      if (process.env.NODE_ENV === 'development') {
+        console.log('📨 Respuesta del servidor:', response.status, response.statusText);
+      }
       
       if (!response.ok) {
         throw new Error(`Error ${response.status}: ${response.statusText}`);
       }
       
       const data = await response.json();
-      console.log('📦 Datos recibidos:', data);
-      console.log('📊 Cantidad de productos:', data.length);
+      
+      // Solo loggear datos en desarrollo y evitar logs repetitivos
+      if (process.env.NODE_ENV === 'development') {
+        console.log('📦 Datos recibidos:', data);
+        console.log('📊 Cantidad de productos:', data.length);
+      }
       
       // Transformar los datos del backend al formato esperado por el frontend
       const transformedProducts = data.map(product => {
@@ -87,7 +94,11 @@ export function useProducts() {
       
       setProducts(transformedProducts);
       setLastUpdate(new Date().toISOString());
-      console.log('✅ Productos cargados exitosamente:', transformedProducts.length);
+      
+      // Solo loggear éxito en desarrollo
+      if (process.env.NODE_ENV === 'development') {
+        console.log('✅ Productos cargados exitosamente:', transformedProducts.length);
+      }
     } catch (err) {
       console.error('❌ Error al obtener productos:', err.message);
       console.error('❌ Error completo:', err);

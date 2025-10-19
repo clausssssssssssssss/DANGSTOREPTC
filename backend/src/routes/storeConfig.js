@@ -12,7 +12,10 @@ import {
   getLowStockProducts,
   resetWeeklyCounters,
   setOrderLimitActive,
-  setWeeklyMaxOrders
+  setWeeklyMaxOrders,
+  resetOrderCounters,
+  resetOrderCountersSimple,
+  fixLimitsEndpoint
 } from '../controllers/storeConfigController.js';
 
 const router = Router();
@@ -49,6 +52,25 @@ router.post(
   '/reset-week',
   authMiddleware(['admin']),
   resetWeeklyCounters
+);
+
+// Resetear contadores de pedidos semanales (admin) - Solución para límites incorrectos
+router.post(
+  '/reset-order-counters',
+  authMiddleware(['admin']),
+  resetOrderCounters
+);
+
+// Resetear contadores simple (público) - Para resolver el problema de límite de 64
+router.post(
+  '/reset-counters-simple',
+  resetOrderCountersSimple
+);
+
+// Arreglar límites de pedidos (público) - Solución directa para el problema
+router.post(
+  '/fix-limits',
+  fixLimitsEndpoint
 );
 
 // Activar/desactivar límite semanal (admin)

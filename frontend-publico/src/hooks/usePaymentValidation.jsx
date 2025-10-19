@@ -137,14 +137,13 @@ export const usePaymentValidation = () => {
       return 'El teléfono es requerido';
     }
     
-    const phoneRegex = /^[\d\s\-\+\(\)]+$/;
-    if (!phoneRegex.test(phone)) {
-      return 'El formato del teléfono no es válido';
+    const cleanPhone = phone.replace(/\D/g, '');
+    if (cleanPhone.length !== 8) {
+      return 'El teléfono debe tener exactamente 8 dígitos (formato salvadoreño)';
     }
     
-    const cleanPhone = phone.replace(/\D/g, '');
-    if (cleanPhone.length < 7 || cleanPhone.length > 15) {
-      return 'El teléfono debe tener entre 7 y 15 dígitos';
+    if (!/^[0-9]+$/.test(cleanPhone)) {
+      return 'Solo se permiten números';
     }
     
     return null;

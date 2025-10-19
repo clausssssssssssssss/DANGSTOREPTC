@@ -354,14 +354,18 @@ export const createOrder = async (req, res) => {
         }
       }
       
-      // Verificar límite general de pedidos
-      if (!canAcceptGeneral) {
-        return res.status(400).json({
-          success: false,
-          message: `Lo sentimos, hemos alcanzado el límite máximo de ${config.orderLimits.weeklyMaxOrders} pedidos semanales. Por favor, intenta nuevamente la próxima semana.`,
-          code: 'ORDER_LIMIT_REACHED'
-        });
-      }
+      // TEMPORAL: Desactivar verificación de límite general de pedidos
+      // TODO: Resetear contadores en la base de datos
+      console.log('⚠️ Límite de pedidos temporalmente desactivado para resolver problema de 64 pedidos');
+      
+      // Verificar límite general de pedidos (DESACTIVADO TEMPORALMENTE)
+      // if (!canAcceptGeneral) {
+      //   return res.status(400).json({
+      //     success: false,
+      //     message: `Lo sentimos, hemos alcanzado el límite máximo de ${config.orderLimits.weeklyMaxOrders} pedidos semanales. Por favor, intenta nuevamente la próxima semana.`,
+      //     code: 'ORDER_LIMIT_REACHED'
+      //   });
+      // }
     }
 
 

@@ -787,3 +787,216 @@ export const checkCatalogLimit = async (req, res) => {
     });
   }
 };
+
+/**
+ * Resetear contadores de pedidos semanales
+ * Endpoint para administradores para resolver problemas de límites
+ */
+export const resetOrderCounters = async (req, res) => {
+  try {
+    console.log('🔄 Reseteando contadores de pedidos...');
+    
+    const config = await StoreConfig.findOne();
+    
+    if (!config) {
+      return res.status(404).json({
+        success: false,
+        message: 'No se encontró configuración de tienda'
+      });
+    }
+    
+    // Mostrar configuración antes del reseteo
+    const beforeReset = {
+      weeklyMaxOrders: config.orderLimits.weeklyMaxOrders,
+      currentWeekOrders: config.orderLimits.currentWeekOrders,
+      catalogMaxStock: config.stockLimits.catalog.defaultMaxStock,
+      catalogCurrentSales: config.stockLimits.catalog.currentWeekSales,
+      customOrdersMaxStock: config.stockLimits.customOrders.defaultMaxStock,
+      customOrdersCurrent: config.stockLimits.customOrders.currentWeekOrders,
+      weekStartDate: config.orderLimits.weekStartDate
+    };
+    
+    console.log('📊 Configuración antes del reseteo:', beforeReset);
+    
+    // Resetear contadores
+    const now = new Date();
+    config.orderLimits.currentWeekOrders = 0;
+    config.stockLimits.catalog.currentWeekSales = 0;
+    config.stockLimits.customOrders.currentWeekOrders = 0;
+    config.orderLimits.weekStartDate = now;
+    
+    // Ajustar límites si están muy altos
+    if (config.orderLimits.weeklyMaxOrders > 50) {
+      console.log('🔧 Ajustando límite semanal de pedidos a 15');
+      config.orderLimits.weeklyMaxOrders = 15;
+    }
+    
+    if (config.stockLimits.catalog.defaultMaxStock > 30) {
+      console.log('🔧 Ajustando límite del catálogo a 10');
+      config.stockLimits.catalog.defaultMaxStock = 10;
+    }
+    
+    if (config.stockLimits.customOrders.defaultMaxStock > 40) {
+      console.log('🔧 Ajustando límite de pedidos personalizados a 20');
+      config.stockLimits.customOrders.defaultMaxStock = 20;
+    }
+    
+    await config.save();
+    
+    const afterReset = {
+      weeklyMaxOrders: config.orderLimits.weeklyMaxOrders,
+      currentWeekOrders: config.orderLimits.currentWeekOrders,
+      catalogMaxStock: config.stockLimits.catalog.defaultMaxStock,
+      catalogCurrentSales: config.stockLimits.catalog.currentWeekSales,
+      customOrdersMaxStock: config.stockLimits.customOrders.defaultMaxStock,
+      customOrdersCurrent: config.stockLimits.customOrders.currentWeekOrders,
+      weekStartDate: config.orderLimits.weekStartDate
+    };
+    
+    console.log('📊 Configuración después del reseteo:', afterReset);
+    
+    res.status(200).json({
+      success: true,
+      message: 'Contadores de pedidos reseteados exitosamente',
+      beforeReset,
+      afterReset
+    });
+    
+  } catch (error) {
+    console.error('Error reseteando contadores:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error interno del servidor'
+    });
+  }
+};
+
+/**
+ * Resetear contadores de pedidos - Endpoint simple para resolver el problema de límite de 64
+ */
+/**
+ * Endpoint simple para arreglar el límite de 64 pedidos
+ */
+export const fixLimitsEndpoint = async (req, res) => {
+  try {
+    console.log('🔧 Arreglando límites de pedidos...');
+    
+    const config = await StoreConfig.findOne();
+    
+    if (!config) {
+      return res.status(404).json({
+        success: false,
+        message: 'No se encontró configuración de tienda'
+      });
+    }
+    
+    // Mostrar configuración antes
+    console.log('📊 Configuración antes:');
+    console.log('- Límite semanal:', config.orderLimits?.weeklyMaxOrders);
+    console.log('- Pedidos actuales:', config.orderLimits?.currentWeekOrders);
+    
+    // Actualizar límites
+    config.orderLimits.currentWeekOrders = 0;
+    config.orderLimits.weeklyMaxOrders = 15;
+    config.orderLimits.weekStartDate = new Date();
+    config.stockLimits.catalog.currentWeekSales = 0;
+    config.stockLimits.catalog.defaultMaxStock = 10;
+    config.stockLimits.customOrders.currentWeekOrders = 0;
+    config.stockLimits.customOrders.defaultMaxStock = 20;
+    
+    await config.save();
+    
+    console.log('✅ Límites arreglados exitosamente');
+    
+    res.status(200).json({
+      success: true,
+      message: 'Límites de pedidos arreglados exitosamente',
+      before: {
+        weeklyMaxOrders: config.orderLimits.weeklyMaxOrders,
+        currentWeekOrders: config.orderLimits.currentWeekOrders
+      },
+      after: {
+        weeklyMaxOrders: 15,
+        currentWeekOrders: 0
+      }
+    });
+    
+  } catch (error) {
+    console.error('Error arreglando límites:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error interno del servidor'
+    });
+  }
+};
+
+export const resetOrderCountersSimple = async (req, res) => {
+  try {
+    console.log('🔄 Reseteando contadores de pedidos...');
+    
+    const config = await StoreConfig.findOne();
+    
+    if (!config) {
+      // Crear nueva configuración con valores por defecto
+      const newConfig = new StoreConfig({
+        orderLimits: {
+          currentWeekOrders: 0,
+          weeklyMaxOrders: 15,
+          weekStartDate: new Date()
+        },
+        stockLimits: {
+          catalog: {
+            currentWeekSales: 0,
+            defaultMaxStock: 10
+          },
+          customOrders: {
+            currentWeekOrders: 0,
+            defaultMaxStock: 20
+          }
+        }
+      });
+      
+      await newConfig.save();
+      console.log('✅ Nueva configuración creada con valores por defecto');
+      
+      return res.status(200).json({
+        success: true,
+        message: 'Configuración creada y contadores reseteados',
+        config: newConfig
+      });
+    }
+    
+    // Resetear contadores existentes
+    config.orderLimits.currentWeekOrders = 0;
+    config.orderLimits.weeklyMaxOrders = 15;
+    config.orderLimits.weekStartDate = new Date();
+    config.stockLimits.catalog.currentWeekSales = 0;
+    config.stockLimits.catalog.defaultMaxStock = 10;
+    config.stockLimits.customOrders.currentWeekOrders = 0;
+    config.stockLimits.customOrders.defaultMaxStock = 20;
+    
+    await config.save();
+    
+    console.log('✅ Contadores reseteados exitosamente');
+    
+    res.status(200).json({
+      success: true,
+      message: 'Contadores de pedidos reseteados exitosamente',
+      config: {
+        weeklyMaxOrders: config.orderLimits.weeklyMaxOrders,
+        currentWeekOrders: config.orderLimits.currentWeekOrders,
+        catalogMaxStock: config.stockLimits.catalog.defaultMaxStock,
+        catalogCurrentSales: config.stockLimits.catalog.currentWeekSales,
+        customOrdersMaxStock: config.stockLimits.customOrders.defaultMaxStock,
+        customOrdersCurrent: config.stockLimits.customOrders.currentWeekOrders
+      }
+    });
+    
+  } catch (error) {
+    console.error('Error reseteando contadores:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error interno del servidor'
+    });
+  }
+};

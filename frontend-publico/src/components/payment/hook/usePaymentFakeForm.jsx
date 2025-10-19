@@ -86,7 +86,8 @@ const usePaymentFakeForm = () => {
       case 'paisFacturacion':
         return value.trim().length >= 2;
       case 'telefonoFacturacion':
-        return value.trim().length >= 7;
+        const cleanPhone = value.replace(/[^0-9]/g, '');
+        return cleanPhone.length === 8;
       default:
         return true;
     }

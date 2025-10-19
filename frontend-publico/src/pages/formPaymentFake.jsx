@@ -169,7 +169,10 @@ const FormPaymentFake = () => {
   const validateField = (name, value) => {
     let error = '';
     
-    console.log(`validateField called: ${name} = "${value}"`);
+    // Solo loggear en desarrollo y para campos específicos
+    if (process.env.NODE_ENV === 'development' && name === 'numeroTarjeta' && value.length % 4 === 0) {
+      console.log(`validateField called: ${name} = "${value}"`);
+    }
 
     switch (name) {
       case 'numeroTarjeta':
@@ -276,12 +279,10 @@ const FormPaymentFake = () => {
           error = 'Teléfono es requerido';
         } else {
           const cleanPhone = value.replace(/[^0-9]/g, '');
-          if (cleanPhone.length < 7) {
-            error = 'El teléfono debe tener al menos 7 dígitos';
-          } else if (cleanPhone.length > 15) {
-            error = 'El teléfono no puede tener más de 15 dígitos';
-          } else if (!/^[0-9\s\(\)\-\+]+$/.test(value)) {
-            error = 'Formato de teléfono inválido';
+          if (cleanPhone.length !== 8) {
+            error = 'El teléfono debe tener exactamente 8 dígitos (formato salvadoreño)';
+          } else if (!/^[0-9]+$/.test(cleanPhone)) {
+            error = 'Solo se permiten números';
           }
         }
         break;
@@ -1026,7 +1027,8 @@ const FormPaymentFake = () => {
                   onChange={handleFieldChange} 
                   type="tel" 
                   label="Teléfono" 
-                  placeholder="+1 (555) 123-4567" 
+                  placeholder="1234-5678" 
+                  maxLength="8"
                   required 
                 />
               </div>
